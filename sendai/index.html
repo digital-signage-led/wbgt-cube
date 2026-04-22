@@ -2,82 +2,279 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>WBGT Signage</title>
+    <title>WBGT Signage - Sendai</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", sans-serif; }
-        .container { width: 512px; height: 128px; position: relative; }
-        .set-group { display: none; width: 512px; height: 128px; flex-direction: row; position: absolute; top: 0; left: 0; }
-        .active { display: flex !important; }
+        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Hiragino Kaku Gothic ProN", sans-serif; }
+        .canvas { width: 512px; height: 128px; position: relative; overflow: hidden; }
+
+        /* シーン共通設定 */
+        .scene { position: absolute; top: 0; left: 0; width: 512px; height: 128px; display: none; }
+        .scene.active { display: flex; }
+
+        /* 128x128 パネル共通 */
+        .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; border-right: 1px solid #222; flex-shrink: 0; }
         
-        /* 128px幅のパネル */
-        .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #333; }
-        .label { font-size: 11px; color: #999; margin-bottom: 4px; }
-        .val { font-size: 32px; font-weight: 800; color: #fff; }
+        .label { font-size: 11px; font-weight: 500; color: #999; margin-bottom: 2px; }
+        .time-val { font-size: 38px; font-weight: 800; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; }
+        .val { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
+        .unit { font-size: 14px; margin-left: 2px; font-weight: 400; }
         
-        /* 全画面ティッカー */
-        .ticker-container { width: 512px; height: 128px; display: flex; align-items: center; overflow: hidden; background: #000; }
-        .ticker-text { white-space: nowrap; font-size: 26px; font-weight: 800; color: #fff; padding-left: 512px; animation: ticker-anim 20s linear infinite; }
-        @keyframes ticker-anim { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+        .face-svg { width: 85px; height: 85px; }
+        .weather-svg { width: 60px; height: 60px; }
+
+        /* -----------------------
+           シーン1: 顔と時計の入れ替え
+           ----------------------- */
+        .scene1-state { display: none; width: 512px; height: 128px; flex-direction: row; }
+        .scene1-state.active { display: flex; }
+
+        /* -----------------------
+           シーン2: 気象情報のコンベア（左スライド）
+           ----------------------- */
+        /* コンベアを動かすためのラッパー (2倍の幅でループさせる) */
+        .conveyor-track { display: flex; flex-direction: row; width: 1024px; transition: transform 0.6s ease-in-out; }
+
+        /* -----------------------
+           シーン3: ニュースティッカー
+           ----------------------- */
+        .ticker-scene { background-color: #000; display: none; align-items: center; overflow: hidden; }
+        .ticker-track { display: flex; align-items: center; white-space: nowrap; height: 128px; }
+        
+        /* メッセージブロック (256x128) */
+        .msg-block { width: 256px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0; }
+        .msg-text { font-size: 22px; font-weight: 800; color: #fff; line-height: 1.2; text-align: center; }
+        /* アイコンブロック (幅は任意、ここでは60px程度) */
+        .msg-icon-block { width: 60px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+        .msg-face { width: 44px; height: 44px; }
+        
+        /* CSSアニメーション定義 (JavaScriptで動的にクラス付与) */
+        .animate-ticker { animation: ticker-anim 16s linear forwards; }
+        @keyframes ticker-anim {
+            0% { transform: translateX(512px); } /* 画面右端からスタート */
+            100% { transform: translateX(-1300px); } /* 全て流れ切るまで左へ */
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="set1" class="set-group active">
-        <div class="panel" style="width: 512px;"><div class="label">現在の時刻</div><div class="clock-hm val">--:--</div></div>
+<svg style="display: none;">
+    <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
+    <symbol id="icon-cloudy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#999"/></symbol>
+    <symbol id="icon-rainy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#666"/><path d="M45,75 L40,90 M65,75 L60,90" stroke="#00b0f0" stroke-width="6" stroke-linecap="round"/></symbol>
+    <symbol id="face-0" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#00b0f0"/><circle cx="35" cy="40" r="5" fill="#fff"/><circle cx="65" cy="40" r="5" fill="#fff"/><path d="M 30 65 Q 50 85 70 65" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="face-1" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ffff00"/><circle cx="35" cy="40" r="5" fill="#000"/><circle cx="65" cy="40" r="5" fill="#000"/><line x1="30" y1="70" x2="70" y2="70" stroke="#000" stroke-width="5" stroke-linecap="round"/></symbol>
+    <symbol id="face-2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ffff00"/><path d="M 30 45 Q 35 35 40 45 M 60 45 Q 65 35 70 45" stroke="#000" stroke-width="4" fill="none"/><path d="M 35 75 Q 50 65 65 75" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="face-3" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ff6600"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="6"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="6"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="6"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="6"/><path d="M 35 75 Q 50 65 65 75" stroke="#fff" stroke-width="5" fill="none"/></symbol>
+    <symbol id="face-4" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ff0000"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="6"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="6"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="6"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="6"/><path d="M 30 75 Q 35 65 40 75 T 50 75 T 60 75 T 70 75" stroke="#fff" stroke-width="5" fill="none"/></symbol>
+</svg>
+
+<div class="canvas">
+
+    <div class="scene active" id="scene1">
+        <div class="scene1-state active" id="s1-stateA">
+            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><div class="label">時刻</div><div class="clock-hm time-val">--:--</div></div>
+            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><div class="label">時刻</div><div class="clock-hm time-val">--:--</div></div>
+        </div>
+        <div class="scene1-state" id="s1-stateB">
+            <div class="panel"><div class="label">時刻</div><div class="clock-hm time-val">--:--</div></div>
+            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><div class="label">時刻</div><div class="clock-hm time-val">--:--</div></div>
+            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+        </div>
     </div>
-    
-    <div id="set2" class="set-group">
-        <div class="panel"><div class="label">天気</div><svg width="60" height="60"><use id="weather-icon" href="#icon-sunny"/></svg></div>
-        <div class="panel"><div class="label">気温</div><div class="val"><span class="temp-val">--</span>℃</div></div>
-        <div class="panel"><div class="label">湿度</div><div class="val"><span class="humi-val">--</span>%</div></div>
-        <div class="panel"><div class="label">指数</div><svg width="60" height="60"><use class="face-use" href="#face-0"/></svg></div>
+
+    <div class="scene" id="scene2">
+        <div class="conveyor-track" id="conveyor">
+            <div class="panel" style="position: relative;"><div style="position: absolute; top: 4px; font-size: 10px; font-weight: 700; color: #666; letter-spacing: 0.05em;">仙台市</div><div class="label">天気</div><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div>
+            <div class="panel" style="position: relative;"><div style="position: absolute; top: 4px; font-size: 10px; font-weight: 700; color: #666; letter-spacing: 0.05em;">仙台市</div><div class="label">気温</div><div class="val"><span class="temp-val">--</span><span class="unit">℃</span></div></div>
+            <div class="panel" style="position: relative;"><div style="position: absolute; top: 4px; font-size: 10px; font-weight: 700; color: #666; letter-spacing: 0.05em;">仙台市</div><div class="label">湿度</div><div class="val"><span class="humi-val">--</span><span class="unit">%</span></div></div>
+            <div class="panel"><div class="label">暑さ指数</div><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel" style="position: relative;"><div style="position: absolute; top: 4px; font-size: 10px; font-weight: 700; color: #666; letter-spacing: 0.05em;">仙台市</div><div class="label">天気</div><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div>
+            <div class="panel" style="position: relative;"><div style="position: absolute; top: 4px; font-size: 10px; font-weight: 700; color: #666; letter-spacing: 0.05em;">仙台市</div><div class="label">気温</div><div class="val"><span class="temp-val">--</span><span class="unit">℃</span></div></div>
+            <div class="panel" style="position: relative;"><div style="position: absolute; top: 4px; font-size: 10px; font-weight: 700; color: #666; letter-spacing: 0.05em;">仙台市</div><div class="label">湿度</div><div class="val"><span class="humi-val">--</span><span class="unit">%</span></div></div>
+            <div class="panel"><div class="label">暑さ指数</div><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+        </div>
     </div>
-    
-    <div id="set3" class="set-group">
-        <div class="ticker-container"><div class="ticker-text" id="ticker-wrap"></div></div>
+
+    <div class="scene ticker-scene" id="scene3">
+        <div class="ticker-track" id="ticker-track">
+            </div>
     </div>
+
 </div>
 
 <script>
+    // === 設定パラメータ ===
     const params = new URLSearchParams(window.location.search);
-    const lat = params.get('lat') || '34.6937'; 
-    const lon = params.get('lon') || '135.5023';
-    let currentSet = 1;
+    const lat = params.get('lat') || '38.2682'; // 仙台市の緯度
+    const lon = params.get('lon') || '140.8694'; // 仙台市の経度
 
-    async function updateWeather() {
+    // メッセージデータ
+    const multi = [
+        { jp:"【ほぼ安全】\n適宜水分補給", en:"Safe:\nStay hydrated", vn:"An toàn:\nBổ sung nước", cn:"基本安全：\n注意补水" },
+        { jp:"【注意】\n積極的に水分補給", en:"Caution:\nActively hydrate", vn:"Chú ý:\nUống nước thường xuyên", cn:"注意：\n及时补水" },
+        { jp:"【警戒】\n定期的に休憩", en:"Warning:\nTake regular breaks", vn:"Cảnh báo:\nNghỉ ngơi định kỳ", cn:"警戒：\n定时休息" },
+        { jp:"【厳重警戒】\n激しい作業中止", en:"Severe Warning:\nStop intense work", vn:"Cảnh báo nghiêm trọng:\nNgừng làm việc nặng", cn:"严重警戒：\n停止剧烈作业" },
+        { jp:"【危険】\n作業を直ちに中止", en:"Danger:\nStop work immediately", vn:"Nguy hiểm:\nDừng công việc ngay", cn:"危険：\n立即停止作业" }
+    ];
+
+    let currentWbgtLevel = 0; // 初期値
+
+    // === 要素の取得 ===
+    const s1 = document.getElementById('scene1');
+    const s1A = document.getElementById('s1-stateA');
+    const s1B = document.getElementById('s1-stateB');
+    
+    const s2 = document.getElementById('scene2');
+    const conveyor = document.getElementById('conveyor');
+    
+    const s3 = document.getElementById('scene3');
+    const tickerTrack = document.getElementById('ticker-track');
+
+    // === 天気・時計の更新ロジック ===
+    function updateClock() {
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        document.querySelectorAll('.clock-hm').forEach(el => el.innerText = timeStr);
+    }
+
+    async function fetchWeather() {
         try {
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code`);
             const data = await res.json();
-            const { temperature_2m, relative_humidity_2m, weather_code } = data.current;
+            const temp = data.current.temperature_2m;
+            const humi = data.current.relative_humidity_2m;
+            const code = data.current.weather_code;
 
-            document.querySelector('.temp-val').innerText = Math.round(temperature_2m);
-            document.querySelector('.humi-val').innerText = Math.round(relative_humidity_2m);
+            // 天気アイコン
+            let wIcon = "#icon-sunny";
+            if (code >= 1 && code <= 3) wIcon = "#icon-cloudy";
+            else if (code >= 51) wIcon = "#icon-rainy";
+            document.querySelectorAll('.weather-icon-use').forEach(el => el.setAttribute('href', wIcon));
+
+            // WBGT計算
+            const wbgt = (0.725 * temp) + (0.0368 * humi) + (0.00115 * temp * humi) - 2.503;
+            currentWbgtLevel = wbgt >= 31 ? 4 : wbgt >= 28 ? 3 : wbgt >= 25 ? 2 : wbgt >= 21 ? 1 : 0;
+
+            // 値の反映
+            document.querySelectorAll('.temp-val').forEach(el => el.innerText = Math.round(temp));
+            document.querySelectorAll('.humi-val').forEach(el => el.innerText = Math.round(humi));
+            document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', '#face-' + currentWbgtLevel));
             
-            const wbgt = (0.725 * temperature_2m) + (0.0368 * relative_humidity_2m) + (0.00115 * temperature_2m * relative_humidity_2m) - 2.503;
-            const lv = wbgt >= 31 ? 4 : wbgt >= 28 ? 3 : wbgt >= 25 ? 2 : wbgt >= 21 ? 1 : 0;
-            
-            document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', '#face-' + lv));
-            const msgs = ["【ほぼ安全】水分補給", "【注意】積極的水分補給", "【警戒】定期休憩", "【厳重警戒】作業中止", "【危険】直ちに中止"];
-            document.getElementById('ticker-wrap').innerText = msgs[lv];
+            // ティッカーの中身を生成
+            buildTicker();
+
         } catch (e) { console.error(e); }
     }
 
-    function switchDisplay() {
-        document.getElementById('set' + currentSet).classList.remove('active');
-        currentSet = (currentSet % 3) + 1;
-        document.getElementById('set' + currentSet).classList.add('active');
-        setTimeout(switchDisplay, 10000);
+    // ティッカー用HTML生成
+    function buildTicker() {
+        const m = multi[currentWbgtLevel];
+        const faceHtml = `<div class="msg-icon-block"><svg class="msg-face"><use href="#face-${currentWbgtLevel}"/></svg></div>`;
+        
+        // 言語ごとに 256px幅のブロックを作成 (改行 \n を <br> に変換)
+        const formatMsg = (text) => `<div class="msg-block"><div class="msg-text">${text.replace(/\n/g, '<br>')}</div></div>`;
+        
+        tickerTrack.innerHTML = 
+            formatMsg(m.jp) + faceHtml + 
+            formatMsg(m.en) + faceHtml + 
+            formatMsg(m.vn) + faceHtml + 
+            formatMsg(m.cn) + faceHtml;
     }
 
-    setInterval(() => {
-        const now = new Date();
-        document.querySelector('.clock-hm').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-    }, 1000);
 
-    updateWeather();
-    setInterval(updateWeather, 300000);
-    setTimeout(switchDisplay, 10000);
+    // === メインのシーケンス制御（タイムライン） ===
+    
+    function startSequence() {
+        playScene1();
+    }
+
+    // シーン1: 顔と時計
+    function playScene1() {
+        // 表示リセット
+        s1.classList.add('active');
+        s2.classList.remove('active');
+        s3.classList.remove('active');
+        
+        s1A.classList.add('active');
+        s1B.classList.remove('active');
+
+        // 5秒後に状態Bへ
+        setTimeout(() => {
+            s1A.classList.remove('active');
+            s1B.classList.add('active');
+            
+            // さらに5秒後 (計10秒) にシーン2へ
+            setTimeout(() => {
+                s1.classList.remove('active');
+                playScene2();
+            }, 5000);
+            
+        }, 5000);
+    }
+
+    // シーン2: コンベア（気象）
+    function playScene2() {
+        s2.classList.add('active');
+        
+        let step = 0; // 0, 1, 2, 3 の4ステップ
+        
+        // トランジションを有効にして初期位置へ
+        conveyor.style.transition = 'none';
+        conveyor.style.transform = 'translateX(0px)';
+
+        function slideNext() {
+            step++;
+            conveyor.style.transition = 'transform 0.6s ease-in-out';
+            conveyor.style.transform = `translateX(-${step * 128}px)`;
+
+            if (step < 4) {
+                // まだ周回中
+                setTimeout(slideNext, 5000);
+            } else {
+                // 4回スライド（1周）終わったらシーン3へ
+                // トランジションを待ってから切り替え (少し余韻)
+                setTimeout(() => {
+                    s2.classList.remove('active');
+                    playScene3();
+                }, 1000);
+            }
+        }
+        
+        // 最初の5秒待機してからスライド開始
+        setTimeout(slideNext, 5000);
+    }
+
+    // シーン3: ティッカー
+    function playScene3() {
+        s3.classList.add('active');
+        
+        // アニメーションクラスを一度外して再付与 (リスタートさせるため)
+        tickerTrack.classList.remove('animate-ticker');
+        void tickerTrack.offsetWidth; // リフローを強制
+        tickerTrack.classList.add('animate-ticker');
+
+        // アニメーションが終わる時間（ここでは16秒）待機してループの最初に戻る
+        setTimeout(() => {
+            s3.classList.remove('active');
+            tickerTrack.classList.remove('animate-ticker');
+            startSequence(); // シーン1へ戻る
+        }, 16000); 
+    }
+
+    // === 初期化 ===
+    window.onload = function() {
+        updateClock();
+        setInterval(updateClock, 1000);
+        
+        fetchWeather();
+        setInterval(fetchWeather, 300000); // 5分ごと
+        
+        // データ取得を少し待ってからシーケンス開始
+        setTimeout(startSequence, 500); 
+    };
 </script>
 </body>
 </html>
