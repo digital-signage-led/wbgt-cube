@@ -2,207 +2,53 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>WBGT Signage - 512x128 (4面キューブ)</title>
+    <title>WBGT Signage - 512x128</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Hiragino Kaku Gothic ProN", sans-serif; }
-        .canvas { width: 512px; height: 128px; display: flex; flex-direction: row; }
-        .face { width: 128px; height: 128px; position: relative; overflow: hidden; }
-        .set-group { display: none; width: 128px; height: 128px; position: absolute; top: 0; left: 0; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: sans-serif; }
+        .canvas { width: 512px; height: 128px; display: flex; }
+        .face { width: 128px; height: 128px; position: relative; border-right: 1px solid #333; box-sizing: border-box; }
+        .set-group { display: none; width: 128px; height: 128px; justify-content: center; align-items: center; flex-direction: column; }
         .active { display: flex !important; }
-
-        .label { font-size: 10px; font-weight: 500; color: #999; margin-bottom: 3px; letter-spacing: 0.05em; }
-        .time-val { font-size: 36px; font-weight: 800; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; }
-        .face-svg { width: 85px; height: 85px; }
-        .weather-svg { width: 40px; height: 40px; }
-
-        .weather-compact { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 128px; height: 128px; gap: 2px; }
-        .weather-row { display: flex; align-items: center; gap: 6px; }
-        .weather-val { font-size: 20px; font-weight: 700; color: #fff; }
-        .weather-unit { font-size: 11px; color: #ccc; }
-
-        .wbgt-block { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 128px; height: 128px; }
-        .wbgt-label { font-size: 10px; color: #999; letter-spacing: 0.1em; margin-bottom: 2px; }
-        .wbgt-value { font-size: 38px; font-weight: 800; color: #fff; line-height: 1; }
-        .wbgt-level { font-size: 12px; font-weight: 700; margin-top: 4px; }
-
-        /* メッセージカード 128x128 */
-        .msg-card {
-            width: 128px; height: 128px;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            box-sizing: border-box; padding: 6px;
-            text-align: center;
-        }
-        .msg-icon { width: 44px; height: 44px; margin-bottom: 4px; flex-shrink: 0; }
-        .msg-text { font-weight: 800; color: #fff; line-height: 1.25; word-break: break-all; }
+        .time-val { font-size: 32px; font-weight: 800; color: #fff; }
+        .face-svg { width: 80px; height: 80px; }
     </style>
 </head>
 <body>
+    <div class="canvas" id="canvas"></div>
 
-<svg style="display: none;">
-    <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
-    <symbol id="icon-cloudy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#999"/></symbol>
-    <symbol id="icon-rainy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#666"/><path d="M45,75 L40,90 M65,75 L60,90" stroke="#00b0f0" stroke-width="6" stroke-linecap="round"/></symbol>
-    <symbol id="face-0" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#00b0f0"/><circle cx="35" cy="40" r="5" fill="#fff"/><circle cx="65" cy="40" r="5" fill="#fff"/><path d="M 30 65 Q 50 85 70 65" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
-    <symbol id="face-1" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ffff00"/><circle cx="35" cy="40" r="5" fill="#000"/><circle cx="65" cy="40" r="5" fill="#000"/><line x1="30" y1="70" x2="70" y2="70" stroke="#000" stroke-width="5" stroke-linecap="round"/></symbol>
-    <symbol id="face-2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ffff00"/><path d="M 30 45 Q 35 35 40 45 M 60 45 Q 65 35 70 45" stroke="#000" stroke-width="4" fill="none"/><path d="M 35 75 Q 50 65 65 75" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
-    <symbol id="face-3" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ff6600"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="6"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="6"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="6"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="6"/><path d="M 35 75 Q 50 65 65 75" stroke="#fff" stroke-width="5" fill="none"/></symbol>
-    <symbol id="face-4" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#ff0000"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="6"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="6"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="6"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="6"/><path d="M 30 75 Q 35 65 40 75 T 50 75 T 60 75 T 70 75" stroke="#fff" stroke-width="5" fill="none"/></symbol>
-</svg>
+    <script>
+        const lat = '38.2682'; // 仙台
+        const lon = '140.8694';
+        const canvas = document.getElementById('canvas');
 
-<div class="canvas" id="canvas"></div>
-
-<template id="face-tmpl">
-    <div class="set-group active" data-set="1">
-        <svg class="face-svg"><use class="face-use" href="#face-0"/></svg>
-    </div>
-    <div class="set-group" data-set="2">
-        <div class="label">時刻</div>
-        <div class="clock-hm time-val">--:--</div>
-    </div>
-    <div class="set-group" data-set="3">
-        <div class="weather-compact">
-            <svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg>
-            <div class="weather-row"><span class="weather-val temp-val">--</span><span class="weather-unit">℃</span></div>
-            <div class="weather-row"><span class="weather-val humi-val">--</span><span class="weather-unit">%</span></div>
-        </div>
-    </div>
-    <div class="set-group" data-set="4">
-        <div class="wbgt-block">
-            <div class="wbgt-label">WBGT</div>
-            <div class="wbgt-value wbgt-num">--</div>
-            <div class="wbgt-level wbgt-level-text">--</div>
-        </div>
-    </div>
-    <div class="set-group" data-set="5">
-        <div class="msg-card">
-            <svg class="msg-icon"><use class="face-use" href="#face-0"/></svg>
-            <div class="msg-text msg-text-jp" style="font-size:13px;">【ほぼ安全】<br>適宜水分補給</div>
-        </div>
-    </div>
-    <div class="set-group" data-set="6">
-        <div class="msg-card">
-            <svg class="msg-icon"><use class="face-use" href="#face-0"/></svg>
-            <div class="msg-text msg-text-en" style="font-size:13px;">Safe:<br>Stay hydrated</div>
-        </div>
-    </div>
-    <div class="set-group" data-set="7">
-        <div class="msg-card">
-            <svg class="msg-icon"><use class="face-use" href="#face-0"/></svg>
-            <div class="msg-text msg-text-vn" style="font-size:11px;">An toàn:<br>Bổ sung nước</div>
-        </div>
-    </div>
-    <div class="set-group" data-set="8">
-        <div class="msg-card">
-            <svg class="msg-icon"><use class="face-use" href="#face-0"/></svg>
-            <div class="msg-text msg-text-cn" style="font-size:13px;">基本安全：<br>注意补水</div>
-        </div>
-    </div>
-</template>
-
-<script>
-    const canvas = document.getElementById('canvas');
-    const tmpl = document.getElementById('face-tmpl');
-    for (let i = 0; i < 4; i++) {
-        const face = document.createElement('div');
-        face.className = 'face';
-        face.innerHTML = tmpl.innerHTML;
-        canvas.appendChild(face);
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const lat = params.get('lat') || '34.6937';
-    const lon = params.get('lon') || '135.5023';
-    const totalSets = 8;
-    let currentSet = 1;
-
-    const levelColors = ['#00b0f0','#ffff00','#ffcc00','#ff6600','#ff0000'];
-    const levelBgColors = ['#002530','#2a2500','#2a1e00','#2a1200','#2a0000'];
-    const levelLabelsShort = ['ほぼ安全','注意','警戒','厳重警戒','危険'];
-
-    const multi = [
-        {jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", vn:"An toàn: Bổ sung nước", cn:"基本安全：注意补水"},
-        {jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", vn:"Chú ý: Uống nước thường xuyên", cn:"注意：及时补水"},
-        {jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", vn:"Cảnh báo: Nghỉ ngơi định kỳ", cn:"警戒：定时休息"},
-        {jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng", cn:"严重警戒：停止剧烈作業"},
-        {jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", vn:"Nguy hiểm: Dừng công việc ngay", cn:"危険：立即停止作業"}
-    ];
-
-    /* 128px幅に収まるようテキストを自動改行 */
-    function fitText(text, maxWidth) {
-        // 】の後ろで改行
-        let result = text.replace(/】/g, '】<br>');
-        // : の後ろで改行
-        result = result.replace(/: /g, ':<br>');
-        result = result.replace(/：/g, '：<br>');
-        return result;
-    }
-
-    function setMessages(lv) {
-        const m = multi[lv];
-        document.querySelectorAll('.msg-text-jp').forEach(el => el.innerHTML = fitText(m.jp, 128));
-        document.querySelectorAll('.msg-text-en').forEach(el => el.innerHTML = fitText(m.en, 128));
-        document.querySelectorAll('.msg-text-vn').forEach(el => el.innerHTML = fitText(m.vn, 128));
-        document.querySelectorAll('.msg-text-cn').forEach(el => el.innerHTML = fitText(m.cn, 128));
-        document.querySelectorAll('.msg-card').forEach(el => el.style.backgroundColor = levelBgColors[lv]);
-    }
-
-    async function updateWeather() {
-        try {
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code`);
-            const data = await res.json();
-            const temp = data.current.temperature_2m;
-            const humi = data.current.relative_humidity_2m;
-            const code = data.current.weather_code;
-
-            let wIcon = "#icon-sunny";
-            if (code >= 1 && code <= 3) wIcon = "#icon-cloudy";
-            else if (code >= 51) wIcon = "#icon-rainy";
-            document.querySelectorAll('.weather-icon-use').forEach(el => el.setAttribute('href', wIcon));
-
-            const wbgt = (0.725 * temp) + (0.0368 * humi) + (0.00115 * temp * humi) - 2.503;
-            let lv = 0;
-            if (wbgt >= 31) lv = 4; else if (wbgt >= 28) lv = 3; else if (wbgt >= 25) lv = 2; else if (wbgt >= 21) lv = 1;
-
-            document.querySelectorAll('.temp-val').forEach(el => el.innerText = Math.round(temp));
-            document.querySelectorAll('.humi-val').forEach(el => el.innerText = Math.round(humi));
-            document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', '#face-' + lv));
-            document.querySelectorAll('.wbgt-num').forEach(el => el.innerText = wbgt.toFixed(1));
-            document.querySelectorAll('.wbgt-level-text').forEach(el => {
-                el.innerText = levelLabelsShort[lv];
-                el.style.color = levelColors[lv];
-            });
-
-            setMessages(lv);
-        } catch (e) {
-            console.error("Weather fetch error:", e);
-            setMessages(0); // API失敗時もデフォルト表示
+        // 4面分作成
+        for (let i = 0; i < 4; i++) {
+            const face = document.createElement('div');
+            face.className = 'face';
+            face.innerHTML = `
+                <div class="set-group active" data-set="1"><svg class="face-svg"><use href="#face-0"/></svg></div>
+                <div class="set-group" data-set="2"><div class="time-val" id="clock">--:--</div></div>
+            `;
+            canvas.appendChild(face);
         }
-    }
 
-    function updateDigitalClock() {
-        const now = new Date();
-        const h = now.getHours().toString().padStart(2, '0');
-        const m = now.getMinutes().toString().padStart(2, '0');
-        document.querySelectorAll('.clock-hm').forEach(el => el.innerText = h + ":" + m);
-    }
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            document.querySelectorAll('#clock').forEach(el => el.innerText = timeStr);
+        }
 
-    function switchDisplay() {
-        document.querySelectorAll(`[data-set="${currentSet}"]`).forEach(el => el.classList.remove('active'));
-        currentSet = (currentSet % totalSets) + 1;
-        document.querySelectorAll(`[data-set="${currentSet}"]`).forEach(el => el.classList.add('active'));
-        const delay = currentSet >= 5 ? 5000 : 10000;
-        setTimeout(switchDisplay, delay);
-    }
+        let currentSet = 1;
+        function switchDisplay() {
+            currentSet = (currentSet === 1) ? 2 : 1;
+            document.querySelectorAll('.set-group').forEach(el => {
+                el.classList.toggle('active', parseInt(el.dataset.set) === currentSet);
+            });
+            setTimeout(switchDisplay, 5000);
+        }
 
-    window.onload = function() {
-        updateDigitalClock();
-        setMessages(0); // 初期表示
-        updateWeather();
-        setInterval(updateDigitalClock, 1000);
-        setInterval(updateWeather, 300000);
-        setTimeout(switchDisplay, 10000);
-    };
-</script>
+        setInterval(updateClock, 1000);
+        switchDisplay();
+    </script>
 </body>
 </html>
