@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>WBGT Multi-Language Signage - Final Version</title>
+    <title>WBGT Multi-Language Signage</title>
     <style>
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Hiragino Kaku Gothic ProN", sans-serif; }
         .container { width: 512px; height: 128px; position: relative; overflow: hidden; }
@@ -12,9 +12,7 @@
         .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; border-right: 1px solid #333; }
         .label { font-size: 13px; font-weight: 500; color: #999; margin-bottom: 6px; letter-spacing: 0.05em; }
         
-        /* 時計：視認性重視のデジタル表示 */
         .time-val { font-size: 40px; font-weight: 800; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; }
-        
         .val { font-size: 34px; font-weight: 700; color: #fff; line-height: 1; }
         .unit { font-size: 16px; margin-left: 2px; font-weight: 400; }
         
@@ -26,11 +24,11 @@
         .ticker-text { 
             white-space: nowrap; font-size: 28px; font-weight: 800; color: #000; 
             position: absolute; padding-left: 100%; display: flex; align-items: center;
-            animation: ticker-anim 60s linear infinite; 
+            animation: ticker-anim 20s linear infinite; 
         }
         .ticker-face-icon { width: 44px; height: 44px; margin: 0 15px; }
 
-        @keyframes ticker-anim { 0% { transform: translateX(0); } 100% { transform: translateX(-400%); } }
+        @keyframes ticker-anim { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
     </style>
 </head>
 <body>
@@ -72,8 +70,8 @@
 
 <script>
     const params = new URLSearchParams(window.location.search);
-    const lat = params.get('lat') || '34.6937'; 
-    const lon = params.get('lon') || '135.5023';
+    const lat = params.get('lat') || '38.2682'; // 仙台の緯度
+    const lon = params.get('lon') || '140.8694'; // 仙台の経度
     let currentSet = 1;
 
     async function updateWeather() {
@@ -122,25 +120,14 @@
         document.getElementById('set' + currentSet).classList.remove('active');
         currentSet = (currentSet % 3) + 1;
         document.getElementById('set' + currentSet).classList.add('active');
-
-        let nextDelay = 15000; // 基本10秒
-        if (currentSet === 3) {
-            nextDelay = 15000; // ニュースティカーは15秒
-        }
-
-        setTimeout(switchDisplay, nextDelay);
+        setTimeout(switchDisplay, 10000); // 10秒で切り替え
     }
 
     window.onload = function() {
         updateDigitalClock();
         updateWeather();
-
-        // 時計更新タイマー
         setInterval(updateDigitalClock, 1000);
-        // 天気更新タイマー（5分おき）
         setInterval(updateWeather, 300000);
-
-        // 最初の切り替え予約（10秒後に実行）
         setTimeout(switchDisplay, 10000);
     };
 </script>
