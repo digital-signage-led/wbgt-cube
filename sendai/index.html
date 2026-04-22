@@ -2,53 +2,82 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>WBGT Signage - 512x128</title>
+    <title>WBGT Signage</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: sans-serif; }
-        .canvas { width: 512px; height: 128px; display: flex; }
-        .face { width: 128px; height: 128px; position: relative; border-right: 1px solid #333; box-sizing: border-box; }
-        .set-group { display: none; width: 128px; height: 128px; justify-content: center; align-items: center; flex-direction: column; }
+        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", sans-serif; }
+        .container { width: 512px; height: 128px; position: relative; }
+        .set-group { display: none; width: 512px; height: 128px; flex-direction: row; position: absolute; top: 0; left: 0; }
         .active { display: flex !important; }
-        .time-val { font-size: 32px; font-weight: 800; color: #fff; }
-        .face-svg { width: 80px; height: 80px; }
+        
+        /* 128px幅のパネル */
+        .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid #333; }
+        .label { font-size: 11px; color: #999; margin-bottom: 4px; }
+        .val { font-size: 32px; font-weight: 800; color: #fff; }
+        
+        /* 全画面ティッカー */
+        .ticker-container { width: 512px; height: 128px; display: flex; align-items: center; overflow: hidden; background: #000; }
+        .ticker-text { white-space: nowrap; font-size: 26px; font-weight: 800; color: #fff; padding-left: 512px; animation: ticker-anim 20s linear infinite; }
+        @keyframes ticker-anim { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
     </style>
 </head>
 <body>
-    <div class="canvas" id="canvas"></div>
 
-    <script>
-        const lat = '38.2682'; // 仙台
-        const lon = '140.8694';
-        const canvas = document.getElementById('canvas');
+<div class="container">
+    <div id="set1" class="set-group active">
+        <div class="panel" style="width: 512px;"><div class="label">現在の時刻</div><div class="clock-hm val">--:--</div></div>
+    </div>
+    
+    <div id="set2" class="set-group">
+        <div class="panel"><div class="label">天気</div><svg width="60" height="60"><use id="weather-icon" href="#icon-sunny"/></svg></div>
+        <div class="panel"><div class="label">気温</div><div class="val"><span class="temp-val">--</span>℃</div></div>
+        <div class="panel"><div class="label">湿度</div><div class="val"><span class="humi-val">--</span>%</div></div>
+        <div class="panel"><div class="label">指数</div><svg width="60" height="60"><use class="face-use" href="#face-0"/></svg></div>
+    </div>
+    
+    <div id="set3" class="set-group">
+        <div class="ticker-container"><div class="ticker-text" id="ticker-wrap"></div></div>
+    </div>
+</div>
 
-        // 4面分作成
-        for (let i = 0; i < 4; i++) {
-            const face = document.createElement('div');
-            face.className = 'face';
-            face.innerHTML = `
-                <div class="set-group active" data-set="1"><svg class="face-svg"><use href="#face-0"/></svg></div>
-                <div class="set-group" data-set="2"><div class="time-val" id="clock">--:--</div></div>
-            `;
-            canvas.appendChild(face);
-        }
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const lat = params.get('lat') || '34.6937'; 
+    const lon = params.get('lon') || '135.5023';
+    let currentSet = 1;
 
-        function updateClock() {
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            document.querySelectorAll('#clock').forEach(el => el.innerText = timeStr);
-        }
+    async function updateWeather() {
+        try {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code`);
+            const data = await res.json();
+            const { temperature_2m, relative_humidity_2m, weather_code } = data.current;
 
-        let currentSet = 1;
-        function switchDisplay() {
-            currentSet = (currentSet === 1) ? 2 : 1;
-            document.querySelectorAll('.set-group').forEach(el => {
-                el.classList.toggle('active', parseInt(el.dataset.set) === currentSet);
-            });
-            setTimeout(switchDisplay, 5000);
-        }
+            document.querySelector('.temp-val').innerText = Math.round(temperature_2m);
+            document.querySelector('.humi-val').innerText = Math.round(relative_humidity_2m);
+            
+            const wbgt = (0.725 * temperature_2m) + (0.0368 * relative_humidity_2m) + (0.00115 * temperature_2m * relative_humidity_2m) - 2.503;
+            const lv = wbgt >= 31 ? 4 : wbgt >= 28 ? 3 : wbgt >= 25 ? 2 : wbgt >= 21 ? 1 : 0;
+            
+            document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', '#face-' + lv));
+            const msgs = ["【ほぼ安全】水分補給", "【注意】積極的水分補給", "【警戒】定期休憩", "【厳重警戒】作業中止", "【危険】直ちに中止"];
+            document.getElementById('ticker-wrap').innerText = msgs[lv];
+        } catch (e) { console.error(e); }
+    }
 
-        setInterval(updateClock, 1000);
-        switchDisplay();
-    </script>
+    function switchDisplay() {
+        document.getElementById('set' + currentSet).classList.remove('active');
+        currentSet = (currentSet % 3) + 1;
+        document.getElementById('set' + currentSet).classList.add('active');
+        setTimeout(switchDisplay, 10000);
+    }
+
+    setInterval(() => {
+        const now = new Date();
+        document.querySelector('.clock-hm').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+    }, 1000);
+
+    updateWeather();
+    setInterval(updateWeather, 300000);
+    setTimeout(switchDisplay, 10000);
+</script>
 </body>
 </html>
