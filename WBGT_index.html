@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=512, initial-scale=1">
+<title>WBGT 熱中症警報サイネージ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&family=Noto+Sans:wght@700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 512px;
+  height: 128px;
+  overflow: hidden;
+  background: #000;
+  font-family: 'Noto Sans JP', 'Noto Sans', sans-serif;
+}
+
+/* === メイン表示 === */
+#signage {
+  width: 512px;
+  height: 128px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  position: relative;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 128px;
+  padding: 0 2px;
+  overflow: hidden;
+}
+
+/* 上段：気温 */
+.temp-row {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  padding-top: 4px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  opacity: 0.95;
+}
+
+/* 中段：WBGTエリア（半透明バンド） */
+.wbgt-band {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.12);
+  gap: 0;
+}
+.wbgt-value {
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+.wbgt-line {
+  width: 80%;
+  height: 2px;
+  background: rgba(255,255,255,0.8);
+  margin: 1px 0;
+}
+.level-name {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+/* 下段：行動指示 */
+.action-row {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding-bottom: 5px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* === レベル別カラー === */
+.level-danger   { background: #E53935; color: #fff; }
+.level-severe   { background: #FB8C00; color: #fff; }
+.level-warning  { background: #FDD835; color: #fff; }
+.level-warning .wbgt-line { background: rgba(255,255,255,0.7); }
+.level-caution  { background: #42A5F5; color: #fff; }
+.level-safe     { background: #1E88E5; color: #fff; }
+
+/* === エラー画面 === */
+#error-screen {
+  display: none;
+  width: 512px;
+  height: 128px;
+  background: #333;
+  color: #fff;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+#error-screen .main { font-size: 28px; font-weight: 900; }
+#error-screen .sub  { font-size: 12px; opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<div id="signage">
+  <!-- 4カラム：日本語/英語/ベトナム語/中国語 -->
+  <div class="col" id="col-jp">
+    <div class="temp-row" id="temp-jp"></div>
+    <div class="wbgt-band">
+      <div class="wbgt-value" id="wbgt-jp"></div>
+      <div class="wbgt-line"></div>
+      <div class="level-name" id="name-jp"></div>
+    </div>
+    <div class="action-row" id="action-jp"></div>
+  </div>
+  <div class="col" id="col-en">
+    <div class="temp-row" id="temp-en"></div>
+    <div class="wbgt-band">
+      <div class="wbgt-value" id="wbgt-en"></div>
+      <div class="wbgt-line"></div>
+      <div class="level-name" id="name-en"></div>
+    </div>
+    <div class="action-row" id="action-en"></div>
+  </div>
+  <div class="col" id="col-vn">
+    <div class="temp-row" id="temp-vn"></div>
+    <div class="wbgt-band">
+      <div class="wbgt-value" id="wbgt-vn"></div>
+      <div class="wbgt-line"></div>
+      <div class="level-name" id="name-vn"></div>
+    </div>
+    <div class="action-row" id="action-vn"></div>
+  </div>
+  <div class="col" id="col-cn">
+    <div class="temp-row" id="temp-cn"></div>
+    <div class="wbgt-band">
+      <div class="wbgt-value" id="wbgt-cn"></div>
+      <div class="wbgt-line"></div>
+      <div class="level-name" id="name-cn"></div>
+    </div>
+    <div class="action-row" id="action-cn"></div>
+  </div>
+</div>
+
+<div id="error-screen">
+  <div class="main">WBGT 取得不可</div>
+  <div class="sub">データ提供：気象庁 / Open-Meteo</div>
+</div>
+
+<script>
+// === 設定 ===
+const CONFIG = {
+  lat: 38.2682,    // 仙台
+  lon: 140.8694,
+  updateInterval: 30 * 60 * 1000  // 30分
+};
+
+// === レベル定義（環境省/厚労省準拠） ===
+const LEVELS = [
+  {
+    min: 31, cssClass: 'level-danger',
+    jp: { name: '危険',     action: '作業を直ちに中止' },
+    en: { name: 'Danger',   action: 'Stop work immediately' },
+    vn: { name: 'Nguy hiểm', action: 'Dừng công việc ngay' },
+    cn: { name: '危险',     action: '立即停止作业' }
+  },
+  {
+    min: 28, cssClass: 'level-severe',
+    jp: { name: '厳重警戒',   action: '激しい作業は中止' },
+    en: { name: 'Severe Warning', action: 'Stop intense work' },
+    vn: { name: 'Cảnh báo\nnghiêm trọng', action: 'Ngừng làm việc nặng' },
+    cn: { name: '严重警戒',   action: '停止剧烈作业' }
+  },
+  {
+    min: 25, cssClass: 'level-warning',
+    jp: { name: '警戒',     action: '定期的に休憩' },
+    en: { name: 'Warning',  action: 'Take regular breaks' },
+    vn: { name: 'Cảnh báo', action: 'Nghỉ ngơi định kỳ' },
+    cn: { name: '警戒',     action: '定时休息' }
+  },
+  {
+    min: 21, cssClass: 'level-caution',
+    jp: { name: '注意',     action: '積極的に水分補給' },
+    en: { name: 'Caution',  action: 'Actively hydrate' },
+    vn: { name: 'Chú ý',    action: 'Uống nước thường xuyên' },
+    cn: { name: '注意',     action: '及时补水' }
+  },
+  {
+    min: -Infinity, cssClass: 'level-safe',
+    jp: { name: 'ほぼ安全',   action: '適宜水分補給' },
+    en: { name: 'Safe',      action: 'Stay hydrated' },
+    vn: { name: 'An toàn',   action: 'Bổ sung nước' },
+    cn: { name: '基本安全',   action: '注意补水' }
+  }
+];
+
+// === WBGT簡易推定（屋外・BOM方式） ===
+function estimateWBGT(tempC, rhPct) {
+  const e = (rhPct / 100) * 6.105 * Math.exp((17.27 * tempC) / (237.7 + tempC));
+  return 0.567 * tempC + 0.393 * e + 3.94;
+}
+
+// === レベル判定 ===
+function getLevel(wbgt) {
+  return LEVELS.find(l => wbgt >= l.min);
+}
+
+// === 表示更新 ===
+function updateDisplay(tempC, wbgt) {
+  const level = getLevel(wbgt);
+  const wbgtInt = Math.round(wbgt);
+  const tempStr = tempC.toFixed(1) + '℃';
+
+  // 背景色をカラムに適用
+  const cols = document.querySelectorAll('.col');
+  cols.forEach(col => {
+    col.className = 'col ' + level.cssClass;
+  });
+
+  // 気温（4言語共通で実測値を表示）
+  document.getElementById('temp-jp').textContent = tempStr;
+  document.getElementById('temp-en').textContent = tempStr;
+  document.getElementById('temp-vn').textContent = tempStr;
+  document.getElementById('temp-cn').textContent = tempStr;
+
+  // WBGT実測値
+  document.getElementById('wbgt-jp').textContent = wbgtInt;
+  document.getElementById('wbgt-en').textContent = wbgtInt;
+  document.getElementById('wbgt-vn').textContent = wbgtInt;
+  document.getElementById('wbgt-cn').textContent = wbgtInt;
+
+  // レベル名
+  document.getElementById('name-jp').textContent = level.jp.name;
+  document.getElementById('name-en').textContent = level.en.name;
+  document.getElementById('name-vn').textContent = level.vn.name;
+  document.getElementById('name-cn').textContent = level.cn.name;
+
+  // 行動指示
+  document.getElementById('action-jp').textContent = level.jp.action;
+  document.getElementById('action-en').textContent = level.en.action;
+  document.getElementById('action-vn').textContent = level.vn.action;
+  document.getElementById('action-cn').textContent = level.cn.action;
+
+  // 表示切替
+  document.getElementById('signage').style.display = 'grid';
+  document.getElementById('error-screen').style.display = 'none';
+
+  console.log(`[WBGT] ${new Date().toLocaleTimeString()} | ${tempStr} RH→ WBGT≈${wbgt.toFixed(1)} → ${level.jp.name}`);
+}
+
+function showError() {
+  document.getElementById('signage').style.display = 'none';
+  document.getElementById('error-screen').style.display = 'flex';
+}
+
+// === Open-Meteo API取得 ===
+async function fetchAndUpdate() {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast`
+      + `?latitude=${CONFIG.lat}&longitude=${CONFIG.lon}`
+      + `&current=temperature_2m,relative_humidity_2m`
+      + `&timezone=Asia%2FTokyo`;
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+    const temp = data?.current?.temperature_2m;
+    const rh   = data?.current?.relative_humidity_2m;
+
+    if (temp == null || rh == null || isNaN(temp) || isNaN(rh)) {
+      throw new Error('Invalid data');
+    }
+
+    const wbgt = estimateWBGT(temp, rh);
+    updateDisplay(temp, wbgt);
+  } catch (err) {
+    console.error('[WBGT] 取得失敗:', err.message);
+    showError();
+  }
+}
+
+// === 起動 ===
+fetchAndUpdate();
+setInterval(fetchAndUpdate, CONFIG.updateInterval);
+</script>
+</body>
+</html>
