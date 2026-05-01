@@ -191,7 +191,7 @@
     const TICKER_SPEED_PX = 1.2;
     let logoQuarter = 0;
     let scene2AnimId = null;
-    let clockTimerId = null;
+    let clockIntervalId = null;
 
     /** ネットワーク基準のUTCエポックms + performance.now() で経過（PCの日時変更の影響を受けにくい） */
     const timeSync = { baseUtcMs: null, perfAtSync: 0 };
@@ -242,19 +242,16 @@
             document.querySelectorAll('.clock-hm').forEach(el => { el.innerText = '--:--'; });
             return;
         }
-        const t = clockHmFormatter.format(new Date(ms));
+        const t = clockHmFormatter.format(new Date(Math.floor(ms)));
         document.querySelectorAll('.clock-hm').forEach(el => { el.innerText = t; });
     }
 
-    function scheduleClockUpdate() {
-        updateClock();
-        const ms = getSyncedUtcMs();
-        if (ms == null) {
-            clockTimerId = setTimeout(scheduleClockUpdate, 800);
-            return;
-        }
-        const delay = 1000 - (ms % 1000);
-        clockTimerId = setTimeout(scheduleClockUpdate, delay);
+    /** setTimeout の秒境界同期は環境によって不安定なため、1秒固定の setInterval で進める */
+    function startClockTicker() {
+        if (clockIntervalId != null) clearInterval(clockIntervalId);
+        clockIntervalId = setInterval(function() {
+            try { updateClock(); } catch (err) { console.warn('Clock tick:', err); }
+        }, 1000);
     }
     function degToCompassJa(deg) {
         if (!Number.isFinite(deg)) return '--';
@@ -395,7 +392,12 @@
     async function fetchWeatherAndWbgt() {
         let wbgtSlots = await fetchWbgtFromMoeApi();
         try {
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m&forecast_days=2&timezone=Asia%2FTokyo`);
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m&forecast_days=2&timezone=Asia%2FTokyo`, { cache: 'no-store' });
+            const dateHdr = res.headers.get('Date');
+            if (dateHdr) {
+                const serverMs = Date.parse(dateHdr);
+                if (Number.isFinite(serverMs)) applySyncedUtcMs(serverMs);
+            }
             const data = await res.json();
             if (timeSync.baseUtcMs == null && data.current && data.current.time) {
                 const fromMeteo = utcMsFromOpenMeteoTime(data.current.time);
@@ -545,13 +547,20 @@
     function startSequence() { playScene1(); }
 
     window.onload = function() {
-        scheduleClockUpdate();
+        updateClock();
+        startClockTicker();
         buildTicker();
-        syncTimeFromNetwork().then(() => { updateClock(); });
+        syncTimeFromNetwork().then(function() { updateClock(); });
         setInterval(syncTimeFromNetwork, 600000);
         fetchWeatherAndWbgt();
         setInterval(fetchWeatherAndWbgt, 300000);
         setTimeout(startSequence, 500);
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                syncTimeFromNetwork().then(function() { updateClock(); });
+                fetchWeatherAndWbgt();
+            }
+        });
     };
 </script>
 </body>
