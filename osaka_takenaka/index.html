@@ -191,11 +191,70 @@
     const TICKER_SPEED_PX = 1.2;
     let logoQuarter = 0;
     let scene2AnimId = null;
+    let clockTimerId = null;
+
+    /** ネットワーク基準のUTCエポックms + performance.now() で経過（PCの日時変更の影響を受けにくい） */
+    const timeSync = { baseUtcMs: null, perfAtSync: 0 };
+    const TIME_API_URL = 'https://worldtimeapi.org/api/timezone/Asia/Tokyo';
+
+    const CLOCK_TZ = 'Asia/Tokyo';
+    const clockHmFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: CLOCK_TZ,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+
+    function getSyncedUtcMs() {
+        if (timeSync.baseUtcMs == null) return null;
+        return timeSync.baseUtcMs + (performance.now() - timeSync.perfAtSync);
+    }
+
+    function applySyncedUtcMs(utcMs) {
+        if (!Number.isFinite(utcMs)) return;
+        timeSync.baseUtcMs = utcMs;
+        timeSync.perfAtSync = performance.now();
+    }
+
+    /** Open-Meteo の current.time（タイムゾーン付きでない場合は東京として解釈） */
+    function utcMsFromOpenMeteoTime(iso) {
+        let s = String(iso || '').trim();
+        if (!s) return NaN;
+        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += '+09:00';
+        return Date.parse(s);
+    }
+
+    async function syncTimeFromNetwork() {
+        try {
+            const res = await fetch(TIME_API_URL, { cache: 'no-store' });
+            if (!res.ok) throw new Error('time api');
+            const json = await res.json();
+            const utcMs = Date.parse(json.utc_datetime);
+            if (Number.isFinite(utcMs)) applySyncedUtcMs(utcMs);
+        } catch (e) {
+            console.warn('Network time sync failed:', e);
+        }
+    }
 
     function updateClock() {
-        const now = new Date();
-        const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        const ms = getSyncedUtcMs();
+        if (ms == null) {
+            document.querySelectorAll('.clock-hm').forEach(el => { el.innerText = '--:--'; });
+            return;
+        }
+        const t = clockHmFormatter.format(new Date(ms));
         document.querySelectorAll('.clock-hm').forEach(el => { el.innerText = t; });
+    }
+
+    function scheduleClockUpdate() {
+        updateClock();
+        const ms = getSyncedUtcMs();
+        if (ms == null) {
+            clockTimerId = setTimeout(scheduleClockUpdate, 800);
+            return;
+        }
+        const delay = 1000 - (ms % 1000);
+        clockTimerId = setTimeout(scheduleClockUpdate, delay);
     }
     function degToCompassJa(deg) {
         if (!Number.isFinite(deg)) return '--';
@@ -209,13 +268,37 @@
     function hasFull4Slots(slots) {
         return Array.isArray(slots) && slots.length >= 4 && slots.every(s => s && s.wbgt != null);
     }
+    function getClockDateForParts() {
+        const ms = getSyncedUtcMs();
+        return ms != null ? new Date(ms) : null;
+    }
+
+    function getTokyoYMDH(d) {
+        const ref = d != null ? d : getClockDateForParts();
+        if (!ref) return { y: NaN, m: NaN, d: NaN, h: NaN };
+        const parts = new Intl.DateTimeFormat('en-CA', {
+            timeZone: CLOCK_TZ,
+            year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hour12: false
+        }).formatToParts(ref);
+        const map = {};
+        for (const p of parts) {
+            if (p.type !== 'literal') map[p.type] = p.value;
+        }
+        return { y: Number(map.year), m: Number(map.month), d: Number(map.day), h: Number(map.hour) };
+    }
+
     function buildWbgtSlotsFromHourly(hourly) {
-        const now = new Date();
-        const currentHour = now.getHours();
+        const { y, m, d, h: currentHour } = getTokyoYMDH();
+        if (!Number.isFinite(currentHour)) {
+            const offsets = [0, 3, 6, 9];
+            return offsets.map((offset, i) => ({ wbgt: null, levelIdx: 0, hour: i === 0 ? '現在' : ('+' + offset + 'h') }));
+        }
         let startIdx = -1;
         for (let i = 0; i < hourly.time.length; i++) {
-            const dt = new Date(hourly.time[i]);
-            if (dt.getDate() === now.getDate() && dt.getHours() === currentHour) { startIdx = i; break; }
+            const match = String(hourly.time[i]).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})/);
+            if (!match) continue;
+            const Y = Number(match[1]), M = Number(match[2]), D = Number(match[3]), H = Number(match[4]);
+            if (Y === y && M === m && D === d && H === currentHour) { startIdx = i; break; }
         }
         const offsets = [0, 3, 6, 9];
         return offsets.map((offset, i) => {
@@ -224,8 +307,9 @@
                 return { wbgt: null, levelIdx: 0, hour: i === 0 ? '現在' : ('+' + offset + 'h') };
             }
             const w = calcWbgt(hourly.temperature_2m[idx], hourly.relative_humidity_2m[idx]);
-            const h = new Date(hourly.time[idx]).getHours() + '時';
-            return { wbgt: w, levelIdx: wbgtLevel(w), hour: i === 0 ? '現在' : h };
+            const slotMatch = String(hourly.time[idx]).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})/);
+            const hourLabel = slotMatch ? (Number(slotMatch[4]) + '時') : '';
+            return { wbgt: w, levelIdx: wbgtLevel(w), hour: i === 0 ? '現在' : hourLabel };
         });
     }
 
@@ -313,6 +397,10 @@
         try {
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m&forecast_days=2&timezone=Asia%2FTokyo`);
             const data = await res.json();
+            if (timeSync.baseUtcMs == null && data.current && data.current.time) {
+                const fromMeteo = utcMsFromOpenMeteoTime(data.current.time);
+                if (Number.isFinite(fromMeteo)) applySyncedUtcMs(fromMeteo);
+            }
             let wIcon = '#icon-sunny';
             if (data.current.weather_code >= 1 && data.current.weather_code <= 3) wIcon = '#icon-cloudy';
             else if (data.current.weather_code >= 51) wIcon = '#icon-rainy';
@@ -457,9 +545,10 @@
     function startSequence() { playScene1(); }
 
     window.onload = function() {
-        updateClock();
-        setInterval(updateClock, 1000);
+        scheduleClockUpdate();
         buildTicker();
+        syncTimeFromNetwork().then(() => { updateClock(); });
+        setInterval(syncTimeFromNetwork, 600000);
         fetchWeatherAndWbgt();
         setInterval(fetchWeatherAndWbgt, 300000);
         setTimeout(startSequence, 500);
