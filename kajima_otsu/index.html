@@ -386,7 +386,7 @@
             const normalizedHour = /^\+\d+h$/i.test(hourText) ? '' : hourText;
             const baseLabel = (i === 0) ? '現在' : ('+' + (i * 3) + 'h');
             const mergedTopLine = (i === 0)
-                ? '今時刻'
+                ? '現在'
                 : (normalizedHour ? (baseLabel + ' ' + normalizedHour) : baseLabel);
             document.querySelectorAll('.fc-slot-' + i + ' .fc-header').forEach(el => { el.innerText = mergedTopLine; });
             document.querySelectorAll('.fc-hour-' + i).forEach(el => { el.innerText = normalizedHour; });
