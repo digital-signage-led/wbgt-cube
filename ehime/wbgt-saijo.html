@@ -191,6 +191,8 @@
     const TICKER_SPEED_PX = 1.2;
     let scene2AnimId = null;
     let clockIntervalId = null;
+    let logoRotateIntervalId = null;
+    let logoRotStep = 0;
 
     const timeSync = { baseUtcMs: null, perfAtSync: 0 };
     const TIME_API_TOKYO = 'https://worldtimeapi.org/api/timezone/Asia/Tokyo';
@@ -200,6 +202,16 @@
 
     function applyCityName() {
         document.querySelectorAll('.s2-loc').forEach(function(el) { el.innerText = CITY_NAME; });
+    }
+    function startLogoRotation() {
+        if (logoRotateIntervalId != null) clearInterval(logoRotateIntervalId);
+        logoRotStep = 0;
+        logoRotator.style.transition = 'transform 0.6s ease-in-out';
+        logoRotator.style.transform = 'rotate(0deg)';
+        logoRotateIntervalId = setInterval(function() {
+            logoRotStep += 90;
+            logoRotator.style.transform = 'rotate(' + logoRotStep + 'deg)';
+        }, 5000);
     }
     function getSyncedUtcMs() { return timeSync.baseUtcMs == null ? null : timeSync.baseUtcMs + (performance.now() - timeSync.perfAtSync); }
     function applySyncedUtcMs(utcMs) { if (Number.isFinite(utcMs)) { timeSync.baseUtcMs = utcMs; timeSync.perfAtSync = performance.now(); } }
@@ -515,13 +527,12 @@
     function playScene2() {
         s2.classList.add('active'); s1.classList.remove('active'); s3.classList.remove('active'); s4.classList.remove('active'); s4.style.display = 'none';
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
-        let x = 0; let rotStep = 0; let lastRotateAt = performance.now();
-        conveyor.style.transition = 'none'; logoRotator.style.transition = 'transform 0.6s ease-in-out'; conveyor.style.transform = 'translateX(0px)'; logoRotator.style.transform = 'rotate(0deg)';
+        let x = 0;
+        conveyor.style.transition = 'none';
+        conveyor.style.transform = 'translateX(0px)';
         function animateScene2() {
             x -= SCENE2_SCROLL_PX; if (x <= -SCENE2_SET_WIDTH) x = 0;
             conveyor.style.transform = 'translateX(' + x + 'px)';
-            const nowMs = performance.now();
-            if (nowMs - lastRotateAt >= 5000) { rotStep += 90; logoRotator.style.transform = 'rotate(' + rotStep + 'deg)'; lastRotateAt = nowMs; }
             scene2AnimId = requestAnimationFrame(animateScene2);
         }
         scene2AnimId = requestAnimationFrame(animateScene2);
@@ -548,6 +559,7 @@
     window.onload = function() {
         applyCityName();
         buildTicker();
+        startLogoRotation();
         syncTimeFromNetwork().then(function() { updateClock(); startClockTicker(); }).catch(function() { updateClock(); startClockTicker(); });
         setInterval(syncTimeFromNetwork, 60000);
         fetchWeatherAndWbgt();
