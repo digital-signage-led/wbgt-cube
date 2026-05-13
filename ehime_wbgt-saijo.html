@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WBGT Signage - 西条市</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: "Noto Sans JP", sans-serif;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+    .wrap {
+      width: 640px;
+      height: 128px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      box-sizing: border-box;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 128px;
+      height: 128px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .meta {
+      font-size: 12px;
+      opacity: 0.8;
+      line-height: 1.6;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="left">
+      <img class="logo" src="./yonden-engineering-logo.png" alt="四電エンジニアリング">
+      <div class="title">WBGT Signage - 西条市</div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <script>
+    const query = new URLSearchParams(window.location.search);
+    const MOE_WBGT_API_URL = query.get('moeApi') || '';
+    const MOE_STATION_ID = (query.get('moeStation') || '85166').trim();
+    const MOE_YOHOU_ALL_CSV = 'https://www.wbgt.env.go.jp/prev15WG/dl/yohou_all.csv';
+    const lat = '33.9197';
+    const lon = '133.1815';
+
+    document.getElementById('meta').innerHTML = [
+      '地点: 西条市',
+      '緯度経度: ' + lat + ', ' + lon,
+      '環境省地点番号: ' + MOE_STATION_ID,
+      '予測CSV: ' + MOE_YOHOU_ALL_CSV,
+      MOE_WBGT_API_URL ? ('外部WBGT API: ' + MOE_WBGT_API_URL) : '外部WBGT API: 未指定'
+    ].join('<br>');
+  </script>
+</body>
+</html>
