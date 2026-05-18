@@ -81,7 +81,7 @@
 <div class="canvas">
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
-            <img class="logo-img" src="./nikken_logo.png" alt="logo">
+            <img class="logo-img" src="./nikken_log.png" alt="logo">
         </div>
     </div>
     <div class="content-area">
@@ -157,9 +157,11 @@
 
 <script>
     const query = new URLSearchParams(window.location.search);
-    // 環境省WBGT WebAPI（GAS proxy経由・最寄り観測点：明石）のURLを ?moeApi= で渡す
-    // 取得失敗時は「取得不可」固定。計算式によるフォールバックは厳禁。
-    const MOE_WBGT_API_URL = query.get('moeApi') || '';
+    // 環境省WBGT（GAS proxy経由・最寄り観測点：明石 63496）
+    // gas/MoeProxy.gs を Google Apps Script にデプロイし、Webアプリ URL を設定する。
+    // 例: index.html?moeApi=https://script.google.com/macros/s/XXXX/exec
+    const DEFAULT_MOE_GAS_URL = 'https://script.google.com/macros/s/AKfycbyCtyYdngRFvGdMQWii7skFimB2j-WBcaGlOjc5zu6cHxEBtVEs0e0xu1u0WdQsoFOzBQ/exec';
+    const MOE_WBGT_API_URL = query.get('moeApi') || DEFAULT_MOE_GAS_URL;
     // 加古川市（兵庫県）中心部の緯度経度（気温・湿度・天気アイコン等のOpen-Meteo用）
     const lat = '34.7569';
     const lon = '134.8411';
@@ -386,7 +388,10 @@
     }
 
     async function fetchWbgtFromMoeApi() {
-        if (!MOE_WBGT_API_URL) return null;
+        if (!MOE_WBGT_API_URL) {
+            console.warn('[WBGT] moeApi 未設定。gas/MoeProxy.gs をデプロイし URL を ?moeApi= または DEFAULT_MOE_GAS_URL に設定してください。');
+            return null;
+        }
         try {
             const res = await fetch(MOE_WBGT_API_URL, { cache: 'no-store' });
             if (!res.ok) return null;
@@ -605,6 +610,9 @@
             wbgt: null, levelIdx: 0, hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
         })));
         buildTicker();
+        if (!MOE_WBGT_API_URL) {
+            console.warn('[WBGT] 環境省データ取得には GAS プロキシ URL が必要です（公式 Web API は公開停止中）。');
+        }
         syncTimeFromNetwork().then(function() { updateClock(); });
         setInterval(syncTimeFromNetwork, 600000);
         fetchWeatherAndWbgt();
