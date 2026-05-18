@@ -22,6 +22,13 @@
         .s1-label { font-size: 16px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; }
         .time-val { font-size: 38px; font-weight: 800; color: #ebebeb; line-height: 1; font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif; }
         .face-img { width: 85px; height: 85px; object-fit: contain; display: block; }
+        .face-img.face-unavailable,
+        .s2-face-img.face-unavailable,
+        .fc-face-img.face-unavailable,
+        .msg-face.face-unavailable {
+            filter: contrast(0.45);
+            opacity: 0.55;
+        }
         .scene1-state { display: none; width: 512px; height: 128px; flex-direction: row; }
         .scene1-state.active { display: flex; }
 
@@ -187,6 +194,9 @@
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
     let currentWbgtLevel = -1;  // -1 = データ取得不可（初期状態）
     let tickerAnimId = null;
+    let wbgtRefreshTimerId = null;
+    const WBGT_REFRESH_OK_MS = 300000;
+    const WBGT_REFRESH_FAIL_MS = 60000;
 
     const s1 = document.getElementById('scene1');
     const s1A = document.getElementById('s1-stateA');
@@ -392,18 +402,18 @@
     function calcWbgt(t, h) { return null; }  // 旧計算式は使用禁止（保護のためnull返却）
     function wbgtLevel(w) { return w >= 31 ? 4 : w >= 28 ? 3 : w >= 25 ? 2 : w >= 21 ? 1 : 0; }
     const FACE_IMG_DIR = './faces/';
-    const FACE_UNKNOWN_SRC = 'data:image/svg+xml,' + encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
-        '<circle cx="50" cy="50" r="45" fill="#555"/>' +
-        '<text x="50" y="70" text-anchor="middle" fill="#fff" font-size="60" font-weight="900" font-family="sans-serif">?</text>' +
-        '</svg>'
-    );
+    function isFaceUnavailable(levelIdx) {
+        return levelIdx == null || levelIdx < 0;
+    }
     function faceImgSrc(levelIdx) {
-        if (levelIdx == null || levelIdx < 0) return FACE_UNKNOWN_SRC;
+        if (isFaceUnavailable(levelIdx)) return FACE_IMG_DIR + 'face-0.png';
         return FACE_IMG_DIR + 'face-' + levelIdx + '.png';
     }
     function setFaceEl(el, levelIdx) {
-        if (el && el.tagName === 'IMG') el.src = faceImgSrc(levelIdx);
+        if (!el || el.tagName !== 'IMG') return;
+        const unavailable = isFaceUnavailable(levelIdx);
+        el.src = faceImgSrc(levelIdx);
+        el.classList.toggle('face-unavailable', unavailable);
     }
     function setFace(levelIdx) {
         document.querySelectorAll('.face-use').forEach(el => setFaceEl(el, levelIdx));
@@ -530,17 +540,57 @@
         }
     }
 
-    async function fetchMoeFromGasUrl(url) {
-        const res = await fetch(url, { cache: 'no-store', redirect: 'follow' });
-        if (!res.ok) throw new Error('GAS HTTP ' + res.status);
-        const json = parseMoePayloadFromText(await res.text());
-        if (!json) throw new Error('GAS JSON parse failed');
+    function parseMoeJson_(json) {
         const slots = normalizeMoeResponse(json);
         if (!isTrustedMoePayload(json, slots)) {
-            throw new Error('untrusted source: ' + (json.source || 'unknown'));
+            throw new Error('untrusted source: ' + ((json && json.source) || 'unknown'));
         }
         console.log('[WBGT] 環境省データ取得 OK', json.updatedAt || '', '現在', slots[0].wbgt + '℃');
         return slots;
+    }
+
+    function fetchMoeViaJsonp(url) {
+        return new Promise((resolve, reject) => {
+            const cb = 'wbgtCb_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+            const sep = url.indexOf('?') >= 0 ? '&' : '?';
+            const script = document.createElement('script');
+            let done = false;
+            function finish(err, data) {
+                if (done) return;
+                done = true;
+                try { delete window[cb]; } catch (_) { window[cb] = undefined; }
+                script.remove();
+                if (err) reject(err);
+                else resolve(data);
+            }
+            window[cb] = (data) => finish(null, data);
+            script.onerror = () => finish(new Error('JSONP load failed'));
+            script.src = url + sep + 'callback=' + encodeURIComponent(cb);
+            document.head.appendChild(script);
+            setTimeout(() => finish(new Error('JSONP timeout')), 20000);
+        });
+    }
+
+    async function fetchMoeFromGasUrl(url) {
+        let json = null;
+        try {
+            const res = await fetch(url, { cache: 'no-store', redirect: 'follow', mode: 'cors' });
+            if (!res.ok) throw new Error('GAS HTTP ' + res.status);
+            json = parseMoePayloadFromText(await res.text());
+            if (!json) throw new Error('GAS JSON parse failed');
+        } catch (fetchErr) {
+            console.warn('[WBGT] fetch失敗、JSONPを試行:', fetchErr.message || fetchErr);
+            json = await fetchMoeViaJsonp(url);
+        }
+        return parseMoeJson_(json);
+    }
+
+    function scheduleWbgtRefresh() {
+        if (wbgtRefreshTimerId != null) clearTimeout(wbgtRefreshTimerId);
+        const delay = currentWbgtLevel < 0 ? WBGT_REFRESH_FAIL_MS : WBGT_REFRESH_OK_MS;
+        wbgtRefreshTimerId = setTimeout(function() {
+            fetchWeatherAndWbgt().finally(scheduleWbgtRefresh);
+        }, delay);
     }
 
     async function fetchWbgtFromMoeApi() {
@@ -634,7 +684,7 @@
         const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
         const lv = isUnknown ? -1 : currentWbgtLevel;
         const msgs = [m.jp, m.en, m.vn, m.cn];
-        const block = (text) => `<div class="msg-block"><img class="msg-face" src="${faceImgSrc(lv)}" alt=""><div class="msg-text">${text}</div></div>`;
+        const block = (text) => `<div class="msg-block"><img class="${isUnknown ? 'msg-face face-unavailable' : 'msg-face'}" src="${faceImgSrc(lv)}" alt=""><div class="msg-text">${text}</div></div>`;
         let html = '';
         for (let loop = 0; loop < 2; loop++) { for (const t of msgs) html += block(t); }
         html += block(msgs[0]) + block(msgs[1]);
@@ -750,8 +800,7 @@
             console.warn('[WBGT] 環境省データ取得には GAS プロキシ URL が必要です（公式 Web API は公開停止中）。');
         }
         setInterval(syncTimeFromNetwork, 300000);
-        fetchWeatherAndWbgt();
-        setInterval(fetchWeatherAndWbgt, 300000);
+        fetchWeatherAndWbgt().finally(scheduleWbgtRefresh);
         setTimeout(startSequence, 500);
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
