@@ -10,7 +10,11 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
-        .canvas { width: 640px; height: 128px; position: relative; overflow: hidden; display: flex; flex-direction: row; }
+        .canvas { width: 640px; height: 128px; position: relative; overflow: hidden; display: flex; flex-direction: row; transform-origin: top left; }
+        /* ブラウザ確認用: 640×128 を画面幅に合わせて拡大（LED実機はそのまま） */
+        @media screen and (min-width: 641px) {
+            .canvas { transform: scale(calc(100vw / 640)); }
+        }
         .logo-panel { width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #000; order: 2; }
         .logo-rotator { width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; transform: rotate(0deg); transition: transform 1s ease-in-out; transform-origin: center center; }
         .logo-img { width: 110px; height: 110px; object-fit: contain; }
@@ -401,19 +405,41 @@
     // データ取得失敗時は「取得不可」表示のみ。誤表示は熱中症事故リスクにつながる死活問題のため。
     function calcWbgt(t, h) { return null; }  // 旧計算式は使用禁止（保護のためnull返却）
     function wbgtLevel(w) { return w >= 31 ? 4 : w >= 28 ? 3 : w >= 25 ? 2 : w >= 21 ? 1 : 0; }
-    const FACE_IMG_DIR = './faces/';
+    // 顔PNGフォルダ（GitHub では faces が正。feces になっている場合はフォルダ名を faces にリネーム推奨）
+    const FACE_IMG_DIRS = ['./faces/', './feces/'];
+    let faceImgDirResolved = null;
     function isFaceUnavailable(levelIdx) {
         return levelIdx == null || levelIdx < 0;
     }
+    function facePngPath(levelIdx, dir) {
+        const base = dir || faceImgDirResolved || FACE_IMG_DIRS[0];
+        if (isFaceUnavailable(levelIdx)) return base + 'face-0.png';
+        return base + 'face-' + levelIdx + '.png';
+    }
     function faceImgSrc(levelIdx) {
-        if (isFaceUnavailable(levelIdx)) return FACE_IMG_DIR + 'face-0.png';
-        return FACE_IMG_DIR + 'face-' + levelIdx + '.png';
+        return facePngPath(levelIdx, faceImgDirResolved);
     }
     function setFaceEl(el, levelIdx) {
         if (!el || el.tagName !== 'IMG') return;
         const unavailable = isFaceUnavailable(levelIdx);
-        el.src = faceImgSrc(levelIdx);
         el.classList.toggle('face-unavailable', unavailable);
+        const tryDirs = faceImgDirResolved ? [faceImgDirResolved] : FACE_IMG_DIRS;
+        let dirIdx = 0;
+        el.onerror = function() {
+            dirIdx++;
+            if (dirIdx < tryDirs.length) {
+                this.src = facePngPath(levelIdx, tryDirs[dirIdx]);
+                return;
+            }
+            this.onerror = null;
+        };
+        el.src = facePngPath(levelIdx, tryDirs[0]);
+        if (!faceImgDirResolved && tryDirs[0] === FACE_IMG_DIRS[0]) {
+            const probe = new Image();
+            probe.onload = function() { faceImgDirResolved = FACE_IMG_DIRS[0]; };
+            probe.onerror = function() { faceImgDirResolved = FACE_IMG_DIRS[1]; };
+            probe.src = FACE_IMG_DIRS[0] + 'face-0.png';
+        }
     }
     function setFace(levelIdx) {
         document.querySelectorAll('.face-use').forEach(el => setFaceEl(el, levelIdx));
@@ -689,6 +715,7 @@
         for (let loop = 0; loop < 2; loop++) { for (const t of msgs) html += block(t); }
         html += block(msgs[0]) + block(msgs[1]);
         tickerTrack.innerHTML = html;
+        tickerTrack.querySelectorAll('.msg-face').forEach(img => setFaceEl(img, lv));
         const provider = 'データ提供：環境省熱中症予防情報サイト（WBGT）／ Open-Meteo API';
         barTrack.innerHTML = `<span class="bar-text">${provider}</span><span class="bar-text">${provider}</span>`;
     }
