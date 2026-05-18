@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 配置: wakayama/和歌山.html と wakayama/nikken_log.png を同じフォルダに置く（GitHub: wbgt-cube） -->
+<!-- 配置: wakayama/和歌山.html, wakayama/nikken_log.png, wakayama/faces/face-0〜4.png を同じフォルダ構成で置く（GitHub: wbgt-cube） -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -21,7 +21,7 @@
         .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; flex-shrink: 0; gap: 4px; }
         .s1-label { font-size: 16px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; }
         .time-val { font-size: 38px; font-weight: 800; color: #ebebeb; line-height: 1; font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif; }
-        .face-svg { width: 85px; height: 85px; }
+        .face-img { width: 85px; height: 85px; object-fit: contain; display: block; }
         .scene1-state { display: none; width: 512px; height: 128px; flex-direction: row; }
         .scene1-state.active { display: flex; }
 
@@ -36,7 +36,7 @@
         .s2-dir-text { font-size: 28px; font-weight: 800; color: #ebebeb; line-height: 1; font-family: "Noto Sans JP", sans-serif; }
         .s2-unit { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.8); font-family: "Inter", sans-serif; padding-bottom: 5px; }
         .weather-svg { width: 54px; height: 54px; }
-        .s2-face { width: 54px; height: 54px; }
+        .s2-face-img { width: 54px; height: 54px; object-fit: contain; display: block; }
         .conveyor-track { display: flex; flex-direction: row; width: 3072px; transition: transform 0.6s ease-in-out; }
 
         .forecast-scene { display: none; overflow: hidden; }
@@ -47,14 +47,14 @@
         .fc-hour { display: none; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.75); font-family: "Inter", "Noto Sans JP", sans-serif; }
         .fc-wbgt { font-size: 36px; font-weight: 800; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif; }
         .fc-label { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.55px; font-family: "Inter", "Noto Sans JP", sans-serif; }
-        .fc-face { display: none; width: 26px; height: 26px; position: absolute; top: 4px; right: 6px; border: 2px solid rgba(255,255,255,0.85); border-radius: 50%; }
+        .fc-face-img { display: none; width: 26px; height: 26px; object-fit: contain; position: absolute; top: 4px; right: 6px; }
         .fc-now { border: 2px solid rgba(255,255,255,0.35); }
 
-        .fc-bg-0 { background-color: #0289DE; }
-        .fc-bg-1 { background-color: #2BB3E0; }
-        .fc-bg-2 { background-color: #FFC700; }
-        .fc-bg-3 { background-color: #FD871A; }
-        .fc-bg-4 { background-color: #EC3817; }
+        .fc-bg-0 { background-color: #2F8CDC; }
+        .fc-bg-1 { background-color: #FDD72E; }
+        .fc-bg-2 { background-color: #FDBA2B; }
+        .fc-bg-3 { background-color: #FE7D03; }
+        .fc-bg-4 { background-color: #D31715; }
         .fc-bg-unknown { background-color: #2a2a2a; }
 
         .ticker-scene { background-color: #000; display: none; position: relative; overflow: hidden; }
@@ -66,7 +66,7 @@
             justify-content: flex-start; align-items: center; gap: 20px; box-sizing: border-box;
             padding: 0 20px;
         }
-        .msg-face { width: 38px; height: 38px; flex: 0 0 38px; display: block; }
+        .msg-face { width: 38px; height: 38px; flex: 0 0 38px; display: block; object-fit: contain; }
         .msg-text {
             flex: 1 1 0; min-width: 0; max-width: 222px;
             font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3;
@@ -84,12 +84,6 @@
     <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
     <symbol id="icon-cloudy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#999"/></symbol>
     <symbol id="icon-rainy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#666"/><path d="M45,75 L40,90 M65,75 L60,90" stroke="#00b0f0" stroke-width="6" stroke-linecap="round"/></symbol>
-    <symbol id="face-0" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#0289DE"/><circle cx="35" cy="40" r="5" fill="#fff"/><circle cx="65" cy="40" r="5" fill="#fff"/><path d="M 30 65 Q 50 85 70 65" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
-    <symbol id="face-1" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#2BB3E0"/><circle cx="35" cy="40" r="5" fill="#fff"/><circle cx="65" cy="40" r="5" fill="#fff"/><line x1="30" y1="70" x2="70" y2="70" stroke="#fff" stroke-width="5" stroke-linecap="round"/></symbol>
-    <symbol id="face-2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#FFC700"/><path d="M 30 45 Q 35 35 40 45 M 60 45 Q 65 35 70 45" stroke="#fff" stroke-width="4" fill="none"/><path d="M 35 75 Q 50 65 65 75" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
-    <symbol id="face-3" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#FD871A"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="5"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="5"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="5"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="5"/><path d="M 35 75 Q 50 65 65 75" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
-    <symbol id="face-4" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#EC3817"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="5"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="5"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="5"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="5"/><path d="M 30 75 Q 35 65 40 75 T 50 75 T 60 75 T 70 75" stroke="#fff" stroke-width="5" fill="none"/></symbol>
-    <symbol id="face-unknown" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#555"/><text x="50" y="70" text-anchor="middle" fill="#fff" font-size="60" font-weight="900" font-family="Inter, sans-serif">?</text></symbol>
 </svg>
 
 <div class="canvas">
@@ -101,16 +95,16 @@
     <div class="content-area">
     <div class="scene active" id="scene1">
         <div class="scene1-state active" id="s1-stateA">
-            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><img class="face-img face-use" src="./faces/face-0.png" alt=""></div>
             <div class="panel"><div class="s1-label">時刻</div><div class="clock-hm time-val">--:--</div></div>
-            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><img class="face-img face-use" src="./faces/face-0.png" alt=""></div>
             <div class="panel"><div class="s1-label">時刻</div><div class="clock-hm time-val">--:--</div></div>
         </div>
         <div class="scene1-state" id="s1-stateB">
             <div class="panel"><div class="s1-label">時刻</div><div class="clock-hm time-val">--:--</div></div>
-            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><img class="face-img face-use" src="./faces/face-0.png" alt=""></div>
             <div class="panel"><div class="s1-label">時刻</div><div class="clock-hm time-val">--:--</div></div>
-            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><img class="face-img face-use" src="./faces/face-0.png" alt=""></div>
         </div>
     </div>
 
@@ -123,7 +117,7 @@
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風速</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num wind-val">--</span><span class="s2-unit">m/s</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風向</div></div><div class="s2-zone-mid"><div class="s2-dir-text dir-val">--</div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気圧</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num pres-val">--</span><span class="s2-unit">hPa</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
-            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><svg class="s2-face"><use class="face-use" href="#face-0"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><img class="s2-face-img face-use" src="./faces/face-0.png" alt=""></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
 
             <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">天気</div></div><div class="s2-zone-mid"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気温</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num temp-val">--</span><span class="s2-unit">℃</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
@@ -132,7 +126,7 @@
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風速</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num wind-val">--</span><span class="s2-unit">m/s</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風向</div></div><div class="s2-zone-mid"><div class="s2-dir-text dir-val">--</div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気圧</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num pres-val">--</span><span class="s2-unit">hPa</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
-            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><svg class="s2-face"><use class="face-use" href="#face-0"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><img class="s2-face-img face-use" src="./faces/face-0.png" alt=""></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
 
             <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">天気</div></div><div class="s2-zone-mid"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気温</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num temp-val">--</span><span class="s2-unit">℃</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
@@ -141,24 +135,24 @@
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風速</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num wind-val">--</span><span class="s2-unit">m/s</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風向</div></div><div class="s2-zone-mid"><div class="s2-dir-text dir-val">--</div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
             <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気圧</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num pres-val">--</span><span class="s2-unit">hPa</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
-            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><svg class="s2-face"><use class="face-use" href="#face-0"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><img class="s2-face-img face-use" src="./faces/face-0.png" alt=""></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
         </div>
     </div>
 
     <div class="scene forecast-scene" id="scene4">
         <div class="fc-track" id="fc-conveyor">
-            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
-            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
-            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
-            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
+            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
+            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
+            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><img class="fc-face-img fc-face-use face-use" src="./faces/face-0.png" alt=""><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
         </div>
     </div>
 
@@ -397,9 +391,22 @@
     // データ取得失敗時は「取得不可」表示のみ。誤表示は熱中症事故リスクにつながる死活問題のため。
     function calcWbgt(t, h) { return null; }  // 旧計算式は使用禁止（保護のためnull返却）
     function wbgtLevel(w) { return w >= 31 ? 4 : w >= 28 ? 3 : w >= 25 ? 2 : w >= 21 ? 1 : 0; }
+    const FACE_IMG_DIR = './faces/';
+    const FACE_UNKNOWN_SRC = 'data:image/svg+xml,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+        '<circle cx="50" cy="50" r="45" fill="#555"/>' +
+        '<text x="50" y="70" text-anchor="middle" fill="#fff" font-size="60" font-weight="900" font-family="sans-serif">?</text>' +
+        '</svg>'
+    );
+    function faceImgSrc(levelIdx) {
+        if (levelIdx == null || levelIdx < 0) return FACE_UNKNOWN_SRC;
+        return FACE_IMG_DIR + 'face-' + levelIdx + '.png';
+    }
+    function setFaceEl(el, levelIdx) {
+        if (el && el.tagName === 'IMG') el.src = faceImgSrc(levelIdx);
+    }
     function setFace(levelIdx) {
-        const target = (levelIdx == null || levelIdx < 0) ? '#face-unknown' : '#face-' + levelIdx;
-        document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', target));
+        document.querySelectorAll('.face-use').forEach(el => setFaceEl(el, levelIdx));
     }
     function hasFull4Slots(slots) {
         return Array.isArray(slots) && slots.length >= 4 && slots[0] != null && slots[0].wbgt != null;
@@ -473,8 +480,7 @@
                 panel.setAttribute('data-topwbgt', 'WBGT');
                 const bgClass = isUnknown ? 'fc-bg-unknown' : ('fc-bg-' + lv);
                 panel.className = 'fc-panel fc-slot-' + i + (i === 0 ? ' fc-now' : '') + ' ' + bgClass;
-                const faceHref = isUnknown ? '#face-unknown' : ('#face-' + lv);
-                panel.querySelectorAll('.fc-face-use').forEach(u => u.setAttribute('href', faceHref));
+                panel.querySelectorAll('.fc-face-use').forEach(u => setFaceEl(u, isUnknown ? -1 : lv));
             });
         }
     }
@@ -626,9 +632,9 @@
     function buildTicker() {
         const isUnknown = (currentWbgtLevel < 0);
         const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
-        const lv = isUnknown ? 'unknown' : currentWbgtLevel;
+        const lv = isUnknown ? -1 : currentWbgtLevel;
         const msgs = [m.jp, m.en, m.vn, m.cn];
-        const block = (text) => `<div class="msg-block"><svg class="msg-face"><use href="#face-${lv}"/></svg><div class="msg-text">${text}</div></div>`;
+        const block = (text) => `<div class="msg-block"><img class="msg-face" src="${faceImgSrc(lv)}" alt=""><div class="msg-text">${text}</div></div>`;
         let html = '';
         for (let loop = 0; loop < 2; loop++) { for (const t of msgs) html += block(t); }
         html += block(msgs[0]) + block(msgs[1]);
