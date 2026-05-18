@@ -3,6 +3,9 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>WBGT Signage - Kakogawa</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
@@ -58,9 +61,19 @@
         .ticker-scene.active { display: block !important; }
         .ticker-main { width: 512px; height: 108px; overflow: hidden; position: relative; }
         .ticker-track { display: flex; align-items: center; height: 108px; position: absolute; top: 0; left: 0; }
-        .msg-block { width: 256px; height: 108px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; gap: 10px; box-sizing: border-box; padding: 0 12px; }
-        .msg-face { width: 36px; height: 36px; flex-shrink: 0; }
-        .msg-text { font-size: 18px; font-weight: 800; color: #fff; white-space: nowrap; text-align: center; font-family: "Noto Sans JP", "Inter", sans-serif; }
+        .msg-block {
+            width: 320px; height: 108px; display: flex; flex-direction: row; flex-shrink: 0;
+            justify-content: flex-start; align-items: center; gap: 20px; box-sizing: border-box;
+            padding: 0 20px;
+        }
+        .msg-face { width: 38px; height: 38px; flex: 0 0 38px; display: block; }
+        .msg-text {
+            flex: 1 1 0; min-width: 0; max-width: 222px;
+            font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3;
+            white-space: normal; overflow: hidden; text-align: left;
+            display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+            font-family: "Noto Sans JP", "Inter", sans-serif;
+        }
         .ticker-bar { width: 512px; height: 20px; background: rgba(255,255,255,0.06); overflow: hidden; position: absolute; bottom: 0; left: 0; }
         .bar-track { display: flex; align-items: center; height: 20px; position: absolute; top: 0; left: 0; white-space: nowrap; }
         .bar-text { font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; padding-right: 80px; flex-shrink: 0; }
@@ -159,10 +172,11 @@
 <script>
     const query = new URLSearchParams(window.location.search);
     // 環境省WBGT（GAS proxy経由・最寄り観測点：明石 63496）
-    // gas/MoeProxy.gs を Google Apps Script にデプロイし、Webアプリ URL を設定する。
-    // 例: index.html?moeApi=https://script.google.com/macros/s/XXXX/exec
-    const DEFAULT_MOE_GAS_URL = 'https://script.google.com/macros/s/AKfycbyCtyYdngRFvGdMQWii7skFimB2j-WBcaGlOjc5zu6cHxEBtVEs0e0xu1u0WdQsoFOzBQ/exec';
+    // ★ gas/gas_wbgt_kakogawa_v1.gs を GAS に貼り付け → 再デプロイ → exec URL を下に設定
+    // 応答 source: "estimated" | "forecast"（環境省CSV）が正常
+    const DEFAULT_MOE_GAS_URL = 'https://script.google.com/macros/s/AKfycbys3vf21Tew7bAfGgrvUit3YD7WcWp1X1hIL5XnxuLHWjuChxRkb-bIXRswi0YBrZDYwg/exec';
     const MOE_WBGT_API_URL = query.get('moeApi') || DEFAULT_MOE_GAS_URL;
+    const MOE_WBGT_BACKUP_URL = query.get('moeBackup') || '';
     // 加古川市（兵庫県）中心部の緯度経度（気温・湿度・天気アイコン等のOpen-Meteo用）
     const lat = '34.7569';
     const lon = '134.8411';
@@ -198,6 +212,7 @@
     const SCENE2_SCROLL_PX = 0.8;
     const SCENE2_SET_WIDTH = 1024;
     const TICKER_SPEED_PX = 1.2;
+    const TICKER_BLOCK_W = 320;
     let logoQuarter = 0;
     let scene2AnimId = null;
     let clockIntervalId = null;
@@ -387,7 +402,7 @@
         document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', target));
     }
     function hasFull4Slots(slots) {
-        return Array.isArray(slots) && slots.length >= 4 && slots.every(s => s && s.wbgt != null);
+        return Array.isArray(slots) && slots.length >= 4 && slots[0] != null && slots[0].wbgt != null;
     }
     function getClockDateForParts() {
         const ms = getSyncedUtcMs();
@@ -464,6 +479,20 @@
         }
     }
 
+    function normalizeWbgtCelsius(raw) {
+        if (raw === null || raw === undefined || raw === '') return null;
+        const w = Number(raw);
+        if (!Number.isFinite(w) || w < 5 || w > 45) return null;
+        return w;
+    }
+
+    /** 環境省公式GASからの応答のみ採用（estimated=実況推定CSV, forecast=予測CSV） */
+    function isTrustedMoePayload(json, slots) {
+        if (!hasFull4Slots(slots)) return false;
+        const src = json && json.source;
+        return src === 'estimated' || src === 'forecast' || src === 'moe-env.go.jp';
+    }
+
     function normalizeMoeResponse(payload) {
         // 期待形式: 配列4件 (現在/+3h/+6h/+9h) 各要素に wbgt, hour, levelIdx (任意)
         const rows = Array.isArray(payload) ? payload : (payload?.data || payload?.slots || []);
@@ -472,9 +501,9 @@
         for (let i = 0; i < 4; i++) {
             const row = rows[i] || {};
             const wbgtRaw = row.wbgt ?? row.value ?? row.wbgtValue;
-            const wbgt = (wbgtRaw === null || wbgtRaw === undefined || wbgtRaw === '' || isNaN(Number(wbgtRaw))) ? null : Number(wbgtRaw);
-            const explicitLevel = Number.isInteger(row.levelIdx) ? row.levelIdx : (Number.isInteger(row.level) ? row.level : null);
-            const lv = wbgt == null ? 0 : (explicitLevel != null ? explicitLevel : wbgtLevel(wbgt));
+            const wbgt = normalizeWbgtCelsius(wbgtRaw);
+            const explicitLv = Number.isInteger(row.levelIdx) ? row.levelIdx : null;
+            const lv = wbgt == null ? 0 : (explicitLv != null ? explicitLv : wbgtLevel(wbgt));
             const hourText = row.hour || row.timeLabel || row.time || (i === 0 ? '現在' : ('+' + (i * 3) + 'h'));
             slots.push({
                 wbgt,
@@ -485,43 +514,44 @@
         return slots;
     }
 
-    async function fetchWbgtFromMoeApi() {
-        if (!MOE_WBGT_API_URL) {
-            console.warn('[WBGT] moeApi 未設定。gas/MoeProxy.gs をデプロイし URL を ?moeApi= または DEFAULT_MOE_GAS_URL に設定してください。');
-            return null;
-        }
+    function parseMoePayloadFromText(text) {
+        const trimmed = String(text || '').trim();
+        if (!trimmed) return null;
         try {
-            const res = await fetch(MOE_WBGT_API_URL, { cache: 'no-store' });
-            if (!res.ok) return null;
-            const contentType = (res.headers.get('content-type') || '').toLowerCase();
-
-            let slots = null;
-            if (contentType.includes('application/json') || contentType.includes('+json')) {
-                const json = await res.json();
-                slots = normalizeMoeResponse(json);
-            } else {
-                const text = await res.text();
-                // CSV: 先頭4行を [wbgt, ..., levelIdx, hour] として解釈
-                const rows = text.split(/\r?\n/).map(line => line.split(',').map(c => c.replace(/"/g, '').trim())).filter(r => r.length > 0);
-                if (rows.length >= 4) {
-                    slots = [];
-                    for (let i = 0; i < 4; i++) {
-                        const r = rows[i] || [];
-                        const wb = Number(r[0]);
-                        const lv = Number(r[2]);
-                        slots.push({
-                            wbgt: Number.isFinite(wb) ? wb : null,
-                            levelIdx: Number.isFinite(lv) ? Math.max(0, Math.min(4, lv)) : (Number.isFinite(wb) ? wbgtLevel(wb) : 0),
-                            hour: r[3] || (i === 0 ? '現在' : ('+' + (i * 3) + 'h'))
-                        });
-                    }
-                }
-            }
-            return slots;
-        } catch (error) {
-            console.error('MOE WBGT API error:', error);
+            return JSON.parse(trimmed);
+        } catch (_) {
             return null;
         }
+    }
+
+    async function fetchMoeFromGasUrl(url) {
+        const res = await fetch(url, { cache: 'no-store', redirect: 'follow' });
+        if (!res.ok) throw new Error('GAS HTTP ' + res.status);
+        const json = parseMoePayloadFromText(await res.text());
+        if (!json) throw new Error('GAS JSON parse failed');
+        const slots = normalizeMoeResponse(json);
+        if (!isTrustedMoePayload(json, slots)) {
+            throw new Error('untrusted source: ' + (json.source || 'unknown'));
+        }
+        console.log('[WBGT] 環境省データ取得 OK', json.updatedAt || '', '現在', slots[0].wbgt + '℃');
+        return slots;
+    }
+
+    async function fetchWbgtFromMoeApi() {
+        const urls = [MOE_WBGT_API_URL, MOE_WBGT_BACKUP_URL].filter((u, i, a) => u && a.indexOf(u) === i);
+        if (!urls.length) {
+            console.warn('[WBGT] moeApi 未設定。gas/Code.gs をデプロイし URL を設定してください。');
+            return null;
+        }
+        for (const url of urls) {
+            try {
+                return await fetchMoeFromGasUrl(url);
+            } catch (e) {
+                console.warn('[WBGT] GAS失敗:', url.slice(-20), e.message || e);
+            }
+        }
+        console.warn('[WBGT] 環境省WBGTを取得できません。gas/gas_wbgt_kakogawa_v1.gs を貼り付けて GAS を再デプロイしてください。');
+        return null;
     }
 
     async function fetchWeatherAndWbgt() {
@@ -610,7 +640,7 @@
     function playScene3() {
         s3.classList.add('active');
         buildTicker();
-        const scrollDist = 256 * 8;
+        const scrollDist = TICKER_BLOCK_W * 8;
         const barW = barTrack.scrollWidth / 2;
         let tickerX = 0;
         let barX = 0;
