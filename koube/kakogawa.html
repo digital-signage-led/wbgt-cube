@@ -51,6 +51,7 @@
         .fc-bg-2 { background-color: #FFC700; }
         .fc-bg-3 { background-color: #FD871A; }
         .fc-bg-4 { background-color: #EC3817; }
+        .fc-bg-unknown { background-color: #2a2a2a; }
 
         .ticker-scene { background-color: #000; display: none; position: relative; overflow: hidden; }
         .ticker-scene.active { display: block !important; }
@@ -74,6 +75,7 @@
     <symbol id="face-2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#FFC700"/><path d="M 30 45 Q 35 35 40 45 M 60 45 Q 65 35 70 45" stroke="#fff" stroke-width="4" fill="none"/><path d="M 35 75 Q 50 65 65 75" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
     <symbol id="face-3" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#FD871A"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="5"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="5"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="5"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="5"/><path d="M 35 75 Q 50 65 65 75" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
     <symbol id="face-4" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#EC3817"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="5"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="5"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="5"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="5"/><path d="M 30 75 Q 35 65 40 75 T 50 75 T 60 75 T 70 75" stroke="#fff" stroke-width="5" fill="none"/></symbol>
+    <symbol id="face-unknown" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#555"/><text x="50" y="70" text-anchor="middle" fill="#fff" font-size="60" font-weight="900" font-family="Inter, sans-serif">?</text></symbol>
 </svg>
 
 <div class="canvas">
@@ -155,9 +157,10 @@
 
 <script>
     const query = new URLSearchParams(window.location.search);
-    // 環境省WBGT WebAPIのURLを ?moeApi= で上書き可能
+    // 環境省WBGT WebAPI（GAS proxy経由・最寄り観測点：明石）のURLを ?moeApi= で渡す
+    // 取得失敗時は「取得不可」固定。計算式によるフォールバックは厳禁。
     const MOE_WBGT_API_URL = query.get('moeApi') || '';
-    // 加古川市（兵庫県）中心部の緯度経度
+    // 加古川市（兵庫県）中心部の緯度経度（気温・湿度・天気アイコン等のOpen-Meteo用）
     const lat = '34.7569';
     const lon = '134.8411';
 
@@ -168,8 +171,10 @@
         { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng", cn:"严重警戒：停止剧烈作业" },
         { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", vn:"Nguy hiểm: Dừng công việc ngay", cn:"危険：立即停止作业" }
     ];
+    // データ取得不可時の専用メッセージ（誤認防止）
+    const unknownMsg = { jp:"WBGTデータ取得不可", en:"WBGT data unavailable", vn:"Không có dữ liệu WBGT", cn:"WBGT数据不可用" };
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
-    let currentWbgtLevel = 0;
+    let currentWbgtLevel = -1;  // -1 = データ取得不可（初期状態）
     let tickerAnimId = null;
 
     const s1 = document.getElementById('scene1');
@@ -273,9 +278,14 @@
         const idx = Math.round((((deg % 360) + 360) % 360) / 22.5) % 16;
         return dirs[idx];
     }
-    function calcWbgt(t, h) { return (0.725 * t) + (0.0368 * h) + (0.00115 * t * h) - 2.503; }
+    // 【最重要・安全事項】WBGTは環境省実測値のみ表示する。気温・湿度からの計算式によるフォールバックは禁止。
+    // データ取得失敗時は「取得不可」表示のみ。誤表示は熱中症事故リスクにつながる死活問題のため。
+    function calcWbgt(t, h) { return null; }  // 旧計算式は使用禁止（保護のためnull返却）
     function wbgtLevel(w) { return w >= 31 ? 4 : w >= 28 ? 3 : w >= 25 ? 2 : w >= 21 ? 1 : 0; }
-    function setFace(levelIdx) { document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', '#face-' + levelIdx)); }
+    function setFace(levelIdx) {
+        const target = (levelIdx == null || levelIdx < 0) ? '#face-unknown' : '#face-' + levelIdx;
+        document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', target));
+    }
     function hasFull4Slots(slots) {
         return Array.isArray(slots) && slots.length >= 4 && slots.every(s => s && s.wbgt != null);
     }
@@ -298,50 +308,58 @@
         return { y: Number(map.year), m: Number(map.month), d: Number(map.day), h: Number(map.hour) };
     }
 
+    // 【最重要・安全事項】Open-Meteo計算によるWBGT算出は廃止。常に「取得不可」スロットのみ返す。
+    // 実データは環境省WBGT WebAPI（GAS proxy経由）からのみ取得する。
     function buildWbgtSlotsFromHourly(hourly) {
-        const { y, m, d, h: currentHour } = getTokyoYMDH();
-        if (!Number.isFinite(currentHour)) {
-            const offsets = [0, 3, 6, 9];
-            return offsets.map((offset, i) => ({ wbgt: null, levelIdx: 0, hour: i === 0 ? '現在' : ('+' + offset + 'h') }));
-        }
-        let startIdx = -1;
-        for (let i = 0; i < hourly.time.length; i++) {
-            const match = String(hourly.time[i]).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})/);
-            if (!match) continue;
-            const Y = Number(match[1]), M = Number(match[2]), D = Number(match[3]), H = Number(match[4]);
-            if (Y === y && M === m && D === d && H === currentHour) { startIdx = i; break; }
-        }
         const offsets = [0, 3, 6, 9];
-        return offsets.map((offset, i) => {
-            const idx = startIdx >= 0 ? startIdx + offset : -1;
-            if (idx < 0 || idx >= hourly.time.length || hourly.temperature_2m[idx] == null || hourly.relative_humidity_2m[idx] == null) {
-                return { wbgt: null, levelIdx: 0, hour: i === 0 ? '現在' : ('+' + offset + 'h') };
-            }
-            const w = calcWbgt(hourly.temperature_2m[idx], hourly.relative_humidity_2m[idx]);
-            const slotMatch = String(hourly.time[idx]).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2})/);
-            const hourLabel = slotMatch ? (Number(slotMatch[4]) + '時') : '';
-            return { wbgt: w, levelIdx: wbgtLevel(w), hour: i === 0 ? '現在' : hourLabel };
-        });
+        return offsets.map((offset, i) => ({
+            wbgt: null,
+            levelIdx: 0,
+            hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
+        }));
+    }
+
+    /** 同期済み時刻から「○時」ラベルを生成（例：「11時」）。失敗時は空文字 */
+    function getCurrentHourLabel() {
+        const ms = getSyncedUtcMs();
+        if (ms == null) return '';
+        try {
+            const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone: CLOCK_TZ,
+                hour: '2-digit',
+                hour12: false
+            }).formatToParts(new Date(ms));
+            const hp = parts.find(p => p.type === 'hour');
+            return hp ? (Number(hp.value) + '時') : '';
+        } catch (e) { return ''; }
     }
 
     function updateForecastSlots(slots) {
         for (let i = 0; i < 4; i++) {
             const s = slots[i] || { wbgt: null, levelIdx: 0, hour: '取得不可' };
+            const isUnknown = (s.wbgt == null);
             const lv = Number.isInteger(s.levelIdx) ? s.levelIdx : 0;
             const hourText = String(s.hour || '');
             const normalizedHour = /^\+\d+h$/i.test(hourText) ? '' : hourText;
             const baseLabel = (i === 0) ? '現在' : ('+' + (i * 3) + 'h');
-            const mergedTopLine = (i === 0)
-                ? '今時刻'
-                : (normalizedHour ? (baseLabel + ' ' + normalizedHour) : baseLabel);
+            // i=0（現在スロット）も他と統一して「現在 ○時」表示に。時刻が取れなければ「現在」のみ。
+            let mergedTopLine;
+            if (i === 0) {
+                const nowHour = getCurrentHourLabel();
+                mergedTopLine = nowHour ? ('現在 ' + nowHour) : '現在';
+            } else {
+                mergedTopLine = normalizedHour ? (baseLabel + ' ' + normalizedHour) : baseLabel;
+            }
             document.querySelectorAll('.fc-slot-' + i + ' .fc-header').forEach(el => { el.innerText = mergedTopLine; });
             document.querySelectorAll('.fc-hour-' + i).forEach(el => { el.innerText = normalizedHour; });
-            document.querySelectorAll('.fc-val-' + i).forEach(el => { el.innerText = s.wbgt != null ? (Number(s.wbgt).toFixed(1) + '℃') : '--'; });
-            document.querySelectorAll('.fc-lv-' + i).forEach(el => { el.innerText = s.wbgt != null ? levelNames[lv] : ''; });
+            document.querySelectorAll('.fc-val-' + i).forEach(el => { el.innerText = isUnknown ? '--' : (Number(s.wbgt).toFixed(1) + '℃'); });
+            document.querySelectorAll('.fc-lv-' + i).forEach(el => { el.innerText = isUnknown ? '取得不可' : levelNames[lv]; });
             document.querySelectorAll('.fc-slot-' + i).forEach(panel => {
                 panel.setAttribute('data-topwbgt', 'WBGT');
-                panel.className = 'fc-panel fc-slot-' + i + (i === 0 ? ' fc-now' : '') + ' fc-bg-' + lv;
-                panel.querySelectorAll('.fc-face-use').forEach(u => u.setAttribute('href', '#face-' + lv));
+                const bgClass = isUnknown ? 'fc-bg-unknown' : ('fc-bg-' + lv);
+                panel.className = 'fc-panel fc-slot-' + i + (i === 0 ? ' fc-now' : '') + ' ' + bgClass;
+                const faceHref = isUnknown ? '#face-unknown' : ('#face-' + lv);
+                panel.querySelectorAll('.fc-face-use').forEach(u => u.setAttribute('href', faceHref));
             });
         }
     }
@@ -428,35 +446,53 @@
             document.querySelectorAll('.dir-val').forEach(el => { el.innerText = degToCompassJa(Number(data.current.wind_direction_10m)); });
             document.querySelectorAll('.pres-val').forEach(el => { el.innerText = Math.round(Number(data.current.surface_pressure ?? 0)); });
 
-            // 環境省データが欠けている場合も含め、Open-Meteoで4枠補完
-            const fallbackSlots = buildWbgtSlotsFromHourly(data.hourly);
-            if (!wbgtSlots) wbgtSlots = fallbackSlots;
-            else if (!hasFull4Slots(wbgtSlots)) {
-                wbgtSlots = wbgtSlots.slice(0, 4);
-                while (wbgtSlots.length < 4) wbgtSlots.push({ wbgt: null, levelIdx: 0, hour: '取得不可' });
-                for (let i = 0; i < 4; i++) {
-                    if (wbgtSlots[i]?.wbgt == null && fallbackSlots[i]?.wbgt != null) wbgtSlots[i] = fallbackSlots[i];
+            // 環境省データが取得できない/不完全な場合は「取得不可」固定。計算によるフォールバック禁止。
+            if (!wbgtSlots || !hasFull4Slots(wbgtSlots)) {
+                const nullSlots = [0, 3, 6, 9].map((offset, i) => ({
+                    wbgt: null,
+                    levelIdx: 0,
+                    hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
+                }));
+                // 環境省データ部分があれば優先、無い枠だけnullで埋める
+                if (Array.isArray(wbgtSlots)) {
+                    wbgtSlots = wbgtSlots.slice(0, 4);
+                    while (wbgtSlots.length < 4) wbgtSlots.push(nullSlots[wbgtSlots.length]);
+                    for (let i = 0; i < 4; i++) {
+                        if (wbgtSlots[i]?.wbgt == null) wbgtSlots[i] = nullSlots[i];
+                    }
+                } else {
+                    wbgtSlots = nullSlots;
                 }
             }
 
-            currentWbgtLevel = wbgtSlots[0]?.levelIdx ?? 0;
+            // 現在のWBGTがnull → -1（取得不可）にして顔アイコンを「?」マークに
+            currentWbgtLevel = (wbgtSlots[0]?.wbgt == null) ? -1 : (wbgtSlots[0]?.levelIdx ?? -1);
             setFace(currentWbgtLevel);
             updateForecastSlots(wbgtSlots);
             buildTicker();
         } catch (error) {
             console.error('Weather error:', error);
             if (wbgtSlots) {
-                currentWbgtLevel = wbgtSlots[0]?.levelIdx ?? 0;
+                currentWbgtLevel = (wbgtSlots[0]?.wbgt == null) ? -1 : (wbgtSlots[0]?.levelIdx ?? -1);
                 setFace(currentWbgtLevel);
                 updateForecastSlots(wbgtSlots);
+                buildTicker();
+            } else {
+                // 完全にデータなし → 「取得不可」表示
+                currentWbgtLevel = -1;
+                setFace(-1);
+                updateForecastSlots([0, 3, 6, 9].map((offset, i) => ({
+                    wbgt: null, levelIdx: 0, hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
+                })));
                 buildTicker();
             }
         }
     }
 
     function buildTicker() {
-        const m = multi[currentWbgtLevel];
-        const lv = currentWbgtLevel;
+        const isUnknown = (currentWbgtLevel < 0);
+        const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
+        const lv = isUnknown ? 'unknown' : currentWbgtLevel;
         const msgs = [m.jp, m.en, m.vn, m.cn];
         const block = (text) => `<div class="msg-block"><svg class="msg-face"><use href="#face-${lv}"/></svg><div class="msg-text">${text}</div></div>`;
         let html = '';
@@ -563,6 +599,11 @@
     window.onload = function() {
         updateClock();
         startClockTicker();
+        // 初期表示は「取得不可」固定（実データ取得前の誤認を防止）
+        setFace(-1);
+        updateForecastSlots([0, 3, 6, 9].map((offset, i) => ({
+            wbgt: null, levelIdx: 0, hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
+        })));
         buildTicker();
         syncTimeFromNetwork().then(function() { updateClock(); });
         setInterval(syncTimeFromNetwork, 600000);
