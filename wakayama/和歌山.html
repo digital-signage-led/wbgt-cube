@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<!-- 配置: wakayama/和歌山.html と wakayama/nikken_log.png を同じフォルダに置く（GitHub: wbgt-cube） -->
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>WBGT Signage - Wakayama</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
+        .canvas { width: 640px; height: 128px; position: relative; overflow: hidden; display: flex; flex-direction: row; }
+        .logo-panel { width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #000; order: 2; }
+        .logo-rotator { width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; transform: rotate(0deg); transition: transform 1s ease-in-out; transform-origin: center center; }
+        .logo-img { width: 110px; height: 110px; object-fit: contain; }
+        .content-area { width: 512px; height: 128px; position: relative; overflow: hidden; flex-shrink: 0; order: 1; }
+        .scene { position: absolute; top: 0; left: 0; width: 512px; height: 128px; display: none; }
+        .scene.active { display: flex; }
+
+        .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; flex-shrink: 0; gap: 4px; }
+        .s1-label { font-size: 16px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; }
+        .time-val { font-size: 38px; font-weight: 800; color: #ebebeb; line-height: 1; font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif; }
+        .face-svg { width: 85px; height: 85px; }
+        .scene1-state { display: none; width: 512px; height: 128px; flex-direction: row; }
+        .scene1-state.active { display: flex; }
+
+        .s2-panel, .s2-panel-data { width: 128px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-sizing: border-box; flex-shrink: 0; overflow: hidden; }
+        .s2-zone-top { width: 100%; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .s2-zone-mid { width: 100%; height: 70px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .s2-zone-bot { width: 100%; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .s2-label { font-size: 15px; font-weight: 700; color: #ebebeb; letter-spacing: 0.42px; font-family: "Noto Sans JP", sans-serif; padding-top: 15px; }
+        .s2-loc { font-size: 15px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; margin-top: -5px; }
+        .s2-val { display: flex; align-items: flex-end; gap: 2px; }
+        .s2-num { font-size: 42px; font-weight: 800; color: #ebebeb; line-height: 1; font-family: "Inter", sans-serif; }
+        .s2-dir-text { font-size: 28px; font-weight: 800; color: #ebebeb; line-height: 1; font-family: "Noto Sans JP", sans-serif; }
+        .s2-unit { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.8); font-family: "Inter", sans-serif; padding-bottom: 5px; }
+        .weather-svg { width: 54px; height: 54px; }
+        .s2-face { width: 54px; height: 54px; }
+        .conveyor-track { display: flex; flex-direction: row; width: 3072px; transition: transform 0.6s ease-in-out; }
+
+        .forecast-scene { display: none; overflow: hidden; }
+        .fc-track { display: flex; flex-direction: row; width: 1536px; transition: transform 0.6s ease-in-out; }
+        .fc-panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; flex-shrink: 0; position: relative; gap: 2px; padding: 8px 0; overflow: hidden; }
+        .fc-panel::before { content: attr(data-topwbgt); position: absolute; top: 4px; left: 6px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.95); letter-spacing: 0.2px; font-family: "Inter", "Noto Sans JP", sans-serif; }
+        .fc-header { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.55); align-self: stretch; padding-left: 8px; font-family: "Inter", "Noto Sans JP", sans-serif; }
+        .fc-hour { display: none; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.75); font-family: "Inter", "Noto Sans JP", sans-serif; }
+        .fc-wbgt { font-size: 36px; font-weight: 800; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif; }
+        .fc-label { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.55px; font-family: "Inter", "Noto Sans JP", sans-serif; }
+        .fc-face { display: none; width: 26px; height: 26px; position: absolute; top: 4px; right: 6px; border: 2px solid rgba(255,255,255,0.85); border-radius: 50%; }
+        .fc-now { border: 2px solid rgba(255,255,255,0.35); }
+
+        .fc-bg-0 { background-color: #0289DE; }
+        .fc-bg-1 { background-color: #2BB3E0; }
+        .fc-bg-2 { background-color: #FFC700; }
+        .fc-bg-3 { background-color: #FD871A; }
+        .fc-bg-4 { background-color: #EC3817; }
+        .fc-bg-unknown { background-color: #2a2a2a; }
+
+        .ticker-scene { background-color: #000; display: none; position: relative; overflow: hidden; }
+        .ticker-scene.active { display: block !important; }
+        .ticker-main { width: 512px; height: 108px; overflow: hidden; position: relative; }
+        .ticker-track { display: flex; align-items: center; height: 108px; position: absolute; top: 0; left: 0; }
+        .msg-block {
+            width: 320px; height: 108px; display: flex; flex-direction: row; flex-shrink: 0;
+            justify-content: flex-start; align-items: center; gap: 20px; box-sizing: border-box;
+            padding: 0 20px;
+        }
+        .msg-face { width: 38px; height: 38px; flex: 0 0 38px; display: block; }
+        .msg-text {
+            flex: 1 1 0; min-width: 0; max-width: 222px;
+            font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3;
+            white-space: normal; overflow: hidden; text-align: left;
+            display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+            font-family: "Noto Sans JP", "Inter", sans-serif;
+        }
+        .ticker-bar { width: 512px; height: 20px; background: rgba(255,255,255,0.06); overflow: hidden; position: absolute; bottom: 0; left: 0; }
+        .bar-track { display: flex; align-items: center; height: 20px; position: absolute; top: 0; left: 0; white-space: nowrap; }
+        .bar-text { font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; padding-right: 80px; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+<svg style="display: none;">
+    <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
+    <symbol id="icon-cloudy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#999"/></symbol>
+    <symbol id="icon-rainy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#666"/><path d="M45,75 L40,90 M65,75 L60,90" stroke="#00b0f0" stroke-width="6" stroke-linecap="round"/></symbol>
+    <symbol id="face-0" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#0289DE"/><circle cx="35" cy="40" r="5" fill="#fff"/><circle cx="65" cy="40" r="5" fill="#fff"/><path d="M 30 65 Q 50 85 70 65" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="face-1" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#2BB3E0"/><circle cx="35" cy="40" r="5" fill="#fff"/><circle cx="65" cy="40" r="5" fill="#fff"/><line x1="30" y1="70" x2="70" y2="70" stroke="#fff" stroke-width="5" stroke-linecap="round"/></symbol>
+    <symbol id="face-2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#FFC700"/><path d="M 30 45 Q 35 35 40 45 M 60 45 Q 65 35 70 45" stroke="#fff" stroke-width="4" fill="none"/><path d="M 35 75 Q 50 65 65 75" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="face-3" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#FD871A"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="5"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="5"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="5"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="5"/><path d="M 35 75 Q 50 65 65 75" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="face-4" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#EC3817"/><line x1="25" y1="35" x2="40" y2="45" stroke="#fff" stroke-width="5"/><line x1="40" y1="35" x2="25" y2="45" stroke="#fff" stroke-width="5"/><line x1="60" y1="35" x2="75" y2="45" stroke="#fff" stroke-width="5"/><line x1="75" y1="35" x2="60" y2="45" stroke="#fff" stroke-width="5"/><path d="M 30 75 Q 35 65 40 75 T 50 75 T 60 75 T 70 75" stroke="#fff" stroke-width="5" fill="none"/></symbol>
+    <symbol id="face-unknown" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#555"/><text x="50" y="70" text-anchor="middle" fill="#fff" font-size="60" font-weight="900" font-family="Inter, sans-serif">?</text></symbol>
+</svg>
+
+<div class="canvas">
+    <div class="logo-panel">
+        <div class="logo-rotator" id="logo-rotator">
+            <img class="logo-img" src="./nikken_log.png" alt="logo">
+        </div>
+    </div>
+    <div class="content-area">
+    <div class="scene active" id="scene1">
+        <div class="scene1-state active" id="s1-stateA">
+            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><div class="s1-label">時刻</div><div class="clock-hm time-val">--:--</div></div>
+            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><div class="s1-label">時刻</div><div class="clock-hm time-val">--:--</div></div>
+        </div>
+        <div class="scene1-state" id="s1-stateB">
+            <div class="panel"><div class="s1-label">時刻</div><div class="clock-hm time-val">--:--</div></div>
+            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+            <div class="panel"><div class="s1-label">時刻</div><div class="clock-hm time-val">--:--</div></div>
+            <div class="panel"><svg class="face-svg"><use class="face-use" href="#face-0"/></svg></div>
+        </div>
+    </div>
+
+    <div class="scene" id="scene2">
+        <div class="conveyor-track" id="conveyor">
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">天気</div></div><div class="s2-zone-mid"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気温</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num temp-val">--</span><span class="s2-unit">℃</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">湿度</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num humi-val">--</span><span class="s2-unit">%</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">降水</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num rain-val">--</span><span class="s2-unit">mm</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風速</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num wind-val">--</span><span class="s2-unit">m/s</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風向</div></div><div class="s2-zone-mid"><div class="s2-dir-text dir-val">--</div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気圧</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num pres-val">--</span><span class="s2-unit">hPa</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><svg class="s2-face"><use class="face-use" href="#face-0"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">天気</div></div><div class="s2-zone-mid"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気温</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num temp-val">--</span><span class="s2-unit">℃</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">湿度</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num humi-val">--</span><span class="s2-unit">%</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">降水</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num rain-val">--</span><span class="s2-unit">mm</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風速</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num wind-val">--</span><span class="s2-unit">m/s</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風向</div></div><div class="s2-zone-mid"><div class="s2-dir-text dir-val">--</div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気圧</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num pres-val">--</span><span class="s2-unit">hPa</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><svg class="s2-face"><use class="face-use" href="#face-0"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">天気</div></div><div class="s2-zone-mid"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気温</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num temp-val">--</span><span class="s2-unit">℃</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">湿度</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num humi-val">--</span><span class="s2-unit">%</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">降水</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num rain-val">--</span><span class="s2-unit">mm</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風速</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num wind-val">--</span><span class="s2-unit">m/s</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">風向</div></div><div class="s2-zone-mid"><div class="s2-dir-text dir-val">--</div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel-data"><div class="s2-zone-top"><div class="s2-label">気圧</div></div><div class="s2-zone-mid"><div class="s2-val"><span class="s2-num pres-val">--</span><span class="s2-unit">hPa</span></div></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+            <div class="s2-panel"><div class="s2-zone-top"><div class="s2-label">WBGT</div></div><div class="s2-zone-mid"><svg class="s2-face"><use class="face-use" href="#face-0"/></svg></div><div class="s2-zone-bot"><div class="s2-loc">和歌山市</div></div></div>
+        </div>
+    </div>
+
+    <div class="scene forecast-scene" id="scene4">
+        <div class="fc-track" id="fc-conveyor">
+            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
+            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
+            <div class="fc-panel fc-now fc-bg-0 fc-slot-0"><div class="fc-header">現在</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-0">--時</div><div class="fc-wbgt fc-val-0">--</div><div class="fc-label fc-lv-0">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-1"><div class="fc-header">+3h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-1">--時</div><div class="fc-wbgt fc-val-1">--</div><div class="fc-label fc-lv-1">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-2"><div class="fc-header">+6h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-2">--時</div><div class="fc-wbgt fc-val-2">--</div><div class="fc-label fc-lv-2">--</div></div>
+            <div class="fc-panel fc-bg-0 fc-slot-3"><div class="fc-header">+9h</div><svg class="fc-face"><use class="fc-face-use" href="#face-0"/></svg><div class="fc-hour fc-hour-3">--時</div><div class="fc-wbgt fc-val-3">--</div><div class="fc-label fc-lv-3">--</div></div>
+        </div>
+    </div>
+
+    <div class="scene ticker-scene" id="scene3">
+        <div class="ticker-main"><div class="ticker-track" id="ticker-track"></div></div>
+        <div class="ticker-bar"><div class="bar-track" id="bar-track"></div></div>
+    </div>
+    </div>
+</div>
+
+<script>
+    const query = new URLSearchParams(window.location.search);
+    // 環境省WBGT（GAS proxy経由・観測点：和歌山 65042）
+    // ★ gas/gas_wbgt_wakayama_v1.gs を GAS に貼り付け → 再デプロイ → exec URL を下に設定
+    // 応答 source: "estimated" | "forecast"（環境省CSV）が正常
+    const DEFAULT_MOE_GAS_URL = 'https://script.google.com/macros/s/AKfycbxmqEFWks7hfyp7ao3ifD2Bk3VqpFn2pyg5gYDiVKl_XJxU6QyGzThh5BWv3UOE6ma0/exec';
+    const MOE_WBGT_API_URL = query.get('moeApi') || DEFAULT_MOE_GAS_URL;
+    const MOE_WBGT_BACKUP_URL = query.get('moeBackup') || '';
+    // 和歌山市中心部の緯度経度（気温・湿度・天気アイコン等のOpen-Meteo用）
+    const lat = '34.2260';
+    const lon = '135.1675';
+
+    const multi = [
+        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", vn:"An toàn: Bổ sung nước", cn:"基本安全：注意补水" },
+        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", vn:"Chú ý: Uống nước thường xuyên", cn:"注意：及时补水" },
+        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", vn:"Cảnh báo: Nghỉ ngơi định kỳ", cn:"警戒：定时休息" },
+        { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng", cn:"严重警戒：停止剧烈作业" },
+        { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", vn:"Nguy hiểm: Dừng công việc ngay", cn:"危険：立即停止作业" }
+    ];
+    // データ取得不可時の専用メッセージ（誤認防止）
+    const unknownMsg = { jp:"WBGTデータ取得不可", en:"WBGT data unavailable", vn:"Không có dữ liệu WBGT", cn:"WBGT数据不可用" };
+    const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
+    let currentWbgtLevel = -1;  // -1 = データ取得不可（初期状態）
+    let tickerAnimId = null;
+
+    const s1 = document.getElementById('scene1');
+    const s1A = document.getElementById('s1-stateA');
+    const s1B = document.getElementById('s1-stateB');
+    const s2 = document.getElementById('scene2');
+    const conveyor = document.getElementById('conveyor');
+    const s3 = document.getElementById('scene3');
+    const tickerTrack = document.getElementById('ticker-track');
+    const barTrack = document.getElementById('bar-track');
+    const s4 = document.getElementById('scene4');
+    const fcConveyor = document.getElementById('fc-conveyor');
+    const logoRotator = document.getElementById('logo-rotator');
+    const LOOP_HOLD_MS = 8000;
+    const LOOP_ROTATE_MS = 1000;
+    const SCENE1_HOLD_MS = 8000;
+    const SCENE2_RUN_MS = 32000;
+    const SCENE2_SCROLL_PX = 0.8;
+    const SCENE2_SET_WIDTH = 1024;
+    const TICKER_SPEED_PX = 1.2;
+    const TICKER_BLOCK_W = 320;
+    let logoQuarter = 0;
+    let scene2AnimId = null;
+    let clockIntervalId = null;
+
+    /** ネットワーク基準のUTCエポックms + performance.now() で経過（PCの日時変更の影響を受けにくい） */
+    const timeSync = { baseUtcMs: null, perfAtSync: 0, source: '' };
+    const CLOCK_TZ = 'Asia/Tokyo';
+    const clockHmFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: CLOCK_TZ,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+
+    function getSyncedUtcMs() {
+        if (timeSync.baseUtcMs == null) return null;
+        return timeSync.baseUtcMs + (performance.now() - timeSync.perfAtSync);
+    }
+
+    function applySyncedUtcMs(utcMs, source) {
+        if (!Number.isFinite(utcMs)) return;
+        timeSync.baseUtcMs = utcMs;
+        timeSync.perfAtSync = performance.now();
+        if (source) timeSync.source = source;
+    }
+
+    /** 往復遅延の半分を加算してサーバー時刻を補正 */
+    function utcMsWithRtt(serverUtcMs, t0, t1) {
+        if (!Number.isFinite(serverUtcMs)) return NaN;
+        return serverUtcMs + (t1 - t0) / 2;
+    }
+
+    /** Open-Meteo の current.time（タイムゾーン付きでない場合は東京として解釈） */
+    function utcMsFromOpenMeteoTime(iso) {
+        let s = String(iso || '').trim();
+        if (!s) return NaN;
+        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += '+09:00';
+        return Date.parse(s);
+    }
+
+    function parseTimeApiIoJson(json) {
+        if (!json || typeof json !== 'object') return NaN;
+        if (json.dateTime) {
+            const s = String(json.dateTime).trim();
+            if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
+            const base = s.replace(/\.\d+$/, '');
+            return Date.parse(base + '+09:00');
+        }
+        if (json.year == null) return NaN;
+        return Date.UTC(
+            json.year,
+            json.month - 1,
+            json.day,
+            json.hour - 9,
+            json.minute,
+            json.seconds,
+            json.milliSeconds || 0
+        );
+    }
+
+    async function fetchUtcMsFromTimeApiIo() {
+        const t0 = performance.now();
+        const res = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia%2FTokyo', { cache: 'no-store' });
+        const t1 = performance.now();
+        if (!res.ok) throw new Error('timeapi.io HTTP ' + res.status);
+        const json = await res.json();
+        const serverUtcMs = parseTimeApiIoJson(json);
+        if (!Number.isFinite(serverUtcMs)) throw new Error('timeapi.io parse');
+        return utcMsWithRtt(serverUtcMs, t0, t1);
+    }
+
+    async function fetchUtcMsFromWorldTimeApi() {
+        const t0 = performance.now();
+        const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Tokyo', { cache: 'no-store' });
+        const t1 = performance.now();
+        if (!res.ok) throw new Error('worldtimeapi HTTP ' + res.status);
+        const json = await res.json();
+        let serverUtcMs = NaN;
+        if (typeof json.unixtime === 'number') serverUtcMs = json.unixtime * 1000;
+        else if (json.utc_datetime) serverUtcMs = Date.parse(json.utc_datetime);
+        if (!Number.isFinite(serverUtcMs)) throw new Error('worldtimeapi parse');
+        return utcMsWithRtt(serverUtcMs, t0, t1);
+    }
+
+    async function fetchUtcMsFromNict() {
+        const urls = [
+            'https://ntp-b1.nict.go.jp/cgi-bin/json',
+            'https://ntp-a1.nict.go.jp/cgi-bin/json'
+        ];
+        for (const url of urls) {
+            const t0 = performance.now();
+            const res = await fetch(url, { cache: 'no-store' });
+            const t1 = performance.now();
+            if (!res.ok) continue;
+            const dateHdr = res.headers.get('Date');
+            let serverUtcMs = NaN;
+            try {
+                const json = await res.json();
+                if (json && typeof json.st === 'number') serverUtcMs = json.st * 1000;
+            } catch (_) { /* ignore */ }
+            if (!Number.isFinite(serverUtcMs) && dateHdr) serverUtcMs = Date.parse(dateHdr);
+            if (Number.isFinite(serverUtcMs)) return utcMsWithRtt(serverUtcMs, t0, t1);
+        }
+        throw new Error('NICT unavailable');
+    }
+
+    async function fetchUtcMsFromOpenMeteo() {
+        const t0 = performance.now();
+        const res = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=Asia%2FTokyo`,
+            { cache: 'no-store' }
+        );
+        const t1 = performance.now();
+        if (!res.ok) throw new Error('open-meteo HTTP ' + res.status);
+        const dateHdr = res.headers.get('Date');
+        let serverUtcMs = dateHdr ? Date.parse(dateHdr) : NaN;
+        if (!Number.isFinite(serverUtcMs)) {
+            const data = await res.json();
+            if (data.current && data.current.time) {
+                serverUtcMs = utcMsFromOpenMeteoTime(data.current.time);
+            }
+        }
+        if (!Number.isFinite(serverUtcMs)) throw new Error('open-meteo parse');
+        return utcMsWithRtt(serverUtcMs, t0, t1);
+    }
+
+    const TIME_SYNC_CHAIN = [
+        { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo },
+        { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi },
+        { name: 'NICT', fetch: fetchUtcMsFromNict },
+        { name: 'open-meteo', fetch: fetchUtcMsFromOpenMeteo }
+    ];
+
+    async function syncTimeFromNetwork() {
+        for (const src of TIME_SYNC_CHAIN) {
+            try {
+                const utcMs = await src.fetch();
+                if (Number.isFinite(utcMs)) {
+                    applySyncedUtcMs(utcMs, src.name);
+                    return true;
+                }
+            } catch (e) {
+                console.warn('Time sync [' + src.name + ']:', e.message || e);
+            }
+        }
+        console.warn('Time sync: 全ソース失敗。PC時計を暫定利用します。');
+        return false;
+    }
+
+    function updateClock() {
+        let ms = getSyncedUtcMs();
+        if (ms == null) {
+            applySyncedUtcMs(Date.now(), 'local-fallback');
+            ms = getSyncedUtcMs();
+        }
+        const t = clockHmFormatter.format(new Date(Math.floor(ms)));
+        document.querySelectorAll('.clock-hm').forEach(el => { el.innerText = t; });
+    }
+
+    /** 秒境界に合わせて tick（表示のズレを抑える） */
+    function startClockTicker() {
+        if (clockIntervalId != null) {
+            clearTimeout(clockIntervalId);
+            clockIntervalId = null;
+        }
+        function tick() {
+            try { updateClock(); } catch (err) { console.warn('Clock tick:', err); }
+            const ms = getSyncedUtcMs();
+            const base = ms != null ? ms : Date.now();
+            const delay = Math.max(50, 1000 - (base % 1000));
+            clockIntervalId = setTimeout(tick, delay);
+        }
+        tick();
+    }
+    function degToCompassJa(deg) {
+        if (!Number.isFinite(deg)) return '--';
+        const dirs = ['北', '北北東', '北東', '東北東', '東', '東南東', '南東', '南南東', '南', '南南西', '南西', '西南西', '西', '西北西', '北西', '北北西'];
+        const idx = Math.round((((deg % 360) + 360) % 360) / 22.5) % 16;
+        return dirs[idx];
+    }
+    // 【最重要・安全事項】WBGTは環境省実測値のみ表示する。気温・湿度からの計算式によるフォールバックは禁止。
+    // データ取得失敗時は「取得不可」表示のみ。誤表示は熱中症事故リスクにつながる死活問題のため。
+    function calcWbgt(t, h) { return null; }  // 旧計算式は使用禁止（保護のためnull返却）
+    function wbgtLevel(w) { return w >= 31 ? 4 : w >= 28 ? 3 : w >= 25 ? 2 : w >= 21 ? 1 : 0; }
+    function setFace(levelIdx) {
+        const target = (levelIdx == null || levelIdx < 0) ? '#face-unknown' : '#face-' + levelIdx;
+        document.querySelectorAll('.face-use').forEach(el => el.setAttribute('href', target));
+    }
+    function hasFull4Slots(slots) {
+        return Array.isArray(slots) && slots.length >= 4 && slots[0] != null && slots[0].wbgt != null;
+    }
+    function getClockDateForParts() {
+        const ms = getSyncedUtcMs();
+        return ms != null ? new Date(ms) : null;
+    }
+
+    function getTokyoYMDH(d) {
+        const ref = d != null ? d : getClockDateForParts();
+        if (!ref) return { y: NaN, m: NaN, d: NaN, h: NaN };
+        const parts = new Intl.DateTimeFormat('en-CA', {
+            timeZone: CLOCK_TZ,
+            year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hour12: false
+        }).formatToParts(ref);
+        const map = {};
+        for (const p of parts) {
+            if (p.type !== 'literal') map[p.type] = p.value;
+        }
+        return { y: Number(map.year), m: Number(map.month), d: Number(map.day), h: Number(map.hour) };
+    }
+
+    // 【最重要・安全事項】Open-Meteo計算によるWBGT算出は廃止。常に「取得不可」スロットのみ返す。
+    // 実データは環境省WBGT WebAPI（GAS proxy経由）からのみ取得する。
+    function buildWbgtSlotsFromHourly(hourly) {
+        const offsets = [0, 3, 6, 9];
+        return offsets.map((offset, i) => ({
+            wbgt: null,
+            levelIdx: 0,
+            hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
+        }));
+    }
+
+    /** 同期済み時刻から「○時」ラベルを生成（例：「11時」）。失敗時は空文字 */
+    function getCurrentHourLabel() {
+        const ms = getSyncedUtcMs();
+        if (ms == null) return '';
+        try {
+            const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone: CLOCK_TZ,
+                hour: '2-digit',
+                hour12: false
+            }).formatToParts(new Date(ms));
+            const hp = parts.find(p => p.type === 'hour');
+            return hp ? (Number(hp.value) + '時') : '';
+        } catch (e) { return ''; }
+    }
+
+    function updateForecastSlots(slots) {
+        for (let i = 0; i < 4; i++) {
+            const s = slots[i] || { wbgt: null, levelIdx: 0, hour: '取得不可' };
+            const isUnknown = (s.wbgt == null);
+            const lv = Number.isInteger(s.levelIdx) ? s.levelIdx : 0;
+            const hourText = String(s.hour || '');
+            const normalizedHour = /^\+\d+h$/i.test(hourText) ? '' : hourText;
+            const baseLabel = (i === 0) ? '現在' : ('+' + (i * 3) + 'h');
+            // i=0（現在スロット）も他と統一して「現在 ○時」表示に。時刻が取れなければ「現在」のみ。
+            let mergedTopLine;
+            if (i === 0) {
+                const nowHour = getCurrentHourLabel();
+                mergedTopLine = nowHour ? ('現在 ' + nowHour) : '現在';
+            } else {
+                mergedTopLine = normalizedHour ? (baseLabel + ' ' + normalizedHour) : baseLabel;
+            }
+            document.querySelectorAll('.fc-slot-' + i + ' .fc-header').forEach(el => { el.innerText = mergedTopLine; });
+            document.querySelectorAll('.fc-hour-' + i).forEach(el => { el.innerText = normalizedHour; });
+            document.querySelectorAll('.fc-val-' + i).forEach(el => { el.innerText = isUnknown ? '--' : (Number(s.wbgt).toFixed(1) + '℃'); });
+            document.querySelectorAll('.fc-lv-' + i).forEach(el => { el.innerText = isUnknown ? '取得不可' : levelNames[lv]; });
+            document.querySelectorAll('.fc-slot-' + i).forEach(panel => {
+                panel.setAttribute('data-topwbgt', 'WBGT');
+                const bgClass = isUnknown ? 'fc-bg-unknown' : ('fc-bg-' + lv);
+                panel.className = 'fc-panel fc-slot-' + i + (i === 0 ? ' fc-now' : '') + ' ' + bgClass;
+                const faceHref = isUnknown ? '#face-unknown' : ('#face-' + lv);
+                panel.querySelectorAll('.fc-face-use').forEach(u => u.setAttribute('href', faceHref));
+            });
+        }
+    }
+
+    function normalizeWbgtCelsius(raw) {
+        if (raw === null || raw === undefined || raw === '') return null;
+        const w = Number(raw);
+        if (!Number.isFinite(w) || w < 5 || w > 45) return null;
+        return w;
+    }
+
+    /** 環境省公式GASからの応答のみ採用（estimated=実況推定CSV, forecast=予測CSV） */
+    function isTrustedMoePayload(json, slots) {
+        if (!hasFull4Slots(slots)) return false;
+        const src = json && json.source;
+        return src === 'estimated' || src === 'forecast' || src === 'moe-env.go.jp';
+    }
+
+    function normalizeMoeResponse(payload) {
+        // 期待形式: 配列4件 (現在/+3h/+6h/+9h) 各要素に wbgt, hour, levelIdx (任意)
+        const rows = Array.isArray(payload) ? payload : (payload?.data || payload?.slots || []);
+        if (!Array.isArray(rows) || rows.length < 4) return null;
+        const slots = [];
+        for (let i = 0; i < 4; i++) {
+            const row = rows[i] || {};
+            const wbgtRaw = row.wbgt ?? row.value ?? row.wbgtValue;
+            const wbgt = normalizeWbgtCelsius(wbgtRaw);
+            const explicitLv = Number.isInteger(row.levelIdx) ? row.levelIdx : null;
+            const lv = wbgt == null ? 0 : (explicitLv != null ? explicitLv : wbgtLevel(wbgt));
+            const hourText = row.hour || row.timeLabel || row.time || (i === 0 ? '現在' : ('+' + (i * 3) + 'h'));
+            slots.push({
+                wbgt,
+                levelIdx: Math.max(0, Math.min(4, lv)),
+                hour: hourText
+            });
+        }
+        return slots;
+    }
+
+    function parseMoePayloadFromText(text) {
+        const trimmed = String(text || '').trim();
+        if (!trimmed) return null;
+        try {
+            return JSON.parse(trimmed);
+        } catch (_) {
+            return null;
+        }
+    }
+
+    async function fetchMoeFromGasUrl(url) {
+        const res = await fetch(url, { cache: 'no-store', redirect: 'follow' });
+        if (!res.ok) throw new Error('GAS HTTP ' + res.status);
+        const json = parseMoePayloadFromText(await res.text());
+        if (!json) throw new Error('GAS JSON parse failed');
+        const slots = normalizeMoeResponse(json);
+        if (!isTrustedMoePayload(json, slots)) {
+            throw new Error('untrusted source: ' + (json.source || 'unknown'));
+        }
+        console.log('[WBGT] 環境省データ取得 OK', json.updatedAt || '', '現在', slots[0].wbgt + '℃');
+        return slots;
+    }
+
+    async function fetchWbgtFromMoeApi() {
+        const urls = [MOE_WBGT_API_URL, MOE_WBGT_BACKUP_URL].filter((u, i, a) => u && a.indexOf(u) === i);
+        if (!urls.length) {
+            console.warn('[WBGT] moeApi 未設定。gas/Code.gs をデプロイし URL を設定してください。');
+            return null;
+        }
+        for (const url of urls) {
+            try {
+                return await fetchMoeFromGasUrl(url);
+            } catch (e) {
+                console.warn('[WBGT] GAS失敗:', url.slice(-20), e.message || e);
+            }
+        }
+        console.warn('[WBGT] 環境省WBGTを取得できません。gas/gas_wbgt_wakayama_v1.gs を貼り付けて GAS を再デプロイしてください。');
+        return null;
+    }
+
+    async function fetchWeatherAndWbgt() {
+        let wbgtSlots = await fetchWbgtFromMoeApi();
+        try {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m&forecast_days=2&timezone=Asia%2FTokyo`, { cache: 'no-store' });
+            const dateHdr = res.headers.get('Date');
+            const data = await res.json();
+            if (timeSync.baseUtcMs == null) {
+                if (dateHdr) {
+                    const serverMs = Date.parse(dateHdr);
+                    if (Number.isFinite(serverMs)) applySyncedUtcMs(serverMs, 'open-meteo-header');
+                } else if (data.current && data.current.time) {
+                    const fromMeteo = utcMsFromOpenMeteoTime(data.current.time);
+                    if (Number.isFinite(fromMeteo)) applySyncedUtcMs(fromMeteo, 'open-meteo-time');
+                }
+            }
+            let wIcon = '#icon-sunny';
+            if (data.current.weather_code >= 1 && data.current.weather_code <= 3) wIcon = '#icon-cloudy';
+            else if (data.current.weather_code >= 51) wIcon = '#icon-rainy';
+            document.querySelectorAll('.weather-icon-use').forEach(el => el.setAttribute('href', wIcon));
+            document.querySelectorAll('.temp-val').forEach(el => { el.innerText = Math.round(data.current.temperature_2m); });
+            document.querySelectorAll('.humi-val').forEach(el => { el.innerText = Math.round(data.current.relative_humidity_2m); });
+            document.querySelectorAll('.rain-val').forEach(el => { el.innerText = Number(data.current.precipitation ?? 0).toFixed(1); });
+            document.querySelectorAll('.wind-val').forEach(el => { el.innerText = Number(data.current.wind_speed_10m ?? 0).toFixed(1); });
+            document.querySelectorAll('.dir-val').forEach(el => { el.innerText = degToCompassJa(Number(data.current.wind_direction_10m)); });
+            document.querySelectorAll('.pres-val').forEach(el => { el.innerText = Math.round(Number(data.current.surface_pressure ?? 0)); });
+
+            // 環境省データが取得できない/不完全な場合は「取得不可」固定。計算によるフォールバック禁止。
+            if (!wbgtSlots || !hasFull4Slots(wbgtSlots)) {
+                const nullSlots = [0, 3, 6, 9].map((offset, i) => ({
+                    wbgt: null,
+                    levelIdx: 0,
+                    hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
+                }));
+                // 環境省データ部分があれば優先、無い枠だけnullで埋める
+                if (Array.isArray(wbgtSlots)) {
+                    wbgtSlots = wbgtSlots.slice(0, 4);
+                    while (wbgtSlots.length < 4) wbgtSlots.push(nullSlots[wbgtSlots.length]);
+                    for (let i = 0; i < 4; i++) {
+                        if (wbgtSlots[i]?.wbgt == null) wbgtSlots[i] = nullSlots[i];
+                    }
+                } else {
+                    wbgtSlots = nullSlots;
+                }
+            }
+
+            // 現在のWBGTがnull → -1（取得不可）にして顔アイコンを「?」マークに
+            currentWbgtLevel = (wbgtSlots[0]?.wbgt == null) ? -1 : (wbgtSlots[0]?.levelIdx ?? -1);
+            setFace(currentWbgtLevel);
+            updateForecastSlots(wbgtSlots);
+            buildTicker();
+        } catch (error) {
+            console.error('Weather error:', error);
+            if (wbgtSlots) {
+                currentWbgtLevel = (wbgtSlots[0]?.wbgt == null) ? -1 : (wbgtSlots[0]?.levelIdx ?? -1);
+                setFace(currentWbgtLevel);
+                updateForecastSlots(wbgtSlots);
+                buildTicker();
+            } else {
+                // 完全にデータなし → 「取得不可」表示
+                currentWbgtLevel = -1;
+                setFace(-1);
+                updateForecastSlots([0, 3, 6, 9].map((offset, i) => ({
+                    wbgt: null, levelIdx: 0, hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
+                })));
+                buildTicker();
+            }
+        }
+    }
+
+    function buildTicker() {
+        const isUnknown = (currentWbgtLevel < 0);
+        const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
+        const lv = isUnknown ? 'unknown' : currentWbgtLevel;
+        const msgs = [m.jp, m.en, m.vn, m.cn];
+        const block = (text) => `<div class="msg-block"><svg class="msg-face"><use href="#face-${lv}"/></svg><div class="msg-text">${text}</div></div>`;
+        let html = '';
+        for (let loop = 0; loop < 2; loop++) { for (const t of msgs) html += block(t); }
+        html += block(msgs[0]) + block(msgs[1]);
+        tickerTrack.innerHTML = html;
+        const provider = 'データ提供：環境省熱中症予防情報サイト（WBGT）／ Open-Meteo API';
+        barTrack.innerHTML = `<span class="bar-text">${provider}</span><span class="bar-text">${provider}</span>`;
+    }
+
+    function playScene3() {
+        s3.classList.add('active');
+        buildTicker();
+        const scrollDist = TICKER_BLOCK_W * 8;
+        const barW = barTrack.scrollWidth / 2;
+        let tickerX = 0;
+        let barX = 0;
+        tickerTrack.style.transform = 'translateX(0px)';
+        function animate() {
+            tickerX -= TICKER_SPEED_PX;
+            barX -= 0.4;
+            if (barX <= -barW) barX = 0;
+            tickerTrack.style.transform = `translateX(${tickerX}px)`;
+            barTrack.style.transform = `translateX(${barX}px)`;
+            if (tickerX > -scrollDist) tickerAnimId = requestAnimationFrame(animate);
+            else {
+                cancelAnimationFrame(tickerAnimId);
+                tickerAnimId = null;
+                setTimeout(() => { s3.classList.remove('active'); startSequence(); }, 1500);
+            }
+        }
+        tickerAnimId = requestAnimationFrame(animate);
+    }
+
+    function playScene1() {
+        s1.classList.add('active');
+        s2.classList.remove('active');
+        s3.classList.remove('active');
+        s4.classList.remove('active');
+        s4.style.display = 'none';
+        s1A.classList.add('active');
+        s1B.classList.remove('active');
+        setTimeout(() => {
+            s1A.classList.remove('active');
+            s1B.classList.add('active');
+            setTimeout(() => { s1.classList.remove('active'); playScene2(); }, SCENE1_HOLD_MS);
+        }, SCENE1_HOLD_MS);
+    }
+    function playScene2() {
+        s2.classList.add('active');
+        s1.classList.remove('active');
+        s3.classList.remove('active');
+        s4.classList.remove('active');
+        s4.style.display = 'none';
+        if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
+        let x = 0;
+        let rotStep = 0;
+        let lastRotateAt = performance.now();
+        conveyor.style.transition = 'none';
+        logoRotator.style.transition = 'transform 0.6s ease-in-out';
+        conveyor.style.transform = 'translateX(0px)';
+        logoRotator.style.transform = 'rotate(0deg)';
+
+        function animateScene2() {
+            x -= SCENE2_SCROLL_PX;
+            if (x <= -SCENE2_SET_WIDTH) x = 0;
+            conveyor.style.transform = `translateX(${x}px)`;
+            const nowMs = performance.now();
+            if (nowMs - lastRotateAt >= 5000) {
+                rotStep += 90;
+                logoRotator.style.transform = `rotate(${rotStep}deg)`;
+                lastRotateAt = nowMs;
+            }
+            scene2AnimId = requestAnimationFrame(animateScene2);
+        }
+        scene2AnimId = requestAnimationFrame(animateScene2);
+
+        setTimeout(() => {
+            if (scene2AnimId) {
+                cancelAnimationFrame(scene2AnimId);
+                scene2AnimId = null;
+            }
+            s2.classList.remove('active');
+            playScene4();
+        }, SCENE2_RUN_MS);
+    }
+    function playScene4() {
+        s4.classList.add('active');
+        s4.style.display = 'block';
+        let step = 0;
+        fcConveyor.style.transition = 'none';
+        fcConveyor.style.transform = 'translateX(0px)';
+        function fcSlideNext() {
+            step++;
+            fcConveyor.style.transition = 'transform 0.6s ease-in-out';
+            fcConveyor.style.transform = `translateX(-${step * 128}px)`;
+            if (step < 8) setTimeout(fcSlideNext, 8000);
+            else setTimeout(() => { s4.classList.remove('active'); s4.style.display = 'none'; playScene3(); }, 1000);
+        }
+        setTimeout(fcSlideNext, 8000);
+    }
+    function startSequence() { playScene1(); }
+
+    window.onload = async function() {
+        await syncTimeFromNetwork();
+        updateClock();
+        startClockTicker();
+        // 初期表示は「取得不可」固定（実データ取得前の誤認を防止）
+        setFace(-1);
+        updateForecastSlots([0, 3, 6, 9].map((offset, i) => ({
+            wbgt: null, levelIdx: 0, hour: i === 0 ? '取得不可' : ('+' + offset + 'h')
+        })));
+        buildTicker();
+        if (!MOE_WBGT_API_URL) {
+            console.warn('[WBGT] 環境省データ取得には GAS プロキシ URL が必要です（公式 Web API は公開停止中）。');
+        }
+        setInterval(syncTimeFromNetwork, 300000);
+        fetchWeatherAndWbgt();
+        setInterval(fetchWeatherAndWbgt, 300000);
+        setTimeout(startSequence, 500);
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                syncTimeFromNetwork().then(function() { updateClock(); });
+                fetchWeatherAndWbgt();
+            }
+        });
+    };
+</script>
+</body>
+</html>
