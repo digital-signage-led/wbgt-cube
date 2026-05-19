@@ -59,6 +59,22 @@
         .fc-bg-4 { background-color: #D31715; }
         .fc-bg-unknown { background-color: #2a2a2a; }
 
+        /* 注意・警戒（黄系背景）は白文字が見づらいため黒文字 */
+        .fc-panel.fc-bg-1::before,
+        .fc-panel.fc-bg-1 .fc-header,
+        .fc-panel.fc-bg-1 .fc-wbgt,
+        .fc-panel.fc-bg-1 .fc-label,
+        .fc-panel.fc-bg-2::before,
+        .fc-panel.fc-bg-2 .fc-header,
+        .fc-panel.fc-bg-2 .fc-wbgt,
+        .fc-panel.fc-bg-2 .fc-label {
+            color: #000;
+        }
+        .fc-panel.fc-bg-1.fc-now,
+        .fc-panel.fc-bg-2.fc-now {
+            border-color: rgba(0, 0, 0, 0.35);
+        }
+
         .ticker-scene { background-color: #000; display: none; position: relative; overflow: hidden; }
         .ticker-scene.active { display: block !important; }
         .ticker-main { width: 512px; height: 108px; overflow: hidden; position: relative; }
