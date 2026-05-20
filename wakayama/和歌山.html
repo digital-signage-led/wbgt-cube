@@ -67,6 +67,17 @@
         .fc-bg-3 { background-color: #FE7D03; }
         .fc-bg-4 { background-color: #D31715; }
         .fc-bg-unknown { background-color: #2a2a2a; }
+        /* 注意・警戒（黄〜橙黄背景）: WBGT表記・数値・ラベルを黒で視認性向上 */
+        .fc-bg-1::before,
+        .fc-bg-2::before,
+        .fc-bg-1 .fc-header,
+        .fc-bg-2 .fc-header,
+        .fc-bg-1 .fc-wbgt,
+        .fc-bg-2 .fc-wbgt,
+        .fc-bg-1 .fc-label,
+        .fc-bg-2 .fc-label {
+            color: #000;
+        }
 
         .ticker-scene { background-color: #000; display: none; position: relative; overflow: hidden; }
         .ticker-scene.active { display: block !important; }
