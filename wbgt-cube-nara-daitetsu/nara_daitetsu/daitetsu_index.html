@@ -167,14 +167,14 @@
             display: flex; align-items: baseline; justify-content: center; gap: 2px;
             max-width: 118px; overflow: hidden; white-space: nowrap;
         }
-        .s2-num { font-size: 30px; font-weight: 800; color: #ebebeb; line-height: 1; font-family: "Inter", sans-serif; }
+        .s2-num { font-size: 36px; font-weight: 800; color: #ebebeb; line-height: 1; font-family: "Inter", sans-serif; }
         .s2-dir-text {
-            font-size: 22px; font-weight: 800; color: #ebebeb; line-height: 1.1;
+            font-size: 28px; font-weight: 800; color: #ebebeb; line-height: 1.1;
             font-family: "Noto Sans JP", sans-serif; max-width: 118px; overflow: hidden;
             white-space: nowrap; text-align: center;
         }
         .s2-unit:empty { display: none; }
-        .s2-unit { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); font-family: "Inter", sans-serif; }
+        .s2-unit { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); font-family: "Inter", sans-serif; }
         .weather-svg { width: 46px; height: 46px; }
         .s2-face-img { width: 54px; height: 54px; object-fit: contain; display: block; }
         .conveyor-track { display: flex; flex-direction: row; width: 1792px; transition: none; gap: 0; }
@@ -195,10 +195,17 @@
             overflow: hidden; padding: 0 4px;
         }
         .fc-wbgt {
-            font-size: 36px; font-weight: 800; color: #ebebeb; line-height: 1;
-            font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif;
+            display: inline-flex; align-items: baseline; justify-content: center; gap: 1px;
             max-width: 118px; text-align: center; white-space: nowrap; overflow: hidden;
-            letter-spacing: -0.03em;
+            line-height: 1; color: #ebebeb;
+        }
+        .fc-wbgt-num {
+            font-size: 36px; font-weight: 800; font-variant-numeric: tabular-nums;
+            font-family: "Inter", sans-serif; letter-spacing: -0.03em;
+        }
+        .fc-wbgt-unit {
+            font-size: 0.5em; font-weight: 700; font-family: "Inter", sans-serif;
+            line-height: 1; margin-left: 1px;
         }
         .daily-scene { display: none; overflow: hidden; }
         .d5-track { display: flex; flex-direction: row; width: 1024px; transition: none; gap: 0; }
@@ -811,14 +818,20 @@
             return hp ? (Number(hp.value) + '時') : '';
         } catch (e) { return ''; }
     }
+    function formatFcWbgtHtml(wbgt) {
+        if (wbgt == null) return '--';
+        return `<span class="fc-wbgt-num">${Number(wbgt).toFixed(1)}</span><span class="fc-wbgt-unit">℃</span>`;
+    }
     function fitFcWbgtFontSize() {
         const maxW = 118;
-        document.querySelectorAll('#scene4 .fc-wbgt').forEach(el => {
+        document.querySelectorAll('#scene4 .fc-wbgt').forEach(wrap => {
+            const num = wrap.querySelector('.fc-wbgt-num');
+            if (!num) return;
             let size = 42;
-            el.style.fontSize = size + 'px';
-            while (size > 26 && el.scrollWidth > maxW) {
+            num.style.fontSize = size + 'px';
+            while (size > 26 && wrap.scrollWidth > maxW) {
                 size -= 1;
-                el.style.fontSize = size + 'px';
+                num.style.fontSize = size + 'px';
             }
         });
     }
@@ -826,11 +839,11 @@
         const s = (slots && slots[0]) ? slots[0] : { wbgt: null, levelIdx: 0, hour: '取得不可' };
         const isUnknown = (s.wbgt == null);
         const lv = Number.isInteger(s.levelIdx) ? s.levelIdx : 0;
-        const wbgtText = isUnknown ? '--' : (Number(s.wbgt).toFixed(1) + '℃');
+        const wbgtHtml = isUnknown ? '--' : formatFcWbgtHtml(s.wbgt);
         document.querySelectorAll('#scene4 .fc-static .fc-panel').forEach(panel => {
             panel.className = 'fc-panel fc-slot-0';
             panel.querySelectorAll('.fc-bar-label').forEach(el => { el.innerText = 'WBGT値'; });
-            panel.querySelectorAll('.fc-val-live').forEach(el => { el.innerText = wbgtText; });
+            panel.querySelectorAll('.fc-val-live').forEach(el => { el.innerHTML = wbgtHtml; });
         });
         buildFcLvTrack();
         if (s4 && s4.classList.contains('active')) fitFcWbgtFontSize();
