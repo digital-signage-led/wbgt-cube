@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!-- ================================================================== -->
+<!-- ファイル: demo.html（デモ用の入口のみ・表示本体は index.html）     -->
+<!--   - 開くと自動で index.html?demo=1 へ転送する                    -->
+<!--   - 実 API は使わず、WBGT 5段階（ほぼ安全→危険）を順に確認用     -->
+<!-- 本番表示: index.html（?demo=1 なし）                               -->
+<!-- ================================================================== -->
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>WBGT Signage デモ - 仙台市・夢メッセみやぎ（→ index.html?demo=1）</title>
+    <script>
+        (function () {
+            var base = location.href.replace(/[^/]*$/, '');
+            location.replace(base + 'index.html?demo=1');
+        })();
+    </script>
+</head>
+<body>
+    <p style="font-family:sans-serif;padding:1rem">
+        <strong>demo.html</strong>（デモ用入口）→ 転送先: <a href="index.html?demo=1"><strong>index.html?demo=1</strong></a>（表示本体）<br>
+        読み込み中…
+    </p>
+</body>
+</html>
