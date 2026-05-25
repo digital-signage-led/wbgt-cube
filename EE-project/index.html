@@ -31,7 +31,7 @@
             .canvas { transform: scale(calc(100vw / 640)); }
         }
         .logo-panel { width: 128px; height: 128px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #000; order: 2; overflow: hidden; }
-        .logo-rotator { width: 128px; height: 128px; flex-shrink: 0; transform: rotate(0deg); transition: transform 1s ease-in-out; transform-origin: center center; }
+        .logo-rotator { width: 128px; height: 128px; flex-shrink: 0; }
         .logo-img { width: 128px; height: 128px; display: block; object-fit: cover; object-position: center center; }
         .content-area { width: 512px; height: 128px; position: relative; overflow: hidden; flex-shrink: 0; order: 1; background: transparent; }
         .content-area > .scene-strip-bg { z-index: 0; }
@@ -609,7 +609,6 @@
     const fcLvTrack = document.getElementById('fc-lv-track');
     const s5 = document.getElementById('scene5');
     const d5Conveyor = document.getElementById('d5-conveyor');
-    const logoRotator = document.getElementById('logo-rotator');
     const FOOT_BAR_SLOT_W = 256;
     const FOOT_BAR_LAP_PX = FOOT_BAR_SLOT_W * 2;
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
@@ -1364,23 +1363,13 @@
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
         let x = 0;
         let totalScrolled = 0;
-        let rotStep = 0;
-        let lastRotateAt = performance.now();
         conveyor.style.transition = 'none';
-        logoRotator.style.transition = 'transform 0.6s ease-in-out';
         conveyor.style.transform = 'translateX(0px)';
-        logoRotator.style.transform = 'rotate(0deg)';
         function animateScene2() {
             x -= SCENE2_SCROLL_PX;
             totalScrolled += SCENE2_SCROLL_PX;
             if (x <= -SCENE2_SET_WIDTH) x += SCENE2_SET_WIDTH;
             conveyor.style.transform = `translateX(${x}px)`;
-            const nowMs = performance.now();
-            if (nowMs - lastRotateAt >= 5000) {
-                rotStep += 90;
-                logoRotator.style.transform = `rotate(${rotStep}deg)`;
-                lastRotateAt = nowMs;
-            }
             if (totalScrolled >= SCENE2_SCROLL_TOTAL) {
                 conveyor.style.transform = 'translateX(0px)';
                 scene2AnimId = null;
