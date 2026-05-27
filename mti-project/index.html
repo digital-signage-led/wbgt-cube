@@ -38,6 +38,8 @@
         .logo-rotator {
             width: 128px; height: 128px; flex-shrink: 0; position: relative; z-index: 1;
             display: flex; align-items: center; justify-content: center;
+            transform-origin: center center;
+            transition: transform 0.6s ease-in-out;
         }
         .logo-img {
             display: block; max-width: 118px; max-height: 118px; width: auto; height: auto;
@@ -630,6 +632,53 @@
     const fcLvTrack = document.getElementById('fc-lv-track');
     const s5 = document.getElementById('scene5');
     const d5Conveyor = document.getElementById('d5-conveyor');
+    const logoRotator = document.getElementById('logo-rotator');
+    let logoRotDeg = 0;
+    let logoRotIntervalId = null;
+    let logoRotScrollPanelIdx = -1;
+    const LOGO_ROT_SLOW_MS = DEMO_SIGNAGE ? 3000 : 5000;
+    const LOGO_ROT_FAST_MS = DEMO_SIGNAGE ? 1200 : 2500;
+    const LOGO_ROT_STEP_MS = 600;
+
+    function stopLogoSpinInterval() {
+        if (logoRotIntervalId != null) {
+            clearInterval(logoRotIntervalId);
+            logoRotIntervalId = null;
+        }
+    }
+    function stepLogo90(transitionMs) {
+        if (!logoRotator) return;
+        logoRotDeg += 90;
+        logoRotator.style.transition = `transform ${transitionMs ?? LOGO_ROT_STEP_MS}ms ease-in-out`;
+        logoRotator.style.transform = `rotate(${logoRotDeg}deg)`;
+    }
+    function resetLogoRotation() {
+        stopLogoSpinInterval();
+        logoRotDeg = 0;
+        logoRotScrollPanelIdx = -1;
+        if (!logoRotator) return;
+        logoRotator.style.transition = `transform ${LOGO_ROT_STEP_MS}ms ease-in-out`;
+        logoRotator.style.transform = 'rotate(0deg)';
+    }
+    /** slow=5秒/90° fast=2.5秒/90°（デモはさらに短く） */
+    function startLogoSpinInterval(mode) {
+        stopLogoSpinInterval();
+        const ms = mode === 'fast' ? LOGO_ROT_FAST_MS : LOGO_ROT_SLOW_MS;
+        logoRotIntervalId = setInterval(() => stepLogo90(LOGO_ROT_STEP_MS), ms);
+    }
+    function beginLogoSceneScroll(panelWidthPx) {
+        logoRotScrollPanelIdx = -1;
+        startLogoSpinInterval('fast');
+        if (panelWidthPx > 0) tickLogoScrollSync(0, panelWidthPx);
+    }
+    /** コンテンツが1パネル分スクロールするたびに90° */
+    function tickLogoScrollSync(totalScrolledPx, panelWidthPx) {
+        const idx = Math.floor(totalScrolledPx / panelWidthPx);
+        if (idx > logoRotScrollPanelIdx) {
+            logoRotScrollPanelIdx = idx;
+            stepLogo90(400);
+        }
+    }
     const FOOT_BAR_SLOT_W = 256;
     const FOOT_BAR_LAP_PX = FOOT_BAR_SLOT_W * 2;
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
@@ -1248,6 +1297,7 @@
     }
     function transitionToScene(nextEl, onComplete) {
         if (sceneSlideAnimId) cancelAnimationFrame(sceneSlideAnimId);
+        startLogoSpinInterval('slow');
         const current = getActiveScene();
         if (!nextEl) { onComplete?.(); return; }
         if (current === nextEl) { onComplete?.(); return; }
@@ -1317,6 +1367,7 @@
             setTimeout(() => transitionToScene(s1, playScene1), 1500);
             return;
         }
+        beginLogoSceneScroll(T3_PANEL_W);
         const barW = barTrack.scrollWidth / 2;
         let t3X = 0;
         let totalScrolled = 0;
@@ -1326,6 +1377,7 @@
         function animateScene3() {
             t3X -= SCENE3_MSG_SCROLL_PX;
             totalScrolled += SCENE3_MSG_SCROLL_PX;
+            tickLogoScrollSync(totalScrolled, T3_PANEL_W);
             if (t3X <= -T3_MSG_SET_W) t3X += T3_MSG_SET_W;
             t3Track.style.transform = `translateX(${t3X}px)`;
             barX -= SCENE3_BAR_SCROLL_PX;
@@ -1334,6 +1386,7 @@
             if (totalScrolled >= SCENE3_MSG_SCROLL_TOTAL) {
                 t3Track.style.transform = 'translateX(0px)';
                 tickerAnimId = null;
+                stopLogoSpinInterval();
                 if (DEMO_SIGNAGE) { advanceDemoLevel(); return; }
                 transitionToScene(s1, playScene1);
                 return;
@@ -1347,6 +1400,7 @@
         buildS1WbgtTrack();
         refreshSignageBg();
         updateClock();
+        startLogoSpinInterval('slow');
         if (!s1WbgtTrack) {
             setTimeout(finishScene1, 500);
             return;
@@ -1359,8 +1413,12 @@
             scene1HoldTimerId = setTimeout(() => {
                 scene1HoldTimerId = null;
                 let x = stopX;
+                let s1ScrollTotal = 0;
+                beginLogoSceneScroll(FOOT_BAR_SLOT_W);
                 function animateS1WbgtRtl() {
                     x -= SCENE1_WBGT_SPEED_PX;
+                    s1ScrollTotal += SCENE1_WBGT_SPEED_PX;
+                    tickLogoScrollSync(s1ScrollTotal, FOOT_BAR_SLOT_W);
                     if (x <= scrollEndX) {
                         x = stopX;
                         s1WbgtTrack.style.transform = `translateX(${x}px)`;
@@ -1382,6 +1440,7 @@
     function playScene2() {
         refreshSignageBg();
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
+        beginLogoSceneScroll(128);
         let x = 0;
         let totalScrolled = 0;
         conveyor.style.transition = 'none';
@@ -1389,11 +1448,13 @@
         function animateScene2() {
             x -= SCENE2_SCROLL_PX;
             totalScrolled += SCENE2_SCROLL_PX;
+            tickLogoScrollSync(totalScrolled, 128);
             if (x <= -SCENE2_SET_WIDTH) x += SCENE2_SET_WIDTH;
             conveyor.style.transform = `translateX(${x}px)`;
             if (totalScrolled >= SCENE2_SCROLL_TOTAL) {
                 conveyor.style.transform = 'translateX(0px)';
                 scene2AnimId = null;
+                stopLogoSpinInterval();
                 transitionToScene(s4, playScene4);
                 return;
             }
@@ -1410,6 +1471,7 @@
         buildFcLvTrack();
         refreshSignageBg();
         fitFcWbgtFontSize();
+        startLogoSpinInterval('slow');
         if (!fcLvTrack) {
             setTimeout(finishScene4, 500);
             return;
@@ -1421,8 +1483,12 @@
         scene4HoldTimerId = setTimeout(() => {
             scene4HoldTimerId = null;
             let x = stopX;
+            let s4ScrollTotal = 0;
+            beginLogoSceneScroll(FOOT_BAR_SLOT_W);
             function animateFcLvRtl() {
                 x -= SCENE4_LV_SPEED_PX;
+                s4ScrollTotal += SCENE4_LV_SPEED_PX;
+                tickLogoScrollSync(s4ScrollTotal, FOOT_BAR_SLOT_W);
                 if (x <= scrollEndX) {
                     x = stopX;
                     fcLvTrack.style.transform = `translateX(${x}px)`;
@@ -1443,11 +1509,15 @@
         if (!s5 || !d5Conveyor) { transitionToScene(s3, playScene3); return; }
         if (scene5AnimId) { cancelAnimationFrame(scene5AnimId); scene5AnimId = null; }
         refreshSignageBg();
+        beginLogoSceneScroll(128);
         let x = 0;
+        let totalScrolled = 0;
         d5Conveyor.style.transition = 'none';
         d5Conveyor.style.transform = 'translateX(0px)';
         function animateScene5() {
             x -= SCENE5_SCROLL_PX;
+            totalScrolled += SCENE5_SCROLL_PX;
+            tickLogoScrollSync(totalScrolled, 128);
             if (x <= -SCENE5_SET_WIDTH) x = 0;
             d5Conveyor.style.transform = `translateX(${x}px)`;
             scene5AnimId = requestAnimationFrame(animateScene5);
@@ -1455,6 +1525,7 @@
         scene5AnimId = requestAnimationFrame(animateScene5);
         setTimeout(() => {
             if (scene5AnimId) { cancelAnimationFrame(scene5AnimId); scene5AnimId = null; }
+            stopLogoSpinInterval();
             transitionToScene(s3, playScene3);
         }, SCENE5_RUN_MS);
     }
@@ -1502,6 +1573,7 @@
         startSequence();
     }
     function startSequence() {
+        resetLogoRotation();
         [s1, s2, s3, s4, s5].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
     }
