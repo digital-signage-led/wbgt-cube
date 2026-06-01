@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WBGT サイネージ — 神戸・東灘</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #0f1115;
+      color: #f3f3f3;
+      font-family: "Noto Sans JP", sans-serif;
+    }
+    .wrap { text-align: center; max-width: 560px; padding: 24px; }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    .site { font-size: 13px; color: #9ca3af; margin: 0 0 12px; line-height: 1.6; }
+    ol { text-align: left; font-size: 13px; color: #cbd5e1; line-height: 1.7; margin: 0 0 20px; padding-left: 1.2em; }
+    .note { font-size: 12px; color: #6b7280; margin: 0 0 20px; line-height: 1.5; }
+    .links { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    a {
+      color: #fff; text-decoration: none; background: #1f6feb;
+      padding: 12px 18px; border-radius: 10px; font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>サイネージ（神戸・東灘）</h1>
+    <p class="site">兵庫県神戸市東灘区御影石町２丁目２１－１６付近</p>
+    <ol>
+      <li>シーン1 — 日付・時刻 ＋ WBGT／雨雲下帯</li>
+      <li>シーン2 — アメダス</li>
+      <li>シーン3 — 4日予報</li>
+      <li>シーン4 — 多言語WBGT ＋ 熱中症アラート上帯</li>
+      <li>シーン5 — WBGT予報（4列）</li>
+      <li>熱中症アラート — 発表時のみ</li>
+    </ol>
+    <p class="note">大雨警報シーンは含みません。設定は signage-config.js／GAS は gas/Code.gs</p>
+    <div class="links">
+      <a href="./signage.html?layout512=1&amp;native640=1">4面（512×128）</a>
+      <a href="./signage.html?native640=1&amp;embed=1">5面（640×128・ロゴ）</a>
+    </div>
+  </div>
+  <script src="signage-config.js"></script>
+</body>
+</html>
