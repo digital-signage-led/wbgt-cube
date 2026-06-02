@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- 本番 5面: このフォルダの index.html ＋ hanshin_logo.png のみ（同階層に他の .html を置かない） -->
 <html lang="ja" class="native-640">
 <head>
@@ -1230,10 +1230,11 @@
       address: '兵庫県神戸市東灘区御影石町２丁目２１－１６付近'
     },
     moe: {
+      /* 環境省 WBGT（神戸） */
       gasUrl:
         'https://script.google.com/macros/s/AKfycbwEuNwrBalUcJxeoBaJ1WRLENM1olgTmdN14xLUAEGuKMvrGRcIXds3uCbPUt7xBRY47w/exec',
       point: '63801',
-      /* 63801 は環境省CSVが空のことがあるため、実データがある近隣地点をフォールバック */
+      /* 63801 が欠測のときのみ、環境省の近隣地点へフォールバック */
       fallbackPoint: '63496',
       pointName: '神戸市',
       alertArea: '兵庫県',
@@ -1242,8 +1243,9 @@
       prefecture: '28'
     },
     jma: {
-      /* 63477 西宮は気温フィールドが無い時間帯があり表示が空になるため、近隣の 63496（明石）を使用 */
-      amedasPoint: '63496',
+      /* 気象庁 AMeDAS（神戸） */
+      /* 神戸観測所(63518)は気圧・最高最低・最大瞬間風速まで取得できる */
+      amedasPoint: '63518',
       forecastArea: '280000'
     },
     geo: { lat: 34.7137, lon: 135.2548 },
@@ -4348,6 +4350,47 @@
         const key = candidates.length ? candidates[candidates.length - 1] : keys[keys.length - 1];
         return data[key];
     }
+    /* map JSON は更新が速いが気圧・最高/最低・瞬間風速などが無い地点がある */
+    const AMEDAS_POINT_SUPPLEMENT_KEYS = [
+        'pressure', 'normalPressure', 'maxTemp', 'minTemp', 'gust'
+    ];
+    function amedasObsNeedsPointSupplement_(obs) {
+        if (!obs) return true;
+        return AMEDAS_POINT_SUPPLEMENT_KEYS.some(function (k) {
+            return amedasFieldValue(obs[k]) == null;
+        });
+    }
+    function mergeAmedasObs_(base, extra) {
+        if (!base) return extra;
+        if (!extra) return base;
+        const out = Object.assign({}, base);
+        AMEDAS_POINT_SUPPLEMENT_KEYS.forEach(function (k) {
+            if (amedasFieldValue(out[k]) == null && extra[k] != null) out[k] = extra[k];
+        });
+        return out;
+    }
+    async function fetchJmaAmedasPointSupplement_(ymd, hhmm, exactKey, blockH) {
+        const pointUrls = [
+            {
+                url: `https://www.jma.go.jp/bosai/amedas/data/point/${JMA_AMEDAS_POINT}/${ymd}_${blockH}.json`,
+                exactKey: exactKey
+            },
+            {
+                url: `https://www.jma.go.jp/bosai/amedas/data/point/${JMA_AMEDAS_POINT}/${ymd}${hhmm}.json`,
+                exactKey: exactKey
+            }
+        ];
+        let lastErr = null;
+        for (const entry of pointUrls) {
+            try {
+                const res = await fetch(entry.url, JMA_FETCH_HEADERS);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                return pickPointBlockObs_(data, entry.exactKey);
+            } catch (e) { lastErr = e; }
+        }
+        throw lastErr || new Error('JMA point supplement failed');
+    }
     async function fetchJmaAmedasObservation_() {
         const latest = await fetchJmaLatestTime_();
         const fmt = new Intl.DateTimeFormat('en-CA', {
@@ -4359,11 +4402,11 @@
         const hhmm = `${p.hour}${p.minute}`;
         const exactKey = `${ymd}${hhmm}00`;
         const blockH = String(Math.floor(Number(p.hour) / 3) * 3).padStart(2, '0');
-        /* latest_time と同じ時刻の map を最優先（3時間ブロックの末尾キーは更新直後に古くなることがある） */
+        /* 気象庁の地点JSON(point)を最優先で使い、項目不足時のみ map を使う */
         const urls = [
-            { kind: 'map', url: `https://www.jma.go.jp/bosai/amedas/data/map/${ymd}${hhmm}00.json` },
             { kind: 'point-block', url: `https://www.jma.go.jp/bosai/amedas/data/point/${JMA_AMEDAS_POINT}/${ymd}_${blockH}.json`, exactKey },
-            { kind: 'point', url: `https://www.jma.go.jp/bosai/amedas/data/point/${JMA_AMEDAS_POINT}/${ymd}${hhmm}.json` }
+            { kind: 'point', url: `https://www.jma.go.jp/bosai/amedas/data/point/${JMA_AMEDAS_POINT}/${ymd}${hhmm}.json` },
+            { kind: 'map', url: `https://www.jma.go.jp/bosai/amedas/data/map/${ymd}${hhmm}00.json` }
         ];
         let lastErr = null;
         for (const entry of urls) {
@@ -4372,8 +4415,16 @@
                 if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + entry.url);
                 const data = await res.json();
                 if (entry.kind === 'map') {
-                    const obs = data[JMA_AMEDAS_POINT];
+                    let obs = data[JMA_AMEDAS_POINT];
                     if (!obs) throw new Error('mapに地点なし');
+                    if (amedasObsNeedsPointSupplement_(obs)) {
+                        try {
+                            const ptObs = await fetchJmaAmedasPointSupplement_(ymd, hhmm, exactKey, blockH);
+                            obs = mergeAmedasObs_(obs, ptObs);
+                        } catch (supErr) {
+                            console.warn('[JMA] map補完(point)失敗:', supErr);
+                        }
+                    }
                     return { latest, obs };
                 }
                 return { latest, obs: pickPointBlockObs_(data, entry.exactKey || exactKey) };
