@@ -1232,15 +1232,16 @@
     moe: {
       /* 環境省 WBGT（神戸） */
       gasUrl:
-        'https://script.google.com/macros/s/AKfycbwEuNwrBalUcJxeoBaJ1WRLENM1olgTmdN14xLUAEGuKMvrGRcIXds3uCbPUt7xBRY47w/exec',
-      point: '63801',
-      /* 63801 が欠測のときのみ、環境省の近隣地点へフォールバック */
-      fallbackPoint: '63496',
+        'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
+      /* 環境省サイト「神戸」の公式地点コード（63801はCSVなし・63518が正） */
+      point: '63518',
+      /* 表示と実データを一致させるため、欠測時フォールバックは使わない */
+      fallbackPoint: '',
       pointName: '神戸市',
       alertArea: '兵庫県',
-      /* GAS グラフフォールバック用（環境省サイト URL の region / prefecture） */
+      /* 環境省グラフURL用（神戸=兵庫63） */
       region: '07',
-      prefecture: '28'
+      prefecture: '63'
     },
     jma: {
       /* 気象庁 AMeDAS（神戸） */
@@ -1901,7 +1902,7 @@
     const DEMO_LEVEL_ORDER = [0, 1, 2, 3, 4];
     const DEMO_WBGT_BY_LEVEL = [19.0, 22.0, 26.0, 29.0, 32.0];
     let demoLevelPointer = 0;
-    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '63801';
+    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '63518';
     const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '兵庫県';
     const MOE_POINT_CFG = {
         prefKey: 'hyogo',
@@ -1963,7 +1964,7 @@
         return base + sep + 'type=bundle';
     }
     const JMA_AMEDAS_POINT =
-        query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || MOE_WBGT_POINT;
+        query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '63518';
     const JMA_FORECAST_AREA_CODE =
         query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '280000';
     const JMA_FETCH_HEADERS = { cache: 'no-store' };
@@ -4046,7 +4047,20 @@
         if (!json || json.point == null) return false;
         return String(json.point) !== String(MOE_WBGT_POINT);
     }
+    function isMoeCrossStationFallback_(json) {
+        const via = json && json.dataVia ? String(json.dataVia) : '';
+        return via.indexOf('fallback-') === 0;
+    }
+    function isUsableMoeWbgtPayload_(wbgt) {
+        if (!wbgt) return false;
+        if (isMoeCrossStationFallback_(wbgt)) return false;
+        if (isMoeJsonWrongPoint_(wbgt)) return false;
+        return true;
+    }
     function parseMoeJson_(json) {
+        if (!isUsableMoeWbgtPayload_(json)) {
+            throw new Error('WBGT payload rejected (point/fallback mismatch)');
+        }
         const slots = normalizeMoeResponse(json);
         if (!isTrustedMoePayload(json, slots)) throw new Error('untrusted source: ' + ((json && json.source) || 'unknown'));
         console.log('[WBGT] 環境省データ取得 OK', json.pointName || json.point || '', json.updatedAt || '', '現在', slots[0].wbgt + '℃');
@@ -4281,13 +4295,14 @@
                         alertApplied = true;
                     }
                     const wbgt = unpacked.wbgt;
+                    if (!isUsableMoeWbgtPayload_(wbgt)) {
+                        console.warn('[WBGT] 神戸以外/代替地点データを破棄', wbgt.point, wbgt.dataVia || '');
+                        continue;
+                    }
                     if (wbgt.source === 'off-season' || wbgt.inService === false) {
                         sawOffSeason = true;
-                        console.log('[WBGT] 地点', pointCode, 'にデータなし — 次の地点を試行');
+                        console.log('[WBGT] 神戸(63518)にデータなし');
                         break;
-                    }
-                    if (pi > 0) {
-                        console.log('[WBGT] 代替地点', pointCode, 'から取得（表示名は', MOE_POINT_CFG.pointName, '）');
                     }
                     return parseMoeJson_(wbgt);
                 } catch (e) { console.warn('[環境省] GAS取得失敗:', e.message || e); }
