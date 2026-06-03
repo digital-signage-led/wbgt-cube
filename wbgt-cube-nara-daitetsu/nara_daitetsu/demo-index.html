@@ -35,6 +35,40 @@
         .scene.active { display: flex; }
         #scene3.active, #scene4.active { display: flex; }
         #scene5.active { display: block; }
+        #sceneAlert.active { display: block; }
+        /* 熱中症アラート（256×128×2） */
+        .ha-pair { width: 512px; height: 128px; display: flex; flex-direction: row; font-family: "Noto Sans JP", sans-serif; }
+        .ha-unit {
+            width: 256px; height: 128px; box-sizing: border-box; flex-shrink: 0;
+            display: flex; flex-direction: column; padding: 7px 0; overflow: hidden;
+        }
+        .ha-line { width: 100%; flex-shrink: 0; height: 6px; animation: haLineBlink 1.4s ease-in-out infinite; }
+        .ha-line.bottom { margin-top: auto; }
+        .ha-body { flex: 1 1 auto; min-height: 0; position: relative; overflow: hidden; }
+        .ha-track {
+            position: absolute; top: 0; left: 0; height: 100%;
+            display: flex; flex-direction: row; align-items: center;
+            will-change: transform; backface-visibility: hidden;
+        }
+        .ha-slot {
+            width: 256px; height: 100%; flex-shrink: 0; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 2px; padding: 0 6px;
+        }
+        .ha-l1, .ha-l2 {
+            line-height: 1.04; font-weight: 900; white-space: nowrap;
+            letter-spacing: 0.5px; text-align: center;
+            max-width: 244px; box-sizing: border-box;
+        }
+        @keyframes haLineBlink { 0%,60%{opacity:1;} 80%{opacity:0.25;} 100%{opacity:1;} }
+        .ha-pair.ha-warning .ha-unit { background: #70006A; }
+        .ha-pair.ha-warning .ha-line { background: #FF0000; }
+        .ha-pair.ha-warning .ha-l1 { color: #FFE34D; }
+        .ha-pair.ha-warning .ha-l2 { color: #FFFFFF; }
+        .ha-pair.ha-special .ha-unit { background: #000000; }
+        .ha-pair.ha-special .ha-line { background: #FFFFFF; }
+        .ha-pair.ha-special .ha-l1 { color: #FF5A5A; }
+        .ha-pair.ha-special .ha-l2 { color: #FFFFFF; }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -275,6 +309,36 @@
     <symbol id="icon-rainy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#666"/><path d="M36,75 L31,90 M50,75 L45,90 M64,75 L59,90" stroke="#00b0f0" stroke-width="6" stroke-linecap="round"/></symbol>
 </svg>
 
+<script>
+(function (global) {
+  'use strict';
+  var cfg = {
+    site: {
+      customer: '大鉄工業',
+      label: '奈良市',
+      address: '奈良県奈良市（〒630-8145付近）'
+    },
+    moe: {
+      gasUrl: 'https://script.google.com/macros/s/AKfycbz1FkR8d8MsYrCzgRVmBSQcjEtJvCF64vYTG4taCMIpZztoxZx4eHx8yfB_rfvek2G6/exec',
+      point: '64036',
+      pointName: '奈良市',
+      alertArea: '奈良県',
+      region: '29',
+      prefecture: '29'
+    },
+    jma: {
+      amedasPoint: '64036',
+      forecastArea: '290000'
+    },
+    geo: { lat: 34.6847, lon: 135.8065 },
+    timeZone: 'Asia/Tokyo',
+    refreshMs: 300000,
+    footSource: '出典：気象庁・環境省データ'
+  };
+  global.SignageConfig = cfg;
+})(typeof window !== 'undefined' ? window : global);
+</script>
+
 <div class="canvas">
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
@@ -282,6 +346,26 @@
         </div>
     </div>
     <div class="content-area">
+    <div class="scene" id="sceneAlert">
+        <div class="ha-pair ha-warning" id="ha-pair">
+            <div class="ha-unit">
+                <div class="ha-line top"></div>
+                <div class="ha-body"><div class="ha-track">
+                    <div class="ha-slot"><div class="ha-l1"></div><div class="ha-l2"></div></div>
+                    <div class="ha-slot"><div class="ha-l1"></div><div class="ha-l2"></div></div>
+                </div></div>
+                <div class="ha-line bottom"></div>
+            </div>
+            <div class="ha-unit">
+                <div class="ha-line top"></div>
+                <div class="ha-body"><div class="ha-track">
+                    <div class="ha-slot"><div class="ha-l1"></div><div class="ha-l2"></div></div>
+                    <div class="ha-slot"><div class="ha-l1"></div><div class="ha-l2"></div></div>
+                </div></div>
+                <div class="ha-line bottom"></div>
+            </div>
+        </div>
+    </div>
     <div class="scene active" id="scene1">
         <div class="scene1-state active" id="s1-stateA">
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
@@ -539,30 +623,48 @@
 </script>
 <script>
     const query = new URLSearchParams(window.location.search);
-    const DEMO_LEVEL_ORDER = [0, 1, 2, 3, 4];
-    const DEMO_WBGT_BY_LEVEL = [19.0, 22.0, 26.0, 29.0, 32.0];
-    let demoLevelPointer = 0;
-    /* 奈良市 WBGT: 環境省地点 64036（実測地点・奈良） */
-    const MOE_WBGT_POINT = query.get('moePoint') || '64036';
-    const MOE_POINT_CFG = { prefKey: 'nara', pointName: '奈良市' };
+    const SITE_CFG = window.SignageConfig || {};
+    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '64036';
+    const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '奈良県';
+    const MOE_POINT_CFG = {
+        prefKey: 'nara',
+        pointName: (SITE_CFG.site && SITE_CFG.site.label) || '奈良市'
+    };
     const MOE_CSV_PROXY_PREFIX = 'https://r.jina.ai/';
-    const DEFAULT_MOE_GAS_URL = 'https://script.google.com/macros/s/AKfycbyLTiV9dYO9NCzgi8tr8Moxm6O6XRSnBmc221aYvWFTTgv0dm01ez9GHQym7ySKbcZc/exec';
+    const DEFAULT_MOE_GAS_URL = (SITE_CFG.moe && SITE_CFG.moe.gasUrl) || '';
     const MOE_WBGT_API_URL = query.get('moeApi') || DEFAULT_MOE_GAS_URL;
     const MOE_WBGT_BACKUP_URL = query.get('moeBackup') || '';
-    function appendMoePointToUrl(url) {
-        if (!url || !MOE_WBGT_POINT) return url;
+    const FOOT_SOURCE = (SITE_CFG.footSource) || '出典：気象庁・環境省データ';
+    const JMA_AMEDAS_POINT = query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '64036';
+    const JMA_FORECAST_AREA_CODE = query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '290000';
+    const JMA_FETCH_HEADERS = { cache: 'no-store' };
+    const JMA_LATEST_TIME_URL = 'https://www.jma.go.jp/bosai/amedas/data/latest_time.txt';
+    const JMA_FORECAST_URL = `https://www.jma.go.jp/bosai/forecast/data/forecast/${JMA_FORECAST_AREA_CODE}.json`;
+    function appendMoePointToUrl(url, pointCode) {
+        const pt = pointCode != null ? String(pointCode) : MOE_WBGT_POINT;
+        if (!url || !pt) return url;
         try {
             const u = new URL(url);
-            u.searchParams.set('point', MOE_WBGT_POINT);
+            u.searchParams.set('point', pt);
+            if (SITE_CFG.moe && SITE_CFG.moe.pointName) u.searchParams.set('pointName', SITE_CFG.moe.pointName);
             return u.toString();
         } catch (_) {
             const sep = url.indexOf('?') >= 0 ? '&' : '?';
-            return url + sep + 'point=' + encodeURIComponent(MOE_WBGT_POINT);
+            return url + sep + 'point=' + encodeURIComponent(pt);
         }
     }
-    /* 大鉄工業（奈良）現場付近 〒630-8145 */
-    const lat = '34.6847';
-    const lon = '135.8065';
+    function appendMoeAlertToUrl(url, pointCode) {
+        const base = appendMoePointToUrl(url, pointCode);
+        if (!base) return base;
+        const sep = base.indexOf('?') >= 0 ? '&' : '?';
+        return base + sep + 'alertArea=' + encodeURIComponent(MOE_ALERT_AREA);
+    }
+    function appendMoeBundleToUrl(url, pointCode) {
+        const base = appendMoeAlertToUrl(url, pointCode);
+        if (!base) return base;
+        const sep = base.indexOf('?') >= 0 ? '&' : '?';
+        return base + sep + 'type=bundle';
+    }
 
     const multi = [
         { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", vn:"An toàn: Bổ sung nước", cn:"基本安全：注意补水" },
@@ -581,14 +683,8 @@
     const WBGT_REFRESH_FAIL_MS = 60000;
 
     function syncWbgtLevelFromSlots(slots) {
-        const row = slots && slots[0];
-        if (!row) { currentWbgtLevel = -1; return; }
-        if (row.wbgt == null) { currentWbgtLevel = -1; return; }
-        if (Number.isInteger(row.levelIdx)) {
-            currentWbgtLevel = Math.max(0, Math.min(4, row.levelIdx));
-            return;
-        }
-        currentWbgtLevel = wbgtLevel(row.wbgt);
+        const w = slots && slots[0] ? slots[0].wbgt : null;
+        currentWbgtLevel = (w == null) ? -1 : wbgtLevel(w);
     }
     function refreshSignageBg() {
         if (typeof SignageBg !== 'undefined') SignageBg.refreshAll(currentWbgtLevel);
@@ -604,8 +700,30 @@
     const s4 = document.getElementById('scene4');
     const fcLvTrack = document.getElementById('fc-lv-track');
     const s5 = document.getElementById('scene5');
+    const sceneAlert = document.getElementById('sceneAlert');
     const d5Conveyor = document.getElementById('d5-conveyor');
     const logoRotator = document.getElementById('logo-rotator');
+    /* 熱中症アラート */
+    const HEAT_ALERTS = {
+        warning: { cls: 'ha-warning', name: '熱中症警戒アラート', line2: 'が発表されました' },
+        special: { cls: 'ha-special', name: '熱中症特別警戒アラート', line2: 'が発表されました' }
+    };
+    function parseHeatAlertParam_() {
+        const v = (query.get('heatalert') || '').toLowerCase();
+        if (v === 'warning') return ['warning'];
+        if (v === 'special') return ['special'];
+        if (v === 'both') return ['warning', 'special'];
+        return [];
+    }
+    let heatAlertActive = parseHeatAlertParam_();
+    const heatAlertForced = parseHeatAlertParam_().length > 0;
+    const HA_UNIT_W = 256;
+    const HA_L1_MAX = 34;
+    const HA_L2_RATIO = 0.58;
+    const HA_SCROLL_PX = 1.2;
+    const HA_LAPS_BEFORE_SWITCH = 4;
+    let haAnimId = null;
+    let haFlow_ = null;
     const FOOT_BAR_SLOT_W = 256;
     const FOOT_BAR_LAP_PX = FOOT_BAR_SLOT_W * 2;
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
@@ -621,11 +739,6 @@
     const SCENE2_SCROLL_PX = 2.5;
     const SCENE2_SET_WIDTH = SCENE2_PANEL_COUNT * 128;
     const SCENE2_SCROLL_TOTAL = SCENE2_SET_WIDTH * SCENE2_LAPS;
-    const OPEN_METEO_FORECAST_URL =
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-        '&current=temperature_2m,relative_humidity_2m,precipitation,surface_pressure,wind_speed_10m,wind_direction_10m,weather_code' +
-        '&daily=weather_code,temperature_2m_max' +
-        '&forecast_days=4&timezone=Asia%2FTokyo';
     const SCENE4_LV_LAP_PX = FOOT_BAR_LAP_PX;
     const SCENE4_LV_LAPS = 2;
     const SCENE4_LV_SETS = 3;
@@ -733,25 +846,23 @@
         }
         throw new Error('NICT unavailable');
     }
-    async function fetchUtcMsFromOpenMeteo() {
+    async function fetchUtcMsFromJmaLatest() {
         const t0 = performance.now();
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=Asia%2FTokyo`, { cache: 'no-store' });
+        const res = await fetch(JMA_LATEST_TIME_URL, JMA_FETCH_HEADERS);
         const t1 = performance.now();
-        if (!res.ok) throw new Error('open-meteo HTTP ' + res.status);
-        const dateHdr = res.headers.get('Date');
-        let serverUtcMs = dateHdr ? Date.parse(dateHdr) : NaN;
-        if (!Number.isFinite(serverUtcMs)) {
-            const data = await res.json();
-            if (data.current && data.current.time) serverUtcMs = utcMsFromOpenMeteoTime(data.current.time);
-        }
-        if (!Number.isFinite(serverUtcMs)) throw new Error('open-meteo parse');
+        if (!res.ok) throw new Error('jma-latest HTTP ' + res.status);
+        const text = (await res.text()).trim();
+        let serverUtcMs = NaN;
+        if (text.endsWith('+09:00')) serverUtcMs = Date.parse(text);
+        else serverUtcMs = Date.parse(text.replace(/\.\d+$/, '') + '+09:00');
+        if (!Number.isFinite(serverUtcMs)) throw new Error('jma-latest parse');
         return utcMsWithRtt(serverUtcMs, t0, t1);
     }
     const TIME_SYNC_CHAIN = [
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo },
         { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi },
         { name: 'NICT', fetch: fetchUtcMsFromNict },
-        { name: 'open-meteo', fetch: fetchUtcMsFromOpenMeteo }
+        { name: 'jma-amedas', fetch: fetchUtcMsFromJmaLatest }
     ];
     async function syncTimeFromNetwork() {
         for (const src of TIME_SYNC_CHAIN) {
@@ -1053,7 +1164,7 @@
     async function fetchWbgtFromMoeApi() {
         const urls = [MOE_WBGT_API_URL, MOE_WBGT_BACKUP_URL]
             .filter((u, i, a) => u && a.indexOf(u) === i)
-            .map(appendMoePointToUrl);
+            .map(function (u) { return appendMoePointToUrl(u); });
         for (const url of urls) {
             try {
                 const slots = await fetchMoeFromGasUrl(url);
@@ -1074,48 +1185,222 @@
     function weatherCodeToIconHref(code) {
         const wc = Number(code);
         if (!Number.isFinite(wc)) return '#icon-sunny';
-        if (wc >= 1 && wc <= 3) return '#icon-cloudy';
-        if (wc >= 51) return '#icon-rainy';
+        const head = Math.floor(wc / 100);
+        if (head >= 3) return '#icon-rainy';
+        if (head === 2) return '#icon-cloudy';
         return '#icon-sunny';
     }
+    function amedasFieldValue(field) {
+        if (!Array.isArray(field) || field.length < 1) return null;
+        const v = field[0];
+        if (v === '' || v == null) return null;
+        return v;
+    }
+    function amedasToWeatherIcon(obs) {
+        const p10 = amedasFieldValue(obs.precipitation10m);
+        const p1 = amedasFieldValue(obs.precipitation1h);
+        if ((p10 != null && Number(p10) > 0) || (p1 != null && Number(p1) > 0)) return '#icon-rainy';
+        const sun1 = amedasFieldValue(obs.sun1h);
+        if (sun1 != null && Number(sun1) < 0.2) return '#icon-cloudy';
+        return '#icon-sunny';
+    }
+    function jmaWindDirFromCode(code) {
+        if (!Number.isFinite(Number(code))) return '--';
+        const dirs = ['北','北北東','北東','東北東','東','東南東','南東','南南東','南','南南西','南西','西南西','西','西北西','北西','北北西'];
+        return dirs[Math.round(Number(code)) % 16];
+    }
+    async function fetchJmaLatestTime_() {
+        const res = await fetch(JMA_LATEST_TIME_URL, JMA_FETCH_HEADERS);
+        if (!res.ok) throw new Error('JMA latest_time HTTP ' + res.status);
+        const text = (await res.text()).trim();
+        let iso = text;
+        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(iso)) iso = iso.replace(/\.\d+$/, '') + '+09:00';
+        const dt = new Date(iso);
+        if (!Number.isFinite(dt.getTime())) throw new Error('JMA latest_time parse');
+        return dt;
+    }
+    function pickPointBlockObs_(data, exactKey) {
+        if (data.temp) return data;
+        const keys = Object.keys(data).filter(k => /^\d{14}$/.test(k)).sort();
+        if (!keys.length) throw new Error('point JSON形式不明');
+        if (data[exactKey]) return data[exactKey];
+        const candidates = keys.filter(k => k <= exactKey);
+        const key = candidates.length ? candidates[candidates.length - 1] : keys[keys.length - 1];
+        return data[key];
+    }
+    async function fetchJmaAmedasObservation_() {
+        const latest = await fetchJmaLatestTime_();
+        const fmt = new Intl.DateTimeFormat('en-CA', {
+            timeZone: CLOCK_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hour12: false
+        });
+        const p = Object.fromEntries(fmt.formatToParts(latest).map(x => [x.type, x.value]));
+        const ymd = `${p.year}${p.month}${p.day}`;
+        const hhmm = `${p.hour}${p.minute}`;
+        const exactKey = `${ymd}${hhmm}00`;
+        const blockH = String(Math.floor(Number(p.hour) / 3) * 3).padStart(2, '0');
+        const urls = [
+            { url: `https://www.jma.go.jp/bosai/amedas/data/point/${JMA_AMEDAS_POINT}/${ymd}_${blockH}.json`, exactKey },
+            { url: `https://www.jma.go.jp/bosai/amedas/data/point/${JMA_AMEDAS_POINT}/${ymd}${hhmm}.json` },
+            { url: `https://www.jma.go.jp/bosai/amedas/data/map/${ymd}${hhmm}00.json` }
+        ];
+        let lastErr = null;
+        for (const entry of urls) {
+            try {
+                const res = await fetch(entry.url, JMA_FETCH_HEADERS);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                if (entry.url.indexOf('/map/') >= 0) {
+                    const obs = data[JMA_AMEDAS_POINT];
+                    if (!obs) throw new Error('mapに地点なし');
+                    return { latest, obs };
+                }
+                return { latest, obs: pickPointBlockObs_(data, entry.exactKey || exactKey) };
+            } catch (e) { lastErr = e; }
+        }
+        throw lastErr || new Error('JMA amedas failed');
+    }
+    async function fetchJmaForecast_() {
+        const res = await fetch(JMA_FORECAST_URL, JMA_FETCH_HEADERS);
+        if (!res.ok) throw new Error('JMA forecast HTTP ' + res.status);
+        return res.json();
+    }
     const D5_DAILY_INDICES = [1, 2, 3, 0];
-    function applyDailyForecastToDom(data) {
-        const d = data.daily;
-        if (!d?.time) return;
+    function applyJmaDailyForecastToDom(forecastJson, todayMaxTemp, todayLiveIcon) {
+        const weekly = Array.isArray(forecastJson) ? forecastJson[1] : null;
+        const series = weekly && weekly.timeSeries;
+        if (!Array.isArray(series)) return;
+        let tempsMax = null;
+        let weatherCodes = null;
+        for (const block of series) {
+            const area = block.areas && block.areas[0];
+            if (!area) continue;
+            if (area.tempsMax) tempsMax = area.tempsMax;
+            if (area.weatherCodes && !weatherCodes) weatherCodes = area.weatherCodes;
+        }
         for (let day = 0; day < 4; day++) {
             const idx = D5_DAILY_INDICES[day];
-            const temp = d.temperature_2m_max?.[idx];
-            const icon = weatherCodeToIconHref(d.weather_code?.[idx]);
-            const tempStr = temp != null ? String(Math.round(temp)) : '--';
+            let temp = tempsMax && tempsMax[idx] !== '' ? Number(tempsMax[idx]) : null;
+            if (day === 3 && todayMaxTemp != null && Number.isFinite(todayMaxTemp)) temp = todayMaxTemp;
+            let icon = weatherCodeToIconHref(weatherCodes ? weatherCodes[idx] : null);
+            if (day === 3 && todayLiveIcon) icon = todayLiveIcon;
+            const tempStr = temp != null && Number.isFinite(temp) ? String(Math.round(temp)) : '--';
             document.querySelectorAll(`.d5-day-${day} .d5-temp`).forEach(el => { el.innerText = tempStr; });
             document.querySelectorAll(`.d5-day-${day} .d5-weather-use`).forEach(el => el.setAttribute('href', icon));
         }
     }
-    function applyOpenMeteoToDom(data) {
-        const c = data.current || {};
-        document.querySelectorAll('.weather-icon-use').forEach(el => el.setAttribute('href', weatherCodeToIconHref(c.weather_code)));
-        applyDailyForecastToDom(data);
-        if (Number.isFinite(c.temperature_2m)) setTextAll('.temp-val', String(Math.round(c.temperature_2m)));
-        if (Number.isFinite(c.relative_humidity_2m)) setTextAll('.humi-val', String(Math.round(c.relative_humidity_2m)));
-        if (Number.isFinite(c.precipitation)) setTextAll('.rain-val', Number(c.precipitation).toFixed(1));
-        if (Number.isFinite(c.wind_speed_10m)) setTextAll('.wind-val', Number(c.wind_speed_10m).toFixed(1));
-        if (Number.isFinite(c.surface_pressure)) setTextAll('.pres-val', String(Math.round(c.surface_pressure)));
-        setTextAll('.dir-val', Number.isFinite(c.wind_direction_10m) ? degToCompassJa(Number(c.wind_direction_10m)) : '--');
+    function applyJmaAmedasToDom(obs, latest) {
+        const icon = amedasToWeatherIcon(obs);
+        document.querySelectorAll('.weather-icon-use').forEach(el => el.setAttribute('href', icon));
+        const temp = amedasFieldValue(obs.temp);
+        const humi = amedasFieldValue(obs.humidity);
+        const p10 = amedasFieldValue(obs.precipitation10m);
+        const wind = amedasFieldValue(obs.wind);
+        const pres = amedasFieldValue(obs.normalPressure) ?? amedasFieldValue(obs.pressure);
+        const wdir = amedasFieldValue(obs.windDirection);
+        setTextAll('.temp-val', temp != null ? String(Math.round(Number(temp))) : '');
+        setTextAll('.humi-val', humi != null ? String(Math.round(Number(humi))) : '');
+        setTextAll('.rain-val', p10 != null ? Number(p10).toFixed(1) : '');
+        setTextAll('.pres-val', pres != null ? String(Math.round(Number(pres))) : '');
+        setTextAll('.dir-val', wdir != null ? jmaWindDirFromCode(wdir) : '--');
+        setTextAll('.wind-val', wind != null ? Number(wind).toFixed(1) : '');
+        return {
+            todayMaxTemp: amedasFieldValue(obs.maxTemp) != null ? Number(amedasFieldValue(obs.maxTemp)) : (temp != null ? Number(temp) : null),
+            todayLiveIcon: icon
+        };
+    }
+    function unpackMoeGasResponse_(json) {
+        if (!json || typeof json !== 'object') return null;
+        if (json.source === 'moe-bundle') {
+            return { wbgt: json.wbgt, alert: json.alert, bundled: true };
+        }
+        if (json.source === 'moe-env.go.jp' || json.inService === false) {
+            return { wbgt: json, alert: null, bundled: false };
+        }
+        if (json.source === 'moe-alert') {
+            return { wbgt: null, alert: json, bundled: false };
+        }
+        return null;
+    }
+    function applyMoeAlertFromJson_(alertJson) {
+        if (heatAlertForced) return;
+        if (!alertJson || alertJson.source !== 'moe-alert') {
+            applyHeatAlertLevel_('none');
+            return;
+        }
+        applyHeatAlertLevel_(alertJson.level);
+        console.log('[アラート] 環境省', alertJson.area || '', alertJson.level || 'none');
+    }
+    async function updateHeatAlertFromGas_() {
+        if (heatAlertForced) return;
+        const base = appendMoeAlertToUrl(MOE_WBGT_API_URL);
+        if (!base) return;
+        const sep = base.indexOf('?') >= 0 ? '&' : '?';
+        const url = base + sep + 'type=alert';
+        let json = null;
+        try {
+            const res = await fetch(url, { cache: 'no-store', redirect: 'follow', mode: 'cors' });
+            if (!res.ok) throw new Error('alert HTTP ' + res.status);
+            json = JSON.parse(await res.text());
+        } catch (fetchErr) {
+            try { json = await fetchMoeViaJsonp(url); }
+            catch (e2) {
+                console.warn('[アラート] 取得失敗:', e2.message || e2);
+                applyHeatAlertLevel_('none');
+                return;
+            }
+        }
+        applyMoeAlertFromJson_(json);
+    }
+    function applyHeatAlertLevel_(level) {
+        if (level === 'special') heatAlertActive = ['special'];
+        else if (level === 'warning') heatAlertActive = ['warning'];
+        else heatAlertActive = [];
+    }
+    async function fetchMoeJsonFromGasUrl_(url) {
+        let json = null;
+        try {
+            const res = await fetch(url, { cache: 'no-store', redirect: 'follow', mode: 'cors' });
+            if (!res.ok) throw new Error('GAS HTTP ' + res.status);
+            json = parseMoePayloadFromText(await res.text());
+            if (!json) throw new Error('GAS JSON parse failed');
+        } catch (fetchErr) {
+            console.warn('[環境省] fetch失敗、JSONPを試行:', fetchErr.message || fetchErr);
+            json = await fetchMoeViaJsonp(url);
+        }
+        return json;
     }
     async function fetchWeatherAndWbgt() {
-        let wbgtSlots = await fetchWbgtFromMoeApi();
-        try {
-            const res = await fetch(OPEN_METEO_FORECAST_URL, { cache: 'no-store' });
-            const dateHdr = res.headers.get('Date');
-            const data = await res.json();
-            if (timeSync.baseUtcMs == null) {
-                if (dateHdr) { const serverMs = Date.parse(dateHdr); if (Number.isFinite(serverMs)) applySyncedUtcMs(serverMs, 'open-meteo-header'); }
-                else if (data.current && data.current.time) {
-                    const fromMeteo = utcMsFromOpenMeteoTime(data.current.time);
-                    if (Number.isFinite(fromMeteo)) applySyncedUtcMs(fromMeteo, 'open-meteo-time');
+        let wbgtSlots = null;
+        let alertApplied = false;
+        const bundleUrl = appendMoeBundleToUrl(MOE_WBGT_API_URL);
+        if (bundleUrl) {
+            try {
+                const raw = await fetchMoeJsonFromGasUrl_(bundleUrl);
+                const unpacked = unpackMoeGasResponse_(raw);
+                if (unpacked && unpacked.wbgt) {
+                    if (unpacked.alert) {
+                        applyMoeAlertFromJson_(unpacked.alert);
+                        alertApplied = true;
+                    }
+                    if (unpacked.wbgt.source === 'off-season' || unpacked.wbgt.inService === false) {
+                        console.log('[WBGT] 提供期間外');
+                    } else if (unpacked.wbgt.source !== 'error') {
+                        wbgtSlots = parseMoeJson_(unpacked.wbgt);
+                    }
                 }
-            }
-            applyOpenMeteoToDom(data);
+            } catch (e) { console.warn('[環境省] bundle取得失敗:', e.message || e); }
+        }
+        if (!wbgtSlots) wbgtSlots = await fetchWbgtFromMoeApi();
+        if (!alertApplied) await updateHeatAlertFromGas_();
+        try {
+            const [{ latest, obs }, forecastJson] = await Promise.all([
+                fetchJmaAmedasObservation_(),
+                fetchJmaForecast_()
+            ]);
+            if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'local-fallback');
+            const live = applyJmaAmedasToDom(obs, latest);
+            applyJmaDailyForecastToDom(forecastJson, live.todayMaxTemp, live.todayLiveIcon);
             if (!wbgtSlots || !hasFull4Slots(wbgtSlots)) {
                 const nullSlots = [{ wbgt: null, levelIdx: 0, hour: '取得不可' }];
                 if (Array.isArray(wbgtSlots)) {
@@ -1129,8 +1414,9 @@
             updateForecastSlots(wbgtSlots);
             buildTicker();
             buildS1WbgtTrack();
+            buildFcLvTrack();
         } catch (error) {
-            console.error('Weather error:', error);
+            console.error('JMA fetch error:', error);
             if (wbgtSlots) {
                 syncWbgtLevelFromSlots(wbgtSlots);
                 setFace(currentWbgtLevel);
@@ -1209,7 +1495,7 @@
     }
     function sceneDisplayMode(el) {
         if (!el) return 'flex';
-        if (el.id === 'scene5') return 'block';
+        if (el.id === 'scene5' || el.id === 'sceneAlert') return 'block';
         return 'flex';
     }
     function hideSceneEl(el) {
@@ -1261,6 +1547,101 @@
         clearScene1WbgtTimers();
         transitionToScene(s2, playScene2);
     }
+    /** 1周終了 → デモ時は build-demo が注入する advanceDemoLevel */
+    function finishMainLoop_() {
+        if (typeof advanceDemoLevel === 'function') { advanceDemoLevel(); return; }
+        transitionToScene(s1, playScene1);
+    }
+    function gotoAfterScene3_() {
+        if (heatAlertActive.length && sceneAlert) {
+            prepHeatAlert_(0);
+            transitionToScene(sceneAlert, function () { playSceneAlert(0); });
+            return;
+        }
+        finishMainLoop_();
+    }
+    function sizeHeatAlertText_() {
+        const probe = document.querySelector('#sceneAlert .ha-slot .ha-l1');
+        if (!probe) return;
+        const usableW = HA_UNIT_W - 12;
+        const bodyEl = document.querySelector('#sceneAlert .ha-body');
+        const usableH = bodyEl ? bodyEl.clientHeight - 4 : 96;
+        const setAll = function (f1, f2) {
+            document.querySelectorAll('#sceneAlert .ha-l1').forEach(function (n) { n.style.fontSize = f1 + 'px'; });
+            document.querySelectorAll('#sceneAlert .ha-l2').forEach(function (n) { n.style.fontSize = f2 + 'px'; });
+        };
+        let f1 = Math.min(HA_L1_MAX, Math.floor((usableH - 2) / (1 + HA_L2_RATIO)));
+        let f2 = Math.max(10, Math.round(f1 * HA_L2_RATIO));
+        setAll(f1, f2);
+        let g = 120;
+        while (probe.scrollWidth > usableW && f1 > 8 && g-- > 0) {
+            f1 -= 1;
+            f2 = Math.max(10, Math.round(f1 * HA_L2_RATIO));
+            setAll(f1, f2);
+        }
+    }
+    function setHeatAlert_(idx) {
+        const def = HEAT_ALERTS[heatAlertActive[idx] || heatAlertActive[0]];
+        const pair = document.getElementById('ha-pair');
+        if (!def || !pair) return false;
+        pair.classList.remove('ha-warning', 'ha-special');
+        pair.classList.add(def.cls);
+        document.querySelectorAll('#sceneAlert .ha-l1').forEach(function (n) { n.textContent = def.name; });
+        document.querySelectorAll('#sceneAlert .ha-l2').forEach(function (n) { n.textContent = def.line2; });
+        sizeHeatAlertText_();
+        refreshSignageBg();
+        return true;
+    }
+    function applyHaTrackX_(tracks, x) {
+        const tx = Math.round(x * 100) / 100;
+        tracks.forEach(function (t) { t.style.transform = 'translate3d(' + tx + 'px,0,0)'; });
+    }
+    function prepHeatAlert_(i) {
+        setHeatAlert_(i || 0);
+        document.querySelectorAll('#sceneAlert .ha-track').forEach(function (t) {
+            t.style.transform = 'translate3d(0px,0,0)';
+        });
+    }
+    function playSceneAlert(startIdx) {
+        if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
+        if (!heatAlertActive.length) {
+            finishMainLoop_();
+            return;
+        }
+        const idx = startIdx || 0;
+        if (!setHeatAlert_(idx)) {
+            finishMainLoop_();
+            return;
+        }
+        const tracks = document.querySelectorAll('#sceneAlert .ha-track');
+        if (!tracks.length) {
+            finishMainLoop_();
+            return;
+        }
+        const lap = HA_UNIT_W;
+        haFlow_ = { x: 0, alertIdx: idx, laps: 0 };
+        applyHaTrackX_(tracks, haFlow_.x);
+        function step() {
+            haFlow_.x -= HA_SCROLL_PX;
+            while (haFlow_.x <= -lap) {
+                haFlow_.x += lap;
+                haFlow_.laps += 1;
+                if (haFlow_.laps >= HA_LAPS_BEFORE_SWITCH) {
+                    haFlow_.laps = 0;
+                    haFlow_.alertIdx += 1;
+                    if (haFlow_.alertIdx >= heatAlertActive.length) {
+                        haAnimId = null; haFlow_ = null;
+                        finishMainLoop_();
+                        return;
+                    }
+                    setHeatAlert_(haFlow_.alertIdx);
+                }
+            }
+            applyHaTrackX_(tracks, haFlow_.x);
+            haAnimId = requestAnimationFrame(step);
+        }
+        haAnimId = requestAnimationFrame(step);
+    }
     function buildT3PanelHtml(lvLabel, text) {
         return `<div class="t3-panel s2-strip">` +
             `<div class="s2-top-bar"><span class="t3-bar-label">${escapeS1Html(lvLabel)}</span></div>` +
@@ -1279,7 +1660,7 @@
         t3Track.style.transform = 'translateX(0)';
         if (typeof SignageBg !== 'undefined') SignageBg.refreshTicker(currentWbgtLevel);
         if (!barTrack) return;
-        const provider = 'デモ表示（サンプルデータ）／ 環境省熱中症予防情報サイト（WBGT）／ 気象庁・Open-Meteo API（気象データ）';
+        const provider = 'デモ表示（サンプルデータ）／ ' + FOOT_SOURCE;
         const barMsg = buildBarTextHtml(provider);
         barTrack.innerHTML = barMsg + barMsg;
     }
@@ -1288,7 +1669,7 @@
         buildTicker();
         refreshSignageBg();
         if (!t3Track || !barTrack) {
-            setTimeout(() => transitionToScene(s1, playScene1), 1500);
+            setTimeout(gotoAfterScene3_, 1500);
             return;
         }
         const barW = barTrack.scrollWidth / 2;
@@ -1308,7 +1689,7 @@
             if (totalScrolled >= SCENE3_MSG_SCROLL_TOTAL) {
                 t3Track.style.transform = 'translateX(0px)';
                 tickerAnimId = null;
-                advanceDemoLevel();
+                gotoAfterScene3_();
                 return;
             }
             tickerAnimId = requestAnimationFrame(animateScene3);
@@ -1442,6 +1823,10 @@
         }, SCENE5_RUN_MS);
     }
 
+    const DEMO_LEVEL_ORDER = [0, 1, 2, 3, 4];
+    const DEMO_WBGT_BY_LEVEL = [19.0, 22.0, 26.0, 29.0, 32.0];
+    let demoLevelPointer = 0;
+
     function mockSlotsForDemoLevel(levelIdx) {
         const w = DEMO_WBGT_BY_LEVEL[levelIdx];
         return [
@@ -1478,11 +1863,14 @@
     function advanceDemoLevel() {
         demoLevelPointer = (demoLevelPointer + 1) % DEMO_LEVEL_ORDER.length;
         applyDemoLevel(DEMO_LEVEL_ORDER[demoLevelPointer]);
+        if (demoLevelPointer === 3) heatAlertActive = ['warning'];
+        else if (demoLevelPointer === 4) heatAlertActive = ['special'];
+        else heatAlertActive = [];
         startSequence();
     }
 
     function startSequence() {
-        [s1, s2, s3, s4, s5].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, sceneAlert].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
     }
 
