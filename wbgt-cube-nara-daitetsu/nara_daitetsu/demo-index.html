@@ -533,27 +533,29 @@
         }
         #t3-shell.t3-top-ha-warning .t3-top-ha-msg,
         #t3-shell.t3-top-ha-special .t3-top-ha-msg { max-width: 248px; }
+        /* 警戒: ゆるやかな二連明滅（3.2秒） */
         #t3-shell.t3-top-ha-warning .t3-top-ha-msg {
             color: #FFE34D;
             animation: t3-ha-approach-w 3.2s ease-in-out infinite;
         }
-        #t3-shell.t3-top-ha-special .t3-top-ha-msg { color: #FFFFFF; }
-        #t3-shell.t3-top-ha-special .t3-l1,
-        #t3-shell.t3-top-ha-special .t3-l2 {
-            animation: t3-ha-approach-w 3.2s ease-in-out infinite;
+        /* 特別警戒: 速く・深く・三連明滅（2.0秒）で危険度を差別化 */
+        #t3-shell.t3-top-ha-special .t3-top-ha-msg {
+            color: #FFFFFF;
+            animation: t3-ha-urgent-s 2s ease-in-out infinite;
         }
-        /* 近い…近い…と段階的に明滅（急なチカチカは避ける） */
         @keyframes t3-ha-approach-w {
             0%, 52%, 100% { opacity: 1; }
             14% { opacity: 0.78; }
             28% { opacity: 1; }
             38% { opacity: 0.74; }
         }
-        @keyframes t3-ha-approach-s {
-            0%, 48%, 100% { opacity: 1; }
-            12% { opacity: 0.72; }
-            24% { opacity: 1; }
-            34% { opacity: 0.68; }
+        @keyframes t3-ha-urgent-s {
+            0%, 46%, 100% { opacity: 1; }
+            7% { opacity: 0.4; }
+            14% { opacity: 1; }
+            21% { opacity: 0.36; }
+            28% { opacity: 1; }
+            35% { opacity: 0.32; }
         }
         /* 256×72モジュール×2。各256内で同じ文言が256pxシームレスに流れる */
         .t3-pair { width: 512px; height: 72px; display: flex; flex-direction: row; flex-shrink: 0; }
@@ -2185,8 +2187,8 @@
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
     const T3_WBGT_GUIDE_TIERS = [
-        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '過去に例のない危険な暑さとなり、重大な健康上の被害が生じる恐れがある。' },
-        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '熱中症による健康上の被害が生じる恐れがある。' },
+        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '広域的に過去に例のない危険な暑さとなり、人の健康に係る重大な被害が生じるおそれがあります。自分と周りの人の命を守るため、涼しい環境で過ごし、高齢者・こども等が屋内でエアコン等を使い涼しく過ごせているか確認してください。管理者は熱中症対策の徹底を確認し、運動・外出・イベント等の中止・延期・変更（リモートワークを含む）を判断してください。普段の予防行動では不十分な可能性があるため、今一度気を引き締めてください。' },
+        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '気温が著しく高くなることにより、熱中症による健康被害が生ずるおそれがあります。他人事と考えず暑さから身を守り、屋内ではエアコン等で涼しい環境で過ごしましょう。こまめな休憩と水分・塩分補給を行い、高齢者・こども等は特に見守り・声かけをしましょう。涼しい環境以外では運動等を中止しましょう。' },
         { range: '31以上', color: '赤', title: '危険', guide: '安静時でも熱中症になる危険性が大きい。外出はなるべく避け、運動や作業は原則中止する。' },
         { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '外出時は炎天下を避け、室内でも室温の上昇に注意する。10～20分おきに水分や塩分を補給し、激しい運動や作業は避ける。' },
         { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給を行う。激しい運動や作業をする場合には、30分おきくらいに休憩を入れる。' },
@@ -5623,9 +5625,26 @@
         if (heatAlertForced) return false;
         return heatAlertActive.length > 0;
     }
+    function getT3HeatAlertGuideTierForDisplay_() {
+        if (!isHeatAlertPublishedForGuide_()) return null;
+        if (heatAlertIntroPreview_ && heatAlertActive.length) {
+            if (heatAlertActive.includes('special')) return T3_WBGT_GUIDE_TIERS[0];
+            if (heatAlertActive.includes('warning')) return T3_WBGT_GUIDE_TIERS[1];
+            return null;
+        }
+        if (parseHeatAlertParam_().length > 0) {
+            if (heatAlertActive.includes('special')) return T3_WBGT_GUIDE_TIERS[0];
+            if (heatAlertActive.includes('warning')) return T3_WBGT_GUIDE_TIERS[1];
+            return null;
+        }
+        if (heatAlertForced) return null;
+        if (heatAlertActive.includes('special')) return T3_WBGT_GUIDE_TIERS[0];
+        if (heatAlertActive.includes('warning')) return T3_WBGT_GUIDE_TIERS[1];
+        return null;
+    }
     function getT3GuideTierForDisplay_() {
-        /* 特別警戒も中段・下帯は警戒アラート発表中と同一（上帯のみ差別化） */
-        if (isHeatAlertPublishedForGuide_()) return T3_WBGT_GUIDE_TIERS[1];
+        const alertTier = getT3HeatAlertGuideTierForDisplay_();
+        if (alertTier) return alertTier;
         if (wbgtOffSeason || wbgtUnavailable || currentWbgtLevel < 0) return null;
         const tierIdx = T3_GUIDE_TIER_BY_LEVEL[currentWbgtLevel];
         return tierIdx != null ? T3_WBGT_GUIDE_TIERS[tierIdx] : null;
