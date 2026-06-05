@@ -506,9 +506,16 @@
             will-change: transform; backface-visibility: hidden;
         }
         .t3-top-ha-slot {
-            width: 128px; height: 100%; flex-shrink: 0; box-sizing: border-box;
+            width: 128px; height: 100%; flex: 0 0 128px; box-sizing: border-box;
             display: flex; align-items: center; justify-content: center;
             padding: 0 4px;
+        }
+        /* 通常時（全WBGT段階）: 128px×4スロット */
+        #t3-shell:not(.t3-top-ha-warning):not(.t3-top-ha-special) .t3-top-ha-slot {
+            width: 128px; flex: 0 0 128px; display: flex;
+        }
+        #t3-shell:not(.t3-top-ha-warning):not(.t3-top-ha-special) .t3-top-ha-msg {
+            max-width: 120px;
         }
         .t3-top-ha-msg {
             display: inline-block; max-width: 120px;
@@ -516,6 +523,16 @@
             font-family: "Noto Sans JP", sans-serif; white-space: nowrap;
             line-height: 1; text-align: center; color: #ebebeb;
         }
+        #t3-shell.t3-top-ha-warning .t3-top-ha-slot,
+        #t3-shell.t3-top-ha-special .t3-top-ha-slot {
+            width: 256px; flex: 0 0 256px;
+        }
+        #t3-shell.t3-top-ha-warning .t3-top-ha-slot:nth-child(n+3),
+        #t3-shell.t3-top-ha-special .t3-top-ha-slot:nth-child(n+3) {
+            display: none;
+        }
+        #t3-shell.t3-top-ha-warning .t3-top-ha-msg,
+        #t3-shell.t3-top-ha-special .t3-top-ha-msg { max-width: 248px; }
         #t3-shell.t3-top-ha-warning .t3-top-ha-msg {
             color: #FFE34D;
             animation: t3-ha-approach-w 3.2s ease-in-out infinite;
@@ -599,15 +616,19 @@
             will-change: transform; backface-visibility: hidden;
         }
         .ha-slot {
-            width: 256px; height: 100%; flex-shrink: 0; box-sizing: border-box;
+            width: 256px; max-width: 256px; flex: 0 0 256px; height: 100%;
+            box-sizing: border-box;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 2px; padding: 0 6px;
+            gap: 2px; padding: 0 8px; overflow: hidden;
         }
         .ha-l1, .ha-l2 {
-            line-height: 1.04; font-weight: 900; white-space: nowrap;
-            letter-spacing: 0.5px; text-align: center;
-            max-width: 244px; box-sizing: border-box;
+            line-height: 1.05; font-weight: 900; white-space: nowrap;
+            letter-spacing: 0.3px; text-align: center;
+            width: 100%; max-width: 240px; box-sizing: border-box;
+            flex-shrink: 0;
         }
+        .ha-l1 { font-size: 24px; }
+        .ha-l2 { font-size: 14px; }
         @keyframes haLineBlink { 0%,60%{opacity:1;} 80%{opacity:0.25;} 100%{opacity:1;} }
         .ha-pair.ha-warning .ha-unit { background: #70006A; }
         .ha-pair.ha-warning .ha-line { background: #FF0000; }
@@ -617,6 +638,10 @@
         .ha-pair.ha-special .ha-line { background: #FFFFFF; }
         .ha-pair.ha-special .ha-l1 { color: #FF5A5A; }
         .ha-pair.ha-special .ha-l2 { color: #FFFFFF; }
+        .ha-pair.ha-special .ha-l1,
+        .ha-pair.ha-special .ha-l2 {
+            animation: haLineBlink 1.4s ease-in-out infinite;
+        }
         /* --- 大雨警報（256×128×2・熱中症アラートと同型） --- */
         #sceneRainWarn.active { display: block; }
         .ra-pair { width: 512px; height: 128px; display: flex; flex-direction: row; font-family: "Noto Sans JP", sans-serif; }
@@ -2389,7 +2414,14 @@
         if (level === 'warning') return ['warning'];
         return [];
     }
+    let heatAlertIntroPreview_ = false;
+    let heatAlertIntroTimerId_ = null;
+    let demoAlertThenCycle_ = false;
+    const HEAT_ALERT_INTRO_MS = 8000;
+    const HEAT_ALERT_INTRO_ORDER = ['warning', 'special'];
+
     function syncHeatAlertActiveFromPublished_() {
+        if (heatAlertIntroPreview_) return;
         if (heatAlertPreviewBypassTier_()) {
             heatAlertActive = parseHeatAlertParam_().length
                 ? parseHeatAlertParam_()
@@ -2403,9 +2435,10 @@
         heatAlertActive = heatAlertPublished_.slice();
     }
     syncHeatAlertActiveFromPublished_();
-    const HA_UNIT_W = 256;      /* LEDモジュール1枚の幅 */
-    const HA_L1_MAX = 34;       /* 1段目 最大フォント（256幅に収まる範囲） */
-    const HA_L2_RATIO = 0.58;   /* 2段目は1段目の約58% */
+    const HA_UNIT_W = 256;      /* LEDモジュール1枚の幅（1周=256px） */
+    const HA_SLOT_W = 256;      /* 1スロット=256px */
+    const HA_L1_MAX = 27;       /* 256px内で見やすく・大きすぎない上限 */
+    const HA_L2_RATIO = 0.55;   /* 2段目は1段目の約55% */
     const HA_SCROLL_PX = 2;   /* 文字スクロール速度 px/フレーム（ゆっくりめ） */
     const HA_LAPS_BEFORE_SWITCH = 4; /* 256px×4周で次アラートへ */
     let haAnimId = null;
@@ -3715,7 +3748,6 @@
         }
     }
     function finishMainLoopToS1_() {
-        if (typeof demoAfterHeatAlertFinish_ === 'function' && demoAfterHeatAlertFinish_()) return;
         if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
         transitionToScene(s1, playScene1);
     }
@@ -3996,7 +4028,8 @@
     const T3_L2_RATIO = 0.58;
     const T3_LINE_H = 1.04;
     const T3_SCROLL_PX = 2;
-    const T3_TOP_HA_W = 128;
+    const T3_TOP_HA_W_NORMAL = 128;
+    const T3_TOP_HA_W_ALERT = 256;
     const T3_TOP_HA_FONT_MAX = 20;
     const T3_LAPS_BEFORE_SWITCH = 4;
     let t3GuidX = 0;
@@ -5252,12 +5285,21 @@
         if (demoOnlyLoop_('s1', playScene1)) return;
         transitionToScene(s2, playScene2);
     }
-    /* シーン3の後 → シーン5(WBGT予報) → アラート → 警報 → シーン1 */
+    /* シーン3の後 → シーン5(WBGT予報) → 多言語アラート → 専用アラート → 警報 → シーン1 */
     function gotoAfterScene3Tail_() {
         if (WBGT_ONLY) { finishMainLoopToS1_(); return; }
-        if (wbgtNormalDisplay_() && heatAlertActive.length && sceneAlert) {
-            prepHeatAlert_(0);
-            transitionToScene(sceneAlert, () => playSceneAlert(0));
+        if (wbgtNormalDisplay_() && heatAlertActive.length) {
+            const saved = heatAlertActive.slice();
+            playScene3HeatAlertIntroSequence_(saved, function () {
+                heatAlertIntroPreview_ = false;
+                heatAlertActive = saved;
+                if (sceneAlert) {
+                    prepHeatAlert_(0);
+                    transitionToScene(sceneAlert, function () { playSceneAlert(0); });
+                } else {
+                    gotoAfterRainWarnOrScene1_();
+                }
+            });
             return;
         }
         gotoAfterRainWarnOrScene1_();
@@ -5269,26 +5311,33 @@
         }
         gotoAfterScene3Tail_();
     }
-    /* 256×128スロット中央に収まるサイズ（256÷128=2 のパネル内で中央揃え） */
+    /* 256pxスロットごとに2段テキストを収める（見やすい最大サイズ・はみ出し時は縮小） */
     function sizeHeatAlertText_() {
-        const probe = document.querySelector('#sceneAlert .ha-slot .ha-l1');
-        if (!probe) return;
-        const usableW = HA_UNIT_W - 12;
         const bodyEl = document.querySelector('#sceneAlert .ha-body');
-        const usableH = bodyEl ? bodyEl.clientHeight - 4 : 96;
-        const setAll = function (f1, f2) {
-            document.querySelectorAll('#sceneAlert .ha-l1').forEach(function (n) { n.style.fontSize = f1 + 'px'; });
-            document.querySelectorAll('#sceneAlert .ha-l2').forEach(function (n) { n.style.fontSize = f2 + 'px'; });
-        };
-        let f1 = Math.min(HA_L1_MAX, Math.floor((usableH - 2) / (1 + HA_L2_RATIO)));
-        let f2 = Math.max(10, Math.round(f1 * HA_L2_RATIO));
-        setAll(f1, f2);
-        let g = 120;
-        while (probe.scrollWidth > usableW && f1 > 8 && g-- > 0) {
-            f1 -= 1;
-            f2 = Math.max(10, Math.round(f1 * HA_L2_RATIO));
-            setAll(f1, f2);
-        }
+        const usableH = bodyEl && bodyEl.clientHeight > 0 ? bodyEl.clientHeight - 2 : 88;
+        const usableW = HA_SLOT_W - 16;
+        document.querySelectorAll('#sceneAlert .ha-slot').forEach(function (slot) {
+            const l1 = slot.querySelector('.ha-l1');
+            const l2 = slot.querySelector('.ha-l2');
+            if (!l1 || !l2) return;
+            const hFactor = 1.05 * (1 + HA_L2_RATIO);
+            let f1 = Math.min(HA_L1_MAX, Math.floor(usableH / hFactor));
+            let f2 = Math.max(10, Math.round(f1 * HA_L2_RATIO));
+            const apply = function () {
+                l1.style.fontSize = f1 + 'px';
+                l2.style.fontSize = f2 + 'px';
+            };
+            apply();
+            let g = 100;
+            while (g-- > 0 && f1 > 10) {
+                const tooWide = l1.scrollWidth > usableW || l2.scrollWidth > usableW;
+                const tooTall = (l1.offsetHeight + l2.offsetHeight + 2) > usableH;
+                if (!tooWide && !tooTall) break;
+                f1 -= 1;
+                f2 = Math.max(10, Math.round(f1 * HA_L2_RATIO));
+                apply();
+            }
+        });
     }
     function setHeatAlert_(idx) {
         const def = HEAT_ALERTS[heatAlertActive[idx] || heatAlertActive[0]];
@@ -5299,6 +5348,7 @@
         document.querySelectorAll('#sceneAlert .ha-l1').forEach(function (n) { n.textContent = def.name; });
         document.querySelectorAll('#sceneAlert .ha-l2').forEach(function (n) { n.textContent = def.line2; });
         sizeHeatAlertText_();
+        requestAnimationFrame(function () { requestAnimationFrame(sizeHeatAlertText_); });
         applySignageLogoPanel_();
         return true;
     }
@@ -5311,6 +5361,154 @@
         setHeatAlert_(i || 0);
         document.querySelectorAll('#sceneAlert .ha-track').forEach(function (t) {
             t.style.transform = 'translate3d(0px,0,0)';
+        });
+    }
+    function clearHeatAlertIntroTimers_() {
+        if (heatAlertIntroTimerId_) {
+            clearTimeout(heatAlertIntroTimerId_);
+            heatAlertIntroTimerId_ = null;
+        }
+    }
+    function hideAllScenesForIntro_() {
+        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+    }
+    function playSceneAlertIntroOne_(alertKey, onDone) {
+        if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
+        if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+        t3Flow_ = null;
+        clearHeatAlertIntroTimers_();
+        heatAlertIntroPreview_ = true;
+        heatAlertActive = [alertKey];
+        hideAllScenesForIntro_();
+        if (!setHeatAlert_(0)) {
+            if (typeof onDone === 'function') onDone();
+            return;
+        }
+        prepHeatAlert_(0);
+        stepLogo90(420, true);
+        transitionToScene(sceneAlert, function () {
+            const tracks = document.querySelectorAll('#sceneAlert .ha-track');
+            if (!tracks.length) {
+                if (typeof onDone === 'function') onDone();
+                return;
+            }
+            const lap = HA_UNIT_W;
+            haFlow_ = { x: 0, alertIdx: 0 };
+            applyHaTrackX_(tracks, haFlow_.x);
+            function step() {
+                if (!haFlow_) return;
+                haFlow_.x -= HA_SCROLL_PX;
+                while (haFlow_.x <= -lap) haFlow_.x += lap;
+                applyHaTrackX_(tracks, haFlow_.x);
+                haAnimId = requestAnimationFrame(step);
+            }
+            haAnimId = requestAnimationFrame(step);
+            heatAlertIntroTimerId_ = setTimeout(function () {
+                heatAlertIntroTimerId_ = null;
+                if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
+                haFlow_ = null;
+                if (typeof onDone === 'function') onDone();
+            }, HEAT_ALERT_INTRO_MS);
+        });
+    }
+    function playScene3IntroOne_(alertKey, onDone) {
+        if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+        if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
+        haFlow_ = null;
+        t3Flow_ = null;
+        clearHeatAlertIntroTimers_();
+        heatAlertIntroPreview_ = true;
+        heatAlertActive = [alertKey];
+        if (DEMO_SIGNAGE_ACTIVE) {
+            applyDemoLevel(DEMO_LEVEL_ORDER[demoLevelPointer >= 0 ? demoLevelPointer : 0]);
+        } else {
+            refreshSignageBg();
+        }
+        buildTicker();
+        refreshT3LevelBar_();
+        hideAllScenesForIntro_();
+        stepLogo90(420, true);
+        transitionToScene(s3, function () {
+            t3Messages_ = getT3Messages_();
+            buildT3GuideTrack();
+            t3GuidX = 0;
+            const guidTrack = document.getElementById('t3-guid-track');
+            if (guidTrack) guidTrack.style.transform = 'translateX(0px)';
+            if (!t3Messages_.length) {
+                if (typeof onDone === 'function') onDone();
+                return;
+            }
+            prepT3_(0);
+            const tracks = document.querySelectorAll('#scene3 .t3-track');
+            if (!tracks.length) {
+                if (typeof onDone === 'function') onDone();
+                return;
+            }
+            applyT3TrackX_(tracks, 0);
+            t3Flow_ = { x: 0, langIdx: 0, laps: 0 };
+            function step() {
+                if (!t3Flow_) return;
+                t3Flow_.x -= T3_SCROLL_PX;
+                const lap = T3_UNIT_W;
+                while (t3Flow_.x <= -lap) {
+                    t3Flow_.x += lap;
+                    t3Flow_.laps += 1;
+                    if (t3Flow_.laps >= T3_LAPS_BEFORE_SWITCH) {
+                        t3Flow_.laps = 0;
+                        t3Flow_.langIdx += 1;
+                        if (t3Flow_.langIdx >= t3Messages_.length) t3Flow_.langIdx = 0;
+                        setT3Lang_(t3Flow_.langIdx);
+                    }
+                }
+                applyT3TrackX_(tracks, t3Flow_.x);
+                if (guidTrack && getT3GuideTierForDisplay_()) {
+                    t3GuidX -= SCENE2_META_SPEED_PX;
+                    if (t3GuidX <= -t3GuidLapPx) t3GuidX += t3GuidLapPx;
+                    guidTrack.style.transform = 'translate3d(' + Math.round(t3GuidX * 100) / 100 + 'px,0,0)';
+                }
+                tickerAnimId = requestAnimationFrame(step);
+            }
+            tickerAnimId = requestAnimationFrame(step);
+            heatAlertIntroTimerId_ = setTimeout(function () {
+                heatAlertIntroTimerId_ = null;
+                if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+                t3Flow_ = null;
+                if (typeof onDone === 'function') onDone();
+            }, HEAT_ALERT_INTRO_MS);
+        });
+    }
+    function playScene3HeatAlertIntroSequence_(keys, onDone) {
+        const order = (keys && keys.length) ? keys.slice() : HEAT_ALERT_INTRO_ORDER.slice();
+        function next(i) {
+            if (i >= order.length) {
+                if (typeof onDone === 'function') onDone();
+                return;
+            }
+            playScene3IntroOne_(order[i], function () { next(i + 1); });
+        }
+        next(0);
+    }
+    function playHeatAlertIntroSequence_(onDone) {
+        function alertNext(i) {
+            if (i >= HEAT_ALERT_INTRO_ORDER.length) {
+                playScene3HeatAlertIntroSequence_(HEAT_ALERT_INTRO_ORDER.slice(), onDone);
+                return;
+            }
+            playSceneAlertIntroOne_(HEAT_ALERT_INTRO_ORDER[i], function () { alertNext(i + 1); });
+        }
+        alertNext(0);
+    }
+    function demoStartWithHeatAlerts_() {
+        if (!DEMO_SIGNAGE_ACTIVE || DEMO_ONLY) return;
+        demoAlertThenCycle_ = true;
+        demoLevelPointer = 0;
+        playHeatAlertIntroSequence_(function () {
+            demoAlertThenCycle_ = false;
+            heatAlertIntroPreview_ = false;
+            heatAlertActive = [];
+            clearHeatAlertIntroTimers_();
+            applyDemoLevel(DEMO_LEVEL_ORDER[0]);
+            startSequence();
         });
     }
     /* 各256×128内：256pxスロット×2が中央揃えで流れ、1周256pxでシームレス */
@@ -5399,20 +5597,9 @@
         if (colon) return { l1: colon[1].trim(), l2: colon[2].trim() };
         return { l1: '', l2: s };
     }
-    const T3_HEAT_ALERT_MULTI = {
-        jp: '【危険】作業を直ちに中止',
-        en: 'Danger: Stop work immediately',
-        vn: 'Nguy hiểm: Dừng công việc ngay',
-        tl: '【Panganib】Itigil agad ang trabaho'
-    };
     function getT3Messages_() {
         if (wbgtOffSeason) return [];
-        if (isHeatAlertPublishedForGuide_()) {
-            const langs = ['jp', 'en', 'vn', 'tl'];
-            const all = langs.map(function (key) { return splitT3Message_(T3_HEAT_ALERT_MULTI[key]); });
-            if (DEMO_T3_LANG_IDX >= 0 && DEMO_T3_LANG_IDX < all.length) return [all[DEMO_T3_LANG_IDX]];
-            return all;
-        }
+        /* 3段デザイン: 発表時も中段は現在WBGT段階の多言語（上帯のみアラート文言に差し替え） */
         const isUnknown = wbgtUnavailable || currentWbgtLevel < 0;
         const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
         const langs = ['jp', 'en', 'vn', 'tl'];
@@ -5429,8 +5616,9 @@
         const slot = '<div class="s2-meta-slot s2-meta-slot-flow">' + msg + '</div>';
         return '<div class="s2-meta-set s2-meta-set-flow">' + slot + '</div>';
     }
-    /** 環境省発表または ?heatalert= 指定時のみアラート指針を下帯に出す（フルデモの仮アラートは除く） */
+    /** 環境省発表・URL指定・導入プレビュー時にアラート指針を下帯に出す */
     function isHeatAlertPublishedForGuide_() {
+        if (heatAlertIntroPreview_ && heatAlertActive.length > 0) return true;
         if (parseHeatAlertParam_().length > 0) return true;
         if (heatAlertForced) return false;
         return heatAlertActive.length > 0;
@@ -5469,15 +5657,29 @@
         special: { text: '熱中症特別警戒アラート 発表中', cls: 't3-top-ha-special' }
     };
     function getT3HeatAlertTopForDisplay_() {
-        if (!isHeatAlertPublishedForGuide_()) return null;
+        if (heatAlertIntroPreview_ && heatAlertActive.length) {
+            if (heatAlertActive.includes('special')) return T3_HEAT_ALERT_TOP.special;
+            if (heatAlertActive.includes('warning')) return T3_HEAT_ALERT_TOP.warning;
+            return null;
+        }
+        if (parseHeatAlertParam_().length > 0) {
+            if (heatAlertActive.includes('special')) return T3_HEAT_ALERT_TOP.special;
+            if (heatAlertActive.includes('warning')) return T3_HEAT_ALERT_TOP.warning;
+            return null;
+        }
+        if (heatAlertForced) return null;
+        if (!heatAlertActive.length) return null;
         if (heatAlertActive.includes('special')) return T3_HEAT_ALERT_TOP.special;
         if (heatAlertActive.includes('warning')) return T3_HEAT_ALERT_TOP.warning;
         return null;
     }
+    function getT3TopHaSlotW_() {
+        return getT3HeatAlertTopForDisplay_() ? T3_TOP_HA_W_ALERT : T3_TOP_HA_W_NORMAL;
+    }
     function sizeT3TopBandText_() {
         const probe = document.querySelector('#scene3 .t3-top-ha-slot .t3-top-ha-msg');
         if (!probe) return;
-        const usableW = T3_TOP_HA_W - 8;
+        const usableW = getT3TopHaSlotW_() - 8;
         let fz = T3_TOP_HA_FONT_MAX;
         document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
         let guard = 80;
@@ -5493,13 +5695,28 @@
     function syncT3TopScroll_(x) {
         applyT3TopHaTrackX_(document.querySelectorAll('#scene3 .t3-top-ha-track'), x);
     }
+    function ensureT3TopHaSlots_(alertActive) {
+        const need = alertActive ? 2 : 4;
+        document.querySelectorAll('#scene3 .t3-top-ha-track').forEach(function (track) {
+            let slots = track.querySelectorAll('.t3-top-ha-slot');
+            while (slots.length < need) {
+                const slot = document.createElement('div');
+                slot.className = 't3-top-ha-slot';
+                slot.innerHTML = '<span class="t3-top-ha-msg"></span>';
+                track.appendChild(slot);
+                slots = track.querySelectorAll('.t3-top-ha-slot');
+            }
+            slots.forEach(function (slot) { slot.style.display = ''; });
+        });
+    }
     function buildT3TopBand_() {
         const shell = document.getElementById('t3-shell');
-        const msgs = document.querySelectorAll('#scene3 .t3-top-ha-msg');
         if (!shell) return;
         shell.classList.add('t3-col-layout-active');
         shell.classList.remove('t3-top-ha-warning', 't3-top-ha-special');
         const alertTop = getT3HeatAlertTopForDisplay_();
+        ensureT3TopHaSlots_(!!alertTop);
+        const msgs = document.querySelectorAll('#scene3 .t3-top-ha-msg');
         const lvLabel = (wbgtUnavailable || currentWbgtLevel < 0) ? '--' : levelNames[currentWbgtLevel];
         const text = alertTop ? alertTop.text : lvLabel;
         if (alertTop) shell.classList.add(alertTop.cls);
@@ -5959,84 +6176,10 @@
             document.title = 'WBGT Signage デモ - ' + levelNames[levelIdx];
         }
     }
-let demoAlertThenCycle_ = false;
-    let demoHaTimerId = null;
-    const DEMO_HA_DURATION_MS = 8000;
-
-    function demoAfterHeatAlertFinish_() {
-        if (!demoAlertThenCycle_) return false;
-        demoAlertThenCycle_ = false;
-        if (demoHaTimerId) { clearTimeout(demoHaTimerId); demoHaTimerId = null; }
-        if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
-        haFlow_ = null;
-        heatAlertActive = [];
-        startSequence();
-        return true;
-    }
-
-    function demoPlaySceneAlert_(startIdx) {
-        if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
-        if (demoHaTimerId) { clearTimeout(demoHaTimerId); demoHaTimerId = null; }
-        if (!heatAlertActive.length) {
-            finishMainLoopToS1_();
-            return;
-        }
-        const idx = startIdx || 0;
-        if (!setHeatAlert_(idx)) {
-            finishMainLoopToS1_();
-            return;
-        }
-        stepLogo90(420, true);
-        const tracks = document.querySelectorAll('#sceneAlert .ha-track');
-        if (!tracks.length) {
-            finishMainLoopToS1_();
-            return;
-        }
-        const lap = HA_UNIT_W;
-        haFlow_ = { x: 0, alertIdx: idx };
-        applyHaTrackX_(tracks, haFlow_.x);
-        function step() {
-            if (!haFlow_) return;
-            haFlow_.x -= HA_SCROLL_PX;
-            while (haFlow_.x <= -lap) haFlow_.x += lap;
-            applyHaTrackX_(tracks, haFlow_.x);
-            haAnimId = requestAnimationFrame(step);
-        }
-        haAnimId = requestAnimationFrame(step);
-        demoHaTimerId = setTimeout(function () {
-            demoHaTimerId = null;
-            if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
-            const next = idx + 1;
-            if (next < heatAlertActive.length) {
-                demoPlaySceneAlert_(next);
-            } else {
-                haFlow_ = null;
-                finishMainLoopToS1_();
-            }
-        }, DEMO_HA_DURATION_MS);
-    }
-
-    function demoPlayHeatAlertsBoth_() {
-        demoAlertThenCycle_ = true;
-        heatAlertActive = ['warning', 'special'];
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
-        prepHeatAlert_(0);
-        transitionToScene(sceneAlert, function () { demoPlaySceneAlert_(0); });
-    }
-
     function advanceDemoLevel() {
         demoLevelPointer = (demoLevelPointer + 1) % DEMO_LEVEL_ORDER.length;
-        const lv = DEMO_LEVEL_ORDER[demoLevelPointer];
-        applyDemoLevel(lv);
-        heatAlertActive = [];
+        applyDemoLevel(DEMO_LEVEL_ORDER[demoLevelPointer]);
         startSequence();
-    }
-
-    /** フルデモ開始: 警戒アラート → 特別警戒アラート → 通常シーン順送り */
-    function demoStartWithHeatAlerts_() {
-        demoLevelPointer = 0;
-        applyDemoLevel(DEMO_LEVEL_ORDER[0]);
-        demoPlayHeatAlertsBoth_();
     }
     function demoOnlyLoop_(key, replayFn) {
         if (DEMO_ONLY !== key) return false;
