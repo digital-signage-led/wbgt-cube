@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- デモ専用（本番 index.html とは独立）全レベル順送り -->
-<!-- 同階層: daitetsu_log.png -->
+<!-- 同階層: daitetsu_logo.png -->
 <html lang="ja" class="native-640">
 <head>
     <meta charset="UTF-8">
@@ -360,7 +360,7 @@
             line-height: 1; color: #ebebeb;
         }
         .fc-wbgt-num {
-            font-size: 56px; font-weight: 800; font-variant-numeric: tabular-nums;
+            font-size: 44px; font-weight: 800; font-variant-numeric: tabular-nums;
             font-family: "Inter", sans-serif; letter-spacing: -0.04em;
         }
         .fc-wbgt-unit {
@@ -411,23 +411,23 @@
             opacity: 0.9;
             color: #ebebeb;
         }
-        /* 明日以降: ほぼ安全など=白文字 / 注意・警戒=黒文字 */
-        #scene5 .d5-panel:not(.d5-today-focus):not(.col-bg-dark-text) .s2-bar-label,
-        #scene5 .d5-panel:not(.d5-today-focus):not(.col-bg-dark-text) .d5-sep,
-        #scene5 .d5-panel:not(.d5-today-focus):not(.col-bg-dark-text) .d5-temp,
-        #scene5 .d5-panel:not(.d5-today-focus):not(.col-bg-dark-text) .s2-unit {
+        /* 全列: ほぼ安全など=白文字 / 注意・警戒=黒文字 */
+        #scene5 .d5-panel:not(.col-bg-dark-text) .s2-bar-label,
+        #scene5 .d5-panel:not(.col-bg-dark-text) .d5-sep,
+        #scene5 .d5-panel:not(.col-bg-dark-text) .d5-temp,
+        #scene5 .d5-panel:not(.col-bg-dark-text) .s2-unit {
             color: #ebebeb !important;
         }
-        #scene5 .d5-panel:not(.d5-today-focus).col-bg-dark-text .s2-bar-label,
-        #scene5 .d5-panel:not(.d5-today-focus).col-bg-dark-text .d5-sep,
-        #scene5 .d5-panel:not(.d5-today-focus).col-bg-dark-text .d5-temp,
-        #scene5 .d5-panel:not(.d5-today-focus).col-bg-dark-text .s2-unit {
+        #scene5 .d5-panel.col-bg-dark-text .s2-bar-label,
+        #scene5 .d5-panel.col-bg-dark-text .d5-sep,
+        #scene5 .d5-panel.col-bg-dark-text .d5-temp,
+        #scene5 .d5-panel.col-bg-dark-text .s2-unit {
             color: #000000 !important;
         }
         #scene5 .d5-body .s2-val { flex-shrink: 0; }
         #scene5 .d5-body .s2-num { font-size: 38px; }
         #scene5 .d5-body .s2-unit { font-size: 18px; }
-        /* 今日のみ 128×128 枠で強調（WBGT 列）— 四辺とも同じ 2px 線 */
+        /* 今日のみ 128×128 枠で強調 — 四辺とも同じ 2px 線 */
         #scene5 .d5-panel.d5-today-focus {
             position: relative;
             z-index: 2;
@@ -446,17 +446,6 @@
         #scene5 .d5-panel.d5-today-focus.d5-today-frame-white::after {
             border-color: #ffffff;
         }
-        #scene5 .d5-today-body {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 0 4px;
-        }
-        #scene5 .d5-today-body .s2-num { font-size: 48px; }
-        #scene5 .d5-today-body .s2-unit { font-size: 22px; }
-        #scene5 .d5-panel.col-bg-dark-text .s2-bar-label,
-        #scene5 .d5-panel.col-bg-dark-text .d5-today-body .s2-num,
-        #scene5 .d5-panel.col-bg-dark-text .d5-today-body .s2-unit { color: #000000; }
         #scene5 { overflow: hidden; }
 
         #scene3 { overflow: hidden; position: relative; }
@@ -517,12 +506,12 @@
             will-change: transform; backface-visibility: hidden;
         }
         .t3-top-ha-slot {
-            width: 256px; height: 100%; flex-shrink: 0; box-sizing: border-box;
+            width: 128px; height: 100%; flex-shrink: 0; box-sizing: border-box;
             display: flex; align-items: center; justify-content: center;
             padding: 0 4px;
         }
         .t3-top-ha-msg {
-            display: inline-block; max-width: 248px;
+            display: inline-block; max-width: 120px;
             font-size: 20px; font-weight: 700; letter-spacing: 0.42px;
             font-family: "Noto Sans JP", sans-serif; white-space: nowrap;
             line-height: 1; text-align: center; color: #ebebeb;
@@ -1396,7 +1385,7 @@
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './daitetsu_log.png',
+    logoSrc: './daitetsu_logo.png',
     logoAlt: '大鉄',
     logoPanelBg: '#3a3a3a'
   };
@@ -1413,7 +1402,7 @@
 <div class="canvas">
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
-            <img class="logo-img" id="signage-logo" src="./daitetsu_log.png" alt="大鉄">
+            <img class="logo-img" id="signage-logo" src="./daitetsu_logo.png" alt="大鉄">
         </div>
     </div>
     <div class="content-area">
@@ -1565,11 +1554,11 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body d5-today-body"><div class="s2-val"><span class="s2-num d5-wbgt">--</span><span class="s2-unit">℃</span></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body d5-today-body"><div class="s2-val"><span class="s2-num d5-wbgt">--</span><span class="s2-unit">℃</span></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
@@ -1591,6 +1580,8 @@
                     <div class="t3-col-top"><div class="t3-top-ha-body"><div class="t3-top-ha-track">
                         <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
                         <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
+                        <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
+                        <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
                     </div></div></div>
                     <div class="t3-scroll-body"><div class="t3-track">
                         <div class="t3-slot"><div class="t3-l1"></div><div class="t3-l2"></div></div>
@@ -1599,6 +1590,8 @@
                 </div>
                 <div class="t3-col t3-unit s2-strip">
                     <div class="t3-col-top"><div class="t3-top-ha-body"><div class="t3-top-ha-track">
+                        <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
+                        <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
                         <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
                         <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
                     </div></div></div>
@@ -1916,7 +1909,7 @@
     const DEMO_ALERT_ONLY = demoParam === 'alert' || query.get('only') === 'alert';  /* アラートのみ流すデモ */
     const DEMO_RAINWARN_ONLY = demoParam === 'rainwarn' || query.get('only') === 'rainwarn';
     const WBGT_ONLY = query.get('wbgtOnly') === '1';
-    /** 大鉄・奈良: 大雨警報シーンは出さない（熱中症アラートは環境省発表時のみ） */
+    /** 大鉄・奈良: 気象庁の警報・注意報などは出さない（アメダス・天気予報は表示）。熱中症は環境省のみ */
     const SITE_CFG = window.SignageConfig || {};
     const NO_JMA_WARN = true;
     const RAIN_HERO_OFF = query.get('rainhero') === '0';
@@ -2337,7 +2330,7 @@
         SignageBg.refreshScene1(lv, mode);
         SignageBg.refreshScene2(lv, mode);
         SignageBg.refreshScene5(lv, mode);
-        applyD5TodayWbgt_();
+        applyD5TodayFrame_();
         applyD5ForecastTextColors_();
         const slots = lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null);
         if (slots) SignageBg.refreshForecast(slots, mode);
@@ -4003,7 +3996,7 @@
     const T3_L2_RATIO = 0.58;
     const T3_LINE_H = 1.04;
     const T3_SCROLL_PX = 2;
-    const T3_TOP_HA_W = 256;
+    const T3_TOP_HA_W = 128;
     const T3_TOP_HA_FONT_MAX = 20;
     const T3_LAPS_BEFORE_SWITCH = 4;
     let t3GuidX = 0;
@@ -4200,22 +4193,41 @@
             setAll(fz);
         }
     }
-    function fitFcWbgtFontSize() {
-        const maxW = 112;
-        const maxH = 64;
-        document.querySelectorAll('#scene4 .fc-wbgt').forEach(wrap => {
-            const num = wrap.querySelector('.fc-wbgt-num');
-            const unit = wrap.querySelector('.fc-wbgt-unit');
-            if (!num) return;
-            let size = 56;
-            num.style.fontSize = size + 'px';
-            if (unit) unit.style.fontSize = Math.max(14, Math.round(size * 0.36)) + 'px';
-            let guard = 80;
-            while (guard-- > 0 && (wrap.scrollWidth > maxW || wrap.scrollHeight > maxH) && size > 32) {
-                size -= 1;
-                num.style.fontSize = size + 'px';
-                if (unit) unit.style.fontSize = Math.max(12, Math.round(size * 0.36)) + 'px';
+    /** WBGT数値: 計測中は非表示にし、最終サイズだけ一度だけ適用（大→小のチラつき防止） */
+    function fitNumUnitInBox_(wrap, num, unit, opts) {
+        if (!num || !wrap) return opts.minSz || 32;
+        const maxW = opts.maxW;
+        const maxH = opts.maxH != null ? opts.maxH : 9999;
+        const minSz = opts.minSz || 28;
+        const maxSz = opts.maxSz || 56;
+        const unitMin = opts.unitMin || 12;
+        const unitRatio = opts.unitRatio != null ? opts.unitRatio : 0.36;
+        const prevVis = wrap.style.visibility;
+        wrap.style.visibility = 'hidden';
+        let lo = minSz;
+        let hi = maxSz;
+        let best = minSz;
+        while (lo <= hi) {
+            const mid = Math.floor((lo + hi) / 2);
+            num.style.fontSize = mid + 'px';
+            if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(mid * unitRatio)) + 'px';
+            if (wrap.scrollWidth <= maxW && wrap.scrollHeight <= maxH) {
+                best = mid;
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
             }
+        }
+        num.style.fontSize = best + 'px';
+        if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(best * unitRatio)) + 'px';
+        wrap.style.visibility = prevVis;
+        return best;
+    }
+    function fitFcWbgtFontSize() {
+        document.querySelectorAll('#scene4 .fc-wbgt').forEach(function (wrap) {
+            fitNumUnitInBox_(wrap, wrap.querySelector('.fc-wbgt-num'), wrap.querySelector('.fc-wbgt-unit'), {
+                maxW: 112, maxH: 64, minSz: 32, maxSz: 56, unitMin: 12, unitRatio: 0.36
+            });
         });
     }
     function updateForecastSlots(slots) {
@@ -4231,13 +4243,7 @@
         });
         queueDisplayRefresh_();
         fitFcBarLabelFontSize_();
-        if (s4 && s4.classList.contains('active')) fitFcWbgtFontSize();
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                fitFcBarLabelFontSize_();
-                fitFcWbgtFontSize();
-            });
-        });
+        fitFcWbgtFontSize();
         lastWbgtSlots = slots;
         syncWbgtLevelFromSlots(slots);
         refreshSignageBg();
@@ -4706,37 +4712,7 @@
             panel.classList.toggle('d5-today-frame-white', white);
         });
     }
-    /** 今日列: 現在 WBGT 値・段階色（注意・警戒=黒文字） */
-    function applyD5TodayWbgt_() {
-        const mode = getSignageDisplayMode_();
-        const lv = mode === 'normal' ? currentWbgtLevel : -1;
-        const row = lastWbgtSlots && lastWbgtSlots[0];
-        let wbgt = row && row.wbgt != null ? Number(row.wbgt) : null;
-        if ((wbgt == null || !Number.isFinite(wbgt)) && DEMO_SIGNAGE_ACTIVE && lv >= 0) {
-            wbgt = DEMO_WBGT_BY_LEVEL[lv];
-        }
-        const wbgtStr = wbgt != null && Number.isFinite(wbgt) ? Number(wbgt).toFixed(1) : '--';
-        document.querySelectorAll('.d5-day-0.d5-today-focus .d5-wbgt').forEach(function (el) {
-            el.innerText = wbgtStr;
-        });
-        fitD5TodayWbgtText_();
-        applyD5TodayFrame_();
-        applyD5BandTextColors_();
-    }
-    function applyD5BandTextColors_() {
-        const mode = getSignageDisplayMode_();
-        const darkGlobal = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
-            ? SignageBg.isDarkTextForDisplay(currentWbgtLevel, mode)
-            : (mode === 'normal' && (currentWbgtLevel === 1 || currentWbgtLevel === 2));
-        document.querySelectorAll('#scene5 .d5-panel.d5-today-focus').forEach(function (panel) {
-            const dark = panel.classList.contains('col-bg-dark-text') || darkGlobal;
-            const c = dark ? '#000000' : '#ebebeb';
-            panel.querySelectorAll('.s2-bar-label, .d5-today-body .s2-num, .d5-today-body .s2-unit').forEach(function (n) {
-                n.style.color = c;
-            });
-        });
-    }
-    /** 明日〜: 注意・警戒は黒、それ以外は白（「/」・気温・日付ラベル） */
+    /** 全列: 注意・警戒は黒、それ以外は白（「/」・気温・日付ラベル） */
     function applyD5ForecastTextColors_() {
         const mode = getSignageDisplayMode_();
         const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
@@ -4745,30 +4721,11 @@
         const c = dark ? '#000000' : '#ebebeb';
         document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(function (panel) {
             panel.classList.toggle('col-bg-dark-text', dark);
+        });
+        document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
             panel.querySelectorAll('.s2-bar-label, .d5-sep, .d5-temp, .s2-unit').forEach(function (n) {
                 n.style.color = c;
             });
-        });
-    }
-    function fitD5TodayWbgtText_() {
-        const maxW = 118;
-        document.querySelectorAll('#scene5 .d5-today-body .s2-val').forEach(function (wrap) {
-            const num = wrap.querySelector('.d5-wbgt');
-            const unit = wrap.querySelector('.s2-unit');
-            if (!num) return;
-            let numSz = 48;
-            let unitSz = 22;
-            const apply = function () {
-                num.style.fontSize = numSz + 'px';
-                if (unit) unit.style.fontSize = unitSz + 'px';
-            };
-            apply();
-            let guard = 50;
-            while (guard-- > 0 && wrap.scrollWidth > maxW) {
-                if (numSz > 28) { numSz -= 1; apply(); continue; }
-                if (unitSz > 14) { unitSz -= 1; apply(); continue; }
-                break;
-            }
         });
     }
     function compactScene5Panels() {
@@ -4834,11 +4791,10 @@
             let icon = weatherCodeToIconHref(weatherCodes ? weatherCodes[idx] : null);
             if (day === 0 && todayLiveIcon) icon = todayLiveIcon;
             const tempStr = temp != null && Number.isFinite(temp) ? String(Math.round(temp)) : '--';
-            if (day === 0) continue;
             document.querySelectorAll(`.d5-day-${day} .d5-temp`).forEach(el => { el.innerText = tempStr; });
             document.querySelectorAll(`.d5-day-${day} .d5-weather-use`).forEach(el => el.setAttribute('href', icon));
         }
-        applyD5TodayWbgt_();
+        applyD5TodayFrame_();
         applyD5ForecastTextColors_();
         fitD5PanelText_();
     }
@@ -5834,12 +5790,6 @@
         refreshSignageBg();
         fitFcBarLabelFontSize_();
         fitFcWbgtFontSize();
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                fitFcBarLabelFontSize_();
-                fitFcWbgtFontSize();
-            });
-        });
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
             scheduleDemoStep_(finishScene4);
@@ -5880,7 +5830,7 @@
         if (scene5AnimId) cancelAnimationFrame(scene5AnimId);
         compactScene5Panels();
         fitD5PanelText_();
-        applyD5TodayWbgt_();
+        applyD5TodayFrame_();
         applyD5ForecastTextColors_();
         refreshSignageBg();
         stepLogo90(420, true);
@@ -5944,7 +5894,7 @@
         fitScene2BodyText();
         document.querySelectorAll('.d5-temp').forEach(el => { el.innerText = '32'; });
         applyD5BarLabels_();
-        applyD5TodayWbgt_();
+        applyD5TodayFrame_();
         applyD5ForecastTextColors_();
         compactScene5Panels();
         fitD5PanelText_();
@@ -6078,12 +6028,15 @@ let demoAlertThenCycle_ = false;
         demoLevelPointer = (demoLevelPointer + 1) % DEMO_LEVEL_ORDER.length;
         const lv = DEMO_LEVEL_ORDER[demoLevelPointer];
         applyDemoLevel(lv);
-        if (lv === 3) {
-            demoPlayHeatAlertsBoth_();
-            return;
-        }
         heatAlertActive = [];
         startSequence();
+    }
+
+    /** フルデモ開始: 警戒アラート → 特別警戒アラート → 通常シーン順送り */
+    function demoStartWithHeatAlerts_() {
+        demoLevelPointer = 0;
+        applyDemoLevel(DEMO_LEVEL_ORDER[0]);
+        demoPlayHeatAlertsBoth_();
     }
     function demoOnlyLoop_(key, replayFn) {
         if (DEMO_ONLY !== key) return false;
@@ -6187,8 +6140,12 @@ let demoAlertThenCycle_ = false;
                 setTimeout(startSingleSceneDemo_, 200);
                 return;
             }
-            applyDemoLevel(DEMO_LEVEL_FIXED != null ? DEMO_LEVEL_FIXED : DEMO_LEVEL_ORDER[0]);
-            setTimeout(startSequence, 500);
+            if (DEMO_LEVEL_FIXED != null) {
+                applyDemoLevel(DEMO_LEVEL_FIXED);
+                setTimeout(startSequence, 500);
+            } else {
+                setTimeout(demoStartWithHeatAlerts_, 500);
+            }
             return;
         }
         await syncTimeFromNetwork();
