@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-nara-daitetsu / 奈良市・大鉄 WBGT サイネージ -->
-<!-- 同階層: daitetsu_logo.png（大鉄ロゴ）, faces/face-0〜4.png（任意） -->
+<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png, daitetsu_company_label.png（大鉄PR用）, faces/face-0〜4.png（任意） -->
 <!-- 〒630-8145 奈良県奈良市 / WBGT 64036 -->
 <html lang="ja" class="native-640">
 <head>
@@ -96,6 +96,85 @@
         #scene3.active { display: flex; flex-direction: column; }
         #scene4.active { display: block; }
         #scene5.active { display: block; }
+        #scenePromo.active { display: block; }
+
+        /* 大鉄PR: 列背景の上帯のみ退避（下の白帯は維持） */
+        .content-area .scene-strip-bg .col-bg-top,
+        .content-area .scene-strip-bg .col-bg-body {
+            transition: transform 0.7s ease, opacity 0.65s ease;
+            will-change: transform;
+        }
+        .content-area.dp-band-collapse .scene-strip-bg .col-bg-top {
+            transform: translateY(-32px);
+            opacity: 0;
+        }
+        .content-area.dp-band-collapse .scene-strip-bg .col-bg-body {
+            opacity: 0;
+        }
+        /* 大鉄PR 512×128（上32 + 中72 + 下24） */
+        .dp-shell {
+            width: 512px; height: 128px;
+            display: flex; flex-direction: column;
+            overflow: hidden; position: relative; z-index: 2;
+            box-sizing: border-box;
+        }
+        .dp-top {
+            width: 100%; height: 32px; flex-shrink: 0;
+            overflow: hidden; position: relative; box-sizing: border-box;
+        }
+        .dp-mid {
+            width: 100%; height: 72px; flex-shrink: 0;
+            overflow: hidden; position: relative; box-sizing: border-box;
+            display: flex; align-items: center;
+        }
+        .dp-bot {
+            width: 100%; height: 24px; flex-shrink: 0;
+            overflow: hidden; position: relative; box-sizing: border-box;
+            background: var(--led-foot-bar-bg);
+        }
+        .dp-top-track, .dp-mid-track, .dp-bot-track {
+            display: flex; flex-direction: row; align-items: stretch;
+            height: 100%; will-change: transform; backface-visibility: hidden;
+        }
+        .dp-top-set, .dp-bot-set {
+            width: 512px; height: 100%; flex-shrink: 0;
+            display: flex; flex-direction: row; align-items: stretch;
+            box-sizing: border-box;
+        }
+        .dp-top-slot, .dp-bot-slot {
+            width: 128px; height: 100%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box;
+        }
+        .dp-mid-seg {
+            flex: 0 0 auto; display: inline-flex; align-items: center;
+            height: 100%; padding: 0 14px; box-sizing: border-box;
+            white-space: nowrap;
+        }
+        .dp-top-txt {
+            font-size: 14px; font-weight: 500; line-height: 1;
+            font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, "MS Gothic", "Noto Sans JP", sans-serif;
+            letter-spacing: 0; white-space: nowrap;
+        }
+        .dp-company-img {
+            display: block; max-height: 20px; max-width: 120px;
+            width: auto; height: auto; object-fit: contain;
+        }
+        .dp-shell:not(.dp-dark-text) .dp-company-img {
+            filter: brightness(0) invert(1);
+        }
+        .dp-mid-txt {
+            font-size: 22px; font-weight: 900; line-height: 1.12;
+            font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.2px;
+        }
+        .dp-wordmark-img {
+            display: block; max-height: 18px; max-width: 112px;
+            width: auto; height: auto; object-fit: contain;
+        }
+        .dp-shell.dp-dark-text .dp-top-txt,
+        .dp-shell.dp-dark-text .dp-mid-txt { color: #000000; }
+        .dp-shell:not(.dp-dark-text) .dp-top-txt,
+        .dp-shell:not(.dp-dark-text) .dp-mid-txt { color: #ebebeb; }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -1398,7 +1477,7 @@
     site: {
       customer: '大鉄工業',
       label: '奈良市',
-      address: '奈良県奈良市（〒630-8145付近）'
+      address: '奈良県奈良市大安寺西１丁目（大鉄工業 奈良現場事務所）'
     },
     moe: {
       /* 環境省 WBGT（奈良） */
@@ -1422,7 +1501,7 @@
       amedasPressureFallbackLabel: '',
       forecastArea: '290000'
     },
-    geo: { lat: 34.6847, lon: 135.8065 },
+    geo: { lat: 34.6697, lon: 135.8069 },
     timeZone: 'Asia/Tokyo',
     refreshMs: 300000,
     footSource: '出典：気象庁・環境省データ'
@@ -1432,6 +1511,8 @@
 
   global.SIGNAGE_CONFIG = {
     logoSrc: './daitetsu_logo.png',
+    promoLogoSrc: './daitetsu_wordmark.png',
+    promoCompanyLabelSrc: './daitetsu_company_label.png',
     logoAlt: '大鉄',
     logoPanelBg: '#3a3a3a'
   };
@@ -1608,6 +1689,17 @@
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
+        </div>
+    </div>
+
+    <div class="scene" id="scenePromo">
+        <div class="dp-shell" id="dp-shell">
+            <div class="dp-top"><div class="dp-top-track" id="dp-top-track"></div></div>
+            <div class="dp-mid"><div class="dp-mid-track" id="dp-mid-track">
+                <div class="dp-mid-seg"><span class="dp-mid-txt" id="dp-mid-txt-a"></span></div>
+                <div class="dp-mid-seg"><span class="dp-mid-txt" id="dp-mid-txt-b"></span></div>
+            </div></div>
+            <div class="dp-bot"><div class="dp-bot-track" id="dp-bot-track"></div></div>
         </div>
     </div>
 
@@ -1965,19 +2057,20 @@
     /*
      * 流れる順の表示番号（順序は変えずラベルのみ）
      *  1 時刻＋WBGT下帯 (s1) → 2 アメダス (s2) → 3 4日予報 (s5)
-     *  → 4 多言語WBGT (s3) → 5 WBGT予報 (s4) → 熱中症アラート (alert) → 大雨警報 (rainwarn) → 1へ
-     * ?only= は 1〜5 または s1〜s5（旧キー）両対応
+     *  → 3.5 大鉄PR (promo) → 4 多言語WBGT (s3) → 5 WBGT予報 (s4) → 熱中症アラート (alert) → 大雨警報 (rainwarn) → 1へ
+     * ?only= は 1〜5 / promo または s1〜s5（旧キー）両対応
      */
     function normalizeOnlyParam_(raw) {
         if (raw == null || raw === '') return null;
         const v = String(raw).toLowerCase();
         if (v === 'alert') return 'alert';
         if (v === 'rainwarn') return 'rainwarn';
+        if (v === 'promo' || v === '6') return 'promo';
         const map = { '1': 's1', '2': 's2', '3': 's5', '4': 's3', '5': 's4', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
         return map[v] || null;
     }
     const SCENE_LABEL_BY_KEY = {
-        s1: 'シーン1', s2: 'シーン2', s5: 'シーン3', s3: 'シーン4', s4: 'WBGT実況値', alert: '熱中症アラート', rainwarn: '大雨警報'
+        s1: 'シーン1', s2: 'シーン2', s5: 'シーン3', promo: '大鉄PR', s3: 'シーン4', s4: 'WBGT実況値', alert: '熱中症アラート', rainwarn: '大雨警報'
     };
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
@@ -2178,10 +2271,10 @@
     const JMA_NOWC_TARGET_TIMES_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N2.json';
     const JMA_NOWC_TILE_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/{basetime}/none/{validtime}/surf/hrpns/{z}/{x}/{y}.png';
     const RAIN_ALERT_LAT = parseFloat(
-        query.get('rainLat') || (SITE_CFG.geo && SITE_CFG.geo.lat) || '34.6847'
+        query.get('rainLat') || (SITE_CFG.geo && SITE_CFG.geo.lat) || '34.6697'
     );
     const RAIN_ALERT_LON = parseFloat(
-        query.get('rainLon') || (SITE_CFG.geo && SITE_CFG.geo.lon) || '135.8065'
+        query.get('rainLon') || (SITE_CFG.geo && SITE_CFG.geo.lon) || '135.8069'
     );
     const RAIN_ALERT_ZOOM = 6;
     const RAIN_RAIN_PIXEL_ALPHA = 128;
@@ -2410,6 +2503,7 @@
     const fcConveyor = document.getElementById('fc-conveyor');
     const fcLvTrack = document.getElementById('fc-lv-track');
     const s5 = document.getElementById('scene5');
+    const scenePromo = document.getElementById('scenePromo');
     const sceneAlert = document.getElementById('sceneAlert');
     const sceneRainWarn = document.getElementById('sceneRainWarn');
     const d5Conveyor = document.getElementById('d5-conveyor');
@@ -3839,6 +3933,7 @@
     function finishMainLoopToS1_() {
         applyDeferredLoopRefresh_(true);
         if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
+        mainLoopCycle_ = (mainLoopCycle_ + 1) % 3;
         transitionToScene(s1, playScene1);
     }
     function gotoAfterRainWarnOrScene1_() {
@@ -4031,7 +4126,7 @@
     }
     async function startRainWarnOnlyDemo_() {
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         if (sceneRainWarn) {
             sceneRainWarn.style.display = 'block';
             sceneRainWarn.classList.add('active');
@@ -4113,6 +4208,22 @@
     const SCENE5_SCROLL_PX = 0.8;
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
+    /* 大鉄PR（シーン3と4の間）— 全ローテーション1〜3回目で文言を切替 */
+    const DP_COMPANY_LABEL = '大鉄工業株式会社';
+    const DAITETSU_PROMO_MESSAGES = [
+        '熱中症のリスク要因　温度28℃以上、湿度75%以上、WBGT値28℃以上は厳重警戒！',
+        '体重1kgあたり10ml/時の水分補給を心掛け、熱中症予防！',
+        '休憩するのも仕事のうち、水分・塩分補給・休憩行い、みんなで防ごう熱中症！'
+    ];
+    const DP_SCROLL_PX = 0.8;
+    const DP_LAPS = 2;
+    const DP_BAND_W = 512;
+    const DP_SLOT_W = 128;
+    const DP_SET_SLOTS = 4;
+    const DP_LAP_PX = DP_SLOT_W * DP_SET_SLOTS;
+    const DP_TRACK_SETS = 2;
+    let mainLoopCycle_ = 0;
+    let dpAnimId = null;
     const T3_UNIT_W = 256;
     const T3_L1_MAX = 42;       /* 72px表示域：256×128内で可能な限り大きく（幅超え時は自動縮小） */
     const T3_L2_RATIO = 0.58;
@@ -5477,7 +5588,7 @@
     }
     function sceneDisplayMode(el) {
         if (!el) return 'flex';
-        if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
+        if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'scenePromo' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
         return 'flex';
     }
     function hideSceneEl(el) {
@@ -5621,7 +5732,7 @@
         }
     }
     function hideAllScenesForIntro_() {
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
     }
     function playSceneAlertIntroOne_(alertKey, onDone) {
         if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
@@ -5827,7 +5938,7 @@
     }
     function startAlertOnlyDemo_() {
         resetLogoRotation();
-        [s1, s2, s3, s4, s5].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo].forEach(hideSceneEl);
         if (sceneAlert) {
             sceneAlert.style.display = 'block';
             sceneAlert.classList.add('active');
@@ -6091,6 +6202,7 @@
     }
     function playScene3() {
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+        setPromoBandCollapse_(false);
         if (wbgtOffSeason) {
             if (previewOffSeasonHold_('s3', playScene3)) return;
             gotoAfterScene3_();
@@ -6205,13 +6317,155 @@
     function gotoSceneAfterScene2_() {
         transitionToScene(s5, playScene5);
     }
-    /* シーン3の次はシーン4（多言語WBGT）。提供期間外はシーン4を飛ばす */
+    /* シーン3（4日予報）の次は大鉄PR → シーン4（多言語WBGT） */
     function gotoSceneAfterScene5_() {
+        if (!scenePromo) {
+            gotoAfterScenePromo_();
+            return;
+        }
+        transitionToScene(scenePromo, playScenePromo);
+    }
+    function gotoAfterScenePromo_() {
+        setPromoBandCollapse_(false);
         if (wbgtOffSeason) {
             gotoAfterScene3_();
             return;
         }
         transitionToScene(s3, playScene3);
+    }
+    function getPromoMessage_() {
+        let idx = mainLoopCycle_ % 3;
+        if (DEMO_SIGNAGE && !DEMO_ONLY) idx = demoLevelPointer % 3;
+        return DAITETSU_PROMO_MESSAGES[idx] || DAITETSU_PROMO_MESSAGES[0];
+    }
+    function setPromoBandCollapse_(on) {
+        const ca = document.querySelector('.content-area');
+        if (ca) ca.classList.toggle('dp-band-collapse', !!on);
+    }
+    function applyPromoColors_() {
+        const shell = document.getElementById('dp-shell');
+        const top = shell && shell.querySelector('.dp-top');
+        const mid = shell && shell.querySelector('.dp-mid');
+        const bot = shell && shell.querySelector('.dp-bot');
+        if (!shell) return;
+        const mode = getSignageDisplayMode_();
+        const lv = mode === 'normal' ? currentWbgtLevel : -1;
+        const colors = (typeof SignageBg !== 'undefined' && SignageBg.colorsForDisplay)
+            ? SignageBg.colorsForDisplay(lv, mode)
+            : { bgColor: '#308DD8', barColor: '#55A5E6' };
+        const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
+            ? SignageBg.isDarkTextForDisplay(lv, mode)
+            : false;
+        shell.style.backgroundColor = colors.bgColor;
+        if (top) top.style.backgroundColor = colors.barColor;
+        if (mid) mid.style.backgroundColor = colors.bgColor;
+        if (bot) bot.style.backgroundColor = 'var(--led-foot-bar-bg)';
+        shell.classList.toggle('dp-dark-text', dark);
+    }
+    function buildPromoSlotTrack_(trackId, setClass, slotClass, slotInnerHtml) {
+        const track = document.getElementById(trackId);
+        if (!track) return;
+        const slot = '<div class="' + slotClass + '">' + slotInnerHtml + '</div>';
+        const set = '<div class="' + setClass + '">' + slot.repeat(DP_SET_SLOTS) + '</div>';
+        track.innerHTML = set.repeat(DP_TRACK_SETS);
+        applyScrollX_(track, 0);
+    }
+    function buildPromoTopTrack_() {
+        const src = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.promoCompanyLabelSrc) || './daitetsu_company_label.png';
+        const alt = DP_COMPANY_LABEL;
+        const label = '<img class="dp-company-img" src="' + src + '" alt="' + alt + '">';
+        buildPromoSlotTrack_('dp-top-track', 'dp-top-set', 'dp-top-slot', label);
+    }
+    function buildPromoBotTrack_() {
+        const src = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.promoLogoSrc) || './daitetsu_wordmark.png';
+        const alt = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoAlt) || '大鉄';
+        const img = '<img class="dp-wordmark-img" src="' + src + '" alt="' + alt + '">';
+        buildPromoSlotTrack_('dp-bot-track', 'dp-bot-set', 'dp-bot-slot', img);
+    }
+    function sizePromoMidText_() {
+        const probe = document.querySelector('#scenePromo .dp-mid-txt');
+        if (!probe) return;
+        let fz = 22;
+        const setAll = function (size) {
+            document.querySelectorAll('#scenePromo .dp-mid-txt').forEach(function (n) {
+                n.style.fontSize = size + 'px';
+            });
+        };
+        setAll(fz);
+        let guard = 50;
+        while (guard-- > 0 && fz > 12 && probe.scrollHeight > 66) {
+            fz -= 1;
+            setAll(fz);
+        }
+    }
+    function measurePromoSegW_(track, segSel) {
+        const seg = track && track.querySelector(segSel);
+        if (!seg) return DP_BAND_W;
+        return Math.max(DP_BAND_W, Math.ceil(seg.getBoundingClientRect().width));
+    }
+    function prepPromoScene_(message) {
+        const msg = String(message || '');
+        buildPromoTopTrack_();
+        buildPromoBotTrack_();
+        document.querySelectorAll('#scenePromo .dp-mid-txt').forEach(function (n) {
+            n.textContent = msg;
+        });
+        applyPromoColors_();
+        sizePromoMidText_();
+        ['dp-mid-track'].forEach(function (id) {
+            const t = document.getElementById(id);
+            if (t) applyScrollX_(t, 0);
+        });
+    }
+    function finishScenePromo() {
+        if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
+        if (demoOnlyLoop_('promo', playScenePromo)) return;
+        gotoAfterScenePromo_();
+    }
+    function playScenePromo() {
+        if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
+        if (!scenePromo) { gotoAfterScenePromo_(); return; }
+        setPromoBandCollapse_(true);
+        prepPromoScene_(getPromoMessage_());
+        refreshSignageBg();
+        applyPromoColors_();
+        stepLogo90(420, true);
+        if (isFullDemoStep_()) {
+            scheduleDemoStep_(finishScenePromo);
+            return;
+        }
+        const topTrack = document.getElementById('dp-top-track');
+        const midTrack = document.getElementById('dp-mid-track');
+        const botTrack = document.getElementById('dp-bot-track');
+        if (!midTrack) {
+            setTimeout(finishScenePromo, 800);
+            return;
+        }
+        const topW = DP_LAP_PX;
+        const midW = measurePromoSegW_(midTrack, '.dp-mid-seg');
+        const botW = DP_LAP_PX;
+        const scrollTotal = Math.max(DP_BAND_W, midW) * DP_LAPS;
+        let topX = 0, midX = 0, botX = 0;
+        let totalScrolled = 0;
+        function step() {
+            topX -= DP_SCROLL_PX;
+            midX -= DP_SCROLL_PX;
+            botX -= DP_SCROLL_PX;
+            totalScrolled += DP_SCROLL_PX;
+            topX = wrapScrollX_(topX, topW);
+            midX = wrapScrollX_(midX, midW);
+            botX = wrapScrollX_(botX, botW);
+            if (topTrack) applyScrollX_(topTrack, topX);
+            applyScrollX_(midTrack, midX);
+            if (botTrack) applyScrollX_(botTrack, botX);
+            if (totalScrolled >= scrollTotal) {
+                dpAnimId = null;
+                finishScenePromo();
+                return;
+            }
+            dpAnimId = requestAnimationFrame(step);
+        }
+        dpAnimId = requestAnimationFrame(step);
     }
     function playScene2() {
         refreshSignageBg();
@@ -6459,7 +6713,7 @@
         return true;
     }
     function showOnlyScene_(el, playFn) {
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         if (!el) return;
         el.style.display = sceneDisplayMode(el);
         el.classList.add('active');
@@ -6484,13 +6738,14 @@
             case 's3': showOnlyScene_(s3, playScene3); break;
             case 's4': showOnlyScene_(s4, playScene4); break;
             case 's5': showOnlyScene_(s5, playScene5); break;
+            case 'promo': showOnlyScene_(scenePromo, playScenePromo); break;
             default: break;
         }
     }
     function startPreviewDemo_(sceneKey) {
         applyDemoLevel(DEMO_LEVEL_ORDER[1]);  /* 注意（黄）で見やすく */
         refreshSignageBg();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         const badge = document.getElementById('demo-badge');
         const rainTag = rainPreviewLabel_();
         if (sceneKey === 's1') {
@@ -6517,7 +6772,7 @@
     function startSequence() {
         clearDemoStepTimer_();
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
     }
 
