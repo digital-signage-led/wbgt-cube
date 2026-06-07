@@ -4366,7 +4366,7 @@
     /* 大鉄PR（シーン3と4の間）— 全ローテーション1〜3回目で文言を切替 */
     const DP_COMPANY_LABEL = '大鉄工業株式会社';
     const DAITETSU_PROMO_MESSAGES = [
-        '熱中症のリスク要因　温度２８℃以上、湿度７５％以上、WBGT値２８℃以上は厳重警戒！',
+        '熱中症のリスク要因　温度28℃以上、湿度75%以上、WBGT値28℃以上は厳重警戒！',
         '体重1kgあたり10ml/時の水分補給を心掛け、熱中症予防！',
         '休憩するのも仕事のうち、水分・塩分補給・休息行い、みんなで防ごう熱中症！'
     ];
@@ -4377,8 +4377,8 @@
         return escapeS1Html(s);
     }
     const DAITETSU_PROMO_HTML = [
-        dpPromoEm_('熱中症') + dpPromoPlain_('のリスク要因　温度') + dpPromoEm_('２８') + dpPromoPlain_('℃以上、湿度') +
-            dpPromoEm_('７５') + dpPromoPlain_('％以上、WBGT値') + dpPromoEm_('２８') + dpPromoPlain_('℃以上は') + dpPromoEm_('厳重警戒！'),
+        dpPromoEm_('熱中症') + dpPromoPlain_('のリスク要因　温度') + dpPromoEm_('28') + dpPromoPlain_('℃以上、湿度') +
+            dpPromoEm_('75') + dpPromoPlain_('%以上、WBGT値') + dpPromoEm_('28') + dpPromoPlain_('℃以上は') + dpPromoEm_('厳重警戒！'),
         dpPromoPlain_('体重1kgあたり') + dpPromoEm_('10ml') + dpPromoPlain_('/時の水分補給を心掛け、') + dpPromoEm_('熱中症予防！'),
         dpPromoEm_('休憩') + dpPromoPlain_('するのも仕事のうち、') + dpPromoEm_('水分・塩分補給・休息') +
             dpPromoPlain_('行い、みんなで防ごう') + dpPromoEm_('熱中症！')
