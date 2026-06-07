@@ -208,30 +208,24 @@
             display: flex; flex-direction: row; align-items: stretch;
             height: 128px; will-change: transform; backface-visibility: hidden;
         }
-        /* 128px = 上32 + 中64 + 下32。各行は帯の中央・先頭左揃え */
+        /* 高さ128px: 1行目y=16, 2行目y=64, 3行目y=112（各ライン中央）・先頭左揃え */
         .dp-multi-seg {
-            flex: 0 0 auto;
-            display: grid;
-            grid-template-rows: 32px 64px 32px;
-            grid-template-columns: 1fr;
-            height: 128px;
-            padding: 0 16px;
-            box-sizing: border-box;
-            align-items: center;
+            position: relative; flex: 0 0 auto;
+            height: 128px; padding: 0 16px; box-sizing: border-box;
         }
         .dp-multi-line {
-            justify-self: start;
-            align-self: center;
+            position: absolute; left: 16px;
             font-weight: 900; line-height: 1;
             white-space: nowrap; letter-spacing: 0.1px;
             font-family: "Noto Sans JP", "Inter", sans-serif;
+            transform: translateY(-50%);
         }
         .dp-multi-en {
-            grid-row: 1;
+            top: 16px;
             font-family: "Inter", "Noto Sans JP", sans-serif;
         }
-        .dp-multi-vn { grid-row: 2; }
-        .dp-multi-tl { grid-row: 3; }
+        .dp-multi-vn { top: 64px; }
+        .dp-multi-tl { top: 112px; }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -6505,10 +6499,22 @@
         if (!seg) return DP_BAND_W;
         return Math.max(DP_BAND_W, Math.ceil(seg.getBoundingClientRect().width));
     }
-    const DP_MULTI_ROW_OUTER_H = 32;
-    const DP_MULTI_ROW_MID_H = 64;
-    function promoMultiFitsRow_(fz, rowH) {
-        return fz * 1.08 <= rowH - 2;
+    const DP_MULTI_H = 128;
+    const DP_MULTI_Y_EN = 16;
+    const DP_MULTI_Y_VN = 64;
+    const DP_MULTI_Y_TL = 112;
+    const DP_MULTI_QUARTER_H = 32;
+    const DP_MULTI_LINE_LH = 1.05;
+    function promoMultiFits128_(fzOuter, fzMid) {
+        const h1 = fzOuter * DP_MULTI_LINE_LH;
+        const h2 = fzMid * DP_MULTI_LINE_LH;
+        const h3 = fzOuter * DP_MULTI_LINE_LH;
+        if (DP_MULTI_Y_EN - h1 / 2 < 0 || DP_MULTI_Y_EN + h1 / 2 > DP_MULTI_QUARTER_H) return false;
+        if (DP_MULTI_Y_TL - h3 / 2 < DP_MULTI_H - DP_MULTI_QUARTER_H || DP_MULTI_Y_TL + h3 / 2 > DP_MULTI_H) return false;
+        if (DP_MULTI_Y_VN - h2 / 2 < 0 || DP_MULTI_Y_VN + h2 / 2 > DP_MULTI_H) return false;
+        if (DP_MULTI_Y_EN + h1 / 2 + 1 >= DP_MULTI_Y_VN - h2 / 2) return false;
+        if (DP_MULTI_Y_VN + h2 / 2 + 1 >= DP_MULTI_Y_TL - h3 / 2) return false;
+        return true;
     }
     function applyPromoMultiSegWidths_() {
         document.querySelectorAll('#scenePromo .dp-multi-seg').forEach(function (seg) {
@@ -6523,10 +6529,13 @@
         const outer = document.querySelectorAll('#scenePromo .dp-multi-en, #scenePromo .dp-multi-tl');
         const mid = document.querySelectorAll('#scenePromo .dp-multi-vn');
         if (!outer.length || !mid.length) return;
-        let fzOuter = DP_MULTI_ROW_OUTER_H - 4;
-        while (fzOuter > 9 && !promoMultiFitsRow_(fzOuter, DP_MULTI_ROW_OUTER_H)) fzOuter -= 1;
-        let fzMid = DP_MULTI_ROW_MID_H - 4;
-        while (fzMid > 9 && !promoMultiFitsRow_(fzMid, DP_MULTI_ROW_MID_H)) fzMid -= 1;
+        let fzOuter = Math.floor(DP_MULTI_QUARTER_H / DP_MULTI_LINE_LH);
+        let fzMid = Math.floor((DP_MULTI_H / 2) / DP_MULTI_LINE_LH);
+        let guard = 80;
+        while (guard-- > 0 && (fzMid > 10 || fzOuter > 10) && !promoMultiFits128_(fzOuter, fzMid)) {
+            if (fzMid > fzOuter) fzMid -= 1;
+            else fzOuter -= 1;
+        }
         outer.forEach(function (n) { n.style.fontSize = fzOuter + 'px'; });
         mid.forEach(function (n) { n.style.fontSize = fzMid + 'px'; });
         applyPromoMultiSegWidths_();
