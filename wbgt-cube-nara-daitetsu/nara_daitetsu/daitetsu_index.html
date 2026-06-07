@@ -184,36 +184,54 @@
         .dp-shell:not(.dp-dark-text) .dp-multi-line { color: #ebebeb; }
         .dp-shell .dp-top,
         .dp-shell .dp-bot {
-            transition: transform 0.7s ease, opacity 0.65s ease;
+            transition: transform 0.7s ease, opacity 0.65s ease, height 0.7s ease, min-height 0.7s ease;
             will-change: transform;
         }
         .dp-shell.dp-bands-away .dp-top {
+            height: 0; min-height: 0;
             transform: translateY(-32px);
             opacity: 0;
         }
         .dp-shell.dp-bands-away .dp-bot {
+            height: 0; min-height: 0;
             transform: translateY(24px);
             opacity: 0;
         }
         .dp-shell.dp-bands-away .dp-mid {
             height: 128px;
+            min-height: 128px;
+            max-height: 128px;
             flex: 1 1 128px;
+            overflow: hidden;
         }
         .dp-multi-track {
-            display: flex; flex-direction: row; align-items: center;
-            height: 100%; will-change: transform; backface-visibility: hidden;
+            display: flex; flex-direction: row; align-items: stretch;
+            height: 128px; will-change: transform; backface-visibility: hidden;
         }
+        /* 128px = 上32 + 中64 + 下32。各行は帯の中央・先頭左揃え */
         .dp-multi-seg {
-            flex: 0 0 auto; display: inline-flex; flex-direction: column;
-            align-items: flex-start; justify-content: center;
-            height: 100%; padding: 0 14px; box-sizing: border-box; gap: 4px;
+            flex: 0 0 auto;
+            display: grid;
+            grid-template-rows: 32px 64px 32px;
+            grid-template-columns: 1fr;
+            height: 128px;
+            padding: 0 16px;
+            box-sizing: border-box;
+            align-items: center;
         }
         .dp-multi-line {
-            font-size: 18px; font-weight: 900; line-height: 1.12;
-            white-space: nowrap; letter-spacing: 0.15px;
+            justify-self: start;
+            align-self: center;
+            font-weight: 900; line-height: 1;
+            white-space: nowrap; letter-spacing: 0.1px;
             font-family: "Noto Sans JP", "Inter", sans-serif;
         }
-        .dp-multi-en { font-family: "Inter", "Noto Sans JP", sans-serif; }
+        .dp-multi-en {
+            grid-row: 1;
+            font-family: "Inter", "Noto Sans JP", sans-serif;
+        }
+        .dp-multi-vn { grid-row: 2; }
+        .dp-multi-tl { grid-row: 3; }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -6487,27 +6505,31 @@
         if (!seg) return DP_BAND_W;
         return Math.max(DP_BAND_W, Math.ceil(seg.getBoundingClientRect().width));
     }
-    function sizePromoMultiText_() {
-        const lines = document.querySelectorAll('#scenePromo .dp-multi-line');
-        const probeSlot = document.querySelector('#scenePromo .dp-multi-seg');
-        if (!lines.length || !probeSlot) return;
-        const usableW = DP_BAND_W - 28;
-        const usableH = 124;
-        let fz = 20;
-        const setAll = function (size) {
-            lines.forEach(function (n) { n.style.fontSize = size + 'px'; });
-        };
-        setAll(fz);
-        let guard = 60;
-        while (guard-- > 0 && fz > 9) {
-            const tooWide = Array.prototype.some.call(lines, function (n) {
-                return n.scrollWidth > usableW;
+    const DP_MULTI_ROW_OUTER_H = 32;
+    const DP_MULTI_ROW_MID_H = 64;
+    function promoMultiFitsRow_(fz, rowH) {
+        return fz * 1.08 <= rowH - 2;
+    }
+    function applyPromoMultiSegWidths_() {
+        document.querySelectorAll('#scenePromo .dp-multi-seg').forEach(function (seg) {
+            let maxW = 0;
+            seg.querySelectorAll('.dp-multi-line').forEach(function (n) {
+                maxW = Math.max(maxW, n.scrollWidth);
             });
-            const tooTall = probeSlot.scrollHeight > usableH;
-            if (!tooWide && !tooTall) break;
-            fz -= 1;
-            setAll(fz);
-        }
+            seg.style.width = Math.max(128, Math.ceil(maxW + 32)) + 'px';
+        });
+    }
+    function sizePromoMultiText_() {
+        const outer = document.querySelectorAll('#scenePromo .dp-multi-en, #scenePromo .dp-multi-tl');
+        const mid = document.querySelectorAll('#scenePromo .dp-multi-vn');
+        if (!outer.length || !mid.length) return;
+        let fzOuter = DP_MULTI_ROW_OUTER_H - 4;
+        while (fzOuter > 9 && !promoMultiFitsRow_(fzOuter, DP_MULTI_ROW_OUTER_H)) fzOuter -= 1;
+        let fzMid = DP_MULTI_ROW_MID_H - 4;
+        while (fzMid > 9 && !promoMultiFitsRow_(fzMid, DP_MULTI_ROW_MID_H)) fzMid -= 1;
+        outer.forEach(function (n) { n.style.fontSize = fzOuter + 'px'; });
+        mid.forEach(function (n) { n.style.fontSize = fzMid + 'px'; });
+        applyPromoMultiSegWidths_();
     }
     function prepPromoMultiPhase_() {
         const lines = getPromoMultiLines_();
@@ -6584,7 +6606,7 @@
         applyPromoColors_();
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
-            scheduleDemoStep_(finishScenePromo);
+            scheduleDemoStep_(function () { playPromoMultiPhase_(); });
             return;
         }
         const topTrack = document.getElementById('dp-top-track');
