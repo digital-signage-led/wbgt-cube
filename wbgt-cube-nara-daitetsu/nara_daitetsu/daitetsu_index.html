@@ -100,7 +100,8 @@
 
         /* 大鉄PR: 列背景の上帯のみ退避（下の白帯は維持） */
         .content-area .scene-strip-bg .col-bg-top,
-        .content-area .scene-strip-bg .col-bg-body {
+        .content-area .scene-strip-bg .col-bg-body,
+        .content-area .scene-strip-bg .col-bg-foot {
             transition: transform 0.7s ease, opacity 0.65s ease;
             will-change: transform;
         }
@@ -109,6 +110,11 @@
             opacity: 0;
         }
         .content-area.dp-band-collapse .scene-strip-bg .col-bg-body {
+            opacity: 0;
+        }
+        /* 大鉄PR・多言語フェーズ: 列背景の下白帯も退避 */
+        .content-area.dp-promo-multi .scene-strip-bg .col-bg-foot {
+            transform: translateY(24px);
             opacity: 0;
         }
         /* 大鉄PR 512×128（上32 + 中72 + 下24） */
@@ -171,9 +177,43 @@
             width: auto; height: auto; object-fit: contain;
         }
         .dp-shell.dp-dark-text .dp-top-txt,
-        .dp-shell.dp-dark-text .dp-mid-txt { color: #000000; }
+        .dp-shell.dp-dark-text .dp-mid-txt,
+        .dp-shell.dp-dark-text .dp-multi-line { color: #000000; }
         .dp-shell:not(.dp-dark-text) .dp-top-txt,
-        .dp-shell:not(.dp-dark-text) .dp-mid-txt { color: #ebebeb; }
+        .dp-shell:not(.dp-dark-text) .dp-mid-txt,
+        .dp-shell:not(.dp-dark-text) .dp-multi-line { color: #ebebeb; }
+        .dp-shell .dp-top,
+        .dp-shell .dp-bot {
+            transition: transform 0.7s ease, opacity 0.65s ease;
+            will-change: transform;
+        }
+        .dp-shell.dp-bands-away .dp-top {
+            transform: translateY(-32px);
+            opacity: 0;
+        }
+        .dp-shell.dp-bands-away .dp-bot {
+            transform: translateY(24px);
+            opacity: 0;
+        }
+        .dp-shell.dp-bands-away .dp-mid {
+            height: 128px;
+            flex: 1 1 128px;
+        }
+        .dp-multi-track {
+            display: flex; flex-direction: row; align-items: center;
+            height: 100%; will-change: transform; backface-visibility: hidden;
+        }
+        .dp-multi-seg {
+            flex: 0 0 auto; display: inline-flex; flex-direction: column;
+            align-items: flex-start; justify-content: center;
+            height: 100%; padding: 0 14px; box-sizing: border-box; gap: 4px;
+        }
+        .dp-multi-line {
+            font-size: 18px; font-weight: 900; line-height: 1.12;
+            white-space: nowrap; letter-spacing: 0.15px;
+            font-family: "Noto Sans JP", "Inter", sans-serif;
+        }
+        .dp-multi-en { font-family: "Inter", "Noto Sans JP", sans-serif; }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -6329,6 +6369,7 @@
     }
     function gotoAfterScenePromo_() {
         setPromoBandCollapse_(false);
+        setPromoMultiBandCollapse_(false);
         if (wbgtOffSeason) {
             gotoAfterScene3_();
             return;
@@ -6343,6 +6384,30 @@
     function setPromoBandCollapse_(on) {
         const ca = document.querySelector('.content-area');
         if (ca) ca.classList.toggle('dp-band-collapse', !!on);
+    }
+    function setPromoMultiBandCollapse_(on) {
+        const ca = document.querySelector('.content-area');
+        if (ca) ca.classList.toggle('dp-promo-multi', !!on);
+    }
+    function ensurePromoMidStructure_() {
+        const mid = document.querySelector('#scenePromo .dp-mid');
+        if (!mid || mid.querySelector('.dp-mid-track')) return;
+        mid.innerHTML =
+            '<div class="dp-mid-track" id="dp-mid-track">' +
+            '<div class="dp-mid-seg"><span class="dp-mid-txt" id="dp-mid-txt-a"></span></div>' +
+            '<div class="dp-mid-seg"><span class="dp-mid-txt" id="dp-mid-txt-b"></span></div>' +
+            '</div>';
+    }
+    function resetPromoShellLayout_() {
+        const shell = document.getElementById('dp-shell');
+        if (shell) shell.classList.remove('dp-bands-away');
+        setPromoMultiBandCollapse_(false);
+        ensurePromoMidStructure_();
+    }
+    function getPromoMultiLines_() {
+        const isUnknown = wbgtUnavailable || currentWbgtLevel < 0;
+        const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
+        return { en: m.en, vn: m.vn, tl: m.tl };
     }
     function applyPromoColors_() {
         const shell = document.getElementById('dp-shell');
@@ -6422,7 +6487,74 @@
         if (!seg) return DP_BAND_W;
         return Math.max(DP_BAND_W, Math.ceil(seg.getBoundingClientRect().width));
     }
+    function sizePromoMultiText_() {
+        const lines = document.querySelectorAll('#scenePromo .dp-multi-line');
+        const probeSlot = document.querySelector('#scenePromo .dp-multi-seg');
+        if (!lines.length || !probeSlot) return;
+        const usableW = DP_BAND_W - 28;
+        const usableH = 124;
+        let fz = 20;
+        const setAll = function (size) {
+            lines.forEach(function (n) { n.style.fontSize = size + 'px'; });
+        };
+        setAll(fz);
+        let guard = 60;
+        while (guard-- > 0 && fz > 9) {
+            const tooWide = Array.prototype.some.call(lines, function (n) {
+                return n.scrollWidth > usableW;
+            });
+            const tooTall = probeSlot.scrollHeight > usableH;
+            if (!tooWide && !tooTall) break;
+            fz -= 1;
+            setAll(fz);
+        }
+    }
+    function prepPromoMultiPhase_() {
+        const lines = getPromoMultiLines_();
+        const inner =
+            '<div class="dp-multi-line dp-multi-en">' + escapeS1Html(lines.en) + '</div>' +
+            '<div class="dp-multi-line dp-multi-vn">' + escapeS1Html(lines.vn) + '</div>' +
+            '<div class="dp-multi-line dp-multi-tl">' + escapeS1Html(lines.tl) + '</div>';
+        const seg = '<div class="dp-multi-seg">' + inner + '</div>';
+        const mid = document.querySelector('#scenePromo .dp-mid');
+        if (!mid) return;
+        mid.innerHTML = '<div class="dp-multi-track" id="dp-multi-track">' + seg + seg + '</div>';
+        applyPromoColors_();
+        sizePromoMultiText_();
+        const track = document.getElementById('dp-multi-track');
+        if (track) applyScrollX_(track, 0);
+    }
+    function playPromoMultiPhase_() {
+        const shell = document.getElementById('dp-shell');
+        if (shell) shell.classList.add('dp-bands-away');
+        setPromoMultiBandCollapse_(true);
+        prepPromoMultiPhase_();
+        applyPromoColors_();
+        const multiTrack = document.getElementById('dp-multi-track');
+        if (!multiTrack) {
+            finishScenePromo();
+            return;
+        }
+        const multiW = measurePromoSegW_(multiTrack, '.dp-multi-seg');
+        const scrollTotal = Math.max(DP_BAND_W, multiW) * DP_LAPS;
+        let multiX = 0;
+        let totalScrolled = 0;
+        function step() {
+            multiX -= DP_SCROLL_PX;
+            totalScrolled += DP_SCROLL_PX;
+            multiX = wrapScrollX_(multiX, multiW);
+            applyScrollX_(multiTrack, multiX);
+            if (totalScrolled >= scrollTotal) {
+                dpAnimId = null;
+                finishScenePromo();
+                return;
+            }
+            dpAnimId = requestAnimationFrame(step);
+        }
+        dpAnimId = requestAnimationFrame(step);
+    }
     function prepPromoScene_(message) {
+        resetPromoShellLayout_();
         const msg = String(message || '');
         buildPromoTopTrack_();
         buildPromoBotTrack_();
@@ -6439,6 +6571,7 @@
     }
     function finishScenePromo() {
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
+        resetPromoShellLayout_();
         if (demoOnlyLoop_('promo', playScenePromo)) return;
         gotoAfterScenePromo_();
     }
@@ -6480,7 +6613,7 @@
             if (botTrack) applyScrollX_(botTrack, botX);
             if (totalScrolled >= scrollTotal) {
                 dpAnimId = null;
-                finishScenePromo();
+                playPromoMultiPhase_();
                 return;
             }
             dpAnimId = requestAnimationFrame(step);
