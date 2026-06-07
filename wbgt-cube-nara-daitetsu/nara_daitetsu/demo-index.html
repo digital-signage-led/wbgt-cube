@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- デモ専用（本番 index.html とは独立）全レベル順送り -->
-<!-- 同階層: daitetsu_logo.png -->
+<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png -->
 <html lang="ja" class="native-640">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +28,7 @@
 
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap');
         :root { --led-foot-bar-bg: #fff9f0; }
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
         .demo-badge {
@@ -96,6 +96,161 @@
         #scene3.active { display: flex; flex-direction: column; }
         #scene4.active { display: block; }
         #scene5.active { display: block; }
+        #scenePromo.active { display: block; }
+
+        /* 大鉄PR: 列背景の上帯のみ退避（下の白帯は維持） */
+        .content-area .scene-strip-bg .col-bg-top,
+        .content-area .scene-strip-bg .col-bg-body,
+        .content-area .scene-strip-bg .col-bg-foot {
+            transition: transform 0.7s ease, opacity 0.65s ease;
+            will-change: transform;
+        }
+        .content-area.dp-band-collapse .scene-strip-bg .col-bg-top {
+            transform: translateY(-32px);
+            opacity: 0;
+        }
+        .content-area.dp-band-collapse .scene-strip-bg .col-bg-body {
+            opacity: 0;
+        }
+        /* 大鉄PR・多言語フェーズ: 列背景の下白帯も退避 */
+        .content-area.dp-promo-multi .scene-strip-bg .col-bg-foot {
+            transform: translateY(24px);
+            opacity: 0;
+        }
+        /* 大鉄PR 512×128（上32 + 中72 + 下24） */
+        .dp-shell {
+            width: 512px; height: 128px;
+            display: flex; flex-direction: column;
+            overflow: hidden; position: relative; z-index: 2;
+            box-sizing: border-box;
+        }
+        .dp-top {
+            width: 100%; height: 32px; flex-shrink: 0;
+            overflow: hidden; position: relative; box-sizing: border-box;
+        }
+        .dp-mid {
+            width: 100%; height: 72px; flex-shrink: 0;
+            overflow: hidden; position: relative; box-sizing: border-box;
+            display: flex; align-items: center;
+        }
+        .dp-bot {
+            width: 100%; height: 24px; flex-shrink: 0;
+            overflow: hidden; position: relative; box-sizing: border-box;
+            background: var(--led-foot-bar-bg);
+        }
+        .dp-top-track, .dp-mid-track, .dp-bot-track {
+            display: flex; flex-direction: row; align-items: stretch;
+            height: 100%; will-change: transform; backface-visibility: hidden;
+        }
+        .dp-top-set, .dp-bot-set {
+            width: 512px; height: 100%; flex-shrink: 0;
+            display: flex; flex-direction: row; align-items: stretch;
+            box-sizing: border-box;
+        }
+        .dp-top-slot {
+            width: 256px; height: 100%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box;
+        }
+        .dp-bot-slot {
+            width: 128px; height: 100%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box;
+        }
+        .dp-mid-seg {
+            flex: 0 0 auto; display: inline-flex; align-items: center;
+            height: 100%; padding: 0 14px; box-sizing: border-box;
+            white-space: nowrap;
+        }
+        /* 大鉄PR上帯：新ゴ M に近い無料フォント（Zen Kaku Gothic New Medium） */
+        .dp-top-txt {
+            font-size: 16px; font-weight: 500; line-height: 1;
+            font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            letter-spacing: 0.02em; white-space: nowrap;
+        }
+        .dp-mid-txt {
+            font-size: 22px; font-weight: 900; line-height: 1.12;
+            font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.2px;
+        }
+        .dp-mid-em { color: #d10000; font-weight: 900; }
+        .dp-shell:not(.dp-dark-text) .dp-mid-em { color: #ff5858; }
+        .dp-wordmark-img {
+            display: block; max-height: 18px; max-width: 112px;
+            width: auto; height: auto; object-fit: contain;
+        }
+        .dp-shell.dp-dark-text .dp-top-txt,
+        .dp-shell.dp-dark-text .dp-mid-txt,
+        .dp-shell.dp-dark-text .dp-multi-line-txt { color: #000000; }
+        .dp-shell:not(.dp-dark-text) .dp-top-txt,
+        .dp-shell:not(.dp-dark-text) .dp-mid-txt,
+        .dp-shell:not(.dp-dark-text) .dp-multi-line-txt { color: #ebebeb; }
+        .dp-shell .dp-top,
+        .dp-shell .dp-bot {
+            transition: transform 0.7s ease, opacity 0.65s ease, height 0.7s ease, min-height 0.7s ease;
+            will-change: transform;
+        }
+        .dp-shell.dp-bands-away .dp-top {
+            height: 0; min-height: 0;
+            transform: translateY(-32px);
+            opacity: 0;
+        }
+        .dp-shell.dp-bands-away .dp-bot {
+            height: 0; min-height: 0;
+            transform: translateY(24px);
+            opacity: 0;
+        }
+        .dp-shell.dp-bands-away .dp-mid {
+            height: 128px;
+            min-height: 128px;
+            max-height: 128px;
+            flex: 1 1 128px;
+            overflow: hidden;
+        }
+        /* 多言語3行: 各行独立・512px中央揃え・シームレス */
+        .dp-multi-stage {
+            width: 512px; height: 128px; position: relative;
+            overflow: hidden; box-sizing: border-box;
+            --dp-multi-pad-v: 8px;
+            --dp-multi-inner: calc(128px - var(--dp-multi-pad-v) * 2);
+            --dp-multi-quarter: calc(var(--dp-multi-inner) / 4);
+        }
+        .dp-multi-row {
+            position: absolute; left: 0; width: 512px;
+            overflow: hidden; box-sizing: border-box;
+        }
+        .dp-multi-row-en {
+            top: var(--dp-multi-pad-v);
+            height: var(--dp-multi-quarter);
+        }
+        .dp-multi-row-vn {
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-quarter));
+            height: calc(var(--dp-multi-inner) / 2);
+        }
+        .dp-multi-row-tl {
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-quarter) * 3);
+            height: var(--dp-multi-quarter);
+        }
+        .dp-multi-line-track {
+            display: flex; flex-direction: row; align-items: center;
+            height: 100%; will-change: transform; backface-visibility: hidden;
+        }
+        .dp-multi-line-set {
+            width: 512px; height: 100%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box; padding: 0 8px;
+            overflow: hidden;
+        }
+        .dp-multi-line-txt {
+            display: block; max-width: 100%;
+            font-weight: 900; line-height: 1.2;
+            white-space: nowrap; letter-spacing: 0.1px;
+            font-family: "Noto Sans JP", "Inter", sans-serif;
+            text-align: center;
+            overflow: visible;
+        }
+        .dp-multi-row-en .dp-multi-line-txt {
+            font-family: "Inter", "Noto Sans JP", sans-serif;
+        }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -311,7 +466,9 @@
         .s2-unit:empty { display: none; }
         .s2-unit { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); font-family: "Inter", sans-serif; }
         .weather-svg { width: 46px; height: 46px; }
-        .conveyor-track { display: flex; flex-direction: row; width: 2304px; transition: none; gap: 0; }
+        .conveyor-track { display: flex; flex-direction: row; width: 2304px; transition: none; gap: 0; will-change: transform; }
+        .fc-track { will-change: transform; }
+        .s1-wbgt-track, .s2-meta-track, .fc-lv-track, .t3-guid-track { will-change: transform; }
         #scene2 { overflow: hidden; position: relative; }
         #scene2.active { display: block; }
         /* シーン2: 128×128 = 上32 + 中72 + 白下帯24（他シーンと同じ） */
@@ -324,6 +481,17 @@
         #scene2 .s2-unit { font-size: 16px; }
         #scene2 .weather-svg { width: 54px; height: 54px; }
         #scene2 .s2-panel .col-bg-foot, #scene2 .s2-panel-data .col-bg-foot { display: none; }
+        /* 列間の縦すき間（黒線）を防ぐ — 背景を1px重ねてシームレスに */
+        #scene1 .col-bg-host { flex-shrink: 0; }
+        #scene1 .col-bg-layer { width: calc(100% + 1px); }
+        #scene1 .col-bg-top, #scene1 .col-bg-body, #scene1 .col-bg-foot { width: 100%; }
+        #scene2 .col-bg-host { flex-shrink: 0; }
+        #scene2 .col-bg-layer { width: calc(100% + 1px); }
+        #scene2 .col-bg-top, #scene2 .col-bg-body, #scene2 .col-bg-foot { width: 100%; }
+        #scene4 .col-bg-host { flex-shrink: 0; }
+        #scene4 .fc-panel .col-bg-layer { width: calc(100% + 1px); }
+        #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
+        #scene3 .t3-col .col-bg-layer { width: calc(100% + 1px); }
 
         .forecast-scene { display: none; overflow: hidden; }
         .fc-panel {
@@ -376,6 +544,7 @@
         #scene5 .d5-panel .s2-foot { height: 24px; flex-shrink: 0; }
         #scene5 .d5-panel .col-bg-foot { display: none; }
         #scene5 .col-bg-host { flex-shrink: 0; }
+        /* 列つなぎ目の隙間対策（+1px） */
         #scene5 .col-bg-layer { width: calc(100% + 1px); }
         #scene5 .d5-body {
             flex-direction: row;
@@ -427,23 +596,25 @@
         #scene5 .d5-body .s2-val { flex-shrink: 0; }
         #scene5 .d5-body .s2-num { font-size: 38px; }
         #scene5 .d5-body .s2-unit { font-size: 18px; }
-        /* 今日のみ 128×128 枠で強調 — 四辺とも同じ 2px 線 */
+        /* 今日のみ 128×128 枠で強調 — 実DOM（LEDサイネージで ::after が欠ける対策） */
         #scene5 .d5-panel.d5-today-focus {
             position: relative;
             z-index: 2;
             box-shadow: none;
         }
-        #scene5 .d5-panel.d5-today-focus::after {
-            content: '';
+        #scene5 .d5-today-frame {
             position: absolute;
-            inset: 0;
+            left: 0;
+            top: 0;
+            width: 128px;
+            height: 128px;
             box-sizing: border-box;
             border: 2px solid #1a1a1a;
             pointer-events: none;
-            z-index: 4;
+            z-index: 10;
         }
         /* 今日枠: ほぼ安全・厳重警戒・危険=白 / 注意・警戒=黒 */
-        #scene5 .d5-panel.d5-today-focus.d5-today-frame-white::after {
+        #scene5 .d5-panel.d5-today-focus.d5-today-frame-white .d5-today-frame {
             border-color: #ffffff;
         }
         #scene5 { overflow: hidden; }
@@ -1372,6 +1543,7 @@
  * moe.alertArea … 熱中症アラート用の府県名（本番で alert 利用時）
  *
  * jma.amedasPoint … 気象庁 AMeDAS（4面・5面共通）
+ * jma.amedasPressureFallback … 気圧欠測時の近傍AMeDAS（任意）
  * jma.forecastArea … 気象庁予報区域（4面・5面共通）
  */
 (function (global) {
@@ -1381,7 +1553,7 @@
     site: {
       customer: '大鉄工業',
       label: '奈良市',
-      address: '奈良県奈良市（〒630-8145付近）'
+      address: '奈良県奈良市大安寺西１丁目（大鉄工業 奈良現場事務所）'
     },
     moe: {
       /* 環境省 WBGT（奈良） */
@@ -1401,9 +1573,11 @@
       /* 気象庁 AMeDAS（奈良） */
       /* 奈良（64036） */
       amedasPoint: '64036',
+      amedasPressureFallback: '',
+      amedasPressureFallbackLabel: '',
       forecastArea: '290000'
     },
-    geo: { lat: 34.6847, lon: 135.8065 },
+    geo: { lat: 34.6697, lon: 135.8069 },
     timeZone: 'Asia/Tokyo',
     refreshMs: 300000,
     footSource: '出典：気象庁・環境省データ'
@@ -1413,6 +1587,7 @@
 
   global.SIGNAGE_CONFIG = {
     logoSrc: './daitetsu_logo.png',
+    promoLogoSrc: './daitetsu_wordmark.png',
     logoAlt: '大鉄',
     logoPanelBg: '#3a3a3a'
   };
@@ -1566,14 +1741,14 @@
     <div class="scene" id="scene4">
         <div class="fc-scroll-wrap">
             <div class="fc-track" id="fc-conveyor">
-                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
             </div>
         </div>
         <div class="fc-lv-bar"><div class="fc-lv-track" id="fc-lv-track"></div></div>
@@ -1581,14 +1756,25 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">奈良市</div></div></div>
+        </div>
+    </div>
+
+    <div class="scene" id="scenePromo">
+        <div class="dp-shell" id="dp-shell">
+            <div class="dp-top"><div class="dp-top-track" id="dp-top-track"></div></div>
+            <div class="dp-mid"><div class="dp-mid-track" id="dp-mid-track">
+                <div class="dp-mid-seg"><span class="dp-mid-txt" id="dp-mid-txt-a"></span></div>
+                <div class="dp-mid-seg"><span class="dp-mid-txt" id="dp-mid-txt-b"></span></div>
+            </div></div>
+            <div class="dp-bot"><div class="dp-bot-track" id="dp-bot-track"></div></div>
         </div>
     </div>
 
@@ -1946,19 +2132,20 @@
     /*
      * 流れる順の表示番号（順序は変えずラベルのみ）
      *  1 時刻＋WBGT下帯 (s1) → 2 アメダス (s2) → 3 4日予報 (s5)
-     *  → 4 多言語WBGT (s3) → 5 WBGT予報 (s4) → 熱中症アラート (alert) → 大雨警報 (rainwarn) → 1へ
-     * ?only= は 1〜5 または s1〜s5（旧キー）両対応
+     *  → 3.5 大鉄PR (promo) → 4 多言語WBGT (s3) → 5 WBGT予報 (s4) → 熱中症アラート (alert) → 大雨警報 (rainwarn) → 1へ
+     * ?only= は 1〜5 / promo または s1〜s5（旧キー）両対応
      */
     function normalizeOnlyParam_(raw) {
         if (raw == null || raw === '') return null;
         const v = String(raw).toLowerCase();
         if (v === 'alert') return 'alert';
         if (v === 'rainwarn') return 'rainwarn';
+        if (v === 'promo' || v === '6') return 'promo';
         const map = { '1': 's1', '2': 's2', '3': 's5', '4': 's3', '5': 's4', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
         return map[v] || null;
     }
     const SCENE_LABEL_BY_KEY = {
-        s1: 'シーン1', s2: 'シーン2', s5: 'シーン3', s3: 'シーン4', s4: 'シーン5', alert: '熱中症アラート', rainwarn: '大雨警報'
+        s1: 'シーン1', s2: 'シーン2', s5: 'シーン3', promo: '大鉄PR', s3: 'シーン4', s4: 'WBGT実況値', alert: '熱中症アラート', rainwarn: '大雨警報'
     };
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
@@ -2081,6 +2268,8 @@
     let demoLevelPointer = 0;
     const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '64036';
     const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '奈良県';
+    const MOE_ALERT_FORECAST_CODE = query.get('forecastArea')
+        || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '290000';
     const MOE_POINT_CFG = {
         prefKey: 'nara',
         pointName: (SITE_CFG.site && SITE_CFG.site.label) || '奈良市'
@@ -2142,6 +2331,14 @@
     }
     const JMA_AMEDAS_POINT =
         query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '64036';
+    const JMA_AMEDAS_PRESSURE_FALLBACK =
+        query.get('jmaPresFallback') != null
+            ? String(query.get('jmaPresFallback') || '')
+            : ((SITE_CFG.jma && SITE_CFG.jma.amedasPressureFallback) || '');
+    const JMA_AMEDAS_PRESSURE_FALLBACK_LABEL =
+        query.get('jmaPresFallbackLabel') ||
+        (SITE_CFG.jma && SITE_CFG.jma.amedasPressureFallbackLabel) ||
+        '';
     const JMA_FORECAST_AREA_CODE =
         query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '290000';
     const JMA_FETCH_HEADERS = { cache: 'no-store' };
@@ -2149,10 +2346,10 @@
     const JMA_NOWC_TARGET_TIMES_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N2.json';
     const JMA_NOWC_TILE_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/{basetime}/none/{validtime}/surf/hrpns/{z}/{x}/{y}.png';
     const RAIN_ALERT_LAT = parseFloat(
-        query.get('rainLat') || (SITE_CFG.geo && SITE_CFG.geo.lat) || '34.6847'
+        query.get('rainLat') || (SITE_CFG.geo && SITE_CFG.geo.lat) || '34.6697'
     );
     const RAIN_ALERT_LON = parseFloat(
-        query.get('rainLon') || (SITE_CFG.geo && SITE_CFG.geo.lon) || '135.8065'
+        query.get('rainLon') || (SITE_CFG.geo && SITE_CFG.geo.lon) || '135.8069'
     );
     const RAIN_ALERT_ZOOM = 6;
     const RAIN_RAIN_PIXEL_ALPHA = 128;
@@ -2165,10 +2362,16 @@
     let rainNowcastAlert = { level: 'none', messageJp: '', leadMin: null, updatedAt: null };
     let lastAmedasRainNow = false;
     let lastAmedasObsTime = null;
+    let lastAmedasPresFallbackLabel_ = '';
     let pendingDisplayRefresh = false;
     /* 環境省WBGTの提供期間外（冬季など）は true。WBGT表示を全て隠す */
     let wbgtOffSeason = false;
     let wbgtUnavailable = false;
+    /** 連続取得失敗がこの時間を超えたときだけ「取得不可」表示（ms） */
+    const WBGT_UNAVAILABLE_GRACE_MS = 60000;
+    let wbgtFailSinceMs_ = null;
+    let lastGoodWbgtSlots_ = null;
+    let wbgtUnavailableTimerId_ = null;
 
     const multi = [
         { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", vn:"An toàn: Bổ sung nước", tl:"【Halos ligtas】Uminom ng tubig kung kailangan" },
@@ -2178,10 +2381,10 @@
         { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", vn:"Nguy hiểm: Dừng công việc ngay", tl:"【Panganib】Itigil agad ang trabaho" }
     ];
     const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
-    const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
+    const FC_BAR_LABELS = ['WBGT', '暑さ指数', 'WBGT', '暑さ指数'];
 
-    function fcBarLabelForPanel_(index) {
-        return FC_BAR_LABELS[index % 2];
+    function fcBarLabelForPanel_(slotIdx) {
+        return FC_BAR_LABELS[(slotIdx | 0) % FC_BAR_LABELS.length];
     }
     const unknownMsg = { jp:"WBGTデータ取得不可", en:"WBGT data unavailable", vn:"Không có dữ liệu WBGT", tl:"Hindi makuha ang datos ng WBGT" };
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
@@ -2375,6 +2578,7 @@
     const fcConveyor = document.getElementById('fc-conveyor');
     const fcLvTrack = document.getElementById('fc-lv-track');
     const s5 = document.getElementById('scene5');
+    const scenePromo = document.getElementById('scenePromo');
     const sceneAlert = document.getElementById('sceneAlert');
     const sceneRainWarn = document.getElementById('sceneRainWarn');
     const d5Conveyor = document.getElementById('d5-conveyor');
@@ -2408,9 +2612,6 @@
     function heatAlertPreviewBypassTier_() {
         return parseHeatAlertParam_().length > 0 || DEMO_ALERT_ONLY;
     }
-    function isWbgtTierDanger_() {
-        return currentWbgtLevel >= 4;
-    }
     function levelFromMoeAlert_(level) {
         if (level === 'special') return ['special'];
         if (level === 'warning') return ['warning'];
@@ -2430,7 +2631,7 @@
                 : (DEMO_ALERT_ONLY ? ['warning', 'special'] : []);
             return;
         }
-        if (!isWbgtTierDanger_()) {
+        if (!wbgtNormalDisplay_()) {
             heatAlertActive = [];
             return;
         }
@@ -2445,6 +2646,60 @@
     const HA_LAPS_BEFORE_SWITCH = 4; /* 256px×4周で次アラートへ */
     let haAnimId = null;
     let haFlow_ = null;
+    function moeAlertLevelFromFlags_(td1, td2) {
+        const a = String(td1 == null ? '0' : td1).trim();
+        const b = String(td2 == null ? '0' : td2).trim();
+        if (a === '3' || b === '3' || a === '2' || b === '2') return 'special';
+        if (a === '1' || b === '1') return 'warning';
+        return 'none';
+    }
+    function parseMoeAlertLevelFromCsvText_(text, forecastCode, alertArea) {
+        const t = String(text || '').replace(/^\uFEFF/, '');
+        if (forecastCode) {
+            const reCode = new RegExp(
+                '(?:^|\\r?\\n)([^,\\r\\n]+),\\d+,\\d+,' + forecastCode + ',[^,\\r\\n]+,\\d+,([0-9]),([0-9]),'
+            );
+            const mCode = t.match(reCode);
+            if (mCode) {
+                return { level: moeAlertLevelFromFlags_(mCode[2], mCode[3]), area: mCode[1] };
+            }
+        }
+        if (alertArea) {
+            const esc = String(alertArea).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const reArea = new RegExp(
+                '(?:^|\\r?\\n)(' + esc + '),\\d+,\\d+,\\d+,[^,\\r\\n]+,\\d+,([0-9]),([0-9]),'
+            );
+            const mArea = t.match(reArea);
+            if (mArea) {
+                return { level: moeAlertLevelFromFlags_(mArea[2], mArea[3]), area: mArea[1] };
+            }
+        }
+        return { level: 'none', area: '' };
+    }
+    async function fetchMoeAlertCsvRawFromGas_() {
+        const base = appendMoePointToUrl(MOE_WBGT_API_URL);
+        if (!base) return '';
+        const sep = base.indexOf('?') >= 0 ? '&' : '?';
+        const url = base + sep + 'type=alertraw&_=' + Date.now();
+        try {
+            const json = await fetchMoeJsonFromGasUrl_(url);
+            return json && json.csvText ? json.csvText : '';
+        } catch (e) {
+            return '';
+        }
+    }
+    async function resolveHeatAlertLevelFromGas_(alertJson) {
+        const direct = alertJson && alertJson.level;
+        if (direct && direct !== 'none') return direct;
+        const raw = await fetchMoeAlertCsvRawFromGas_();
+        if (!raw) return direct || 'none';
+        const parsed = parseMoeAlertLevelFromCsvText_(raw, MOE_ALERT_FORECAST_CODE, MOE_ALERT_AREA);
+        if (parsed.level !== 'none') {
+            console.log('[アラート] CSV直接解析', parsed.area || MOE_ALERT_AREA, parsed.level);
+            return parsed.level;
+        }
+        return direct || 'none';
+    }
     /* 環境省 熱中症警戒アラートを GAS 経由で取得し level を更新 */
     async function updateHeatAlertFromGas_() {
         if (WBGT_ONLY) return;
@@ -2453,7 +2708,7 @@
         const base = appendMoeAlertToUrl(MOE_WBGT_API_URL);
         if (!base) return;
         const sep = base.indexOf('?') >= 0 ? '&' : '?';
-        const url = base + sep + 'type=alert';
+        const url = base + sep + 'type=alert&_=' + Date.now();
         let json = null;
         try {
             const res = await fetch(url, { cache: 'no-store', redirect: 'follow', mode: 'cors' });
@@ -2467,8 +2722,9 @@
                 return;
             }
         }
-        applyHeatAlertLevel_(json && json.level);
-        console.log('[アラート] 環境省', (json && json.area) || '', (json && json.level) || 'none',
+        const level = await resolveHeatAlertLevelFromGas_(json);
+        applyHeatAlertLevel_(level);
+        console.log('[アラート] 環境省', (json && json.area) || MOE_ALERT_AREA, level,
             json && json.today ? json.today.label : '', json && json.tomorrow ? json.tomorrow.label : '');
     }
     function applyHeatAlertLevel_(level) {
@@ -3750,7 +4006,9 @@
         }
     }
     function finishMainLoopToS1_() {
+        applyDeferredLoopRefresh_(true);
         if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
+        mainLoopCycle_ = (mainLoopCycle_ + 1) % 3;
         transitionToScene(s1, playScene1);
     }
     function gotoAfterRainWarnOrScene1_() {
@@ -3943,7 +4201,7 @@
     }
     async function startRainWarnOnlyDemo_() {
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         if (sceneRainWarn) {
             sceneRainWarn.style.display = 'block';
             sceneRainWarn.classList.add('active');
@@ -4025,6 +4283,39 @@
     const SCENE5_SCROLL_PX = 2.5;
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
+    /* 大鉄PR（シーン3と4の間）— 全ローテーション1〜3回目で文言を切替 */
+    const DP_COMPANY_LABEL = '大鉄工業株式会社';
+    const DAITETSU_PROMO_MESSAGES = [
+        '熱中症のリスク要因　温度２８℃以上、湿度７５％以上、WBGT値２８℃以上は厳重警戒！',
+        '体重1kgあたり10ml/時の水分補給を心掛け、熱中症予防！',
+        '休憩するのも仕事のうち、水分・塩分補給・休息行い、みんなで防ごう熱中症！'
+    ];
+    function dpPromoEm_(s) {
+        return '<span class="dp-mid-em">' + escapeS1Html(s) + '</span>';
+    }
+    function dpPromoPlain_(s) {
+        return escapeS1Html(s);
+    }
+    const DAITETSU_PROMO_HTML = [
+        dpPromoEm_('熱中症') + dpPromoPlain_('のリスク要因　温度') + dpPromoEm_('２８') + dpPromoPlain_('℃以上、湿度') +
+            dpPromoEm_('７５') + dpPromoPlain_('％以上、WBGT値') + dpPromoEm_('２８') + dpPromoPlain_('℃以上は') + dpPromoEm_('厳重警戒！'),
+        dpPromoPlain_('体重1kgあたり') + dpPromoEm_('10ml') + dpPromoPlain_('/時の水分補給を心掛け、') + dpPromoEm_('熱中症予防！'),
+        dpPromoEm_('休憩') + dpPromoPlain_('するのも仕事のうち、') + dpPromoEm_('水分・塩分補給・休息') +
+            dpPromoPlain_('行い、みんなで防ごう') + dpPromoEm_('熱中症！')
+    ];
+    const DP_SCROLL_PX = 0.8;
+    const DP_LAPS = 2;
+    const DP_BAND_W = 512;
+    const DP_TOP_SLOT_W = 256;
+    const DP_TOP_SET_SLOTS = 2;
+    const DP_TOP_LAP_PX = DP_TOP_SLOT_W;
+    const DP_TOP_TRACK_SETS = 2;
+    const DP_BOT_SLOT_W = 128;
+    const DP_BOT_SET_SLOTS = 4;
+    const DP_BOT_LAP_PX = DP_BOT_SLOT_W * DP_BOT_SET_SLOTS;
+    const DP_BOT_TRACK_SETS = 2;
+    let mainLoopCycle_ = 0;
+    let dpAnimId = null;
     const T3_UNIT_W = 256;
     const T3_L1_MAX = 42;       /* 72px表示域：256×128内で可能な限り大きく（幅超え時は自動縮小） */
     const T3_L2_RATIO = 0.58;
@@ -4040,6 +4331,20 @@
     let t3Flow_ = null;
     const SCENE_W = 512;
     const SCENE_SLIDE_MS = 700;
+    /** LED向け: 整数px + translate3d でサブピクセルずれ・境目のチラつきを抑える */
+    function scrollPx_(x) {
+        return Math.round(x);
+    }
+    function applyScrollX_(el, x) {
+        if (!el) return;
+        el.style.transform = 'translate3d(' + scrollPx_(x) + 'px,0,0)';
+    }
+    function wrapScrollX_(x, lapW) {
+        if (!lapW || lapW <= 0) return x;
+        let v = x;
+        while (v <= -lapW) v += lapW;
+        return v;
+    }
     let sceneSlideAnimId = null;
     let scene2AnimId = null;
     let clockIntervalId = null;
@@ -4242,20 +4547,23 @@
         let lo = minSz;
         let hi = maxSz;
         let best = minSz;
-        while (lo <= hi) {
-            const mid = Math.floor((lo + hi) / 2);
-            num.style.fontSize = mid + 'px';
-            if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(mid * unitRatio)) + 'px';
-            if (wrap.scrollWidth <= maxW && wrap.scrollHeight <= maxH) {
-                best = mid;
-                lo = mid + 1;
-            } else {
-                hi = mid - 1;
+        try {
+            while (lo <= hi) {
+                const mid = Math.floor((lo + hi) / 2);
+                num.style.fontSize = mid + 'px';
+                if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(mid * unitRatio)) + 'px';
+                if (wrap.scrollWidth <= maxW && wrap.scrollHeight <= maxH) {
+                    best = mid;
+                    lo = mid + 1;
+                } else {
+                    hi = mid - 1;
+                }
             }
+            num.style.fontSize = best + 'px';
+            if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(best * unitRatio)) + 'px';
+        } finally {
+            wrap.style.visibility = prevVis || '';
         }
-        num.style.fontSize = best + 'px';
-        if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(best * unitRatio)) + 'px';
-        wrap.style.visibility = prevVis;
         return best;
     }
     function fitFcWbgtFontSize() {
@@ -4267,14 +4575,17 @@
     }
     function updateForecastSlots(slots) {
         const arr = (slots && slots.length) ? slots : [{ wbgt: null, levelIdx: 0, hour: '現在' }];
+        const liveSlot = arr[0] || { wbgt: null, levelIdx: 0, hour: '現在' };
         document.querySelectorAll('#scene4 .fc-track .fc-panel').forEach(function (panel, i) {
             const slotIdx = i % SCENE4_PANEL_COUNT;
-            const slot = arr[slotIdx] || arr[0];
-            const isUnknown = slot.wbgt == null;
-            const wbgtHtml = isUnknown ? '--' : formatFcWbgtHtml(slot.wbgt);
+            const isUnknown = liveSlot.wbgt == null;
+            const wbgtHtml = isUnknown ? '--' : formatFcWbgtHtml(liveSlot.wbgt);
             panel.className = 'fc-panel fc-slot-' + (slotIdx % 2);
             panel.querySelectorAll('.fc-bar-label').forEach(function (el) { el.innerText = fcBarLabelForPanel_(slotIdx); });
             panel.querySelectorAll('.fc-val-live').forEach(function (el) { el.innerHTML = wbgtHtml; });
+        });
+        document.querySelectorAll('#scene4 .fc-wbgt').forEach(function (wrap) {
+            wrap.style.visibility = '';
         });
         queueDisplayRefresh_();
         fitFcBarLabelFontSize_();
@@ -4391,32 +4702,77 @@
         }
         return parseMoeJson_(json);
     }
-    function applyWbgtSlotsToDom(wbgtSlots) {
-        if (!wbgtSlots || !hasFull4Slots(wbgtSlots)) {
-            wbgtUnavailable = true;
-            syncWbgtDependentAlerts_();
-            const nullSlot = { wbgt: null, hour: '取得不可' };
-            const nullSlots = [nullSlot, nullSlot, nullSlot, nullSlot];
-            if (Array.isArray(wbgtSlots)) {
-                wbgtSlots = wbgtSlots.slice(0, 4);
-                while (wbgtSlots.length < 4) wbgtSlots.push(nullSlots[wbgtSlots.length]);
-                for (let i = 0; i < 4; i++) if (wbgtSlots[i]?.wbgt == null) wbgtSlots[i] = nullSlots[i];
-            } else {
-                wbgtSlots = nullSlots;
-            }
-        } else {
-            wbgtUnavailable = false;
+    function clearWbgtUnavailableGrace_() {
+        wbgtFailSinceMs_ = null;
+        if (wbgtUnavailableTimerId_ != null) {
+            clearTimeout(wbgtUnavailableTimerId_);
+            wbgtUnavailableTimerId_ = null;
         }
-        syncWbgtLevelFromSlots(wbgtSlots);
-        refreshSignageBg();
-        updateForecastSlots(wbgtSlots);
+    }
+    function cloneWbgtSlots_(slots) {
+        return slots.map(function (s) { return Object.assign({}, s); });
+    }
+    function wbgtUnavailableGraceElapsed_() {
+        return wbgtFailSinceMs_ != null &&
+            getNowMs() - wbgtFailSinceMs_ >= WBGT_UNAVAILABLE_GRACE_MS;
+    }
+    function scheduleWbgtUnavailableCheck_() {
+        if (wbgtUnavailableTimerId_ != null || wbgtFailSinceMs_ == null) return;
+        const remaining = WBGT_UNAVAILABLE_GRACE_MS - (getNowMs() - wbgtFailSinceMs_);
+        wbgtUnavailableTimerId_ = setTimeout(function () {
+            wbgtUnavailableTimerId_ = null;
+            if (wbgtUnavailableGraceElapsed_()) applyWbgtUnavailableToDom_();
+        }, Math.max(1000, remaining));
+    }
+    function noteWbgtFetchSuccess_(slots) {
+        clearWbgtUnavailableGrace_();
+        lastGoodWbgtSlots_ = cloneWbgtSlots_(slots);
+        wbgtUnavailable = false;
+    }
+    function noteWbgtFetchFailure_() {
+        if (wbgtFailSinceMs_ == null) wbgtFailSinceMs_ = getNowMs();
+        if (wbgtUnavailableGraceElapsed_()) return true;
+        scheduleWbgtUnavailableCheck_();
+        return false;
+    }
+    function applyWbgtUnavailableToDom_() {
+        if (wbgtOffSeason || !wbgtUnavailableGraceElapsed_()) return;
+        wbgtUnavailable = true;
+        syncWbgtDependentAlerts_();
+        const nullSlot = { wbgt: null, hour: '取得不可' };
+        const nullSlots = [nullSlot, nullSlot, nullSlot, nullSlot];
+        syncWbgtLevelFromSlots(nullSlots);
+        updateForecastSlots(nullSlots);
         queueDisplayRefresh_();
-        return hasFull4Slots(wbgtSlots);
+        refreshSignageBg();
+        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(true);
+        console.warn('[WBGT] 1分以上取得できないため「取得不可」表示');
+    }
+    function applyWbgtSlotsToDom(wbgtSlots) {
+        if (wbgtSlots && hasFull4Slots(wbgtSlots)) {
+            noteWbgtFetchSuccess_(wbgtSlots);
+            syncWbgtLevelFromSlots(wbgtSlots);
+            updateForecastSlots(wbgtSlots);
+            return true;
+        }
+        if (noteWbgtFetchFailure_()) {
+            applyWbgtUnavailableToDom_();
+            return false;
+        }
+        /* 1分以内の失敗: 直前の成功値を維持（取得不可は出さない） */
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            wbgtUnavailable = false;
+            syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
+            updateForecastSlots(lastGoodWbgtSlots_);
+        }
+        return false;
     }
     /* 提供期間外: WBGTレベルを無効化し、WBGT表示を全て隠す（該当シーンはループでスキップ） */
     function applyWbgtOffSeason_() {
         wbgtOffSeason = true;
         wbgtUnavailable = false;
+        clearWbgtUnavailableGrace_();
+        lastGoodWbgtSlots_ = null;
         currentWbgtLevel = -1;
         lastWbgtSlots = null;
         syncWbgtDependentAlerts_();
@@ -4427,9 +4783,8 @@
             el.style.display = 'none';
         });
         refreshSignageBg();
-        buildS1WbgtTrack(false);
-        buildFcLvTrack(false);
-        flushDisplayRefresh_();
+        queueDisplayRefresh_();
+        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(true);
     }
     function applyWbgtInSeason_() {
         wbgtOffSeason = false;
@@ -4437,11 +4792,23 @@
             el.style.display = '';
         });
     }
+    function isMainLoopPlaying_() {
+        if (DEMO_ONLY || DEMO_ALERT_ONLY || DEMO_RAINWARN_ONLY) return false;
+        if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') return false;
+        return !!getActiveScene();
+    }
+    function shouldDeferDisplayRefresh_() {
+        return isMainLoopPlaying_();
+    }
+    function applyDeferredLoopRefresh_(force) {
+        flushDisplayRefresh_(!!force);
+    }
     function queueDisplayRefresh_() {
         pendingDisplayRefresh = true;
     }
-    function flushDisplayRefresh_() {
-        if (!pendingDisplayRefresh) return;
+    function flushDisplayRefresh_(force) {
+        if (!pendingDisplayRefresh && !force) return;
+        if (!force && shouldDeferDisplayRefresh_()) return;
         pendingDisplayRefresh = false;
         buildTicker();
         buildS1WbgtTrack(false);
@@ -4465,7 +4832,6 @@
                     el.style.display = '';
                 });
                 moeOk = applyWbgtSlotsToDom(wbgtSlots);
-                buildS1WbgtTrack(false);
             }
             await updateHeatAlertFromGas_();
         }
@@ -4530,15 +4896,16 @@
         }
         return json;
     }
-    function applyMoeAlertFromJson_(alertJson) {
+    async function applyMoeAlertFromJson_(alertJson) {
         if (WBGT_ONLY || heatAlertForced) return;
         if (!wbgtNormalDisplay_() && !heatAlertForced) return;
         if (!alertJson || alertJson.source !== 'moe-alert') {
             applyHeatAlertLevel_('none');
             return;
         }
-        applyHeatAlertLevel_(alertJson.level);
-        console.log('[アラート] 環境省', alertJson.area || '', alertJson.level || 'none',
+        const level = await resolveHeatAlertLevelFromGas_(alertJson);
+        applyHeatAlertLevel_(level);
+        console.log('[アラート] 環境省', alertJson.area || MOE_ALERT_AREA, level,
             alertJson.today ? alertJson.today.label : '', alertJson.tomorrow ? alertJson.tomorrow.label : '');
     }
     async function fetchWbgtFromMoeApi() {
@@ -4565,7 +4932,7 @@
                     const unpacked = unpackMoeGasResponse_(raw);
                     if (!unpacked || !unpacked.wbgt) continue;
                     if (unpacked.alert) {
-                        applyMoeAlertFromJson_(unpacked.alert);
+                        await applyMoeAlertFromJson_(unpacked.alert);
                         alertApplied = true;
                     }
                     const wbgt = unpacked.wbgt;
@@ -4606,6 +4973,73 @@
         const v = field[0];
         if (v === '' || v == null) return null;
         return v;
+    }
+    function amedasPressureValue_(obs) {
+        if (!obs) return null;
+        return amedasFieldValue(obs.normalPressure) ?? amedasFieldValue(obs.pressure);
+    }
+    function amedasObsNeedsPressureFallback_(obs) {
+        return amedasPressureValue_(obs) == null;
+    }
+    function mergeAmedasPressureFallback_(base, extra) {
+        if (!base || !extra) return base;
+        if (amedasPressureValue_(base) != null) return base;
+        const out = Object.assign({}, base);
+        if (amedasFieldValue(extra.normalPressure) != null) out.normalPressure = extra.normalPressure;
+        else if (amedasFieldValue(extra.pressure) != null) out.pressure = extra.pressure;
+        return out;
+    }
+    async function fetchJmaAmedasPressureFallback_(ymd, hhmm, exactKey, blockH) {
+        const fbPoint = JMA_AMEDAS_PRESSURE_FALLBACK;
+        if (!fbPoint || fbPoint === JMA_AMEDAS_POINT) return null;
+        try {
+            const mapRes = await fetch(
+                `https://www.jma.go.jp/bosai/amedas/data/map/${ymd}${hhmm}00.json`,
+                JMA_FETCH_HEADERS
+            );
+            if (mapRes.ok) {
+                const mapData = await mapRes.json();
+                const mapObs = mapData[fbPoint];
+                if (mapObs && amedasPressureValue_(mapObs) != null) return mapObs;
+            }
+        } catch (e) { /* map fallback */ }
+        try {
+            const ptRes = await fetch(
+                `https://www.jma.go.jp/bosai/amedas/data/point/${fbPoint}/${ymd}_${blockH}.json`,
+                JMA_FETCH_HEADERS
+            );
+            if (ptRes.ok) {
+                const ptData = await ptRes.json();
+                const ptObs = pickPointBlockObs_(ptData, exactKey);
+                if (amedasPressureValue_(ptObs) != null) return ptObs;
+            }
+        } catch (e) { /* point fallback */ }
+        return null;
+    }
+    async function supplementAmedasPressure_(obs, ymd, hhmm, exactKey, blockH) {
+        if (!amedasObsNeedsPressureFallback_(obs)) {
+            lastAmedasPresFallbackLabel_ = '';
+            return obs;
+        }
+        if (!JMA_AMEDAS_PRESSURE_FALLBACK) return obs;
+        try {
+            const fbObs = await fetchJmaAmedasPressureFallback_(ymd, hhmm, exactKey, blockH);
+            if (!fbObs) return obs;
+            const merged = mergeAmedasPressureFallback_(obs, fbObs);
+            if (amedasPressureValue_(merged) != null) {
+                lastAmedasPresFallbackLabel_ = JMA_AMEDAS_PRESSURE_FALLBACK_LABEL ||
+                    JMA_AMEDAS_PRESSURE_FALLBACK;
+                console.log('[JMA] 気圧を近傍地点で補完',
+                    JMA_AMEDAS_PRESSURE_FALLBACK,
+                    amedasPressureValue_(merged) + 'hPa',
+                    lastAmedasPresFallbackLabel_ || '');
+                return merged;
+            }
+        } catch (e) {
+            console.warn('[JMA] 気圧フォールバック失敗:', e.message || e);
+        }
+        lastAmedasPresFallbackLabel_ = '';
+        return obs;
     }
     function amedasToWeatherIcon(obs) {
         const p10 = amedasFieldValue(obs.precipitation10m);
@@ -4714,9 +5148,14 @@
                             console.warn('[JMA] map補完(point)失敗:', supErr);
                         }
                     }
+                    obs = await supplementAmedasPressure_(obs, ymd, hhmm, exactKey, blockH);
                     return { latest, obs };
                 }
-                return { latest, obs: pickPointBlockObs_(data, entry.exactKey || exactKey) };
+                const obs = await supplementAmedasPressure_(
+                    pickPointBlockObs_(data, entry.exactKey || exactKey),
+                    ymd, hhmm, exactKey, blockH
+                );
+                return { latest, obs };
             } catch (e) { lastErr = e; }
         }
         throw lastErr || new Error('JMA amedas failed');
@@ -4739,11 +5178,19 @@
     function isD5TodayFrameWhite_(levelIdx) {
         return levelIdx === 0 || levelIdx === 3 || levelIdx === 4;
     }
+    function ensureD5TodayFrame_(panel) {
+        if (!panel || panel.querySelector('.d5-today-frame')) return;
+        const frame = document.createElement('div');
+        frame.className = 'd5-today-frame';
+        frame.setAttribute('aria-hidden', 'true');
+        panel.appendChild(frame);
+    }
     function applyD5TodayFrame_() {
         const mode = getSignageDisplayMode_();
         const lv = mode === 'normal' ? currentWbgtLevel : -1;
         const white = lv >= 0 && isD5TodayFrameWhite_(lv);
         document.querySelectorAll('#scene5 .d5-panel.d5-today-focus').forEach(function (panel) {
+            ensureD5TodayFrame_(panel);
             panel.classList.toggle('d5-today-frame-white', white);
         });
     }
@@ -4855,6 +5302,11 @@
             case 'rain': return obs.time + '・10分';
             case 'tmaxmin': return obs.date + '日中';
             case 'gust': return obs.date + '最大';
+            case 'pres':
+                if (lastAmedasPresFallbackLabel_) {
+                    return obs.stamp + '時点（' + lastAmedasPresFallbackLabel_ + '）';
+                }
+                return obs.stamp + '時点';
             default: return obs.stamp + '時点';
         }
     }
@@ -4895,7 +5347,7 @@
         s2MetaTrack.innerHTML = html;
         const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
         scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
-        s2MetaTrack.style.transform = 'translateX(0px)';
+        applyScrollX_(s2MetaTrack, 0);
         scene2MetaX = 0;
     }
     function applyJmaAmedasToDom(obs, latest) {
@@ -4907,7 +5359,7 @@
         const p10 = amedasFieldValue(obs.precipitation10m);
         const p1h = amedasFieldValue(obs.precipitation1h);
         const wind = amedasFieldValue(obs.wind);
-        const pres = amedasFieldValue(obs.normalPressure) ?? amedasFieldValue(obs.pressure);
+        const pres = amedasPressureValue_(obs);
         const wdir = amedasFieldValue(obs.windDirection);
         const maxT = amedasFieldValue(obs.maxTemp);
         const minT = amedasFieldValue(obs.minTemp);
@@ -5205,7 +5657,7 @@
         fcLvTrack.innerHTML = html;
         const setEl = fcLvTrack.querySelector('.fc-lv-set');
         scene4FcLvLapPx = setEl ? Math.max(SCENE4_LV_LAP_PX, setEl.offsetWidth) : SCENE4_LV_LAP_PX;
-        fcLvTrack.style.transform = 'translateX(0px)';
+        applyScrollX_(fcLvTrack, 0);
         scene4FcLvX = 0;
     }
     function clearScene4Timers() {
@@ -5219,7 +5671,7 @@
         let html = '';
         for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
         s1WbgtTrack.innerHTML = html;
-        s1WbgtTrack.style.transform = 'translateX(0)';
+        applyScrollX_(s1WbgtTrack, 0);
     }
     function clearScene1WbgtTimers() {
         if (scene1AnimId) { cancelAnimationFrame(scene1AnimId); scene1AnimId = null; }
@@ -5228,7 +5680,7 @@
     }
     function sceneDisplayMode(el) {
         if (!el) return 'flex';
-        if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
+        if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'scenePromo' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
         return 'flex';
     }
     function hideSceneEl(el) {
@@ -5249,9 +5701,9 @@
         nextEl.style.display = sceneDisplayMode(nextEl);
         nextEl.classList.add('active');
         nextEl.style.zIndex = '2';
-        nextEl.style.transform = `translateX(${SCENE_W}px)`;
+        applyScrollX_(nextEl, SCENE_W);
         if (!current) {
-            nextEl.style.transform = 'translateX(0px)';
+            applyScrollX_(nextEl, 0);
             nextEl.style.zIndex = '';
             onComplete?.();
             return;
@@ -5261,15 +5713,15 @@
         function tick(now) {
             const p = Math.min(1, (now - t0) / SCENE_SLIDE_MS);
             const eased = p * (2 - p);
-            const off = eased * SCENE_W;
-            current.style.transform = `translateX(-${off}px)`;
-            nextEl.style.transform = `translateX(${SCENE_W - off}px)`;
+            const off = scrollPx_(eased * SCENE_W);
+            applyScrollX_(current, -off);
+            applyScrollX_(nextEl, SCENE_W - off);
             if (p < 1) {
                 sceneSlideAnimId = requestAnimationFrame(tick);
             } else {
                 sceneSlideAnimId = null;
                 hideSceneEl(current);
-                nextEl.style.transform = 'translateX(0px)';
+                applyScrollX_(nextEl, 0);
                 nextEl.style.zIndex = '';
                 onComplete?.();
             }
@@ -5372,7 +5824,7 @@
         }
     }
     function hideAllScenesForIntro_() {
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
     }
     function playSceneAlertIntroOne_(alertKey, onDone) {
         if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
@@ -5435,7 +5887,7 @@
             buildT3GuideTrack();
             t3GuidX = 0;
             const guidTrack = document.getElementById('t3-guid-track');
-            if (guidTrack) guidTrack.style.transform = 'translateX(0px)';
+            applyScrollX_(guidTrack, 0);
             if (!t3Messages_.length) {
                 if (typeof onDone === 'function') onDone();
                 return;
@@ -5465,8 +5917,8 @@
                 applyT3TrackX_(tracks, t3Flow_.x);
                 if (guidTrack && getT3GuideTierForDisplay_()) {
                     t3GuidX -= SCENE2_META_SPEED_PX;
-                    if (t3GuidX <= -t3GuidLapPx) t3GuidX += t3GuidLapPx;
-                    guidTrack.style.transform = 'translate3d(' + Math.round(t3GuidX * 100) / 100 + 'px,0,0)';
+                    t3GuidX = wrapScrollX_(t3GuidX, t3GuidLapPx);
+                    applyScrollX_(guidTrack, t3GuidX);
                 }
                 tickerAnimId = requestAnimationFrame(step);
             }
@@ -5578,7 +6030,7 @@
     }
     function startAlertOnlyDemo_() {
         resetLogoRotation();
-        [s1, s2, s3, s4, s5].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo].forEach(hideSceneEl);
         if (sceneAlert) {
             sceneAlert.style.display = 'block';
             sceneAlert.classList.add('active');
@@ -5602,7 +6054,7 @@
     function getT3Messages_() {
         if (wbgtOffSeason) return [];
         /* 3段デザイン: 発表時も中段は現在WBGT段階の多言語（上帯のみアラート文言に差し替え） */
-        const isUnknown = wbgtUnavailable || currentWbgtLevel < 0;
+        const isUnknown = wbgtUnavailable;
         const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
         const langs = ['jp', 'en', 'vn', 'tl'];
         const all = langs.map(function (key) { return splitT3Message_(m[key]); });
@@ -5668,7 +6120,7 @@
         el.innerHTML = html;
         const setEl = el.querySelector('.s2-meta-set-flow');
         t3GuidLapPx = setEl ? Math.max(SCENE2_META_LAP_PX, setEl.offsetWidth) : SCENE2_META_LAP_PX;
-        el.style.transform = 'translateX(0px)';
+        applyScrollX_(el, 0);
         t3GuidX = 0;
     }
     const T3_HEAT_ALERT_TOP = {
@@ -5708,7 +6160,7 @@
         }
     }
     function applyT3TopHaTrackX_(tracks, x) {
-        const tx = Math.round(x * 100) / 100;
+        const tx = scrollPx_(x);
         tracks.forEach(function (t) { t.style.transform = 'translate3d(' + tx + 'px,0,0)'; });
     }
     function syncT3TopScroll_(x) {
@@ -5824,7 +6276,7 @@
         return true;
     }
     function applyT3TrackX_(tracks, x) {
-        const tx = Math.round(x * 100) / 100;
+        const tx = scrollPx_(x);
         tracks.forEach(function (t) { t.style.transform = 'translate3d(' + tx + 'px,0,0)'; });
         syncT3TopScroll_(tx);
     }
@@ -5842,6 +6294,7 @@
     }
     function playScene3() {
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+        setPromoBandCollapse_(false);
         if (wbgtOffSeason) {
             if (previewOffSeasonHold_('s3', playScene3)) return;
             gotoAfterScene3_();
@@ -5855,7 +6308,7 @@
         buildT3GuideTrack();
         t3GuidX = 0;
         const guidTrack = document.getElementById('t3-guid-track');
-        if (guidTrack) guidTrack.style.transform = 'translateX(0px)';
+        applyScrollX_(guidTrack, 0);
         if (!t3Messages_.length) {
             gotoAfterScene3_();
             return;
@@ -5897,8 +6350,8 @@
             applyT3TrackX_(tracks, t3Flow_.x);
             if (guidTrack && getT3GuideTierForDisplay_()) {
                 t3GuidX -= SCENE2_META_SPEED_PX;
-                if (t3GuidX <= -t3GuidLapPx) t3GuidX += t3GuidLapPx;
-                guidTrack.style.transform = 'translate3d(' + Math.round(t3GuidX * 100) / 100 + 'px,0,0)';
+                t3GuidX = wrapScrollX_(t3GuidX, t3GuidLapPx);
+                applyScrollX_(guidTrack, t3GuidX);
             }
             tickerAnimId = requestAnimationFrame(step);
         }
@@ -5924,18 +6377,20 @@
             return;
         }
         function runS1WbgtSequence() {
-            const viewW = SCENE1_WBGT_LAP_PX;
             const stopX = 0;
-            const scrollEndX = -viewW * SCENE1_WBGT_LAPS;
-            s1WbgtTrack.style.transform = `translateX(${stopX}px)`;
+            applyScrollX_(s1WbgtTrack, stopX);
             scene1HoldTimerId = setTimeout(() => {
                 scene1HoldTimerId = null;
                 let x = stopX;
+                let s1WbgtScrolled = 0;
+                const s1WbgtScrollTotal = SCENE1_WBGT_LAP_PX * SCENE1_WBGT_LAPS;
                 function animateS1WbgtRtl() {
                     x -= SCENE1_WBGT_SPEED_PX;
-                    if (x <= scrollEndX) {
-                        x = stopX;
-                        s1WbgtTrack.style.transform = `translateX(${x}px)`;
+                    s1WbgtScrolled += SCENE1_WBGT_SPEED_PX;
+                    x = wrapScrollX_(x, SCENE1_WBGT_LAP_PX);
+                    applyScrollX_(s1WbgtTrack, x);
+                    if (s1WbgtScrolled >= s1WbgtScrollTotal) {
+                        applyScrollX_(s1WbgtTrack, stopX);
                         scene1AnimId = null;
                         scene1EndHoldTimerId = setTimeout(() => {
                             scene1EndHoldTimerId = null;
@@ -5943,7 +6398,6 @@
                         }, SCENE1_WBGT_HOLD_MS);
                         return;
                     }
-                    s1WbgtTrack.style.transform = `translateX(${x}px)`;
                     scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
                 }
                 scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
@@ -5955,13 +6409,316 @@
     function gotoSceneAfterScene2_() {
         transitionToScene(s5, playScene5);
     }
-    /* シーン3の次はシーン4（多言語WBGT）。提供期間外はシーン4を飛ばす */
+    /* シーン3（4日予報）の次は大鉄PR → シーン4（多言語WBGT） */
     function gotoSceneAfterScene5_() {
+        if (!scenePromo) {
+            gotoAfterScenePromo_();
+            return;
+        }
+        transitionToScene(scenePromo, playScenePromo);
+    }
+    function gotoAfterScenePromo_() {
+        setPromoBandCollapse_(false);
+        setPromoMultiBandCollapse_(false);
         if (wbgtOffSeason) {
             gotoAfterScene3_();
             return;
         }
         transitionToScene(s3, playScene3);
+    }
+    function getPromoMessageIdx_() {
+        let idx = mainLoopCycle_ % 3;
+        if (DEMO_SIGNAGE && !DEMO_ONLY) idx = demoLevelPointer % 3;
+        return idx;
+    }
+    function getPromoMessage_() {
+        const idx = getPromoMessageIdx_();
+        return DAITETSU_PROMO_MESSAGES[idx] || DAITETSU_PROMO_MESSAGES[0];
+    }
+    function getPromoMessageHtml_() {
+        const idx = getPromoMessageIdx_();
+        return DAITETSU_PROMO_HTML[idx] || DAITETSU_PROMO_HTML[0];
+    }
+    function setPromoBandCollapse_(on) {
+        const ca = document.querySelector('.content-area');
+        if (ca) ca.classList.toggle('dp-band-collapse', !!on);
+    }
+    function setPromoMultiBandCollapse_(on) {
+        const ca = document.querySelector('.content-area');
+        if (ca) ca.classList.toggle('dp-promo-multi', !!on);
+    }
+    function ensurePromoMidStructure_() {
+        const mid = document.querySelector('#scenePromo .dp-mid');
+        if (!mid || mid.querySelector('.dp-mid-track')) return;
+        mid.innerHTML =
+            '<div class="dp-mid-track" id="dp-mid-track">' +
+            '<div class="dp-mid-seg"><span class="dp-mid-txt" id="dp-mid-txt-a"></span></div>' +
+            '<div class="dp-mid-seg"><span class="dp-mid-txt" id="dp-mid-txt-b"></span></div>' +
+            '</div>';
+    }
+    function resetPromoShellLayout_() {
+        const shell = document.getElementById('dp-shell');
+        if (shell) shell.classList.remove('dp-bands-away');
+        setPromoMultiBandCollapse_(false);
+        ensurePromoMidStructure_();
+    }
+    function getPromoMultiLines_() {
+        const isUnknown = wbgtUnavailable || currentWbgtLevel < 0;
+        const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
+        return { en: m.en, vn: m.vn, tl: m.tl };
+    }
+    function applyPromoColors_() {
+        const shell = document.getElementById('dp-shell');
+        const top = shell && shell.querySelector('.dp-top');
+        const mid = shell && shell.querySelector('.dp-mid');
+        const bot = shell && shell.querySelector('.dp-bot');
+        if (!shell) return;
+        const mode = getSignageDisplayMode_();
+        const lv = mode === 'normal' ? currentWbgtLevel : -1;
+        const colors = (typeof SignageBg !== 'undefined' && SignageBg.colorsForDisplay)
+            ? SignageBg.colorsForDisplay(lv, mode)
+            : { bgColor: '#308DD8', barColor: '#55A5E6' };
+        const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
+            ? SignageBg.isDarkTextForDisplay(lv, mode)
+            : false;
+        shell.style.backgroundColor = colors.bgColor;
+        if (top) top.style.backgroundColor = colors.barColor;
+        if (mid) mid.style.backgroundColor = colors.bgColor;
+        if (bot) bot.style.backgroundColor = 'var(--led-foot-bar-bg)';
+        shell.classList.toggle('dp-dark-text', dark);
+    }
+    function buildPromoSlotTrack_(trackId, setClass, slotClass, slotInnerHtml, setSlots, trackSets) {
+        const track = document.getElementById(trackId);
+        if (!track) return;
+        const slots = setSlots || DP_BOT_SET_SLOTS;
+        const sets = trackSets || DP_BOT_TRACK_SETS;
+        const slot = '<div class="' + slotClass + '">' + slotInnerHtml + '</div>';
+        const set = '<div class="' + setClass + '">' + slot.repeat(slots) + '</div>';
+        track.innerHTML = set.repeat(sets);
+        applyScrollX_(track, 0);
+    }
+    function buildPromoTopTrack_() {
+        const label = '<span class="dp-top-txt">' + DP_COMPANY_LABEL + '</span>';
+        buildPromoSlotTrack_('dp-top-track', 'dp-top-set', 'dp-top-slot', label, DP_TOP_SET_SLOTS, DP_TOP_TRACK_SETS);
+    }
+    function sizePromoTopText_() {
+        const probe = document.querySelector('#scenePromo .dp-top-txt');
+        if (!probe) return;
+        let fz = 16;
+        const maxW = DP_TOP_SLOT_W - 12;
+        const setAll = function (size) {
+            document.querySelectorAll('#scenePromo .dp-top-txt').forEach(function (n) {
+                n.style.fontSize = size + 'px';
+            });
+        };
+        setAll(fz);
+        let guard = 40;
+        while (guard-- > 0 && fz > 11 && probe.scrollWidth > maxW) {
+            fz -= 1;
+            setAll(fz);
+        }
+    }
+    function buildPromoBotTrack_() {
+        const src = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.promoLogoSrc) || './daitetsu_wordmark.png';
+        const alt = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoAlt) || '大鉄';
+        const img = '<img class="dp-wordmark-img" src="' + src + '" alt="' + alt + '">';
+        buildPromoSlotTrack_('dp-bot-track', 'dp-bot-set', 'dp-bot-slot', img, DP_BOT_SET_SLOTS, DP_BOT_TRACK_SETS);
+    }
+    function sizePromoMidText_() {
+        const probe = document.querySelector('#scenePromo .dp-mid-txt');
+        if (!probe) return;
+        let fz = 22;
+        const setAll = function (size) {
+            document.querySelectorAll('#scenePromo .dp-mid-txt').forEach(function (n) {
+                n.style.fontSize = size + 'px';
+            });
+        };
+        setAll(fz);
+        let guard = 50;
+        while (guard-- > 0 && fz > 12 && probe.scrollHeight > 66) {
+            fz -= 1;
+            setAll(fz);
+        }
+    }
+    function measurePromoSegW_(track, segSel) {
+        const seg = track && track.querySelector(segSel);
+        if (!seg) return DP_BAND_W;
+        return Math.max(DP_BAND_W, Math.ceil(seg.getBoundingClientRect().width));
+    }
+    const DP_MULTI_LAP_PX = DP_BAND_W;
+    const DP_MULTI_TRACK_SETS = 2;
+    function buildPromoMultiLineTrackHtml_(text, trackId) {
+        const txt = '<span class="dp-multi-line-txt">' + escapeS1Html(text) + '</span>';
+        const set = '<div class="dp-multi-line-set">' + txt + '</div>';
+        return '<div class="dp-multi-line-track" id="' + trackId + '">' + set.repeat(DP_MULTI_TRACK_SETS) + '</div>';
+    }
+    function measurePromoMultiTxtInkH_(el) {
+        if (!el || !el.firstChild) return 0;
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return Math.ceil(range.getBoundingClientRect().height);
+    }
+    function promoMultiTxtFitsRows_() {
+        const rowEn = document.querySelector('#scenePromo .dp-multi-row-en');
+        if (!rowEn) return true;
+        const maxH = rowEn.clientHeight - 1;
+        const txts = document.querySelectorAll('#scenePromo .dp-multi-line-txt');
+        for (let i = 0; i < txts.length; i++) {
+            if (measurePromoMultiTxtInkH_(txts[i]) > maxH) return false;
+        }
+        return true;
+    }
+    function applyPromoMultiSetWidths_() {
+        document.querySelectorAll('#scenePromo .dp-multi-line-track').forEach(function (track) {
+            const txt = track.querySelector('.dp-multi-line-txt');
+            if (!txt) return;
+            const w = Math.max(DP_MULTI_LAP_PX, Math.ceil(txt.scrollWidth + 24));
+            track.querySelectorAll('.dp-multi-line-set').forEach(function (set) {
+                set.style.width = w + 'px';
+            });
+        });
+    }
+    function measurePromoMultiTrackLap_(track) {
+        const set = track && track.querySelector('.dp-multi-line-set');
+        if (!set) return DP_MULTI_LAP_PX;
+        return Math.max(DP_MULTI_LAP_PX, Math.ceil(set.getBoundingClientRect().width));
+    }
+    function sizePromoMultiText_() {
+        const txts = document.querySelectorAll('#scenePromo .dp-multi-line-txt');
+        if (!txts.length) return;
+        const rowEn = document.querySelector('#scenePromo .dp-multi-row-en');
+        const quarterH = rowEn && rowEn.clientHeight > 0 ? rowEn.clientHeight : 28;
+        let fz = Math.floor((quarterH - 4) / 1.2);
+        const setAll = function (size) {
+            txts.forEach(function (n) { n.style.fontSize = size + 'px'; });
+        };
+        setAll(fz);
+        let guard = 40;
+        while (guard-- > 0 && fz > 10 && !promoMultiTxtFitsRows_()) {
+            fz -= 1;
+            setAll(fz);
+        }
+        applyPromoMultiSetWidths_();
+    }
+    function prepPromoMultiPhase_() {
+        const lines = getPromoMultiLines_();
+        const mid = document.querySelector('#scenePromo .dp-mid');
+        if (!mid) return;
+        mid.innerHTML =
+            '<div class="dp-multi-stage">' +
+            '<div class="dp-multi-row dp-multi-row-en">' + buildPromoMultiLineTrackHtml_(lines.en, 'dp-multi-en-track') + '</div>' +
+            '<div class="dp-multi-row dp-multi-row-vn">' + buildPromoMultiLineTrackHtml_(lines.vn, 'dp-multi-vn-track') + '</div>' +
+            '<div class="dp-multi-row dp-multi-row-tl">' + buildPromoMultiLineTrackHtml_(lines.tl, 'dp-multi-tl-track') + '</div>' +
+            '</div>';
+        applyPromoColors_();
+        sizePromoMultiText_();
+        ['dp-multi-en-track', 'dp-multi-vn-track', 'dp-multi-tl-track'].forEach(function (id) {
+            const t = document.getElementById(id);
+            if (t) applyScrollX_(t, 0);
+        });
+    }
+    function playPromoMultiPhase_() {
+        const shell = document.getElementById('dp-shell');
+        if (shell) shell.classList.add('dp-bands-away');
+        setPromoMultiBandCollapse_(true);
+        prepPromoMultiPhase_();
+        applyPromoColors_();
+        const trackIds = ['dp-multi-en-track', 'dp-multi-vn-track', 'dp-multi-tl-track'];
+        const tracks = trackIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+        if (!tracks.length) {
+            finishScenePromo();
+            return;
+        }
+        const lapWs = tracks.map(measurePromoMultiTrackLap_);
+        const xs = tracks.map(function () { return 0; });
+        const scrolled = tracks.map(function () { return 0; });
+        function step() {
+            let allDone = true;
+            tracks.forEach(function (t, i) {
+                const need = lapWs[i] * DP_LAPS;
+                if (scrolled[i] >= need) return;
+                allDone = false;
+                xs[i] -= DP_SCROLL_PX;
+                scrolled[i] += DP_SCROLL_PX;
+                xs[i] = wrapScrollX_(xs[i], lapWs[i]);
+                applyScrollX_(t, xs[i]);
+            });
+            if (allDone) {
+                tracks.forEach(function (t) { applyScrollX_(t, 0); });
+                dpAnimId = null;
+                finishScenePromo();
+                return;
+            }
+            dpAnimId = requestAnimationFrame(step);
+        }
+        dpAnimId = requestAnimationFrame(step);
+    }
+    function prepPromoScene_(messageHtml) {
+        resetPromoShellLayout_();
+        const html = messageHtml != null ? String(messageHtml) : getPromoMessageHtml_();
+        buildPromoTopTrack_();
+        buildPromoBotTrack_();
+        document.querySelectorAll('#scenePromo .dp-mid-txt').forEach(function (n) {
+            n.innerHTML = html;
+        });
+        applyPromoColors_();
+        sizePromoTopText_();
+        sizePromoMidText_();
+        ['dp-mid-track'].forEach(function (id) {
+            const t = document.getElementById(id);
+            if (t) applyScrollX_(t, 0);
+        });
+    }
+    function finishScenePromo() {
+        if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
+        resetPromoShellLayout_();
+        if (demoOnlyLoop_('promo', playScenePromo)) return;
+        gotoAfterScenePromo_();
+    }
+    function playScenePromo() {
+        if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
+        if (!scenePromo) { gotoAfterScenePromo_(); return; }
+        setPromoBandCollapse_(true);
+        prepPromoScene_(getPromoMessageHtml_());
+        refreshSignageBg();
+        applyPromoColors_();
+        stepLogo90(420, true);
+        if (isFullDemoStep_()) {
+            scheduleDemoStep_(function () { playPromoMultiPhase_(); });
+            return;
+        }
+        const topTrack = document.getElementById('dp-top-track');
+        const midTrack = document.getElementById('dp-mid-track');
+        const botTrack = document.getElementById('dp-bot-track');
+        if (!midTrack) {
+            playPromoMultiPhase_();
+            return;
+        }
+        const topW = DP_TOP_LAP_PX;
+        const midW = measurePromoSegW_(midTrack, '.dp-mid-seg');
+        const botW = DP_BOT_LAP_PX;
+        const scrollTotal = Math.max(DP_BAND_W, midW) * DP_LAPS;
+        let topX = 0, midX = 0, botX = 0;
+        let totalScrolled = 0;
+        function step() {
+            topX -= DP_SCROLL_PX;
+            midX -= DP_SCROLL_PX;
+            botX -= DP_SCROLL_PX;
+            totalScrolled += DP_SCROLL_PX;
+            topX = wrapScrollX_(topX, topW);
+            midX = wrapScrollX_(midX, midW);
+            botX = wrapScrollX_(botX, botW);
+            if (topTrack) applyScrollX_(topTrack, topX);
+            applyScrollX_(midTrack, midX);
+            if (botTrack) applyScrollX_(botTrack, botX);
+            if (totalScrolled >= scrollTotal) {
+                dpAnimId = null;
+                playPromoMultiPhase_();
+                return;
+            }
+            dpAnimId = requestAnimationFrame(step);
+        }
+        dpAnimId = requestAnimationFrame(step);
     }
     function playScene2() {
         refreshSignageBg();
@@ -5982,19 +6739,19 @@
         let x = 0;
         let totalScrolled = 0;
         scene2MetaX = 0;
-        if (s2MetaTrack) s2MetaTrack.style.transform = 'translateX(0px)';
+        applyScrollX_(s2MetaTrack, 0);
         conveyor.style.transition = 'none';
-        conveyor.style.transform = 'translateX(0px)';
+        applyScrollX_(conveyor, 0);
         function animateScene2() {
             x -= SCENE2_SCROLL_PX;
             totalScrolled += SCENE2_SCROLL_PX;
-            if (x <= -scene2SetWidth) x += scene2SetWidth;
-            conveyor.style.transform = `translateX(${x}px)`;
+            x = wrapScrollX_(x, scene2SetWidth);
+            applyScrollX_(conveyor, x);
             scene2MetaX -= SCENE2_META_SPEED_PX;
-            if (scene2MetaX <= -scene2MetaLapPx) scene2MetaX += scene2MetaLapPx;
-            if (s2MetaTrack) s2MetaTrack.style.transform = `translateX(${scene2MetaX}px)`;
+            scene2MetaX = wrapScrollX_(scene2MetaX, scene2MetaLapPx);
+            applyScrollX_(s2MetaTrack, scene2MetaX);
             if (totalScrolled >= scene2ScrollTotal) {
-                conveyor.style.transform = 'translateX(0px)';
+                applyScrollX_(conveyor, 0);
                 scene2AnimId = null;
                 stopLogoSpinInterval();
                 if (demoOnlyLoop_('s2', playScene2)) return;
@@ -6018,7 +6775,9 @@
             finishScene4();
             return;
         }
-        if (!lastWbgtSlots && DEMO_SIGNAGE_ACTIVE && currentWbgtLevel >= 0) {
+        if (lastWbgtSlots) {
+            updateForecastSlots(lastWbgtSlots);
+        } else if (DEMO_SIGNAGE_ACTIVE && currentWbgtLevel >= 0) {
             updateForecastSlots(mockSlotsForDemoLevel(currentWbgtLevel));
         }
         buildFcLvTrack(false);
@@ -6040,18 +6799,18 @@
         let totalScrolled = 0;
         scene4FcLvX = 0;
         fcConveyor.style.transition = 'none';
-        fcConveyor.style.transform = 'translateX(0px)';
-        if (fcLvTrack) fcLvTrack.style.transform = 'translateX(0px)';
+        applyScrollX_(fcConveyor, 0);
+        applyScrollX_(fcLvTrack, 0);
         function animateScene4() {
             x -= SCENE4_SCROLL_PX;
             totalScrolled += SCENE4_SCROLL_PX;
-            if (x <= -scene4SetWidth) x += scene4SetWidth;
-            fcConveyor.style.transform = `translateX(${x}px)`;
+            x = wrapScrollX_(x, scene4SetWidth);
+            applyScrollX_(fcConveyor, x);
             scene4FcLvX -= SCENE4_LV_SPEED_PX;
-            if (scene4FcLvX <= -scene4FcLvLapPx) scene4FcLvX += scene4FcLvLapPx;
-            if (fcLvTrack) fcLvTrack.style.transform = `translateX(${scene4FcLvX}px)`;
+            scene4FcLvX = wrapScrollX_(scene4FcLvX, scene4FcLvLapPx);
+            applyScrollX_(fcLvTrack, scene4FcLvX);
             if (totalScrolled >= scene4ScrollTotal) {
-                fcConveyor.style.transform = 'translateX(0px)';
+                applyScrollX_(fcConveyor, 0);
                 scene4AnimId = null;
                 stopLogoSpinInterval();
                 finishScene4();
@@ -6082,19 +6841,19 @@
         let x = 0;
         let totalScrolled = 0;
         d5Conveyor.style.transition = 'none';
-        d5Conveyor.style.transform = 'translateX(0px)';
+        applyScrollX_(d5Conveyor, 0);
         function animateScene5() {
             x -= SCENE5_SCROLL_PX;
             totalScrolled += SCENE5_SCROLL_PX;
-            if (x <= -scene5SetWidth) x += scene5SetWidth;
-            d5Conveyor.style.transform = `translateX(${x}px)`;
+            x = wrapScrollX_(x, scene5SetWidth);
+            applyScrollX_(d5Conveyor, x);
             if (logoRotator) {
                 logoRotDeg += (SCENE5_SCROLL_PX / 128) * 90;
                 logoRotator.style.transition = 'none';
                 logoRotator.style.transform = `rotate(${logoRotDeg}deg)`;
             }
             if (totalScrolled >= scene5ScrollTotal) {
-                d5Conveyor.style.transform = 'translateX(0px)';
+                applyScrollX_(d5Conveyor, 0);
                 scene5AnimId = null;
                 stopLogoSpinInterval();
                 if (demoOnlyLoop_('s5', playScene5)) return;
@@ -6207,11 +6966,11 @@
         return true;
     }
     function showOnlyScene_(el, playFn) {
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         if (!el) return;
         el.style.display = sceneDisplayMode(el);
         el.classList.add('active');
-        el.style.transform = 'translateX(0px)';
+        applyScrollX_(el, 0);
         el.style.zIndex = '';
         playFn();
     }
@@ -6232,13 +6991,14 @@
             case 's3': showOnlyScene_(s3, playScene3); break;
             case 's4': showOnlyScene_(s4, playScene4); break;
             case 's5': showOnlyScene_(s5, playScene5); break;
+            case 'promo': showOnlyScene_(scenePromo, playScenePromo); break;
             default: break;
         }
     }
     function startPreviewDemo_(sceneKey) {
         applyDemoLevel(DEMO_LEVEL_ORDER[1]);  /* 注意（黄）で見やすく */
         refreshSignageBg();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         const badge = document.getElementById('demo-badge');
         const rainTag = rainPreviewLabel_();
         if (sceneKey === 's1') {
@@ -6265,7 +7025,7 @@
     function startSequence() {
         clearDemoStepTimer_();
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
     }
 
@@ -6314,8 +7074,9 @@
         updateClock();
         startClockTicker();
         refreshSignageBg();
-        /* 初回取得完了まで「取得不可」は出さない（取得失敗時のみ applyWbgtSlotsToDom が設定） */
+        /* 初回取得完了まで「取得不可」は出さない。1分以上連続失敗時のみ applyWbgtUnavailableToDom_ */
         wbgtUnavailable = false;
+        clearWbgtUnavailableGrace_();
         wbgtOffSeason = false;
         try {
             buildTicker();
