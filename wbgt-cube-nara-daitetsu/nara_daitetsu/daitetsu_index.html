@@ -4339,7 +4339,10 @@
     let scene1AnimId = null;
     let scene1HoldTimerId = null;
     let scene1EndHoldTimerId = null;
+    let scene1FinishTimerId = null;
+    let scene1ExitOnly_ = false;
     let s1FootMsgCache_ = '';
+    const SCENE1_TICK_MS = 16;
     const SCENE2_PANEL_COUNT = 9;
     const SCENE2_LAPS = 2;
     const SCENE2_SCROLL_PX = 0.8;
@@ -4929,8 +4932,8 @@
             buildS1WbgtTrack(false);
         }
         if (scene1 && scene1.classList.contains('active') && !isFullDemoStep_()) {
-            const idle = !scene1AnimId && !scene1HoldTimerId && !scene1EndHoldTimerId;
-            if (opts.force || changed || idle) resumeScene1FootFlow_();
+            const idle = !scene1AnimId && !scene1HoldTimerId;
+            if (opts.force || idle || (scene1ExitOnly_ && show)) resumeScene1FootFlow_();
         }
     }
     function applySoftDisplayRefresh_() {
@@ -5820,23 +5823,37 @@
         s1WbgtTrack.innerHTML = html;
         applyScrollX_(s1WbgtTrack, 0);
     }
+    function clearScene1FinishTimer_() {
+        if (scene1FinishTimerId) { clearTimeout(scene1FinishTimerId); scene1FinishTimerId = null; }
+    }
+    function estimateScene1DurationMs_() {
+        if (!hasS1WbgtFootMessage_()) return SCENE1_WBGT_HOLD_MS;
+        const scrollMs = Math.ceil((SCENE1_WBGT_LAP_PX * SCENE1_WBGT_LAPS / SCENE1_WBGT_SPEED_PX) * SCENE1_TICK_MS);
+        return SCENE1_WBGT_HOLD_MS * 2 + scrollMs;
+    }
+    function scheduleScene1Finish_(ms) {
+        clearScene1FinishTimer_();
+        scene1FinishTimerId = setTimeout(function () {
+            scene1FinishTimerId = null;
+            finishScene1();
+        }, ms != null ? ms : estimateScene1DurationMs_());
+    }
     function clearScene1WbgtTimers() {
-        if (scene1AnimId) { cancelAnimationFrame(scene1AnimId); scene1AnimId = null; }
+        if (scene1AnimId != null) { clearTimeout(scene1AnimId); scene1AnimId = null; }
         if (scene1HoldTimerId) { clearTimeout(scene1HoldTimerId); scene1HoldTimerId = null; }
         if (scene1EndHoldTimerId) { clearTimeout(scene1EndHoldTimerId); scene1EndHoldTimerId = null; }
     }
     function scheduleScene1NoFootExit_() {
-        if (scene1HoldTimerId || scene1AnimId || scene1EndHoldTimerId) return;
-        scene1HoldTimerId = setTimeout(function () {
-            scene1HoldTimerId = null;
-            finishScene1();
-        }, SCENE1_WBGT_HOLD_MS);
+        if (scene1AnimId) return;
+        scene1ExitOnly_ = true;
+        scheduleScene1Finish_(SCENE1_WBGT_HOLD_MS);
     }
     function runS1WbgtSequence_() {
         if (!s1WbgtTrack || !hasS1WbgtFootMessage_()) {
             scheduleScene1NoFootExit_();
             return;
         }
+        scene1ExitOnly_ = false;
         const stopX = 0;
         applyScrollX_(s1WbgtTrack, stopX);
         scene1HoldTimerId = setTimeout(function () {
@@ -5852,15 +5869,11 @@
                 if (s1WbgtScrolled >= s1WbgtScrollTotal) {
                     applyScrollX_(s1WbgtTrack, stopX);
                     scene1AnimId = null;
-                    scene1EndHoldTimerId = setTimeout(function () {
-                        scene1EndHoldTimerId = null;
-                        finishScene1();
-                    }, SCENE1_WBGT_HOLD_MS);
                     return;
                 }
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+                scene1AnimId = setTimeout(animateS1WbgtRtl, SCENE1_TICK_MS);
             }
-            scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+            scene1AnimId = setTimeout(animateS1WbgtRtl, SCENE1_TICK_MS);
         }, SCENE1_WBGT_HOLD_MS);
     }
     function resumeScene1FootFlow_() {
@@ -5869,14 +5882,15 @@
             scheduleScene1NoFootExit_();
             return;
         }
-        if (scene1AnimId || scene1EndHoldTimerId) return;
+        if (scene1AnimId) return;
+        if (scene1HoldTimerId && !scene1ExitOnly_) return;
         if (scene1HoldTimerId) {
             clearTimeout(scene1HoldTimerId);
             scene1HoldTimerId = null;
         }
-        requestAnimationFrame(function () {
-            requestAnimationFrame(runS1WbgtSequence_);
-        });
+        scene1ExitOnly_ = false;
+        scheduleScene1Finish_(estimateScene1DurationMs_());
+        setTimeout(runS1WbgtSequence_, 50);
     }
     function sceneDisplayMode(el) {
         if (!el) return 'flex';
@@ -5893,31 +5907,39 @@
     function getActiveScene() {
         return document.querySelector('.content-area .scene.active');
     }
+    function clearSceneSlideAnim_() {
+        if (sceneSlideAnimId == null) return;
+        clearTimeout(sceneSlideAnimId);
+        cancelAnimationFrame(sceneSlideAnimId);
+        sceneSlideAnimId = null;
+    }
     function transitionToScene(nextEl, onComplete) {
-        if (sceneSlideAnimId) cancelAnimationFrame(sceneSlideAnimId);
+        clearSceneSlideAnim_();
         const current = getActiveScene();
         if (!nextEl) { onComplete?.(); return; }
         if (current === nextEl) { onComplete?.(); return; }
         nextEl.style.display = sceneDisplayMode(nextEl);
         nextEl.classList.add('active');
-        nextEl.style.zIndex = '2';
-        applyScrollX_(nextEl, SCENE_W);
-        if (!current) {
+        if (!current || NATIVE_640) {
+            if (current) hideSceneEl(current);
             applyScrollX_(nextEl, 0);
             nextEl.style.zIndex = '';
             onComplete?.();
             return;
         }
+        nextEl.style.zIndex = '2';
+        applyScrollX_(nextEl, SCENE_W);
         current.style.zIndex = '1';
         const t0 = performance.now();
-        function tick(now) {
+        function tick() {
+            const now = performance.now();
             const p = Math.min(1, (now - t0) / SCENE_SLIDE_MS);
             const eased = p * (2 - p);
             const off = scrollPx_(eased * SCENE_W);
             applyScrollX_(current, -off);
             applyScrollX_(nextEl, SCENE_W - off);
             if (p < 1) {
-                sceneSlideAnimId = requestAnimationFrame(tick);
+                sceneSlideAnimId = setTimeout(tick, 16);
             } else {
                 sceneSlideAnimId = null;
                 hideSceneEl(current);
@@ -5926,7 +5948,7 @@
                 onComplete?.();
             }
         }
-        sceneSlideAnimId = requestAnimationFrame(tick);
+        sceneSlideAnimId = setTimeout(tick, 16);
     }
     /* 確認ボード: 提供期間外プレビュー行は非表示のまま一定時間待ってループ */
     function previewOffSeasonHold_(onlyKey, replayFn) {
@@ -5935,7 +5957,9 @@
         return true;
     }
     function finishScene1() {
+        clearScene1FinishTimer_();
         clearScene1WbgtTimers();
+        scene1ExitOnly_ = false;
         if (demoOnlyLoop_('s1', playScene1)) return;
         transitionToScene(s2, playScene2);
     }
@@ -6559,8 +6583,10 @@
     }
     function playScene1() {
         flushDisplayRefresh_(true);
+        clearScene1FinishTimer_();
         clearScene1WbgtTimers();
         clearDemoStepTimer_();
+        scene1ExitOnly_ = false;
         s1FootMsgCache_ = '';
         refreshS1FootBand_({ force: true });
         refreshSignageBg();
