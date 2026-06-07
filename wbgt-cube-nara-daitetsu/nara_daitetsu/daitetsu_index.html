@@ -141,7 +141,12 @@
             display: flex; flex-direction: row; align-items: stretch;
             box-sizing: border-box;
         }
-        .dp-top-slot, .dp-bot-slot {
+        .dp-top-slot {
+            width: 256px; height: 100%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box;
+        }
+        .dp-bot-slot {
             width: 128px; height: 100%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
             box-sizing: border-box;
@@ -151,13 +156,14 @@
             height: 100%; padding: 0 14px; box-sizing: border-box;
             white-space: nowrap;
         }
+        /* 新ゴ M 相当（画像優先・テキスト時は Noto Sans JP Medium） */
         .dp-top-txt {
-            font-size: 14px; font-weight: 500; line-height: 1;
-            font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", Meiryo, "MS Gothic", "Noto Sans JP", sans-serif;
-            letter-spacing: 0; white-space: nowrap;
+            font-size: 16px; font-weight: 500; line-height: 1;
+            font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
+            letter-spacing: 0.02em; white-space: nowrap;
         }
         .dp-company-img {
-            display: block; max-height: 20px; max-width: 120px;
+            display: block; max-height: 22px; max-width: 244px;
             width: auto; height: auto; object-fit: contain;
         }
         .dp-shell:not(.dp-dark-text) .dp-company-img {
@@ -1512,6 +1518,7 @@
   global.SIGNAGE_CONFIG = {
     logoSrc: './daitetsu_logo.png',
     promoLogoSrc: './daitetsu_wordmark.png',
+    /* 新ゴ M 相当の社名（モリサワ新ゴは画像で再現・256pxセル中央） */
     promoCompanyLabelSrc: './daitetsu_company_label.png',
     logoAlt: '大鉄',
     logoPanelBg: '#3a3a3a'
@@ -4218,10 +4225,14 @@
     const DP_SCROLL_PX = 0.8;
     const DP_LAPS = 2;
     const DP_BAND_W = 512;
-    const DP_SLOT_W = 128;
-    const DP_SET_SLOTS = 4;
-    const DP_LAP_PX = DP_SLOT_W * DP_SET_SLOTS;
-    const DP_TRACK_SETS = 2;
+    const DP_TOP_SLOT_W = 256;
+    const DP_TOP_SET_SLOTS = 2;
+    const DP_TOP_LAP_PX = DP_TOP_SLOT_W;
+    const DP_TOP_TRACK_SETS = 2;
+    const DP_BOT_SLOT_W = 128;
+    const DP_BOT_SET_SLOTS = 4;
+    const DP_BOT_LAP_PX = DP_BOT_SLOT_W * DP_BOT_SET_SLOTS;
+    const DP_BOT_TRACK_SETS = 2;
     let mainLoopCycle_ = 0;
     let dpAnimId = null;
     const T3_UNIT_W = 256;
@@ -6362,25 +6373,27 @@
         if (bot) bot.style.backgroundColor = 'var(--led-foot-bar-bg)';
         shell.classList.toggle('dp-dark-text', dark);
     }
-    function buildPromoSlotTrack_(trackId, setClass, slotClass, slotInnerHtml) {
+    function buildPromoSlotTrack_(trackId, setClass, slotClass, slotInnerHtml, setSlots, trackSets) {
         const track = document.getElementById(trackId);
         if (!track) return;
+        const slots = setSlots || DP_BOT_SET_SLOTS;
+        const sets = trackSets || DP_BOT_TRACK_SETS;
         const slot = '<div class="' + slotClass + '">' + slotInnerHtml + '</div>';
-        const set = '<div class="' + setClass + '">' + slot.repeat(DP_SET_SLOTS) + '</div>';
-        track.innerHTML = set.repeat(DP_TRACK_SETS);
+        const set = '<div class="' + setClass + '">' + slot.repeat(slots) + '</div>';
+        track.innerHTML = set.repeat(sets);
         applyScrollX_(track, 0);
     }
     function buildPromoTopTrack_() {
         const src = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.promoCompanyLabelSrc) || './daitetsu_company_label.png';
         const alt = DP_COMPANY_LABEL;
         const label = '<img class="dp-company-img" src="' + src + '" alt="' + alt + '">';
-        buildPromoSlotTrack_('dp-top-track', 'dp-top-set', 'dp-top-slot', label);
+        buildPromoSlotTrack_('dp-top-track', 'dp-top-set', 'dp-top-slot', label, DP_TOP_SET_SLOTS, DP_TOP_TRACK_SETS);
     }
     function buildPromoBotTrack_() {
         const src = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.promoLogoSrc) || './daitetsu_wordmark.png';
         const alt = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoAlt) || '大鉄';
         const img = '<img class="dp-wordmark-img" src="' + src + '" alt="' + alt + '">';
-        buildPromoSlotTrack_('dp-bot-track', 'dp-bot-set', 'dp-bot-slot', img);
+        buildPromoSlotTrack_('dp-bot-track', 'dp-bot-set', 'dp-bot-slot', img, DP_BOT_SET_SLOTS, DP_BOT_TRACK_SETS);
     }
     function sizePromoMidText_() {
         const probe = document.querySelector('#scenePromo .dp-mid-txt');
@@ -6441,9 +6454,9 @@
             setTimeout(finishScenePromo, 800);
             return;
         }
-        const topW = DP_LAP_PX;
+        const topW = DP_TOP_LAP_PX;
         const midW = measurePromoSegW_(midTrack, '.dp-mid-seg');
-        const botW = DP_LAP_PX;
+        const botW = DP_BOT_LAP_PX;
         const scrollTotal = Math.max(DP_BAND_W, midW) * DP_LAPS;
         let topX = 0, midX = 0, botX = 0;
         let totalScrolled = 0;
