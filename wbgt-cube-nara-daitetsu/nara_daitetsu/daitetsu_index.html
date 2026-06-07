@@ -172,16 +172,18 @@
             font-size: 22px; font-weight: 900; line-height: 1.12;
             font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.2px;
         }
+        .dp-mid-em { color: #d10000; font-weight: 900; }
+        .dp-shell:not(.dp-dark-text) .dp-mid-em { color: #ff5858; }
         .dp-wordmark-img {
             display: block; max-height: 18px; max-width: 112px;
             width: auto; height: auto; object-fit: contain;
         }
         .dp-shell.dp-dark-text .dp-top-txt,
         .dp-shell.dp-dark-text .dp-mid-txt,
-        .dp-shell.dp-dark-text .dp-multi-line { color: #000000; }
+        .dp-shell.dp-dark-text .dp-multi-line-txt { color: #000000; }
         .dp-shell:not(.dp-dark-text) .dp-top-txt,
         .dp-shell:not(.dp-dark-text) .dp-mid-txt,
-        .dp-shell:not(.dp-dark-text) .dp-multi-line { color: #ebebeb; }
+        .dp-shell:not(.dp-dark-text) .dp-multi-line-txt { color: #ebebeb; }
         .dp-shell .dp-top,
         .dp-shell .dp-bot {
             transition: transform 0.7s ease, opacity 0.65s ease, height 0.7s ease, min-height 0.7s ease;
@@ -204,28 +206,51 @@
             flex: 1 1 128px;
             overflow: hidden;
         }
-        .dp-multi-track {
-            display: flex; flex-direction: row; align-items: stretch;
-            height: 128px; will-change: transform; backface-visibility: hidden;
+        /* 多言語3行: 各行独立・512px中央揃え・シームレス */
+        .dp-multi-stage {
+            width: 512px; height: 128px; position: relative;
+            overflow: hidden; box-sizing: border-box;
+            --dp-multi-pad-v: 8px;
+            --dp-multi-inner: calc(128px - var(--dp-multi-pad-v) * 2);
+            --dp-multi-quarter: calc(var(--dp-multi-inner) / 4);
         }
-        /* 高さ128px: 1行目y=16, 2行目y=64, 3行目y=112（各ライン中央）・先頭左揃え */
-        .dp-multi-seg {
-            position: relative; flex: 0 0 auto;
-            height: 128px; padding: 0 16px; box-sizing: border-box;
+        .dp-multi-row {
+            position: absolute; left: 0; width: 512px;
+            overflow: hidden; box-sizing: border-box;
         }
-        .dp-multi-line {
-            position: absolute; left: 16px;
-            font-weight: 900; line-height: 1;
+        .dp-multi-row-en {
+            top: var(--dp-multi-pad-v);
+            height: var(--dp-multi-quarter);
+        }
+        .dp-multi-row-vn {
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-quarter));
+            height: calc(var(--dp-multi-inner) / 2);
+        }
+        .dp-multi-row-tl {
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-quarter) * 3);
+            height: var(--dp-multi-quarter);
+        }
+        .dp-multi-line-track {
+            display: flex; flex-direction: row; align-items: center;
+            height: 100%; will-change: transform; backface-visibility: hidden;
+        }
+        .dp-multi-line-set {
+            width: 512px; height: 100%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box; padding: 0 8px;
+            overflow: hidden;
+        }
+        .dp-multi-line-txt {
+            display: block; max-width: 100%;
+            font-weight: 900; line-height: 1.2;
             white-space: nowrap; letter-spacing: 0.1px;
             font-family: "Noto Sans JP", "Inter", sans-serif;
-            transform: translateY(-50%);
+            text-align: center;
+            overflow: visible;
         }
-        .dp-multi-en {
-            top: 16px;
+        .dp-multi-row-en .dp-multi-line-txt {
             font-family: "Inter", "Noto Sans JP", sans-serif;
         }
-        .dp-multi-vn { top: 64px; }
-        .dp-multi-tl { top: 112px; }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -4261,9 +4286,22 @@
     /* 大鉄PR（シーン3と4の間）— 全ローテーション1〜3回目で文言を切替 */
     const DP_COMPANY_LABEL = '大鉄工業株式会社';
     const DAITETSU_PROMO_MESSAGES = [
-        '熱中症のリスク要因　温度28℃以上、湿度75%以上、WBGT値28℃以上は厳重警戒！',
+        '熱中症のリスク要因　温度２８℃以上、湿度７５％以上、WBGT値２８℃以上は厳重警戒！',
         '体重1kgあたり10ml/時の水分補給を心掛け、熱中症予防！',
-        '休憩するのも仕事のうち、水分・塩分補給・休憩行い、みんなで防ごう熱中症！'
+        '休憩するのも仕事のうち、水分・塩分補給・休息行い、みんなで防ごう熱中症！'
+    ];
+    function dpPromoEm_(s) {
+        return '<span class="dp-mid-em">' + escapeS1Html(s) + '</span>';
+    }
+    function dpPromoPlain_(s) {
+        return escapeS1Html(s);
+    }
+    const DAITETSU_PROMO_HTML = [
+        dpPromoEm_('熱中症') + dpPromoPlain_('のリスク要因　温度') + dpPromoEm_('２８') + dpPromoPlain_('℃以上、湿度') +
+            dpPromoEm_('７５') + dpPromoPlain_('％以上、WBGT値') + dpPromoEm_('２８') + dpPromoPlain_('℃以上は') + dpPromoEm_('厳重警戒！'),
+        dpPromoPlain_('体重1kgあたり') + dpPromoEm_('10ml') + dpPromoPlain_('/時の水分補給を心掛け、') + dpPromoEm_('熱中症予防！'),
+        dpPromoEm_('休憩') + dpPromoPlain_('するのも仕事のうち、') + dpPromoEm_('水分・塩分補給・休息') +
+            dpPromoPlain_('行い、みんなで防ごう') + dpPromoEm_('熱中症！')
     ];
     const DP_SCROLL_PX = 0.8;
     const DP_LAPS = 2;
@@ -6388,10 +6426,18 @@
         }
         transitionToScene(s3, playScene3);
     }
-    function getPromoMessage_() {
+    function getPromoMessageIdx_() {
         let idx = mainLoopCycle_ % 3;
         if (DEMO_SIGNAGE && !DEMO_ONLY) idx = demoLevelPointer % 3;
+        return idx;
+    }
+    function getPromoMessage_() {
+        const idx = getPromoMessageIdx_();
         return DAITETSU_PROMO_MESSAGES[idx] || DAITETSU_PROMO_MESSAGES[0];
+    }
+    function getPromoMessageHtml_() {
+        const idx = getPromoMessageIdx_();
+        return DAITETSU_PROMO_HTML[idx] || DAITETSU_PROMO_HTML[0];
     }
     function setPromoBandCollapse_(on) {
         const ca = document.querySelector('.content-area');
@@ -6499,58 +6545,77 @@
         if (!seg) return DP_BAND_W;
         return Math.max(DP_BAND_W, Math.ceil(seg.getBoundingClientRect().width));
     }
-    const DP_MULTI_H = 128;
-    const DP_MULTI_Y_EN = 16;
-    const DP_MULTI_Y_VN = 64;
-    const DP_MULTI_Y_TL = 112;
-    const DP_MULTI_QUARTER_H = 32;
-    const DP_MULTI_LINE_LH = 1.05;
-    function promoMultiFits128_(fz) {
-        const h = fz * DP_MULTI_LINE_LH;
-        if (DP_MULTI_Y_EN - h / 2 < 0 || DP_MULTI_Y_EN + h / 2 > DP_MULTI_QUARTER_H) return false;
-        if (DP_MULTI_Y_TL - h / 2 < DP_MULTI_H - DP_MULTI_QUARTER_H || DP_MULTI_Y_TL + h / 2 > DP_MULTI_H) return false;
-        if (DP_MULTI_Y_EN + h / 2 + 1 >= DP_MULTI_Y_VN - h / 2) return false;
-        if (DP_MULTI_Y_VN + h / 2 + 1 >= DP_MULTI_Y_TL - h / 2) return false;
+    const DP_MULTI_LAP_PX = DP_BAND_W;
+    const DP_MULTI_TRACK_SETS = 2;
+    function buildPromoMultiLineTrackHtml_(text, trackId) {
+        const txt = '<span class="dp-multi-line-txt">' + escapeS1Html(text) + '</span>';
+        const set = '<div class="dp-multi-line-set">' + txt + '</div>';
+        return '<div class="dp-multi-line-track" id="' + trackId + '">' + set.repeat(DP_MULTI_TRACK_SETS) + '</div>';
+    }
+    function measurePromoMultiTxtInkH_(el) {
+        if (!el || !el.firstChild) return 0;
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return Math.ceil(range.getBoundingClientRect().height);
+    }
+    function promoMultiTxtFitsRows_() {
+        const rowEn = document.querySelector('#scenePromo .dp-multi-row-en');
+        if (!rowEn) return true;
+        const maxH = rowEn.clientHeight - 1;
+        const txts = document.querySelectorAll('#scenePromo .dp-multi-line-txt');
+        for (let i = 0; i < txts.length; i++) {
+            if (measurePromoMultiTxtInkH_(txts[i]) > maxH) return false;
+        }
         return true;
     }
-    function applyPromoMultiSegWidths_() {
-        document.querySelectorAll('#scenePromo .dp-multi-seg').forEach(function (seg) {
-            let maxW = 0;
-            seg.querySelectorAll('.dp-multi-line').forEach(function (n) {
-                maxW = Math.max(maxW, n.scrollWidth);
+    function applyPromoMultiSetWidths_() {
+        document.querySelectorAll('#scenePromo .dp-multi-line-track').forEach(function (track) {
+            const txt = track.querySelector('.dp-multi-line-txt');
+            if (!txt) return;
+            const w = Math.max(DP_MULTI_LAP_PX, Math.ceil(txt.scrollWidth + 24));
+            track.querySelectorAll('.dp-multi-line-set').forEach(function (set) {
+                set.style.width = w + 'px';
             });
-            seg.style.width = Math.max(128, Math.ceil(maxW + 32)) + 'px';
         });
     }
+    function measurePromoMultiTrackLap_(track) {
+        const set = track && track.querySelector('.dp-multi-line-set');
+        if (!set) return DP_MULTI_LAP_PX;
+        return Math.max(DP_MULTI_LAP_PX, Math.ceil(set.getBoundingClientRect().width));
+    }
     function sizePromoMultiText_() {
-        const lines = document.querySelectorAll('#scenePromo .dp-multi-line');
-        if (!lines.length) return;
-        let fz = Math.floor(DP_MULTI_QUARTER_H / DP_MULTI_LINE_LH);
+        const txts = document.querySelectorAll('#scenePromo .dp-multi-line-txt');
+        if (!txts.length) return;
+        const rowEn = document.querySelector('#scenePromo .dp-multi-row-en');
+        const quarterH = rowEn && rowEn.clientHeight > 0 ? rowEn.clientHeight : 28;
+        let fz = Math.floor((quarterH - 4) / 1.2);
         const setAll = function (size) {
-            lines.forEach(function (n) { n.style.fontSize = size + 'px'; });
+            txts.forEach(function (n) { n.style.fontSize = size + 'px'; });
         };
         setAll(fz);
         let guard = 40;
-        while (guard-- > 0 && fz > 10 && !promoMultiFits128_(fz)) {
+        while (guard-- > 0 && fz > 10 && !promoMultiTxtFitsRows_()) {
             fz -= 1;
             setAll(fz);
         }
-        applyPromoMultiSegWidths_();
+        applyPromoMultiSetWidths_();
     }
     function prepPromoMultiPhase_() {
         const lines = getPromoMultiLines_();
-        const inner =
-            '<div class="dp-multi-line dp-multi-en">' + escapeS1Html(lines.en) + '</div>' +
-            '<div class="dp-multi-line dp-multi-vn">' + escapeS1Html(lines.vn) + '</div>' +
-            '<div class="dp-multi-line dp-multi-tl">' + escapeS1Html(lines.tl) + '</div>';
-        const seg = '<div class="dp-multi-seg">' + inner + '</div>';
         const mid = document.querySelector('#scenePromo .dp-mid');
         if (!mid) return;
-        mid.innerHTML = '<div class="dp-multi-track" id="dp-multi-track">' + seg + seg + '</div>';
+        mid.innerHTML =
+            '<div class="dp-multi-stage">' +
+            '<div class="dp-multi-row dp-multi-row-en">' + buildPromoMultiLineTrackHtml_(lines.en, 'dp-multi-en-track') + '</div>' +
+            '<div class="dp-multi-row dp-multi-row-vn">' + buildPromoMultiLineTrackHtml_(lines.vn, 'dp-multi-vn-track') + '</div>' +
+            '<div class="dp-multi-row dp-multi-row-tl">' + buildPromoMultiLineTrackHtml_(lines.tl, 'dp-multi-tl-track') + '</div>' +
+            '</div>';
         applyPromoColors_();
         sizePromoMultiText_();
-        const track = document.getElementById('dp-multi-track');
-        if (track) applyScrollX_(track, 0);
+        ['dp-multi-en-track', 'dp-multi-vn-track', 'dp-multi-tl-track'].forEach(function (id) {
+            const t = document.getElementById(id);
+            if (t) applyScrollX_(t, 0);
+        });
     }
     function playPromoMultiPhase_() {
         const shell = document.getElementById('dp-shell');
@@ -6558,21 +6623,28 @@
         setPromoMultiBandCollapse_(true);
         prepPromoMultiPhase_();
         applyPromoColors_();
-        const multiTrack = document.getElementById('dp-multi-track');
-        if (!multiTrack) {
+        const trackIds = ['dp-multi-en-track', 'dp-multi-vn-track', 'dp-multi-tl-track'];
+        const tracks = trackIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+        if (!tracks.length) {
             finishScenePromo();
             return;
         }
-        const multiW = measurePromoSegW_(multiTrack, '.dp-multi-seg');
-        const scrollTotal = Math.max(DP_BAND_W, multiW) * DP_LAPS;
-        let multiX = 0;
-        let totalScrolled = 0;
+        const lapWs = tracks.map(measurePromoMultiTrackLap_);
+        const xs = tracks.map(function () { return 0; });
+        const scrolled = tracks.map(function () { return 0; });
         function step() {
-            multiX -= DP_SCROLL_PX;
-            totalScrolled += DP_SCROLL_PX;
-            multiX = wrapScrollX_(multiX, multiW);
-            applyScrollX_(multiTrack, multiX);
-            if (totalScrolled >= scrollTotal) {
+            let allDone = true;
+            tracks.forEach(function (t, i) {
+                const need = lapWs[i] * DP_LAPS;
+                if (scrolled[i] >= need) return;
+                allDone = false;
+                xs[i] -= DP_SCROLL_PX;
+                scrolled[i] += DP_SCROLL_PX;
+                xs[i] = wrapScrollX_(xs[i], lapWs[i]);
+                applyScrollX_(t, xs[i]);
+            });
+            if (allDone) {
+                tracks.forEach(function (t) { applyScrollX_(t, 0); });
                 dpAnimId = null;
                 finishScenePromo();
                 return;
@@ -6581,13 +6653,13 @@
         }
         dpAnimId = requestAnimationFrame(step);
     }
-    function prepPromoScene_(message) {
+    function prepPromoScene_(messageHtml) {
         resetPromoShellLayout_();
-        const msg = String(message || '');
+        const html = messageHtml != null ? String(messageHtml) : getPromoMessageHtml_();
         buildPromoTopTrack_();
         buildPromoBotTrack_();
         document.querySelectorAll('#scenePromo .dp-mid-txt').forEach(function (n) {
-            n.textContent = msg;
+            n.innerHTML = html;
         });
         applyPromoColors_();
         sizePromoTopText_();
@@ -6607,7 +6679,7 @@
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
         if (!scenePromo) { gotoAfterScenePromo_(); return; }
         setPromoBandCollapse_(true);
-        prepPromoScene_(getPromoMessage_());
+        prepPromoScene_(getPromoMessageHtml_());
         refreshSignageBg();
         applyPromoColors_();
         stepLogo90(420, true);
@@ -6619,7 +6691,7 @@
         const midTrack = document.getElementById('dp-mid-track');
         const botTrack = document.getElementById('dp-bot-track');
         if (!midTrack) {
-            setTimeout(finishScenePromo, 800);
+            playPromoMultiPhase_();
             return;
         }
         const topW = DP_TOP_LAP_PX;
