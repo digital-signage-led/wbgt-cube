@@ -221,12 +221,13 @@
             flex: 1 1 128px;
             overflow: hidden;
         }
-        /* 多言語3行: 均等3段・各行独立・512px中央揃え・シームレス */
+        /* 多言語3行: 均等3段・行間区切り・512px中央揃え・シームレス */
         .dp-multi-stage {
             width: 512px; height: 128px; position: relative;
             overflow: hidden; box-sizing: border-box;
             --dp-multi-pad-v: 2px;
-            --dp-multi-inner: calc(128px - var(--dp-multi-pad-v) * 2);
+            --dp-multi-rule: 1px;
+            --dp-multi-inner: calc(128px - var(--dp-multi-pad-v) * 2 - var(--dp-multi-rule) * 2);
             --dp-multi-row-h: calc(var(--dp-multi-inner) / 3);
         }
         .dp-multi-row {
@@ -239,12 +240,28 @@
             height: var(--dp-multi-row-h);
         }
         .dp-multi-row-vn {
-            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-row-h));
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-row-h) + var(--dp-multi-rule));
             height: var(--dp-multi-row-h);
         }
         .dp-multi-row-tl {
-            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-row-h) * 2);
+            top: calc(var(--dp-multi-pad-v) + (var(--dp-multi-row-h) + var(--dp-multi-rule)) * 2);
             height: var(--dp-multi-row-h);
+        }
+        .dp-multi-rule {
+            position: absolute; left: 0; width: 512px;
+            height: 0; margin: 0; padding: 0; border: none;
+            border-top: var(--dp-multi-rule) solid rgba(255, 255, 255, 0.42);
+            z-index: 2; pointer-events: none;
+            box-sizing: border-box;
+        }
+        .dp-multi-rule-1 {
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-row-h));
+        }
+        .dp-multi-rule-2 {
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-row-h) * 2 + var(--dp-multi-rule));
+        }
+        .dp-shell.dp-dark-text .dp-multi-rule {
+            border-top-color: rgba(0, 0, 0, 0.22);
         }
         .dp-multi-line-track {
             display: flex; flex-direction: row; align-items: center;
@@ -2149,7 +2166,8 @@
     /*
      * 流れる順の表示番号（順序は変えずラベルのみ）
      *  1 時刻＋WBGT下帯 (s1) → 2 アメダス (s2) → 3 4日予報 (s5)
-     *  → 3.5 大鉄PR (promo) → 4 多言語WBGT (s3) → 5 WBGT予報 (s4) → 熱中症アラート (alert) → 大雨警報 (rainwarn) → 1へ
+     *  → 3.5 大鉄PR第1段 (promo) → 4 多言語WBGT (s3) → 5 WBGT実況 (s4)
+     *  → 3.6 大鉄PR第2段 (promo多言語) → 熱中症アラート (alert) → 大雨警報 (rainwarn) → 1へ
      * ?only= は 1〜5 / promo または s1〜s5（旧キー）両対応
      */
     function normalizeOnlyParam_(raw) {
@@ -4404,7 +4422,9 @@
     const T3_TOP_HA_W_NORMAL = 128;
     const T3_TOP_HA_W_ALERT = 256;
     const T3_TOP_HA_FONT_MAX = 20;
-    const T3_LAPS_BEFORE_SWITCH = 4;
+    /* 多言語WBGT(s3): 各言語1周（256px）→ 日・英・越・タガログで合計4周 */
+    const T3_LAPS_PER_LANG = 1;
+    const T3_LAPS_BEFORE_SWITCH = T3_LAPS_PER_LANG;
     let t3GuidX = 0;
     let t3GuidLapPx = SCENE2_META_LAP_PX;
     let t3Messages_ = [];
@@ -6489,7 +6509,10 @@
     function gotoSceneAfterScene2_() {
         transitionToScene(s5, playScene5);
     }
-    /* シーン3（4日予報）の次は大鉄PR → シーン4（多言語WBGT） */
+    /* シーン3（4日予報）の次は大鉄PR第1段 → 多言語WBGT (s3) */
+    function shouldDeferPromoMulti_() {
+        return DEMO_ONLY !== 'promo';
+    }
     function gotoSceneAfterScene5_() {
         if (!scenePromo) {
             gotoAfterScenePromo_();
@@ -6696,7 +6719,9 @@
         mid.innerHTML =
             '<div class="dp-multi-stage">' +
             '<div class="dp-multi-row dp-multi-row-en">' + buildPromoMultiLineTrackHtml_(lines.en, 'dp-multi-en-track') + '</div>' +
+            '<div class="dp-multi-rule dp-multi-rule-1" aria-hidden="true"></div>' +
             '<div class="dp-multi-row dp-multi-row-vn">' + buildPromoMultiLineTrackHtml_(lines.vn, 'dp-multi-vn-track') + '</div>' +
+            '<div class="dp-multi-rule dp-multi-rule-2" aria-hidden="true"></div>' +
             '<div class="dp-multi-row dp-multi-row-tl">' + buildPromoMultiLineTrackHtml_(lines.tl, 'dp-multi-tl-track') + '</div>' +
             '</div>';
         applyPromoColors_();
@@ -6713,13 +6738,13 @@
         prepPromoMultiPhase_();
         applyPromoColors_();
         if (isFullDemoStep_()) {
-            scheduleDemoStep_(finishScenePromo);
+            scheduleDemoStep_(finishPromoMultiPhase_);
             return;
         }
         const trackIds = ['dp-multi-en-track', 'dp-multi-vn-track', 'dp-multi-tl-track'];
         const tracks = trackIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
         if (!tracks.length) {
-            finishScenePromo();
+            finishPromoMultiPhase_();
             return;
         }
         const lapWs = tracks.map(measurePromoMultiTrackLap_);
@@ -6739,7 +6764,7 @@
             if (allDone) {
                 tracks.forEach(function (t) { applyScrollX_(t, 0); });
                 dpAnimId = null;
-                finishScenePromo();
+                finishPromoMultiPhase_();
                 return;
             }
             dpAnimId = requestAnimationFrame(step);
@@ -6762,11 +6787,32 @@
             if (t) applyScrollX_(t, 0);
         });
     }
-    function finishScenePromo() {
+    function afterPromoPhase1_() {
+        if (shouldDeferPromoMulti_()) {
+            finishPromoPhase1_();
+        } else {
+            playPromoMultiPhase_();
+        }
+    }
+    function finishPromoPhase1_() {
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
         resetPromoShellLayout_();
         if (demoOnlyLoop_('promo', playScenePromo)) return;
         gotoAfterScenePromo_();
+    }
+    function finishPromoMultiPhase_() {
+        if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
+        resetPromoShellLayout_();
+        if (demoOnlyLoop_('promo', playScenePromo)) return;
+        gotoAfterScene3Tail_();
+    }
+    function gotoPromoMultiAfterScene4_() {
+        if (!scenePromo) {
+            gotoAfterScene3Tail_();
+            return;
+        }
+        setPromoBandCollapse_(true);
+        transitionToScene(scenePromo, playPromoMultiPhase_);
     }
     function playScenePromo() {
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
@@ -6777,14 +6823,14 @@
         applyPromoColors_();
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
-            scheduleDemoStep_(function () { playPromoMultiPhase_(); });
+            scheduleDemoStep_(afterPromoPhase1_);
             return;
         }
         const topTrack = document.getElementById('dp-top-track');
         const midTrack = document.getElementById('dp-mid-track');
         const botTrack = document.getElementById('dp-bot-track');
         if (!midTrack) {
-            playPromoMultiPhase_();
+            afterPromoPhase1_();
             return;
         }
         const topW = DP_TOP_LAP_PX;
@@ -6806,7 +6852,7 @@
             if (botTrack) applyScrollX_(botTrack, botX);
             if (totalScrolled >= scrollTotal) {
                 dpAnimId = null;
-                playPromoMultiPhase_();
+                afterPromoPhase1_();
                 return;
             }
             dpAnimId = requestAnimationFrame(step);
@@ -6858,6 +6904,10 @@
     function finishScene4() {
         clearScene4Timers();
         if (demoOnlyLoop_('s4', playScene4)) return;
+        if (shouldDeferPromoMulti_()) {
+            gotoPromoMultiAfterScene4_();
+            return;
+        }
         gotoAfterScene3Tail_();
     }
     function playScene4() {
