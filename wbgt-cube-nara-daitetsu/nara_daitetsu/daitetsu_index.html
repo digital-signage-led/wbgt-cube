@@ -6505,15 +6505,12 @@
     const DP_MULTI_Y_TL = 112;
     const DP_MULTI_QUARTER_H = 32;
     const DP_MULTI_LINE_LH = 1.05;
-    function promoMultiFits128_(fzOuter, fzMid) {
-        const h1 = fzOuter * DP_MULTI_LINE_LH;
-        const h2 = fzMid * DP_MULTI_LINE_LH;
-        const h3 = fzOuter * DP_MULTI_LINE_LH;
-        if (DP_MULTI_Y_EN - h1 / 2 < 0 || DP_MULTI_Y_EN + h1 / 2 > DP_MULTI_QUARTER_H) return false;
-        if (DP_MULTI_Y_TL - h3 / 2 < DP_MULTI_H - DP_MULTI_QUARTER_H || DP_MULTI_Y_TL + h3 / 2 > DP_MULTI_H) return false;
-        if (DP_MULTI_Y_VN - h2 / 2 < 0 || DP_MULTI_Y_VN + h2 / 2 > DP_MULTI_H) return false;
-        if (DP_MULTI_Y_EN + h1 / 2 + 1 >= DP_MULTI_Y_VN - h2 / 2) return false;
-        if (DP_MULTI_Y_VN + h2 / 2 + 1 >= DP_MULTI_Y_TL - h3 / 2) return false;
+    function promoMultiFits128_(fz) {
+        const h = fz * DP_MULTI_LINE_LH;
+        if (DP_MULTI_Y_EN - h / 2 < 0 || DP_MULTI_Y_EN + h / 2 > DP_MULTI_QUARTER_H) return false;
+        if (DP_MULTI_Y_TL - h / 2 < DP_MULTI_H - DP_MULTI_QUARTER_H || DP_MULTI_Y_TL + h / 2 > DP_MULTI_H) return false;
+        if (DP_MULTI_Y_EN + h / 2 + 1 >= DP_MULTI_Y_VN - h / 2) return false;
+        if (DP_MULTI_Y_VN + h / 2 + 1 >= DP_MULTI_Y_TL - h / 2) return false;
         return true;
     }
     function applyPromoMultiSegWidths_() {
@@ -6526,18 +6523,18 @@
         });
     }
     function sizePromoMultiText_() {
-        const outer = document.querySelectorAll('#scenePromo .dp-multi-en, #scenePromo .dp-multi-tl');
-        const mid = document.querySelectorAll('#scenePromo .dp-multi-vn');
-        if (!outer.length || !mid.length) return;
-        let fzOuter = Math.floor(DP_MULTI_QUARTER_H / DP_MULTI_LINE_LH);
-        let fzMid = Math.floor((DP_MULTI_H / 2) / DP_MULTI_LINE_LH);
-        let guard = 80;
-        while (guard-- > 0 && (fzMid > 10 || fzOuter > 10) && !promoMultiFits128_(fzOuter, fzMid)) {
-            if (fzMid > fzOuter) fzMid -= 1;
-            else fzOuter -= 1;
+        const lines = document.querySelectorAll('#scenePromo .dp-multi-line');
+        if (!lines.length) return;
+        let fz = Math.floor(DP_MULTI_QUARTER_H / DP_MULTI_LINE_LH);
+        const setAll = function (size) {
+            lines.forEach(function (n) { n.style.fontSize = size + 'px'; });
+        };
+        setAll(fz);
+        let guard = 40;
+        while (guard-- > 0 && fz > 10 && !promoMultiFits128_(fz)) {
+            fz -= 1;
+            setAll(fz);
         }
-        outer.forEach(function (n) { n.style.fontSize = fzOuter + 'px'; });
-        mid.forEach(function (n) { n.style.fontSize = fzMid + 'px'; });
         applyPromoMultiSegWidths_();
     }
     function prepPromoMultiPhase_() {
