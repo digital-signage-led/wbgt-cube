@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<!-- wbgt-cube-nara-daitetsu / 奈良市・大鉄 WBGT サイネージ -->
-<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png（大鉄PR用）, faces/face-0〜4.png（任意） -->
-<!-- 〒630-8145 奈良県奈良市 / WBGT 64036 -->
+<!-- デモ専用（本番 index.html とは独立）全レベル順送り -->
+<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png -->
 <html lang="ja" class="native-640">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>WBGT Signage - 奈良市</title>
+    <title>WBGT Signage デモ - 奈良市・大鉄</title>
     <script>
 /** 5面 640×128 本番用（ロゴ列 + native640） */
 (function () {
@@ -38,8 +37,25 @@
             font-size: 12px; font-weight: 700; font-family: "Noto Sans JP", sans-serif;
             border: 1px solid #fff; pointer-events: none;
         }
+        .demo-next-btn {
+            position: fixed; top: 0; right: 0; z-index: 10000;
+            padding: 4px 12px; margin: 0;
+            background: rgba(0,0,0,0.82); color: #fff;
+            font-size: 12px; font-weight: 700; font-family: "Noto Sans JP", sans-serif;
+            border: 1px solid #fff; border-top: none; border-right: none;
+            cursor: pointer;
+        }
+        .demo-next-btn:hover { background: rgba(30,30,30,0.92); }
+        .demo-next-btn:active { background: rgba(60,60,60,0.95); }
+        html.native-640 .demo-next-btn,
+        body.native-640 .demo-next-btn {
+            top: 132px; left: 0; right: auto;
+            border-top: 1px solid #fff;
+        }
         html.native-640 .demo-badge,
         body.native-640 .demo-badge { display: none !important; }
+        .demo-badge { display: block !important; }
+        .demo-next-btn:not([hidden]) { display: block !important; }
         html.native-640, body.native-640 {
             width: 640px !important; height: 128px !important;
             min-width: 640px; min-height: 128px;
@@ -206,47 +222,49 @@
             flex: 1 1 128px;
             overflow: hidden;
         }
-        /* 多言語3行: 各行独立・512px中央揃え・シームレス */
+        /* 多言語3行: 均等3段・各行独立・512px中央揃え・シームレス */
         .dp-multi-stage {
             width: 512px; height: 128px; position: relative;
             overflow: hidden; box-sizing: border-box;
-            --dp-multi-pad-v: 8px;
+            --dp-multi-pad-v: 2px;
             --dp-multi-inner: calc(128px - var(--dp-multi-pad-v) * 2);
-            --dp-multi-quarter: calc(var(--dp-multi-inner) / 4);
+            --dp-multi-row-h: calc(var(--dp-multi-inner) / 3);
         }
         .dp-multi-row {
             position: absolute; left: 0; width: 512px;
             overflow: hidden; box-sizing: border-box;
+            isolation: isolate;
         }
         .dp-multi-row-en {
             top: var(--dp-multi-pad-v);
-            height: var(--dp-multi-quarter);
+            height: var(--dp-multi-row-h);
         }
         .dp-multi-row-vn {
-            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-quarter));
-            height: calc(var(--dp-multi-inner) / 2);
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-row-h));
+            height: var(--dp-multi-row-h);
         }
         .dp-multi-row-tl {
-            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-quarter) * 3);
-            height: var(--dp-multi-quarter);
+            top: calc(var(--dp-multi-pad-v) + var(--dp-multi-row-h) * 2);
+            height: var(--dp-multi-row-h);
         }
         .dp-multi-line-track {
             display: flex; flex-direction: row; align-items: center;
-            height: 100%; will-change: transform; backface-visibility: hidden;
+            height: 100%; max-height: 100%;
+            will-change: transform; backface-visibility: hidden;
         }
         .dp-multi-line-set {
-            width: 512px; height: 100%; flex-shrink: 0;
+            width: 512px; height: 100%; max-height: 100%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            box-sizing: border-box; padding: 0 8px;
+            box-sizing: border-box; padding: 0 6px;
             overflow: hidden;
         }
         .dp-multi-line-txt {
-            display: block; max-width: 100%;
-            font-weight: 900; line-height: 1.2;
+            display: block; max-width: 100%; max-height: 100%;
+            font-weight: 900; line-height: 1;
             white-space: nowrap; letter-spacing: 0.1px;
             font-family: "Noto Sans JP", "Inter", sans-serif;
             text-align: center;
-            overflow: visible;
+            overflow: hidden;
         }
         .dp-multi-row-en .dp-multi-line-txt {
             font-family: "Inter", "Noto Sans JP", sans-serif;
@@ -1595,6 +1613,7 @@
 
 </script>
 <div class="demo-badge" id="demo-badge" hidden>デモ</div>
+<button type="button" class="demo-next-btn" id="demo-next-btn" hidden aria-label="次のシーンへ">次へ →</button>
 <svg style="display: none;">
     <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
     <symbol id="icon-cloudy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#999"/></symbol>
@@ -2118,7 +2137,7 @@
     const query = new URLSearchParams(window.location.search);
     /* demo=1: デモモード（demo.html からの転送先）。未指定時は本番（実データ取得） */
     const demoParam = query.get('demo');
-    const DEMO_SIGNAGE = demoParam === '1' || demoParam === 'all' || demoParam === 'full';
+    const DEMO_SIGNAGE = true;
     const DEMO_ALERT_ONLY = demoParam === 'alert' || query.get('only') === 'alert';  /* アラートのみ流すデモ */
     const DEMO_RAINWARN_ONLY = demoParam === 'rainwarn' || query.get('only') === 'rainwarn';
     const WBGT_ONLY = query.get('wbgtOnly') === '1';
@@ -2175,7 +2194,7 @@
         if (n >= 1 && n <= 5) return n - 1;
         return null;
     })();
-    const DEMO_SIGNAGE_ACTIVE = DEMO_SIGNAGE || !!DEMO_ONLY;
+    const DEMO_SIGNAGE_ACTIVE = true;
     /* フルデモ警報: 色付き3段（L1〜L5）→ 白ベース3段（L2〜L5）を順に流す */
     const DEMO_RAIN_PASS_ORDER = ['hero', 'white'];
     let demoRainPassIdx_ = 0;
@@ -2210,11 +2229,32 @@
         demoRainPassIdx_ = 0;
         advanceDemoLevel();
     }
-    /* フルデモも本番と同じスクロール＋シーン切替（静止5秒順送りは廃止） */
+    /* 手動ステップ: ?step=manual または demo.html — 各シーン静止表示→「次へ」で進む */
+    const DEMO_MANUAL_STEP = true;
     const DEMO_STEP_MS = 5000;
     let demoStepTimerId = null;
+    let demoStepPendingFn_ = null;
     function isFullDemoStep_() {
-        return false;
+        return DEMO_MANUAL_STEP && DEMO_SIGNAGE_ACTIVE;
+    }
+    function updateDemoNextBtn_() {
+        const btn = document.getElementById('demo-next-btn');
+        if (!btn) return;
+        const on = isFullDemoStep_() && !!demoStepPendingFn_;
+        btn.hidden = !on;
+        btn.style.display = on ? '' : 'none';
+    }
+    function clearDemoStepPending_() {
+        demoStepPendingFn_ = null;
+        updateDemoNextBtn_();
+    }
+    function demoAdvanceStep_() {
+        if (!demoStepPendingFn_) return;
+        clearDemoStepTimer_();
+        const fn = demoStepPendingFn_;
+        demoStepPendingFn_ = null;
+        updateDemoNextBtn_();
+        fn();
     }
     function clearDemoStepTimer_() {
         if (demoStepTimerId) { clearTimeout(demoStepTimerId); demoStepTimerId = null; }
@@ -2222,10 +2262,34 @@
     function scheduleDemoStep_(fn) {
         clearDemoStepTimer_();
         if (!isFullDemoStep_()) { fn(); return; }
-        demoStepTimerId = setTimeout(function () {
-            demoStepTimerId = null;
-            fn();
-        }, DEMO_STEP_MS);
+        demoStepPendingFn_ = fn;
+        updateDemoNextBtn_();
+    }
+    function isDemoStepAdvanceKey_(e) {
+        return e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight' || e.code === 'ArrowRight';
+    }
+    function demoStepKeyHandler_(e) {
+        if (!demoStepPendingFn_ || !isDemoStepAdvanceKey_(e)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        demoAdvanceStep_();
+    }
+    function bindDemoStepControls_() {
+        if (!isFullDemoStep_()) return;
+        const btn = document.getElementById('demo-next-btn');
+        if (btn && !btn.dataset.bound) {
+            btn.dataset.bound = '1';
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                demoAdvanceStep_();
+            });
+        }
+        if (!window.__demoStepKeyBound) {
+            window.__demoStepKeyBound = true;
+            document.addEventListener('keydown', demoStepKeyHandler_, true);
+            window.addEventListener('keydown', demoStepKeyHandler_, true);
+        }
     }
     /* スクロール速度・待ち時間: デモも本番と同じ（確認ボード only= も同様） */
     /* 確認ボード用: ?rain=raining|approaching|watch|soon|1|0  ?wbgtOff=1  ?wbgtUnknown=1 */
@@ -2642,7 +2706,7 @@
     const HA_SLOT_W = 256;      /* 1スロット=256px */
     const HA_L1_MAX = 27;       /* 256px内で見やすく・大きすぎない上限 */
     const HA_L2_RATIO = 0.55;   /* 2段目は1段目の約55% */
-    const HA_SCROLL_PX = 1.2;   /* 文字スクロール速度 px/フレーム（ゆっくりめ） */
+    const HA_SCROLL_PX = 2;   /* 文字スクロール速度 px/フレーム（ゆっくりめ） */
     const HA_LAPS_BEFORE_SWITCH = 4; /* 256px×4周で次アラートへ */
     let haAnimId = null;
     let haFlow_ = null;
@@ -4251,14 +4315,14 @@
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
     const SCENE1_WBGT_LAPS = 2;
     const SCENE1_WBGT_SETS = 3;
-    const SCENE1_WBGT_HOLD_MS = 6000;
-    const SCENE1_WBGT_SPEED_PX = 0.6;
+    const SCENE1_WBGT_HOLD_MS = 2000;
+    const SCENE1_WBGT_SPEED_PX = 1.2;
     let scene1AnimId = null;
     let scene1HoldTimerId = null;
     let scene1EndHoldTimerId = null;
     const SCENE2_PANEL_COUNT = 9;
     const SCENE2_LAPS = 2;
-    const SCENE2_SCROLL_PX = 0.8;
+    const SCENE2_SCROLL_PX = 2.5;
     const SCENE2_META_LAP_PX = FOOT_BAR_LAP_PX;
     const SCENE2_META_SETS = 3;
     const SCENE2_META_SPEED_PX = 0.6;
@@ -4269,7 +4333,7 @@
     const JMA_FORECAST_URL = `https://www.jma.go.jp/bosai/forecast/data/forecast/${JMA_FORECAST_AREA_CODE}.json`;
     const SCENE4_PANEL_COUNT = 4;
     const SCENE4_LAPS = 2;
-    const SCENE4_SCROLL_PX = 0.8;
+    const SCENE4_SCROLL_PX = 2.5;
     const SCENE4_LV_LAP_PX = FOOT_BAR_LAP_PX;
     let scene4SetWidth = SCENE4_PANEL_COUNT * 128;
     let scene4AnimId = null;
@@ -4277,10 +4341,10 @@
     let scene4FcLvLapPx = SCENE4_LV_LAP_PX;
     const SCENE4_LV_LAPS = 2;
     const SCENE4_LV_SETS = 3;
-    const SCENE4_LV_SPEED_PX = 0.6;
+    const SCENE4_LV_SPEED_PX = 1.2;
     const SCENE5_PANEL_COUNT = 4;
     const SCENE5_LAPS = 2;
-    const SCENE5_SCROLL_PX = 0.8;
+    const SCENE5_SCROLL_PX = 2.5;
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
     /* 大鉄PR（シーン3と4の間）— 全ローテーション1〜3回目で文言を切替 */
@@ -4303,6 +4367,24 @@
         dpPromoEm_('休憩') + dpPromoPlain_('するのも仕事のうち、') + dpPromoEm_('水分・塩分補給・休息') +
             dpPromoPlain_('行い、みんなで防ごう') + dpPromoEm_('熱中症！')
     ];
+    /* 第2段（多言語）— 1〜3周目は第1段と同じ内容を en / vn / tl で表示 */
+    const DAITETSU_PROMO_MULTI = [
+        {
+            en: 'Heat stroke risk factors: temperature 28\u00b0C or above, humidity 75% or above, WBGT 28\u00b0C or above \u2014 severe warning!',
+            vn: 'Y\u1ebfu t\u1ed1 nguy c\u01a1 say n\u1eafng: nhi\u1ec7t \u0111\u1ed9 t\u1eeb 28\u00b0C tr\u1edf l\u00ean, \u0111\u1ed9 \u1ea9m t\u1eeb 75% tr\u1edf l\u00ean, WBGT t\u1eeb 28\u00b0C tr\u1edf l\u00ean \u2014 c\u1ea3nh b\u00e1o nghi\u00eam tr\u1ecdng!',
+            tl: 'Mga salik sa panganib ng heat stroke: temperatura 28\u00b0C pataas, halumigmig 75% pataas, WBGT 28\u00b0C pataas \u2014 malubhang babala!'
+        },
+        {
+            en: 'Aim for 10 ml of water per hour per 1 kg of body weight to prevent heat stroke!',
+            vn: 'C\u1ed1 g\u1eafng b\u1ed5 sung 10 ml n\u01b0\u1edbc/gi\u1edd cho m\u1ed7i 1 kg c\u00e2n n\u1eb7ng \u0111\u1ec3 ph\u00f2ng ch\u1ed1ng say n\u1eafng!',
+            tl: 'Mag-target ng 10 ml na tubig bawat oras bawat 1 kg ng timbang para maiwasan ang heat stroke!'
+        },
+        {
+            en: 'Rest is part of the job \u2014 hydrate, replenish salt, and rest; let\u2019s all prevent heat stroke together!',
+            vn: 'Ngh\u1ec9 ng\u01a1i c\u0169ng l\u00e0 m\u1ed9t ph\u1ea7n c\u00f4ng vi\u1ec7c \u2014 b\u1ed5 sung n\u01b0\u1edbc, mu\u1ed1i v\u00e0 ngh\u1ec9 ng\u01a1i; c\u00f9ng nhau ph\u00f2ng ch\u1ed1ng say n\u1eafng!',
+            tl: 'Ang pahinga ay bahagi ng trabaho \u2014 uminom ng tubig, magdagdag ng asin, at magpahinga; sama-samang pigilan ang heat stroke!'
+        }
+    ];
     const DP_SCROLL_PX = 0.8;
     const DP_LAPS = 2;
     const DP_BAND_W = 512;
@@ -4320,7 +4402,7 @@
     const T3_L1_MAX = 42;       /* 72px表示域：256×128内で可能な限り大きく（幅超え時は自動縮小） */
     const T3_L2_RATIO = 0.58;
     const T3_LINE_H = 1.04;
-    const T3_SCROLL_PX = 0.8;
+    const T3_SCROLL_PX = 2;
     const T3_TOP_HA_W_NORMAL = 128;
     const T3_TOP_HA_W_ALERT = 256;
     const T3_TOP_HA_FONT_MAX = 20;
@@ -6463,8 +6545,8 @@
         ensurePromoMidStructure_();
     }
     function getPromoMultiLines_() {
-        const isUnknown = wbgtUnavailable || currentWbgtLevel < 0;
-        const m = isUnknown ? unknownMsg : multi[currentWbgtLevel];
+        const idx = getPromoMessageIdx_();
+        const m = DAITETSU_PROMO_MULTI[idx] || DAITETSU_PROMO_MULTI[0];
         return { en: m.en, vn: m.vn, tl: m.tl };
     }
     function applyPromoColors_() {
@@ -6623,6 +6705,10 @@
         setPromoMultiBandCollapse_(true);
         prepPromoMultiPhase_();
         applyPromoColors_();
+        if (isFullDemoStep_()) {
+            scheduleDemoStep_(finishScenePromo);
+            return;
+        }
         const trackIds = ['dp-multi-en-track', 'dp-multi-vn-track', 'dp-multi-tl-track'];
         const tracks = trackIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
         if (!tracks.length) {
@@ -6941,9 +7027,10 @@
         if (badge) {
             if (shouldShowDemoBadge_()) {
                 badge.hidden = false;
+                const stepHint = isFullDemoStep_() ? ' · 次へで進む' : '';
                 badge.textContent = DEMO_SIGNAGE
-                    ? 'デモ · 本番同様 · ' + levelNames[levelIdx]
-                    : 'デモ: ' + levelNames[levelIdx];
+                    ? 'デモ · 本番同様 · ' + levelNames[levelIdx] + stepHint
+                    : 'デモ: ' + levelNames[levelIdx] + stepHint;
             } else {
                 badge.hidden = true;
             }
@@ -6962,6 +7049,10 @@
     function demoOnlyLoop_(key, replayFn) {
         if (DEMO_ONLY !== key) return false;
         stopLogoSpinInterval();
+        if (isFullDemoStep_()) {
+            scheduleDemoStep_(replayFn);
+            return true;
+        }
         replayFn();
         return true;
     }
@@ -7024,6 +7115,7 @@
 
     function startSequence() {
         clearDemoStepTimer_();
+        clearDemoStepPending_();
         resetLogoRotation();
         [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
@@ -7050,6 +7142,7 @@
             return;
         }
         if (DEMO_SIGNAGE_ACTIVE) {
+            bindDemoStepControls_();
             applySyncedUtcMs(Date.now(), 'demo-local');
             updateClock();
             startClockTicker();
