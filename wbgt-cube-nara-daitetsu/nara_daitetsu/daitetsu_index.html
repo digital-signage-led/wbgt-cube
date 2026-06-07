@@ -2444,6 +2444,8 @@
     let lastAmedasObsTime = null;
     let lastAmedasPresFallbackLabel_ = '';
     let pendingDisplayRefresh = false;
+    /** 本番メインループ再生中はデータ更新でシーン1へ戻さない */
+    let mainLoopEngaged_ = false;
     /* 環境省WBGTの提供期間外（冬季など）は true。WBGT表示を全て隠す */
     let wbgtOffSeason = false;
     let wbgtUnavailable = false;
@@ -4845,7 +4847,7 @@
         updateForecastSlots(nullSlots);
         queueDisplayRefresh_();
         refreshSignageBg();
-        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(true);
+        flushOrSoftDisplayRefresh_();
         console.warn('[WBGT] 1分以上取得できないため「取得不可」表示');
     }
     function applyWbgtSlotsToDom(wbgtSlots) {
@@ -4884,7 +4886,7 @@
         });
         refreshSignageBg();
         queueDisplayRefresh_();
-        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(true);
+        flushOrSoftDisplayRefresh_();
     }
     function applyWbgtInSeason_() {
         wbgtOffSeason = false;
@@ -4895,10 +4897,17 @@
     function isMainLoopPlaying_() {
         if (DEMO_ONLY || DEMO_ALERT_ONLY || DEMO_RAINWARN_ONLY) return false;
         if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') return false;
-        return !!getActiveScene();
+        return mainLoopEngaged_;
     }
     function shouldDeferDisplayRefresh_() {
         return isMainLoopPlaying_();
+    }
+    function applySoftDisplayRefresh_() {
+        refreshSignageBg();
+        const active = getActiveScene();
+        if (active && active.id === 'scene3') refreshT3LevelBar_();
+        const s1WbgtBar = document.querySelector('#scene1 .s1-wbgt-bar');
+        if (s1WbgtBar) s1WbgtBar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
     }
     function applyDeferredLoopRefresh_(force) {
         flushDisplayRefresh_(!!force);
@@ -4913,6 +4922,13 @@
         buildTicker();
         buildS1WbgtTrack(false);
         buildFcLvTrack(false);
+    }
+    function flushOrSoftDisplayRefresh_() {
+        if (shouldDeferDisplayRefresh_()) {
+            applySoftDisplayRefresh_();
+            return;
+        }
+        flushDisplayRefresh_();
     }
     async function runScheduledFetch(event) {
         const plan = event || { jma: true, moe: true, nowc: true, forecast: true, labels: ['init'] };
@@ -4955,7 +4971,7 @@
                 jmaOk = false;
             }
         }
-        flushDisplayRefresh_();
+        flushOrSoftDisplayRefresh_();
         lastFetchFail = (plan.jma && !jmaOk) || (plan.moe && !moeOk);
         return !lastFetchFail;
     }
@@ -5654,7 +5670,7 @@
                 console.warn('[雨雲] ナウキャストの基準時刻が古いため雨判定を行いません:', basetime,
                     '(' + Math.round((nowMs - baseMs) / 60000) + '分前)');
                 queueDisplayRefresh_();
-                if (!getActiveScene()) flushDisplayRefresh_();
+                flushOrSoftDisplayRefresh_();
                 return;
             }
             const nearVt = times[times.length - 1].validtime;
@@ -5674,7 +5690,7 @@
             console.log('[雨雲] ナウキャスト', alert.level, alert.messageJp || '(なし)',
                 'center', near.center.toFixed(2), 'outer', near.outer.toFixed(2));
             queueDisplayRefresh_();
-            if (!getActiveScene()) flushDisplayRefresh_();
+            flushOrSoftDisplayRefresh_();
         } catch (e) {
             console.warn('[雨雲] ナウキャスト取得失敗:', e.message || e);
         }
@@ -6400,7 +6416,7 @@
             gotoAfterScene3_();
             return;
         }
-        flushDisplayRefresh_();
+        flushDisplayRefresh_(true);
         syncHeatAlertActiveFromPublished_();
         buildTicker();
         refreshSignageBg();
@@ -6458,7 +6474,7 @@
         tickerAnimId = requestAnimationFrame(step);
     }
     function playScene1() {
-        flushDisplayRefresh_();
+        flushDisplayRefresh_(true);
         clearScene1WbgtTimers();
         clearDemoStepTimer_();
         buildS1WbgtTrack(false);
@@ -6911,7 +6927,7 @@
         gotoAfterScene3Tail_();
     }
     function playScene4() {
-        flushDisplayRefresh_();
+        flushDisplayRefresh_(true);
         clearScene4Timers();
         if (wbgtOffSeason) {
             if (previewOffSeasonHold_('s4', playScene4)) return;
@@ -7171,6 +7187,8 @@
     }
 
     function startSequence() {
+        mainLoopEngaged_ = !DEMO_ONLY && !DEMO_ALERT_ONLY && !DEMO_RAINWARN_ONLY
+            && DEMO_PREVIEW !== 's1' && DEMO_PREVIEW !== 's3';
         clearDemoStepTimer_();
         clearDemoStepPending_();
         resetLogoRotation();
