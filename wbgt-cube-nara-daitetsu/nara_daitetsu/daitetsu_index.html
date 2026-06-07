@@ -2820,6 +2820,7 @@
         syncHeatAlertActiveFromPublished_();
         queueDisplayRefresh_();
         if (s3 && s3.classList.contains('active')) refreshT3LevelBar_();
+        if (shouldDeferDisplayRefresh_()) refreshS1FootBand_();
     }
     /* ===== 大雨警報（気象庁・5段階）＋ L3 警報4種 ===== */
     /** 気象庁情報一覧（種別順送り用 warntype=lXall）— 気象庁カテゴリ対応表準拠 */
@@ -4338,6 +4339,7 @@
     let scene1AnimId = null;
     let scene1HoldTimerId = null;
     let scene1EndHoldTimerId = null;
+    let s1FootMsgCache_ = '';
     const SCENE2_PANEL_COUNT = 9;
     const SCENE2_LAPS = 2;
     const SCENE2_SCROLL_PX = 0.8;
@@ -4695,6 +4697,7 @@
         lastWbgtSlots = slots;
         syncWbgtLevelFromSlots(slots);
         refreshSignageBg();
+        if (shouldDeferDisplayRefresh_()) refreshS1FootBand_();
     }
     function compactScene4Panels() {
         if (!fcConveyor) return;
@@ -4893,6 +4896,11 @@
         document.querySelectorAll('#scene4 .fc-scroll-wrap, #scene4 .fc-lv-bar').forEach(function (el) {
             el.style.display = '';
         });
+        document.querySelectorAll('#scene1 .s1-wbgt-bar').forEach(function (el) {
+            el.style.display = '';
+        });
+        queueDisplayRefresh_();
+        flushOrSoftDisplayRefresh_();
     }
     function isMainLoopPlaying_() {
         if (DEMO_ONLY || DEMO_ALERT_ONLY || DEMO_RAINWARN_ONLY) return false;
@@ -4902,12 +4910,35 @@
     function shouldDeferDisplayRefresh_() {
         return isMainLoopPlaying_();
     }
+    function refreshS1FootBand_(opts) {
+        opts = opts || {};
+        const s1WbgtBar = document.querySelector('#scene1 .s1-wbgt-bar');
+        const show = hasS1WbgtFootMessage_();
+        if (s1WbgtBar) s1WbgtBar.style.display = show ? 'block' : 'none';
+        if (!show || !s1WbgtTrack) {
+            s1FootMsgCache_ = '';
+            if (scene1 && scene1.classList.contains('active') && !isFullDemoStep_()) {
+                resumeScene1FootFlow_();
+            }
+            return;
+        }
+        const text = getS1WbgtMessageJp();
+        const changed = text !== s1FootMsgCache_;
+        if (changed || opts.force) {
+            s1FootMsgCache_ = text;
+            buildS1WbgtTrack(false);
+        }
+        if (scene1 && scene1.classList.contains('active') && !isFullDemoStep_()) {
+            const idle = !scene1AnimId && !scene1HoldTimerId && !scene1EndHoldTimerId;
+            if (opts.force || changed || idle) resumeScene1FootFlow_();
+        }
+    }
     function applySoftDisplayRefresh_() {
         refreshSignageBg();
         const active = getActiveScene();
         if (active && active.id === 'scene3') refreshT3LevelBar_();
-        const s1WbgtBar = document.querySelector('#scene1 .s1-wbgt-bar');
-        if (s1WbgtBar) s1WbgtBar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
+        refreshS1FootBand_();
+        if (active && active.id === 'scene4') buildFcLvTrack(false);
     }
     function applyDeferredLoopRefresh_(force) {
         flushDisplayRefresh_(!!force);
@@ -5794,6 +5825,59 @@
         if (scene1HoldTimerId) { clearTimeout(scene1HoldTimerId); scene1HoldTimerId = null; }
         if (scene1EndHoldTimerId) { clearTimeout(scene1EndHoldTimerId); scene1EndHoldTimerId = null; }
     }
+    function scheduleScene1NoFootExit_() {
+        if (scene1HoldTimerId || scene1AnimId || scene1EndHoldTimerId) return;
+        scene1HoldTimerId = setTimeout(function () {
+            scene1HoldTimerId = null;
+            finishScene1();
+        }, SCENE1_WBGT_HOLD_MS);
+    }
+    function runS1WbgtSequence_() {
+        if (!s1WbgtTrack || !hasS1WbgtFootMessage_()) {
+            scheduleScene1NoFootExit_();
+            return;
+        }
+        const stopX = 0;
+        applyScrollX_(s1WbgtTrack, stopX);
+        scene1HoldTimerId = setTimeout(function () {
+            scene1HoldTimerId = null;
+            let x = stopX;
+            let s1WbgtScrolled = 0;
+            const s1WbgtScrollTotal = SCENE1_WBGT_LAP_PX * SCENE1_WBGT_LAPS;
+            function animateS1WbgtRtl() {
+                x -= SCENE1_WBGT_SPEED_PX;
+                s1WbgtScrolled += SCENE1_WBGT_SPEED_PX;
+                x = wrapScrollX_(x, SCENE1_WBGT_LAP_PX);
+                applyScrollX_(s1WbgtTrack, x);
+                if (s1WbgtScrolled >= s1WbgtScrollTotal) {
+                    applyScrollX_(s1WbgtTrack, stopX);
+                    scene1AnimId = null;
+                    scene1EndHoldTimerId = setTimeout(function () {
+                        scene1EndHoldTimerId = null;
+                        finishScene1();
+                    }, SCENE1_WBGT_HOLD_MS);
+                    return;
+                }
+                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+            }
+            scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+        }, SCENE1_WBGT_HOLD_MS);
+    }
+    function resumeScene1FootFlow_() {
+        if (!scene1 || !scene1.classList.contains('active') || isFullDemoStep_()) return;
+        if (!hasS1WbgtFootMessage_() || !s1WbgtTrack) {
+            scheduleScene1NoFootExit_();
+            return;
+        }
+        if (scene1AnimId || scene1EndHoldTimerId) return;
+        if (scene1HoldTimerId) {
+            clearTimeout(scene1HoldTimerId);
+            scene1HoldTimerId = null;
+        }
+        requestAnimationFrame(function () {
+            requestAnimationFrame(runS1WbgtSequence_);
+        });
+    }
     function sceneDisplayMode(el) {
         if (!el) return 'flex';
         if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'scenePromo' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
@@ -6477,49 +6561,15 @@
         flushDisplayRefresh_(true);
         clearScene1WbgtTimers();
         clearDemoStepTimer_();
-        buildS1WbgtTrack(false);
+        s1FootMsgCache_ = '';
+        refreshS1FootBand_({ force: true });
         refreshSignageBg();
         updateClock();
         stepLogo90(420, true);
-        const s1WbgtBar = document.querySelector('#scene1 .s1-wbgt-bar');
-        const showWbgtFoot = hasS1WbgtFootMessage_();
-        if (s1WbgtBar) s1WbgtBar.style.display = showWbgtFoot ? 'block' : 'none';
         if (isFullDemoStep_()) {
             scheduleDemoStep_(finishScene1);
             return;
         }
-        if (!s1WbgtTrack || !showWbgtFoot) {
-            setTimeout(finishScene1, SCENE1_WBGT_HOLD_MS);
-            return;
-        }
-        function runS1WbgtSequence() {
-            const stopX = 0;
-            applyScrollX_(s1WbgtTrack, stopX);
-            scene1HoldTimerId = setTimeout(() => {
-                scene1HoldTimerId = null;
-                let x = stopX;
-                let s1WbgtScrolled = 0;
-                const s1WbgtScrollTotal = SCENE1_WBGT_LAP_PX * SCENE1_WBGT_LAPS;
-                function animateS1WbgtRtl() {
-                    x -= SCENE1_WBGT_SPEED_PX;
-                    s1WbgtScrolled += SCENE1_WBGT_SPEED_PX;
-                    x = wrapScrollX_(x, SCENE1_WBGT_LAP_PX);
-                    applyScrollX_(s1WbgtTrack, x);
-                    if (s1WbgtScrolled >= s1WbgtScrollTotal) {
-                        applyScrollX_(s1WbgtTrack, stopX);
-                        scene1AnimId = null;
-                        scene1EndHoldTimerId = setTimeout(() => {
-                            scene1EndHoldTimerId = null;
-                            finishScene1();
-                        }, SCENE1_WBGT_HOLD_MS);
-                        return;
-                    }
-                    scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
-                }
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
-            }, SCENE1_WBGT_HOLD_MS);
-        }
-        requestAnimationFrame(() => requestAnimationFrame(runS1WbgtSequence));
     }
     /* シーン2の次はシーン3（4日予報） */
     function gotoSceneAfterScene2_() {
