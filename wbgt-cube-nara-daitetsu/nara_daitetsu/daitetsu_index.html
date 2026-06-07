@@ -255,16 +255,15 @@
         .dp-multi-line-set {
             width: 512px; height: 100%; max-height: 100%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            box-sizing: border-box; padding: 0 6px;
+            box-sizing: border-box; padding: 2px 6px;
             overflow: hidden;
         }
         .dp-multi-line-txt {
-            display: block; max-width: 100%; max-height: 100%;
-            font-weight: 900; line-height: 1;
+            display: block; max-width: 100%;
+            font-weight: 900; line-height: 1.15;
             white-space: nowrap; letter-spacing: 0.1px;
             font-family: "Noto Sans JP", "Inter", sans-serif;
             text-align: center;
-            overflow: hidden;
         }
         .dp-multi-row-en .dp-multi-line-txt {
             font-family: "Inter", "Noto Sans JP", sans-serif;
@@ -6638,15 +6637,23 @@
         if (!el || !el.firstChild) return 0;
         const range = document.createRange();
         range.selectNodeContents(el);
-        return Math.ceil(range.getBoundingClientRect().height);
+        const rect = range.getBoundingClientRect();
+        const box = el.getBoundingClientRect();
+        return Math.ceil(Math.max(rect.height, box.height));
     }
-    function promoMultiTxtFitsRows_() {
-        const rowEn = document.querySelector('#scenePromo .dp-multi-row-en');
-        if (!rowEn) return true;
-        const maxH = rowEn.clientHeight - 1;
-        const txts = document.querySelectorAll('#scenePromo .dp-multi-line-txt');
-        for (let i = 0; i < txts.length; i++) {
-            if (measurePromoMultiTxtInkH_(txts[i]) > maxH) return false;
+    function promoMultiTxtFitsRow_(row, fz) {
+        if (!row) return true;
+        const set = row.querySelector('.dp-multi-line-set');
+        const probe = row.querySelector('.dp-multi-line-txt');
+        if (!set || !probe) return true;
+        probe.style.fontSize = fz + 'px';
+        const maxH = set.clientHeight - 1;
+        return measurePromoMultiTxtInkH_(probe) <= maxH;
+    }
+    function promoMultiAllRowsFit_(fz) {
+        const rows = document.querySelectorAll('#scenePromo .dp-multi-row');
+        for (let i = 0; i < rows.length; i++) {
+            if (!promoMultiTxtFitsRow_(rows[i], fz)) return false;
         }
         return true;
     }
@@ -6668,17 +6675,18 @@
     function sizePromoMultiText_() {
         const txts = document.querySelectorAll('#scenePromo .dp-multi-line-txt');
         if (!txts.length) return;
-        const rowEn = document.querySelector('#scenePromo .dp-multi-row-en');
-        const quarterH = rowEn && rowEn.clientHeight > 0 ? rowEn.clientHeight : 28;
-        let fz = Math.floor((quarterH - 4) / 1.2);
-        const setAll = function (size) {
+        const row = document.querySelector('#scenePromo .dp-multi-row-en');
+        const set = row && row.querySelector('.dp-multi-line-set');
+        const setH = set && set.clientHeight > 0 ? set.clientHeight : 38;
+        const applyAll = function (size) {
             txts.forEach(function (n) { n.style.fontSize = size + 'px'; });
         };
-        setAll(fz);
-        let guard = 40;
-        while (guard-- > 0 && fz > 10 && !promoMultiTxtFitsRows_()) {
+        let fz = Math.floor((setH - 2) / 1.15);
+        applyAll(fz);
+        let guard = 48;
+        while (guard-- > 0 && fz > 8 && !promoMultiAllRowsFit_(fz)) {
             fz -= 1;
-            setAll(fz);
+            applyAll(fz);
         }
         applyPromoMultiSetWidths_();
     }
