@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-nara-daitetsu / 奈良市・大鉄 WBGT サイネージ -->
-<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png, daitetsu_company_label.png（大鉄PR用）, faces/face-0〜4.png（任意） -->
+<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png（大鉄PR用）, faces/face-0〜4.png（任意） -->
 <!-- 〒630-8145 奈良県奈良市 / WBGT 64036 -->
 <html lang="ja" class="native-640">
 <head>
@@ -29,7 +29,7 @@
 
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap');
         :root { --led-foot-bar-bg: #fff9f0; }
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
         .demo-badge {
@@ -156,18 +156,11 @@
             height: 100%; padding: 0 14px; box-sizing: border-box;
             white-space: nowrap;
         }
-        /* 新ゴ M 相当（画像優先・テキスト時は Noto Sans JP Medium） */
+        /* 大鉄PR上帯：新ゴ M に近い無料フォント（Zen Kaku Gothic New Medium） */
         .dp-top-txt {
             font-size: 16px; font-weight: 500; line-height: 1;
-            font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
+            font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
             letter-spacing: 0.02em; white-space: nowrap;
-        }
-        .dp-company-img {
-            display: block; max-height: 22px; max-width: 244px;
-            width: auto; height: auto; object-fit: contain;
-        }
-        .dp-shell:not(.dp-dark-text) .dp-company-img {
-            filter: brightness(0) invert(1);
         }
         .dp-mid-txt {
             font-size: 22px; font-weight: 900; line-height: 1.12;
@@ -1518,8 +1511,6 @@
   global.SIGNAGE_CONFIG = {
     logoSrc: './daitetsu_logo.png',
     promoLogoSrc: './daitetsu_wordmark.png',
-    /* 新ゴ M 相当の社名（モリサワ新ゴは画像で再現・256pxセル中央） */
-    promoCompanyLabelSrc: './daitetsu_company_label.png',
     logoAlt: '大鉄',
     logoPanelBg: '#3a3a3a'
   };
@@ -6384,10 +6375,25 @@
         applyScrollX_(track, 0);
     }
     function buildPromoTopTrack_() {
-        const src = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.promoCompanyLabelSrc) || './daitetsu_company_label.png';
-        const alt = DP_COMPANY_LABEL;
-        const label = '<img class="dp-company-img" src="' + src + '" alt="' + alt + '">';
+        const label = '<span class="dp-top-txt">' + DP_COMPANY_LABEL + '</span>';
         buildPromoSlotTrack_('dp-top-track', 'dp-top-set', 'dp-top-slot', label, DP_TOP_SET_SLOTS, DP_TOP_TRACK_SETS);
+    }
+    function sizePromoTopText_() {
+        const probe = document.querySelector('#scenePromo .dp-top-txt');
+        if (!probe) return;
+        let fz = 16;
+        const maxW = DP_TOP_SLOT_W - 12;
+        const setAll = function (size) {
+            document.querySelectorAll('#scenePromo .dp-top-txt').forEach(function (n) {
+                n.style.fontSize = size + 'px';
+            });
+        };
+        setAll(fz);
+        let guard = 40;
+        while (guard-- > 0 && fz > 11 && probe.scrollWidth > maxW) {
+            fz -= 1;
+            setAll(fz);
+        }
     }
     function buildPromoBotTrack_() {
         const src = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.promoLogoSrc) || './daitetsu_wordmark.png';
@@ -6424,6 +6430,7 @@
             n.textContent = msg;
         });
         applyPromoColors_();
+        sizePromoTopText_();
         sizePromoMidText_();
         ['dp-mid-track'].forEach(function (id) {
             const t = document.getElementById(id);
