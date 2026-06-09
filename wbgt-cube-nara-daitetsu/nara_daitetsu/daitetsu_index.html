@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<!-- wbgt-cube-nara-daitetsu / 奈良市・大鉄 WBGT サイネージ -->
-<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png（大鉄PR用）, faces/face-0〜4.png（任意） -->
-<!-- 〒630-8145 奈良県奈良市 / WBGT 64036 -->
+<!-- デモ専用（本番 index.html とは独立）全レベル順送り -->
+<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png -->
 <html lang="ja" class="native-640">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>WBGT Signage - 奈良市</title>
+    <title>WBGT Signage デモ - 奈良市・大鉄</title>
     <script>
 /** 5面 640×128 本番用（ロゴ列 + native640） */
 (function () {
@@ -55,6 +54,8 @@
         }
         html.native-640 .demo-badge,
         body.native-640 .demo-badge { display: none !important; }
+        .demo-badge { display: block !important; }
+        .demo-next-btn:not([hidden]) { display: block !important; }
         html.native-640, body.native-640 {
             width: 640px !important; height: 128px !important;
             min-width: 640px; min-height: 128px;
@@ -477,6 +478,10 @@
             display: flex; flex-direction: row; align-items: stretch;
             box-sizing: border-box;
         }
+        /* シーン1下帯: 256px×4（社名256|WBGT256|社名256|WBGT256）シームレス512 */
+        .s1-wbgt-set.s1-wbgt-set-scroll {
+            width: 1024px;
+        }
         .s1-wbgt-slot, .fc-lv-slot, .s2-meta-slot {
             width: 256px; height: 24px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
@@ -492,21 +497,6 @@
             padding: 0 6px;
             overflow: hidden;
         }
-        .s1-wbgt-foot-left {
-            display: inline-flex; align-items: baseline;
-            flex-shrink: 0; white-space: nowrap; max-width: 100%;
-            overflow: hidden;
-        }
-        .s1-wbgt-co {
-            font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            font-weight: 700; font-size: 16px; color: #1a1a1a; line-height: 1;
-            letter-spacing: 0.02em;
-        }
-        .s1-wbgt-sub {
-            font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            font-weight: 500; font-size: 16px; color: #1a1a1a; line-height: 1;
-            letter-spacing: 0.02em;
-        }
         .s1-wbgt-msg, .fc-lv-msg {
             display: inline-flex; flex-direction: row; align-items: center;
             flex-shrink: 0; font-family: "Noto Sans JP", sans-serif; line-height: 1.15;
@@ -516,6 +506,9 @@
             font-size: 11px; font-weight: 700; color: #1a1a1a; line-height: 24px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             text-align: center; padding: 0 6px; box-sizing: border-box;
+        }
+        .s1-wbgt-slot-left .s1-wbgt-msg-compact {
+            text-align: left; padding: 0;
         }
         .s1-wbgt-slot-right .s1-wbgt-msg-compact {
             text-align: right; padding: 0;
@@ -2244,7 +2237,7 @@
     const query = new URLSearchParams(window.location.search);
     /* demo=1: デモモード（demo.html からの転送先）。未指定時は本番（実データ取得） */
     const demoParam = query.get('demo');
-    const DEMO_SIGNAGE = demoParam === '1' || demoParam === 'all' || demoParam === 'full';
+    const DEMO_SIGNAGE = true;
     const DEMO_ALERT_ONLY = demoParam === 'alert' || query.get('only') === 'alert';  /* アラートのみ流すデモ */
     const DEMO_RAINWARN_ONLY = demoParam === 'rainwarn' || query.get('only') === 'rainwarn';
     const WBGT_ONLY = query.get('wbgtOnly') === '1';
@@ -2302,7 +2295,7 @@
         if (n >= 1 && n <= 5) return n - 1;
         return null;
     })();
-    const DEMO_SIGNAGE_ACTIVE = DEMO_SIGNAGE || !!DEMO_ONLY;
+    const DEMO_SIGNAGE_ACTIVE = true;
     /* フルデモ警報: 色付き3段（L1〜L5）→ 白ベース3段（L2〜L5）を順に流す */
     const DEMO_RAIN_PASS_ORDER = ['hero', 'white'];
     let demoRainPassIdx_ = 0;
@@ -2338,7 +2331,7 @@
         advanceDemoLevel();
     }
     /* 手動ステップ: ?step=manual または demo.html — 各シーン静止表示→「次へ」で進む */
-    const DEMO_MANUAL_STEP = query.get('step') === 'manual' || query.get('step') === '1';
+    const DEMO_MANUAL_STEP = true;
     const DEMO_STEP_MS = 5000;
     let demoStepTimerId = null;
     let demoStepPendingFn_ = null;
@@ -2816,7 +2809,7 @@
     const HA_SLOT_W = 256;      /* 1スロット=256px */
     const HA_L1_MAX = 27;       /* 256px内で見やすく・大きすぎない上限 */
     const HA_L2_RATIO = 0.55;   /* 2段目は1段目の約55% */
-    const HA_SCROLL_PX = 1.2;   /* 文字スクロール速度 px/フレーム（ゆっくりめ） */
+    const HA_SCROLL_PX = 2;   /* 文字スクロール速度 px/フレーム（ゆっくりめ） */
     const HA_LAPS_BEFORE_SWITCH = 4; /* 256px×4周で次アラートへ */
     let haAnimId = null;
     let haFlow_ = null;
@@ -4431,22 +4424,24 @@
     const FOOT_BAR_LAP_PX = FOOT_BAR_SLOT_W * 2;
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
     const SCENE1_WBGT_LAPS = 2;
-    const SCENE1_WBGT_SETS = 3;
-    const SCENE1_WBGT_HOLD_MS = 6000;
+    const SCENE1_WBGT_TRACK_SETS = 2;
+    const SCENE1_WBGT_HOLD_MS = 2000;
     /** 各コンテンツ終了後、次へ切り替える前に静止する時間 */
     const SCENE_END_HOLD_MS = 1000;
     let sceneEndHoldTimerId_ = null;
-    const SCENE1_WBGT_SPEED_PX = 0.6;
+    const SCENE1_WBGT_SPEED_PX = 1.2;
     let scene1AnimId = null;
     let scene1HoldTimerId = null;
     let scene1EndHoldTimerId = null;
     let scene1FinishTimerId = null;
     let scene1ExitOnly_ = false;
+    let scene1FootLapPx_ = FOOT_BAR_LAP_PX;
+    let scene1FootX_ = 0;
     let s1FootMsgCache_ = '';
     const SCENE1_TICK_MS = 16;
     const SCENE2_PANEL_COUNT = 9;
     const SCENE2_LAPS = 2;
-    const SCENE2_SCROLL_PX = 0.8;
+    const SCENE2_SCROLL_PX = 2.5;
     const SCENE2_META_LAP_PX = FOOT_BAR_LAP_PX;
     const SCENE2_META_SETS = 3;
     const SCENE2_META_SPEED_PX = 0.6;
@@ -4457,7 +4452,7 @@
     const JMA_FORECAST_URL = `https://www.jma.go.jp/bosai/forecast/data/forecast/${JMA_FORECAST_AREA_CODE}.json`;
     const SCENE4_PANEL_COUNT = 4;
     const SCENE4_LAPS = 2;
-    const SCENE4_SCROLL_PX = 0.8;
+    const SCENE4_SCROLL_PX = 2.5;
     const SCENE4_LV_LAP_PX = FOOT_BAR_LAP_PX;
     let scene4SetWidth = SCENE4_PANEL_COUNT * 128;
     let scene4AnimId = null;
@@ -4465,10 +4460,10 @@
     let scene4FcLvLapPx = SCENE4_LV_LAP_PX;
     const SCENE4_LV_LAPS = 2;
     const SCENE4_LV_SETS = 3;
-    const SCENE4_LV_SPEED_PX = 0.6;
+    const SCENE4_LV_SPEED_PX = 1.2;
     const SCENE5_PANEL_COUNT = 4;
     const SCENE5_LAPS = 2;
-    const SCENE5_SCROLL_PX = 0.8;
+    const SCENE5_SCROLL_PX = 2.5;
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
     /* 大鉄PR（シーン3と4の間）— 全ローテーション1〜3回目で文言を切替 */
@@ -4554,7 +4549,7 @@
     const T3_L1_MAX = 42;       /* 72px表示域：256×128内で可能な限り大きく（幅超え時は自動縮小） */
     const T3_L2_RATIO = 0.58;
     const T3_LINE_H = 1.04;
-    const T3_SCROLL_PX = 0.8;
+    const T3_SCROLL_PX = 2;
     const T3_TOP_HA_W_NORMAL = 128;
     const T3_TOP_HA_W_ALERT = 256;
     const T3_TOP_HA_FONT_MAX = 20;
@@ -5907,11 +5902,27 @@
     function buildFootBarSlotHtml(msgHtml, slotClass) {
         return `<div class="${slotClass}">${msgHtml}</div>`;
     }
+    function buildS1FootCompanyLineJp_() {
+        return DP_COMPANY_LABEL + '　' + DP_BRANCH_LABEL + '　' + DP_SITE_LABEL;
+    }
     function buildS1FootCompanyHtml_() {
-        return '<span class="s1-wbgt-foot-left">' +
-            '<span class="s1-wbgt-co">' + escapeS1Html(DP_COMPANY_LABEL) + '</span>' +
-            '<span class="s1-wbgt-sub">　' + escapeS1Html(DP_BRANCH_LABEL) + '　' + escapeS1Html(DP_SITE_LABEL) + '</span>' +
-            '</span>';
+        return '<span class="s1-wbgt-msg-compact">' + escapeS1Html(buildS1FootCompanyLineJp_()) + '</span>';
+    }
+    function buildS1FootWbgtHtml_() {
+        const text = getS1FootRightMessageJp();
+        return '<span class="s1-wbgt-msg-compact">' + escapeS1Html(text) + '</span>';
+    }
+    function sizeS1FootSlotText_() {
+        const maxW = FOOT_BAR_SLOT_W - 12;
+        document.querySelectorAll('#scene1 .s1-wbgt-slot .s1-wbgt-msg-compact').forEach(function (el) {
+            let fz = 11;
+            el.style.fontSize = fz + 'px';
+            let guard = 24;
+            while (guard-- > 0 && fz > 8 && el.scrollWidth > maxW) {
+                fz -= 1;
+                el.style.fontSize = fz + 'px';
+            }
+        });
     }
     function sizeCompanyLineText_(coSel, subSel, probeSel, maxW, maxH) {
         const probe = document.querySelector(probeSel);
@@ -5929,23 +5940,18 @@
             applyAll(sz);
         }
     }
-    function sizeS1FootCompanyText_() {
-        const bar = document.querySelector('#scene1 .s1-wbgt-bar');
-        const maxH = (bar && bar.clientHeight > 0 ? bar.clientHeight : 24) - 4;
-        sizeCompanyLineText_(
-            '#scene1 .s1-wbgt-co',
-            '#scene1 .s1-wbgt-sub',
-            '#scene1 .s1-wbgt-foot-left',
-            FOOT_BAR_SLOT_W - 12,
-            maxH
-        );
+    function buildS1FootPairHtml_() {
+        const coSlot = '<div class="s1-wbgt-slot s1-wbgt-slot-left s1-wbgt-slot-co">' + buildS1FootCompanyHtml_() + '</div>';
+        const wbgtSlot = '<div class="s1-wbgt-slot s1-wbgt-slot-right s1-wbgt-slot-wbgt">' + buildS1FootWbgtHtml_() + '</div>';
+        return coSlot + wbgtSlot;
     }
-    function buildS1WbgtSetHtml() {
-        const leftSlot = '<div class="s1-wbgt-slot s1-wbgt-slot-left">' + buildS1FootCompanyHtml_() + '</div>';
-        const rightText = getS1FootRightMessageJp();
-        const rightMsg = buildS1WbgtMsgHtml(rightText);
-        const rightSlot = '<div class="s1-wbgt-slot s1-wbgt-slot-right">' + rightMsg + '</div>';
-        return '<div class="s1-wbgt-set">' + leftSlot + rightSlot + '</div>';
+    function buildS1FootScrollTrack_() {
+        const track = document.getElementById('s1-wbgt-track');
+        if (!track) return;
+        const pair = buildS1FootPairHtml_();
+        const set = '<div class="s1-wbgt-set s1-wbgt-set-scroll">' + pair + pair + '</div>';
+        track.innerHTML = set.repeat(SCENE1_WBGT_TRACK_SETS);
+        applyScrollX_(track, 0);
     }
     function getFcLvText() {
         return SCENE4_FOOT_ATTR;
@@ -5984,10 +5990,10 @@
     function buildS1WbgtTrack(clearTimers) {
         if (!s1WbgtTrack) return;
         if (clearTimers) clearScene1WbgtTimers();
-        let html = '';
-        for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml();
-        s1WbgtTrack.innerHTML = html;
-        sizeS1FootCompanyText_();
+        buildS1FootScrollTrack_();
+        sizeS1FootSlotText_();
+        scene1FootLapPx_ = FOOT_BAR_LAP_PX;
+        scene1FootX_ = 0;
         applyScrollX_(s1WbgtTrack, 0);
     }
     function clearScene1FinishTimer_() {
@@ -6006,7 +6012,11 @@
         }, ms != null ? ms : estimateScene1DurationMs_());
     }
     function clearScene1WbgtTimers() {
-        if (scene1AnimId != null) { clearTimeout(scene1AnimId); scene1AnimId = null; }
+        if (scene1AnimId != null) {
+            cancelAnimationFrame(scene1AnimId);
+            clearTimeout(scene1AnimId);
+            scene1AnimId = null;
+        }
         if (scene1HoldTimerId) { clearTimeout(scene1HoldTimerId); scene1HoldTimerId = null; }
         if (scene1EndHoldTimerId) { clearTimeout(scene1EndHoldTimerId); scene1EndHoldTimerId = null; }
     }
@@ -6020,28 +6030,29 @@
             scheduleScene1NoFootExit_();
             return;
         }
+        if (scene1AnimId != null) {
+            cancelAnimationFrame(scene1AnimId);
+            scene1AnimId = null;
+        }
         scene1ExitOnly_ = false;
-        const stopX = 0;
-        applyScrollX_(s1WbgtTrack, stopX);
-        scene1HoldTimerId = setTimeout(function () {
+        scene1FootLapPx_ = FOOT_BAR_LAP_PX;
+        scene1FootX_ = 0;
+        applyScrollX_(s1WbgtTrack, 0);
+        if (scene1HoldTimerId) {
+            clearTimeout(scene1HoldTimerId);
             scene1HoldTimerId = null;
-            let x = stopX;
-            let s1WbgtScrolled = 0;
-            const s1WbgtScrollTotal = SCENE1_WBGT_LAP_PX * SCENE1_WBGT_LAPS;
-            function animateS1WbgtRtl() {
-                x -= SCENE1_WBGT_SPEED_PX;
-                s1WbgtScrolled += SCENE1_WBGT_SPEED_PX;
-                x = wrapScrollX_(x, SCENE1_WBGT_LAP_PX);
-                applyScrollX_(s1WbgtTrack, x);
-                if (s1WbgtScrolled >= s1WbgtScrollTotal) {
-                    applyScrollX_(s1WbgtTrack, stopX);
-                    scene1AnimId = null;
-                    return;
-                }
-                scene1AnimId = setTimeout(animateS1WbgtRtl, SCENE1_TICK_MS);
+        }
+        function animateS1WbgtRtl() {
+            if (!s1WbgtTrack || !scene1 || !scene1.classList.contains('active')) {
+                scene1AnimId = null;
+                return;
             }
-            scene1AnimId = setTimeout(animateS1WbgtRtl, SCENE1_TICK_MS);
-        }, SCENE1_WBGT_HOLD_MS);
+            scene1FootX_ -= SCENE1_WBGT_SPEED_PX;
+            scene1FootX_ = wrapScrollX_(scene1FootX_, scene1FootLapPx_);
+            applyScrollX_(s1WbgtTrack, scene1FootX_);
+            scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+        }
+        scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
     }
     function resumeScene1FootFlow_() {
         if (!scene1 || !scene1.classList.contains('active') || isFullDemoStep_()) return;
@@ -7543,6 +7554,7 @@
             const s1WbgtBar = document.querySelector('#scene1 .s1-wbgt-bar');
             if (s1WbgtBar) s1WbgtBar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
             if (s1) { s1.style.display = 'flex'; s1.classList.add('active'); }
+            if (hasS1WbgtFootMessage_()) runS1WbgtSequence_();
             if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = 'プレビュー · シーン1 · ' + rainTag; }
             document.title = 'プレビュー シーン1（' + rainTag + '）';
             return;
