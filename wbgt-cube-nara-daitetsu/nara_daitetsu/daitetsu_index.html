@@ -29,7 +29,7 @@
 
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@400;500&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap');
         :root { --led-foot-bar-bg: #fff9f0; }
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
         .demo-badge {
@@ -132,7 +132,7 @@
             transform: translateY(24px);
             opacity: 0;
         }
-        /* 大鉄PR 512×128（上32 + 中72 + 下24） */
+        /* 大鉄PR 512×128（上32 + 中72 + 下24）— 上帯: 社名1列 / 下帯: ロゴ */
         .dp-shell {
             width: 512px; height: 128px;
             display: flex; flex-direction: column;
@@ -142,6 +142,7 @@
         .dp-top {
             width: 100%; height: 32px; flex-shrink: 0;
             overflow: hidden; position: relative; box-sizing: border-box;
+            display: flex; align-items: center;
         }
         .dp-mid {
             width: 100%; height: 72px; flex-shrink: 0;
@@ -178,11 +179,18 @@
             height: 100%; padding: 0; box-sizing: border-box;
             overflow: hidden; white-space: nowrap;
         }
-        /* 大鉄PR上帯：新ゴ M に近い無料フォント（Zen Kaku Gothic New Medium） */
+        /* 大鉄PR上帯：社名（太ゴシック）＋支店・作業所（明朝）を1列 */
         .dp-top-txt {
-            font-size: 16px; font-weight: 500; line-height: 1;
+            display: inline-flex; align-items: baseline;
+            flex-shrink: 0; white-space: nowrap; line-height: 1;
+        }
+        .dp-top-co {
             font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            letter-spacing: 0.02em; white-space: nowrap;
+            font-weight: 700; font-size: 16px; letter-spacing: 0.02em;
+        }
+        .dp-top-sub {
+            font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            font-weight: 500; font-size: 16px; letter-spacing: 0.02em;
         }
         .dp-mid-txt {
             display: inline-flex;
@@ -474,6 +482,31 @@
             display: flex; align-items: center; justify-content: center;
             box-sizing: border-box;
         }
+        .s1-wbgt-slot-left {
+            justify-content: flex-start;
+            padding: 0 6px;
+            overflow: hidden;
+        }
+        .s1-wbgt-slot-right {
+            justify-content: flex-end;
+            padding: 0 6px;
+            overflow: hidden;
+        }
+        .s1-wbgt-foot-left {
+            display: inline-flex; align-items: baseline;
+            flex-shrink: 0; white-space: nowrap; max-width: 100%;
+            overflow: hidden;
+        }
+        .s1-wbgt-co {
+            font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            font-weight: 700; font-size: 16px; color: #1a1a1a; line-height: 1;
+            letter-spacing: 0.02em;
+        }
+        .s1-wbgt-sub {
+            font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            font-weight: 500; font-size: 16px; color: #1a1a1a; line-height: 1;
+            letter-spacing: 0.02em;
+        }
         .s1-wbgt-msg, .fc-lv-msg {
             display: inline-flex; flex-direction: row; align-items: center;
             flex-shrink: 0; font-family: "Noto Sans JP", sans-serif; line-height: 1.15;
@@ -483,6 +516,9 @@
             font-size: 11px; font-weight: 700; color: #1a1a1a; line-height: 24px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             text-align: center; padding: 0 6px; box-sizing: border-box;
+        }
+        .s1-wbgt-slot-right .s1-wbgt-msg-compact {
+            text-align: right; padding: 0;
         }
         .s2-meta-msg-scroll {
             display: inline-block; white-space: nowrap; line-height: 24px;
@@ -4437,6 +4473,10 @@
     let scene5AnimId = null;
     /* 大鉄PR（シーン3と4の間）— 全ローテーション1〜3回目で文言を切替 */
     const DP_COMPANY_LABEL = '大鉄工業株式会社';
+    const DP_BRANCH_LABEL = '土木支店';
+    const DP_SITE_LABEL = '奈良高架作業所';
+    const COMPANY_LINE_FONT_START_PX_ = 16;
+    const COMPANY_LINE_FONT_MIN_PX_ = 9;
     const DAITETSU_PROMO_MESSAGES = [
         '熱中症のリスク要因　温度28℃以上、湿度75%以上、WBGT値28℃以上は厳重警戒！',
         '体重1kgあたり10ml/時の水分補給を心掛け、熱中症予防！',
@@ -5014,7 +5054,7 @@
             }
             return;
         }
-        const text = getS1WbgtMessageJp();
+        const text = getS1FootBarCacheKey_();
         const changed = text !== s1FootMsgCache_;
         if (changed || opts.force) {
             s1FootMsgCache_ = text;
@@ -5827,8 +5867,8 @@
         if (currentWbgtLevel < 0) return unknownMsg.jp;
         return multi[currentWbgtLevel].jp;
     }
-    /* 下帯: WBGT取得不可時は「取得不可」のみ（雨タグ等の非依存表示なし） */
-    function getS1WbgtMessageJp() {
+    /* 下帯: 左=社名・支店、右=WBGT（＋雨）。取得不可は右のみ */
+    function getS1FootRightMessageJp() {
         if (wbgtOffSeason) return '';
         if (wbgtUnavailable || currentWbgtLevel < 0) return unknownMsg.jp;
         const rain = getRainAlertMessageJp();
@@ -5836,8 +5876,15 @@
         if (rain && wbgt) return rain + '　' + wbgt;
         return rain || wbgt;
     }
+    function getS1FootBarCacheKey_() {
+        if (wbgtOffSeason) return '';
+        return DP_COMPANY_LABEL + '\x00' + getS1FootRightMessageJp();
+    }
+    function getS1WbgtMessageJp() {
+        return getS1FootRightMessageJp();
+    }
     function hasS1WbgtFootMessage_() {
-        return !!String(getS1WbgtMessageJp() || '').trim();
+        return !wbgtOffSeason;
     }
     function footBarUseCompact_(text) {
         return String(text || '').length > 18;
@@ -5860,14 +5907,45 @@
     function buildFootBarSlotHtml(msgHtml, slotClass) {
         return `<div class="${slotClass}">${msgHtml}</div>`;
     }
-    function buildS1WbgtSetHtml(text) {
-        const msg = buildS1WbgtMsgHtml(text);
-        if (footBarUseCompact_(text)) {
-            const slot = `<div class="s1-wbgt-slot s1-wbgt-slot-wide">${msg}</div>`;
-            return `<div class="s1-wbgt-set">${slot}</div>`;
+    function buildS1FootCompanyHtml_() {
+        return '<span class="s1-wbgt-foot-left">' +
+            '<span class="s1-wbgt-co">' + escapeS1Html(DP_COMPANY_LABEL) + '</span>' +
+            '<span class="s1-wbgt-sub">　' + escapeS1Html(DP_BRANCH_LABEL) + '　' + escapeS1Html(DP_SITE_LABEL) + '</span>' +
+            '</span>';
+    }
+    function sizeCompanyLineText_(coSel, subSel, probeSel, maxW, maxH) {
+        const probe = document.querySelector(probeSel);
+        if (!probe) return;
+        let sz = COMPANY_LINE_FONT_START_PX_;
+        const applyAll = function (s) {
+            document.querySelectorAll(coSel).forEach(function (n) { n.style.fontSize = s + 'px'; });
+            document.querySelectorAll(subSel).forEach(function (n) { n.style.fontSize = s + 'px'; });
+        };
+        applyAll(sz);
+        let guard = 40;
+        while (guard-- > 0 && sz > COMPANY_LINE_FONT_MIN_PX_ &&
+            (probe.scrollWidth > maxW || probe.getBoundingClientRect().height > maxH)) {
+            sz -= 1;
+            applyAll(sz);
         }
-        const slot = buildFootBarSlotHtml(msg, 's1-wbgt-slot');
-        return `<div class="s1-wbgt-set">${slot}${slot}</div>`;
+    }
+    function sizeS1FootCompanyText_() {
+        const bar = document.querySelector('#scene1 .s1-wbgt-bar');
+        const maxH = (bar && bar.clientHeight > 0 ? bar.clientHeight : 24) - 4;
+        sizeCompanyLineText_(
+            '#scene1 .s1-wbgt-co',
+            '#scene1 .s1-wbgt-sub',
+            '#scene1 .s1-wbgt-foot-left',
+            FOOT_BAR_SLOT_W - 12,
+            maxH
+        );
+    }
+    function buildS1WbgtSetHtml() {
+        const leftSlot = '<div class="s1-wbgt-slot s1-wbgt-slot-left">' + buildS1FootCompanyHtml_() + '</div>';
+        const rightText = getS1FootRightMessageJp();
+        const rightMsg = buildS1WbgtMsgHtml(rightText);
+        const rightSlot = '<div class="s1-wbgt-slot s1-wbgt-slot-right">' + rightMsg + '</div>';
+        return '<div class="s1-wbgt-set">' + leftSlot + rightSlot + '</div>';
     }
     function getFcLvText() {
         return SCENE4_FOOT_ATTR;
@@ -5906,10 +5984,10 @@
     function buildS1WbgtTrack(clearTimers) {
         if (!s1WbgtTrack) return;
         if (clearTimers) clearScene1WbgtTimers();
-        const text = getS1WbgtMessageJp();
         let html = '';
-        for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
+        for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml();
         s1WbgtTrack.innerHTML = html;
+        sizeS1FootCompanyText_();
         applyScrollX_(s1WbgtTrack, 0);
     }
     function clearScene1FinishTimer_() {
@@ -6071,6 +6149,7 @@
     }
     /* シーン3の後 → シーン5(WBGT予報) → 多言語アラート → 専用アラート → 警報 → シーン1 */
     function gotoAfterScene3TailNow_() {
+        cleanupScenePromo_();
         if (WBGT_ONLY) {
             finishMainLoopToS1Now_();
             return;
@@ -6736,8 +6815,7 @@
         scheduleSceneEndHold_(gotoSceneAfterScene5Now_);
     }
     function gotoAfterScenePromoNow_() {
-        setPromoBandCollapse_(false);
-        setPromoMultiBandCollapse_(false);
+        cleanupScenePromo_();
         if (wbgtOffSeason) {
             gotoAfterScene3Now_();
             return;
@@ -6782,6 +6860,12 @@
         if (shell) shell.classList.remove('dp-bands-away');
         setPromoMultiBandCollapse_(false);
         ensurePromoMidStructure_();
+        ensurePromoTopStructure_();
+    }
+    function cleanupScenePromo_() {
+        resetPromoShellLayout_();
+        setPromoBandCollapse_(false);
+        setPromoMultiBandCollapse_(false);
     }
     function getPromoMultiLines_() {
         const idx = getPromoMessageIdx_();
@@ -6819,26 +6903,32 @@
         track.innerHTML = set.repeat(sets);
         applyScrollX_(track, 0);
     }
-    function buildPromoTopTrack_() {
-        const label = '<span class="dp-top-txt">' + DP_COMPANY_LABEL + '</span>';
-        buildPromoSlotTrack_('dp-top-track', 'dp-top-set', 'dp-top-slot', label, DP_TOP_SET_SLOTS, DP_TOP_TRACK_SETS);
+    function buildDpTopLineHtml_() {
+        return '<span class="dp-top-co">' + escapeS1Html(DP_COMPANY_LABEL) + '</span>' +
+            '<span class="dp-top-sub">　' + escapeS1Html(DP_BRANCH_LABEL) + '　' + escapeS1Html(DP_SITE_LABEL) + '</span>';
+    }
+    function ensurePromoTopStructure_() {
+        const top = document.querySelector('#scenePromo .dp-top');
+        if (!top) return;
+        if (!top.querySelector('.dp-top-track') || top.querySelector('.dp-top-seg')) {
+            top.innerHTML = '<div class="dp-top-track" id="dp-top-track"></div>';
+        }
     }
     function sizePromoTopText_() {
-        const probe = document.querySelector('#scenePromo .dp-top-txt');
-        if (!probe) return;
-        let fz = 16;
-        const maxW = DP_TOP_SLOT_W - 12;
-        const setAll = function (size) {
-            document.querySelectorAll('#scenePromo .dp-top-txt').forEach(function (n) {
-                n.style.fontSize = size + 'px';
-            });
-        };
-        setAll(fz);
-        let guard = 40;
-        while (guard-- > 0 && fz > 11 && probe.scrollWidth > maxW) {
-            fz -= 1;
-            setAll(fz);
-        }
+        const top = document.querySelector('#scenePromo .dp-top');
+        const maxH = (top && top.clientHeight > 0 ? top.clientHeight : 32) - 4;
+        sizeCompanyLineText_(
+            '#scenePromo .dp-top-co',
+            '#scenePromo .dp-top-sub',
+            '#scenePromo .dp-top-txt',
+            DP_TOP_SLOT_W - 12,
+            maxH
+        );
+    }
+    function buildPromoTopTrack_() {
+        ensurePromoTopStructure_();
+        const label = '<span class="dp-top-txt">' + buildDpTopLineHtml_() + '</span>';
+        buildPromoSlotTrack_('dp-top-track', 'dp-top-set', 'dp-top-slot', label, DP_TOP_SET_SLOTS, DP_TOP_TRACK_SETS);
     }
     function buildPromoBotTrack_() {
         const src = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.promoLogoSrc) || './daitetsu_wordmark.png';
@@ -7076,7 +7166,7 @@
         applyPromoColors_();
         sizePromoTopText_();
         sizePromoMidText_();
-        ['dp-mid-track'].forEach(function (id) {
+        ['dp-top-track', 'dp-mid-track', 'dp-bot-track'].forEach(function (id) {
             const t = document.getElementById(id);
             if (t) applyScrollX_(t, 0);
         });
@@ -7092,13 +7182,11 @@
     }
     function finishPromoPhase1_() {
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
-        resetPromoShellLayout_();
         if (demoOnlyLoop_('promo', playScenePromo)) return;
         gotoAfterScenePromoNow_();
     }
     function finishPromoMultiPhase_() {
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
-        resetPromoShellLayout_();
         if (demoOnlyLoop_('promo', playScenePromo)) return;
         gotoAfterScene3Tail_();
     }
@@ -7477,6 +7565,7 @@
         clearDemoStepTimer_();
         clearDemoStepPending_();
         resetLogoRotation();
+        cleanupScenePromo_();
         [s1, s2, s3, s4, s5, scenePromo, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
     }
