@@ -5041,7 +5041,7 @@
         if (s1WbgtBar) s1WbgtBar.style.display = show ? 'block' : 'none';
         if (!show || !s1WbgtTrack) {
             s1FootMsgCache_ = '';
-            if (scene1 && scene1.classList.contains('active') && !isFullDemoStep_()) {
+            if (s1 && s1.classList.contains('active') && !isFullDemoStep_()) {
                 resumeScene1FootFlow_();
             }
             return;
@@ -5052,7 +5052,7 @@
             s1FootMsgCache_ = text;
             buildS1WbgtTrack(false);
         }
-        if (scene1 && scene1.classList.contains('active') && !isFullDemoStep_()) {
+        if (s1 && s1.classList.contains('active') && !isFullDemoStep_()) {
             const idle = !scene1AnimId && !scene1HoldTimerId;
             if (opts.force || idle || (scene1ExitOnly_ && show)) resumeScene1FootFlow_();
         }
@@ -6056,7 +6056,7 @@
             scene1HoldTimerId = null;
         }
         function animateS1WbgtRtl() {
-            if (!s1WbgtTrack || !scene1 || !scene1.classList.contains('active')) {
+            if (!s1WbgtTrack || !s1 || !s1.classList.contains('active')) {
                 scene1AnimId = null;
                 return;
             }
@@ -6068,7 +6068,7 @@
         scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
     }
     function resumeScene1FootFlow_() {
-        if (!scene1 || !scene1.classList.contains('active') || isFullDemoStep_()) return;
+        if (!s1 || !s1.classList.contains('active') || isFullDemoStep_()) return;
         if (!hasS1WbgtFootMessage_() || !s1WbgtTrack) {
             scheduleScene1NoFootExit_();
             return;
@@ -6817,6 +6817,12 @@
             scheduleDemoStep_(finishScene1);
             return;
         }
+        if (!hasS1WbgtFootMessage_() || !s1WbgtTrack) {
+            scheduleScene1NoFootExit_();
+            return;
+        }
+        scheduleScene1Finish_(estimateScene1DurationMs_());
+        setTimeout(runS1WbgtSequence_, 50);
     }
     /* シーン2の次はシーン3（4日予報） */
     function gotoSceneAfterScene2_() {
