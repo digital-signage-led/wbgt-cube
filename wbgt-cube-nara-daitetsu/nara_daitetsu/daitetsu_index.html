@@ -174,8 +174,7 @@
         }
         .dp-mid-seg {
             flex: 0 0 auto; display: inline-flex; align-items: center;
-            justify-content: center;
-            width: 512px; min-width: 512px; max-width: 512px;
+            justify-content: flex-start;
             height: 100%; padding: 0; box-sizing: border-box;
             overflow: hidden; white-space: nowrap;
         }
@@ -218,7 +217,7 @@
         .dp-shell.dp-level-high-em:not(.dp-dark-text) .dp-mid-txt .dp-mid-run.dp-mid-em {
             color: #e80000;
             padding: 0 3px;
-            margin: 0 1px;
+            margin: 0 2px;
             -webkit-text-stroke: 0;
             text-shadow:
                 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000;
@@ -4498,6 +4497,7 @@
         }
     ];
     const DP_SCROLL_PX = 0.8;
+    const DP_BOT_SCROLL_PX = 0.5; /* 下帯ロゴのみ少しゆっくり */
     const DP_LAPS = 2;
     const DP_BAND_W = 512;
     const DP_TOP_SLOT_W = 256;
@@ -6891,7 +6891,21 @@
             fz -= 1;
             applyAll(fz);
         }
+        applyPromoMidLapWidths_();
         centerPromoMidTextInSeg_();
+    }
+    function measurePromoMidLapW_(txt) {
+        if (!txt) return DP_BAND_W;
+        return Math.max(DP_BAND_W, Math.ceil(txt.scrollWidth));
+    }
+    function applyPromoMidLapWidths_() {
+        const probe = document.querySelector('#scenePromo .dp-mid-txt');
+        const lapW = measurePromoMidLapW_(probe);
+        document.querySelectorAll('#scenePromo .dp-mid-seg').forEach(function (seg) {
+            seg.style.width = lapW + 'px';
+            seg.style.minWidth = lapW + 'px';
+            seg.style.maxWidth = lapW + 'px';
+        });
     }
     function centerPromoMidTextInSeg_() {
         document.querySelectorAll('#scenePromo .dp-mid-seg').forEach(function (seg) {
@@ -6900,15 +6914,16 @@
             txt.style.marginLeft = '';
             txt.style.marginRight = '';
             txt.style.transform = '';
+            const lapW = Math.ceil(seg.getBoundingClientRect().width) || DP_BAND_W;
             const tw = Math.ceil(txt.scrollWidth);
-            /* 512px以内は中央、超える場合は左詰めで横スクロール */
-            seg.style.justifyContent = tw <= DP_BAND_W ? 'center' : 'flex-start';
+            /* 1周幅以内は中央、超える場合は左詰めでシームレス横スクロール */
+            seg.style.justifyContent = tw <= lapW ? 'center' : 'flex-start';
         });
     }
     function measurePromoSegW_(track, segSel) {
         const seg = track && track.querySelector(segSel);
         if (!seg) return DP_BAND_W;
-        return DP_BAND_W;
+        return Math.max(DP_BAND_W, Math.ceil(seg.getBoundingClientRect().width));
     }
     const DP_MULTI_LAP_PX = DP_BAND_W;
     const DP_MULTI_TRACK_SETS = 2;
@@ -7126,7 +7141,7 @@
         function step() {
             topX -= DP_SCROLL_PX;
             midX -= DP_SCROLL_PX;
-            botX -= DP_SCROLL_PX;
+            botX -= DP_BOT_SCROLL_PX;
             totalScrolled += DP_SCROLL_PX;
             topX = wrapScrollX_(topX, topW);
             midX = wrapScrollX_(midX, midW);
