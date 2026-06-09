@@ -164,9 +164,10 @@
             box-sizing: border-box;
         }
         .dp-top-slot {
-            width: 256px; height: 100%; flex-shrink: 0;
+            width: 512px; height: 100%; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            box-sizing: border-box;
+            box-sizing: border-box; overflow: hidden;
+            padding: 0 8px;
         }
         .dp-bot-slot {
             width: 128px; height: 100%; flex-shrink: 0;
@@ -179,15 +180,13 @@
             height: 100%; padding: 0; box-sizing: border-box;
             overflow: hidden; white-space: nowrap;
         }
-        /* 大鉄PR上帯：社名・支店・作業所を1列（同一太さ） */
+        /* 大鉄PR上帯：512pxに1行・最大サイズ */
         .dp-top-txt {
-            display: inline-flex; align-items: baseline;
+            display: inline-block;
             flex-shrink: 0; white-space: nowrap; line-height: 1;
-        }
-        .dp-top-co,
-        .dp-top-sub {
             font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
             font-weight: 700; font-size: 16px; letter-spacing: 0.02em;
+            text-align: center;
         }
         .dp-mid-txt {
             display: inline-flex;
@@ -4532,10 +4531,11 @@
     const DP_BOT_SCROLL_PX = 0.5; /* 下帯ロゴのみ少しゆっくり */
     const DP_LAPS = 2;
     const DP_BAND_W = 512;
-    const DP_TOP_SLOT_W = 256;
-    const DP_TOP_SET_SLOTS = 2;
-    const DP_TOP_LAP_PX = DP_TOP_SLOT_W;
-    const DP_TOP_TRACK_SETS = 2;
+    const DP_TOP_SLOT_W = DP_BAND_W;
+    const DP_TOP_SET_SLOTS = 1;
+    const DP_TOP_LAP_PX = DP_BAND_W;
+    const DP_TOP_TRACK_SETS = 1;
+    const DP_TOP_FONT_START_PX_ = 28;
     const DP_BOT_SLOT_W = 128;
     const DP_BOT_SET_SLOTS = 4;
     const DP_BOT_LAP_PX = DP_BOT_SLOT_W * DP_BOT_SET_SLOTS;
@@ -6933,9 +6933,11 @@
         track.innerHTML = set.repeat(sets);
         applyScrollX_(track, 0);
     }
+    function buildDpTopLineJp_() {
+        return DP_COMPANY_LABEL + '　' + DP_BRANCH_LABEL + '　' + DP_SITE_LABEL;
+    }
     function buildDpTopLineHtml_() {
-        return '<span class="dp-top-co">' + escapeS1Html(DP_COMPANY_LABEL) + '</span>' +
-            '<span class="dp-top-sub">　' + escapeS1Html(DP_BRANCH_LABEL) + '　' + escapeS1Html(DP_SITE_LABEL) + '</span>';
+        return escapeS1Html(buildDpTopLineJp_());
     }
     function ensurePromoTopStructure_() {
         const top = document.querySelector('#scenePromo .dp-top');
@@ -6946,14 +6948,18 @@
     }
     function sizePromoTopText_() {
         const top = document.querySelector('#scenePromo .dp-top');
+        const maxW = DP_BAND_W - 16;
         const maxH = (top && top.clientHeight > 0 ? top.clientHeight : 32) - 4;
-        sizeCompanyLineText_(
-            '#scenePromo .dp-top-co',
-            '#scenePromo .dp-top-sub',
-            '#scenePromo .dp-top-txt',
-            DP_TOP_SLOT_W - 12,
-            maxH
-        );
+        document.querySelectorAll('#scenePromo .dp-top-txt').forEach(function (el) {
+            let fz = DP_TOP_FONT_START_PX_;
+            el.style.fontSize = fz + 'px';
+            let guard = 40;
+            while (guard-- > 0 && fz > COMPANY_LINE_FONT_MIN_PX_ &&
+                (el.scrollWidth > maxW || el.getBoundingClientRect().height > maxH)) {
+                fz -= 1;
+                el.style.fontSize = fz + 'px';
+            }
+        });
     }
     function buildPromoTopTrack_() {
         ensurePromoTopStructure_();
@@ -7243,28 +7249,23 @@
             scheduleDemoStep_(afterPromoPhase1_);
             return;
         }
-        const topTrack = document.getElementById('dp-top-track');
         const midTrack = document.getElementById('dp-mid-track');
         const botTrack = document.getElementById('dp-bot-track');
         if (!midTrack) {
             afterPromoPhase1_();
             return;
         }
-        const topW = DP_TOP_LAP_PX;
         const midW = measurePromoSegW_(midTrack, '.dp-mid-seg');
         const botW = DP_BOT_LAP_PX;
         const scrollTotal = Math.max(DP_BAND_W, midW) * DP_LAPS;
-        let topX = 0, midX = 0, botX = 0;
+        let midX = 0, botX = 0;
         let totalScrolled = 0;
         function step() {
-            topX -= DP_SCROLL_PX;
             midX -= DP_SCROLL_PX;
             botX -= DP_BOT_SCROLL_PX;
             totalScrolled += DP_SCROLL_PX;
-            topX = wrapScrollX_(topX, topW);
             midX = wrapScrollX_(midX, midW);
             botX = wrapScrollX_(botX, botW);
-            if (topTrack) applyScrollX_(topTrack, topX);
             applyScrollX_(midTrack, midX);
             if (botTrack) applyScrollX_(botTrack, botX);
             if (totalScrolled >= scrollTotal) {
