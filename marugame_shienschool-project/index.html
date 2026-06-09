@@ -2273,6 +2273,11 @@
     /* 環境省WBGTの提供期間外（冬季など）は true。WBGT表示を全て隠す */
     let wbgtOffSeason = false;
     let wbgtUnavailable = false;
+    /** 連続取得失敗がこの時間を超えたときだけ「取得不可」表示（ms） */
+    const WBGT_UNAVAILABLE_GRACE_MS = 60000;
+    let wbgtFailSinceMs_ = null;
+    let lastGoodWbgtSlots_ = null;
+    let wbgtUnavailableTimerId_ = null;
 
     const multi = [
         { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", vn:"An toàn: Bổ sung nước", cn:"基本安全：注意补水" },
@@ -3816,6 +3821,7 @@
         }
     }
     function finishMainLoopToS1_() {
+        applyDeferredLoopRefresh_(true);
         if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
         transitionToScene(s1, playScene1);
     }
@@ -4470,59 +4476,124 @@
         }
         return parseMoeJson_(json);
     }
-    function applyWbgtSlotsToDom(wbgtSlots) {
-        if (!wbgtSlots || !hasFull4Slots(wbgtSlots)) {
-            wbgtUnavailable = true;
-            syncWbgtDependentAlerts_();
-            const nullSlot = { wbgt: null, hour: '取得不可' };
-            const nullSlots = [nullSlot, nullSlot, nullSlot, nullSlot];
-            if (Array.isArray(wbgtSlots)) {
-                wbgtSlots = wbgtSlots.slice(0, 4);
-                while (wbgtSlots.length < 4) wbgtSlots.push(nullSlots[wbgtSlots.length]);
-                for (let i = 0; i < 4; i++) if (wbgtSlots[i]?.wbgt == null) wbgtSlots[i] = nullSlots[i];
-            } else {
-                wbgtSlots = nullSlots;
-            }
-        } else {
-            wbgtUnavailable = false;
+    function clearWbgtUnavailableGrace_() {
+        wbgtFailSinceMs_ = null;
+        if (wbgtUnavailableTimerId_ != null) {
+            clearTimeout(wbgtUnavailableTimerId_);
+            wbgtUnavailableTimerId_ = null;
         }
-        syncWbgtLevelFromSlots(wbgtSlots);
-        refreshSignageBg();
-        updateForecastSlots(wbgtSlots);
+    }
+    function cloneWbgtSlots_(slots) {
+        return slots.map(function (s) { return Object.assign({}, s); });
+    }
+    function wbgtUnavailableGraceElapsed_() {
+        return wbgtFailSinceMs_ != null &&
+            getNowMs() - wbgtFailSinceMs_ >= WBGT_UNAVAILABLE_GRACE_MS;
+    }
+    function scheduleWbgtUnavailableCheck_() {
+        if (wbgtUnavailableTimerId_ != null || wbgtFailSinceMs_ == null) return;
+        const remaining = WBGT_UNAVAILABLE_GRACE_MS - (getNowMs() - wbgtFailSinceMs_);
+        wbgtUnavailableTimerId_ = setTimeout(function () {
+            wbgtUnavailableTimerId_ = null;
+            if (wbgtUnavailableGraceElapsed_()) applyWbgtUnavailableToDom_();
+        }, Math.max(1000, remaining));
+    }
+    function noteWbgtFetchSuccess_(slots) {
+        clearWbgtUnavailableGrace_();
+        lastGoodWbgtSlots_ = cloneWbgtSlots_(slots);
+        wbgtUnavailable = false;
+    }
+    function noteWbgtFetchFailure_() {
+        if (wbgtFailSinceMs_ == null) wbgtFailSinceMs_ = getNowMs();
+        if (wbgtUnavailableGraceElapsed_()) return true;
+        scheduleWbgtUnavailableCheck_();
+        return false;
+    }
+    function applyWbgtUnavailableToDom_() {
+        if (wbgtOffSeason || !wbgtUnavailableGraceElapsed_()) return;
+        wbgtUnavailable = true;
+        syncWbgtDependentAlerts_();
+        const nullSlot = { wbgt: null, hour: '取得不可' };
+        const nullSlots = [nullSlot, nullSlot, nullSlot, nullSlot];
+        syncWbgtLevelFromSlots(nullSlots);
+        updateForecastSlots(nullSlots);
         queueDisplayRefresh_();
-        return hasFull4Slots(wbgtSlots);
+        refreshS1WbgtFootBar_(false);
+        refreshSignageBg();
+        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(true);
+        console.warn('[WBGT] 1分以上取得できないため「取得不可」表示');
+    }
+    function applyWbgtSlotsToDom(wbgtSlots) {
+        if (wbgtSlots && hasFull4Slots(wbgtSlots)) {
+            noteWbgtFetchSuccess_(wbgtSlots);
+            syncWbgtLevelFromSlots(wbgtSlots);
+            updateForecastSlots(wbgtSlots);
+            refreshS1WbgtFootBar_(false);
+            refreshSignageBg();
+            queueDisplayRefresh_();
+            return true;
+        }
+        if (noteWbgtFetchFailure_()) {
+            applyWbgtUnavailableToDom_();
+            return false;
+        }
+        /* 1分以内の失敗: 直前の成功値を維持（取得不可は出さない） */
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            wbgtUnavailable = false;
+            syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
+            updateForecastSlots(lastGoodWbgtSlots_);
+            refreshS1WbgtFootBar_(false);
+            refreshSignageBg();
+            queueDisplayRefresh_();
+        }
+        return false;
     }
     /* 提供期間外: WBGTレベルを無効化し、WBGT表示を全て隠す（該当シーンはループでスキップ） */
     function applyWbgtOffSeason_() {
         wbgtOffSeason = true;
         wbgtUnavailable = false;
+        clearWbgtUnavailableGrace_();
+        lastGoodWbgtSlots_ = null;
         currentWbgtLevel = -1;
         lastWbgtSlots = null;
         syncWbgtDependentAlerts_();
         document.querySelectorAll('#scene4 .fc-scroll-wrap, #scene4 .fc-lv-bar').forEach(function (el) {
             el.style.display = 'none';
         });
-        ensureS1WbgtBarVisible_();
+        document.querySelectorAll('#scene1 .s1-wbgt-bar').forEach(function (el) {
+            el.style.display = 'none';
+        });
         refreshSignageBg();
-        buildS1WbgtTrack(false);
-        buildFcLvTrack(false);
-        flushDisplayRefresh_();
+        queueDisplayRefresh_();
+        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(true);
     }
     function applyWbgtInSeason_() {
         wbgtOffSeason = false;
         document.querySelectorAll('#scene4 .fc-scroll-wrap, #scene4 .fc-lv-bar').forEach(function (el) {
             el.style.display = '';
         });
-        ensureS1WbgtBarVisible_();
+    }
+    function isMainLoopPlaying_() {
+        if (DEMO_ONLY || DEMO_ALERT_ONLY || DEMO_RAINWARN_ONLY) return false;
+        if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') return false;
+        return !!getActiveScene();
+    }
+    function shouldDeferDisplayRefresh_() {
+        return isMainLoopPlaying_();
+    }
+    function applyDeferredLoopRefresh_(force) {
+        flushDisplayRefresh_(!!force);
     }
     function queueDisplayRefresh_() {
         pendingDisplayRefresh = true;
     }
-    function flushDisplayRefresh_() {
-        if (!pendingDisplayRefresh) return;
+    function flushDisplayRefresh_(force) {
+        if (!pendingDisplayRefresh && !force) return;
+        /* 下帯はループ中でも文言だけ即更新（スクロール位置は維持） */
+        refreshS1WbgtFootBar_(false);
+        if (!force && shouldDeferDisplayRefresh_()) return;
         pendingDisplayRefresh = false;
         buildTicker();
-        buildS1WbgtTrack(false);
         buildFcLvTrack(false);
     }
     async function runScheduledFetch(event) {
@@ -4539,11 +4610,7 @@
                 moeOk = true;
             } else {
                 applyWbgtInSeason_();
-                document.querySelectorAll('#scene1 .s1-wbgt-bar').forEach(function (el) {
-                    el.style.display = '';
-                });
                 moeOk = applyWbgtSlotsToDom(wbgtSlots);
-                buildS1WbgtTrack(false);
             }
             await updateHeatAlertFromGas_();
         }
@@ -5188,6 +5255,7 @@
                 console.warn('[雨雲] ナウキャストの基準時刻が古いため雨判定を行いません:', basetime,
                     '(' + Math.round((nowMs - baseMs) / 60000) + '分前)');
                 queueDisplayRefresh_();
+                refreshS1WbgtFootBar_(false);
                 if (!getActiveScene()) flushDisplayRefresh_();
                 return;
             }
@@ -5208,6 +5276,7 @@
             console.log('[雨雲] ナウキャスト', alert.level, alert.messageJp || '(なし)',
                 'center', near.center.toFixed(2), 'outer', near.outer.toFixed(2));
             queueDisplayRefresh_();
+            refreshS1WbgtFootBar_(false);
             if (!getActiveScene()) flushDisplayRefresh_();
         } catch (e) {
             console.warn('[雨雲] ナウキャスト取得失敗:', e.message || e);
@@ -5216,11 +5285,36 @@
     function getRainAlertMessageJp() {
         return rainNowcastAlert && rainNowcastAlert.messageJp ? rainNowcastAlert.messageJp : '';
     }
+    function getS1WbgtLevelForDisplay_() {
+        if (wbgtOffSeason || wbgtUnavailable) return -1;
+        if (currentWbgtLevel >= 0) return currentWbgtLevel;
+        const row = (lastGoodWbgtSlots_ && lastGoodWbgtSlots_[0]) ||
+            (lastWbgtSlots && lastWbgtSlots[0]);
+        if (!row || row.wbgt == null) return -1;
+        if (Number.isInteger(row.levelIdx)) return row.levelIdx;
+        return wbgtLevel(row.wbgt);
+    }
     function getWbgtOnlyMessageJp() {
         if (wbgtOffSeason) return '';
         if (wbgtUnavailable) return unknownMsg.jp;
-        if (currentWbgtLevel < 0) return unknownMsg.jp;
-        return multi[currentWbgtLevel].jp;
+        const lv = getS1WbgtLevelForDisplay_();
+        if (lv < 0) return '';
+        return multi[lv].jp;
+    }
+    /* 下帯: 1分以上取得不可のときだけ「取得不可」。それ以外は直前値のWBGT文言＋雨タグ */
+    function getS1WbgtMessageJp() {
+        if (wbgtOffSeason) return '';
+        if (wbgtUnavailable) return unknownMsg.jp;
+        const lv = getS1WbgtLevelForDisplay_();
+        const rain = getRainAlertMessageJp();
+        if (lv < 0) return rain || '';
+        const wbgt = multi[lv].jp;
+        if (rain && wbgt) return rain + '　' + wbgt;
+        return rain || wbgt;
+    }
+    function hasS1WbgtFootMessage_() {
+        if (wbgtOffSeason) return false;
+        return !!String(getS1WbgtMessageJp() || '').trim();
     }
     /* 下帯: WBGT取得不可時は「取得不可」。提供期間外は地点名で白帯を維持 */
     function getS1FootFallbackText_() {
@@ -5247,17 +5341,6 @@
         document.querySelectorAll('#scene1 .s1-wbgt-bar').forEach(function (el) {
             el.style.display = 'block';
         });
-    }
-    function getS1WbgtMessageJp() {
-        if (wbgtOffSeason) return getS1FootFallbackText_();
-        if (wbgtUnavailable || currentWbgtLevel < 0) return unknownMsg.jp;
-        const rain = getRainAlertMessageJp();
-        const wbgt = multi[currentWbgtLevel].jp;
-        if (rain && wbgt) return rain + '　' + wbgt;
-        return rain || wbgt || getS1FootFallbackText_();
-    }
-    function hasS1WbgtFootMessage_() {
-        return true;
     }
     function footBarUseCompact_(text) {
         return String(text || '').length > 18;
@@ -5331,14 +5414,19 @@
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
     }
     function clearScene4LvTimers() { clearScene4Timers(); }
-    function buildS1WbgtTrack(clearTimers) {
+    function refreshS1WbgtFootBar_(resetTransform) {
         if (!s1WbgtTrack) return;
-        if (clearTimers) clearScene1WbgtTimers();
         const text = getS1WbgtMessageJp();
         let html = '';
         for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
         s1WbgtTrack.innerHTML = html;
-        s1WbgtTrack.style.transform = 'translateX(0)';
+        if (resetTransform !== false) s1WbgtTrack.style.transform = 'translateX(0px)';
+        const bar = document.querySelector('#scene1 .s1-wbgt-bar');
+        if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
+    }
+    function buildS1WbgtTrack(clearTimers) {
+        if (clearTimers) clearScene1WbgtTimers();
+        refreshS1WbgtFootBar_(true);
     }
     function clearScene1WbgtTimers() {
         if (scene1AnimId) { cancelAnimationFrame(scene1AnimId); scene1AnimId = null; }
@@ -5816,11 +5904,10 @@
         buildS1WbgtTrack(false);
         refreshSignageBg();
         updateClock();
-        ensureS1WbgtBarVisible_();
         stepLogo90(420, true);
         const s1WbgtBar = document.querySelector('#scene1 .s1-wbgt-bar');
         const showWbgtFoot = hasS1WbgtFootMessage_();
-        if (s1WbgtBar) s1WbgtBar.style.display = 'block';
+        if (s1WbgtBar) s1WbgtBar.style.display = showWbgtFoot ? 'block' : 'none';
         scheduleScene1SafetyAdvance_();
         if (isFullDemoStep_()) {
             scheduleDemoStep_(finishScene1);
@@ -6225,7 +6312,6 @@
             buildTicker();
             buildS1WbgtTrack(false);
             buildFcLvTrack(false);
-            ensureS1WbgtBarVisible_();
             refreshSignageBg();
         } catch (err) {
             console.error('Init display:', err);
