@@ -174,8 +174,10 @@
         }
         .dp-mid-seg {
             flex: 0 0 auto; display: inline-flex; align-items: center;
-            height: 100%; padding: 0 14px; box-sizing: border-box;
-            white-space: nowrap;
+            justify-content: center;
+            width: 512px; min-width: 512px; max-width: 512px;
+            height: 100%; padding: 0; box-sizing: border-box;
+            overflow: hidden; white-space: nowrap;
         }
         /* 大鉄PR上帯：新ゴ M に近い無料フォント（Zen Kaku Gothic New Medium） */
         .dp-top-txt {
@@ -184,11 +186,56 @@
             letter-spacing: 0.02em; white-space: nowrap;
         }
         .dp-mid-txt {
+            display: inline-flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0;
+            flex-shrink: 0;
             font-size: 22px; font-weight: 900; line-height: 1.12;
             font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.2px;
         }
         .dp-mid-em { color: #d10000; font-weight: 900; }
         .dp-shell:not(.dp-dark-text) .dp-mid-em { color: #ff5858; }
+        .dp-mid-run {
+            display: inline-block;
+            flex-shrink: 0;
+            line-height: 1.12;
+            white-space: pre;
+        }
+        /* 厳重警戒・危険: 赤白を1行で下揃え（インライン配置で重なり防止） */
+        .dp-shell.dp-level-high-em:not(.dp-dark-text) .dp-mid-txt {
+            display: inline-block;
+            white-space: nowrap;
+            vertical-align: middle;
+            line-height: 1;
+        }
+        .dp-shell.dp-level-high-em:not(.dp-dark-text) .dp-mid-txt .dp-mid-run {
+            display: inline;
+            vertical-align: text-bottom;
+            white-space: pre;
+        }
+        .dp-shell.dp-level-high-em:not(.dp-dark-text) .dp-mid-txt .dp-mid-run.dp-mid-em {
+            color: #e80000;
+            padding: 0 3px;
+            margin: 0 1px;
+            -webkit-text-stroke: 0;
+            text-shadow:
+                1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000;
+        }
+        /* 厳重警戒・危険: 第2段（外国語3行）はサイズそのまま・黒縁のみ */
+        .dp-shell.dp-level-high-em:not(.dp-dark-text) .dp-multi-line-txt .dp-mid-em {
+            color: #e80000;
+            -webkit-text-stroke: 2px #000000;
+            paint-order: stroke fill;
+            text-shadow:
+                1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000,
+                1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
+        }
+        /* 第2段: 第1段と同じ赤強調色 */
+        .dp-multi-line-txt .dp-mid-em { font-weight: 900; color: #d10000; }
+        .dp-shell:not(.dp-dark-text) .dp-multi-line-txt .dp-mid-em { color: #ff5858; }
+        .dp-shell.dp-dark-text .dp-multi-line-txt .dp-mid-em { color: #d10000; }
         .dp-wordmark-img {
             display: block; max-height: 18px; max-width: 112px;
             width: auto; height: auto; object-fit: contain;
@@ -269,17 +316,27 @@
             will-change: transform; backface-visibility: hidden;
         }
         .dp-multi-line-set {
-            width: 512px; height: 100%; max-height: 100%; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            box-sizing: border-box; padding: 2px 6px;
-            overflow: hidden;
+            height: 100%; max-height: 100%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: flex-start;
+            box-sizing: border-box; padding: 2px 0;
+            overflow: visible;
+        }
+        .dp-multi-line-inner {
+            display: inline-flex; flex-direction: row; align-items: center;
+            gap: 8px; white-space: nowrap; flex-shrink: 0;
+            padding-left: 4px;
+        }
+        .dp-multi-line-logo {
+            display: block; height: calc(var(--dp-multi-row-h) - 6px);
+            max-height: calc(var(--dp-multi-row-h) - 6px);
+            width: auto; object-fit: contain; flex-shrink: 0;
         }
         .dp-multi-line-txt {
-            display: block; max-width: 100%;
+            display: inline-block; flex-shrink: 0;
             font-weight: 900; line-height: 1.15;
             white-space: nowrap; letter-spacing: 0.1px;
             font-family: "Noto Sans JP", "Inter", sans-serif;
-            text-align: center;
+            text-align: left;
         }
         .dp-multi-row-en .dp-multi-line-txt {
             font-family: "Inter", "Noto Sans JP", sans-serif;
@@ -4088,13 +4145,16 @@
             }
         }
     }
-    function finishMainLoopToS1_() {
+    function finishMainLoopToS1Now_() {
         applyDeferredLoopRefresh_(true);
         if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
         mainLoopCycle_ = (mainLoopCycle_ + 1) % 3;
         transitionToScene(s1, playScene1);
     }
-    function gotoAfterRainWarnOrScene1_() {
+    function finishMainLoopToS1_() {
+        scheduleSceneEndHold_(finishMainLoopToS1Now_);
+    }
+    function gotoAfterRainWarnOrScene1Now_() {
         if (isDemoFullRainLoop_()) {
             demoRainPassIdx_ = 0;
             prepDemoRainPass_();
@@ -4105,7 +4165,10 @@
             transitionToScene(sceneRainWarn, function () { playSceneRainWarn(0); });
             return;
         }
-        finishMainLoopToS1_();
+        finishMainLoopToS1Now_();
+    }
+    function gotoAfterRainWarnOrScene1_() {
+        scheduleSceneEndHold_(gotoAfterRainWarnOrScene1Now_);
     }
     function playSceneRainWarn(startIdx) {
         if (raAnimId) { cancelAnimationFrame(raAnimId); raAnimId = null; }
@@ -4335,6 +4398,9 @@
     const SCENE1_WBGT_LAPS = 2;
     const SCENE1_WBGT_SETS = 3;
     const SCENE1_WBGT_HOLD_MS = 6000;
+    /** 各コンテンツ終了後、次へ切り替える前に静止する時間 */
+    const SCENE_END_HOLD_MS = 1000;
+    let sceneEndHoldTimerId_ = null;
     const SCENE1_WBGT_SPEED_PX = 0.6;
     let scene1AnimId = null;
     let scene1HoldTimerId = null;
@@ -4383,29 +4449,52 @@
     function dpPromoPlain_(s) {
         return escapeS1Html(s);
     }
+    function dpMidEm_(s) {
+        return '<span class="dp-mid-run dp-mid-em">' + escapeS1Html(s) + '</span>';
+    }
+    function dpMidPlain_(s) {
+        return '<span class="dp-mid-run">' + escapeS1Html(s) + '</span>';
+    }
     const DAITETSU_PROMO_HTML = [
-        dpPromoEm_('熱中症') + dpPromoPlain_('のリスク要因　温度') + dpPromoEm_('28') + dpPromoPlain_('℃以上、湿度') +
-            dpPromoEm_('75') + dpPromoPlain_('%以上、WBGT値') + dpPromoEm_('28') + dpPromoPlain_('℃以上は') + dpPromoEm_('厳重警戒！'),
-        dpPromoPlain_('体重1kgあたり') + dpPromoEm_('10ml') + dpPromoPlain_('/時の水分補給を心掛け、') + dpPromoEm_('熱中症予防！'),
-        dpPromoEm_('休憩') + dpPromoPlain_('するのも仕事のうち、') + dpPromoEm_('水分・塩分補給・休息') +
-            dpPromoPlain_('行い、みんなで防ごう') + dpPromoEm_('熱中症！')
+        dpMidEm_('熱中症') + dpMidPlain_('のリスク要因　温度') + dpMidEm_('28℃') + dpMidPlain_('以上、湿度') +
+            dpMidEm_('75%') + dpMidPlain_('以上、WBGT値') + dpMidEm_('28℃') + dpMidPlain_('以上は') + dpMidEm_('厳重警戒！'),
+        dpMidPlain_('体重1kgあたり') + dpMidEm_('10ml') + dpMidPlain_('/時の水分補給を心掛け、') + dpMidEm_('熱中症予防！'),
+        dpMidEm_('休憩') + dpMidPlain_('するのも仕事のうち、') + dpMidEm_('水分・塩分補給・休息') +
+            dpMidPlain_('行い、みんなで防ごう') + dpMidEm_('熱中症！')
     ];
-    /* 第2段（多言語）— 1〜3周目は第1段と同じ内容を en / vn / tl で表示 */
+    /* 第2段（多言語）— 1〜3周目は第1段と同じ内容・同じ赤強調を en / vn / tl で表示 */
     const DAITETSU_PROMO_MULTI = [
         {
-            en: 'Heat stroke risk factors: temperature 28\u00b0C or above, humidity 75% or above, WBGT 28\u00b0C or above \u2014 severe warning!',
-            vn: 'Y\u1ebfu t\u1ed1 nguy c\u01a1 say n\u1eafng: nhi\u1ec7t \u0111\u1ed9 t\u1eeb 28\u00b0C tr\u1edf l\u00ean, \u0111\u1ed9 \u1ea9m t\u1eeb 75% tr\u1edf l\u00ean, WBGT t\u1eeb 28\u00b0C tr\u1edf l\u00ean \u2014 c\u1ea3nh b\u00e1o nghi\u00eam tr\u1ecdng!',
-            tl: 'Mga salik sa panganib ng heat stroke: temperatura 28\u00b0C pataas, halumigmig 75% pataas, WBGT 28\u00b0C pataas \u2014 malubhang babala!'
+            /* 1行目 — 熱中症 / 28 / 75 / 28 / 厳重警戒！ に対応 */
+            en: dpPromoEm_('Heat stroke') + dpPromoPlain_(' risk factors: temperature ') + dpPromoEm_('28') +
+                dpPromoPlain_('\u00b0C or above, humidity ') + dpPromoEm_('75') + dpPromoPlain_('% or above, WBGT ') +
+                dpPromoEm_('28') + dpPromoPlain_('\u00b0C or above \u2014 ') + dpPromoEm_('severe warning!'),
+            vn: dpPromoPlain_('Y\u1ebfu t\u1ed1 nguy c\u01a1 ') + dpPromoEm_('say n\u1eafng') + dpPromoPlain_(': nhi\u1ec7t \u0111\u1ed9 t\u1eeb ') +
+                dpPromoEm_('28') + dpPromoPlain_('\u00b0C tr\u1edf l\u00ean, \u0111\u1ed9 \u1ea9m t\u1eeb ') + dpPromoEm_('75') +
+                dpPromoPlain_('% tr\u1edf l\u00ean, WBGT t\u1eeb ') + dpPromoEm_('28') + dpPromoPlain_('\u00b0C tr\u1edf l\u00ean \u2014 ') +
+                dpPromoEm_('c\u1ea3nh b\u00e1o nghi\u00eam tr\u1ecdng!'),
+            tl: dpPromoPlain_('Mga salik sa panganib ng ') + dpPromoEm_('heat stroke') + dpPromoPlain_(': temperatura ') +
+                dpPromoEm_('28') + dpPromoPlain_('\u00b0C pataas, halumigmig ') + dpPromoEm_('75') + dpPromoPlain_('% pataas, WBGT ') +
+                dpPromoEm_('28') + dpPromoPlain_('\u00b0C pataas \u2014 ') + dpPromoEm_('malubhang babala!')
         },
         {
-            en: 'Aim for 10 ml of water per hour per 1 kg of body weight to prevent heat stroke!',
-            vn: 'C\u1ed1 g\u1eafng b\u1ed5 sung 10 ml n\u01b0\u1edbc/gi\u1edd cho m\u1ed7i 1 kg c\u00e2n n\u1eb7ng \u0111\u1ec3 ph\u00f2ng ch\u1ed1ng say n\u1eafng!',
-            tl: 'Mag-target ng 10 ml na tubig bawat oras bawat 1 kg ng timbang para maiwasan ang heat stroke!'
+            /* 2行目 — 10ml / 熱中症予防！ に対応 */
+            en: dpPromoPlain_('Aim for ') + dpPromoEm_('10ml') + dpPromoPlain_(' of water per hour per 1 kg of body weight to prevent ') +
+                dpPromoEm_('heat stroke!'),
+            vn: dpPromoPlain_('C\u1ed1 g\u1eafng b\u1ed5 sung ') + dpPromoEm_('10ml') + dpPromoPlain_(' n\u01b0\u1edbc/gi\u1edd cho m\u1ed7i 1 kg c\u00e2n n\u1eb7ng \u0111\u1ec3 ph\u00f2ng ch\u1ed1ng ') +
+                dpPromoEm_('say n\u1eafng!'),
+            tl: dpPromoPlain_('Mag-target ng ') + dpPromoEm_('10ml') + dpPromoPlain_(' na tubig bawat oras bawat 1 kg ng timbang para maiwasan ang ') +
+                dpPromoEm_('heat stroke!')
         },
         {
-            en: 'Rest is part of the job \u2014 hydrate, replenish salt, and rest; let\u2019s all prevent heat stroke together!',
-            vn: 'Ngh\u1ec9 ng\u01a1i c\u0169ng l\u00e0 m\u1ed9t ph\u1ea7n c\u00f4ng vi\u1ec7c \u2014 b\u1ed5 sung n\u01b0\u1edbc, mu\u1ed1i v\u00e0 ngh\u1ec9 ng\u01a1i; c\u00f9ng nhau ph\u00f2ng ch\u1ed1ng say n\u1eafng!',
-            tl: 'Ang pahinga ay bahagi ng trabaho \u2014 uminom ng tubig, magdagdag ng asin, at magpahinga; sama-samang pigilan ang heat stroke!'
+            /* 3行目 — 休憩 / 水分・塩分補給・休息 / 熱中症！ に対応 */
+            en: dpPromoEm_('Rest') + dpPromoPlain_(' is part of the job \u2014 ') + dpPromoEm_('hydrate, replenish salt, and rest') +
+                dpPromoPlain_('; let\u2019s all prevent ') + dpPromoEm_('heat stroke!'),
+            vn: dpPromoEm_('Ngh\u1ec9 ng\u01a1i') + dpPromoPlain_(' c\u0169ng l\u00e0 m\u1ed9t ph\u1ea7n c\u00f4ng vi\u1ec7c \u2014 ') +
+                dpPromoEm_('b\u1ed5 sung n\u01b0\u1edbc, mu\u1ed1i v\u00e0 ngh\u1ec9 ng\u01a1i') + dpPromoPlain_('; c\u00f9ng nhau ph\u00f2ng ch\u1ed1ng ') +
+                dpPromoEm_('say n\u1eafng!'),
+            tl: dpPromoEm_('Pahinga') + dpPromoPlain_(' ay bahagi ng trabaho \u2014 ') + dpPromoEm_('uminom ng tubig, magdagdag ng asin, at magpahinga') +
+                dpPromoPlain_('; sama-samang pigilan ang ') + dpPromoEm_('heat stroke!')
         }
     ];
     const DP_SCROLL_PX = 0.8;
@@ -5913,7 +6002,22 @@
         cancelAnimationFrame(sceneSlideAnimId);
         sceneSlideAnimId = null;
     }
+    function clearSceneEndHoldTimer_() {
+        if (sceneEndHoldTimerId_ != null) {
+            clearTimeout(sceneEndHoldTimerId_);
+            sceneEndHoldTimerId_ = null;
+        }
+    }
+    function scheduleSceneEndHold_(fn) {
+        clearSceneEndHoldTimer_();
+        if (typeof fn !== 'function') return;
+        sceneEndHoldTimerId_ = setTimeout(function () {
+            sceneEndHoldTimerId_ = null;
+            fn();
+        }, SCENE_END_HOLD_MS);
+    }
     function transitionToScene(nextEl, onComplete) {
+        clearSceneEndHoldTimer_();
         clearSceneSlideAnim_();
         const current = getActiveScene();
         if (!nextEl) { onComplete?.(); return; }
@@ -5961,11 +6065,16 @@
         clearScene1WbgtTimers();
         scene1ExitOnly_ = false;
         if (demoOnlyLoop_('s1', playScene1)) return;
-        transitionToScene(s2, playScene2);
+        scheduleSceneEndHold_(function () {
+            transitionToScene(s2, playScene2);
+        });
     }
     /* シーン3の後 → シーン5(WBGT予報) → 多言語アラート → 専用アラート → 警報 → シーン1 */
-    function gotoAfterScene3Tail_() {
-        if (WBGT_ONLY) { finishMainLoopToS1_(); return; }
+    function gotoAfterScene3TailNow_() {
+        if (WBGT_ONLY) {
+            finishMainLoopToS1Now_();
+            return;
+        }
         if (wbgtNormalDisplay_() && heatAlertActive.length) {
             const saved = heatAlertActive.slice();
             playScene3HeatAlertIntroSequence_(saved, function () {
@@ -5973,21 +6082,29 @@
                 heatAlertActive = saved;
                 if (sceneAlert) {
                     prepHeatAlert_(0);
-                    transitionToScene(sceneAlert, function () { playSceneAlert(0); });
+                    scheduleSceneEndHold_(function () {
+                        transitionToScene(sceneAlert, function () { playSceneAlert(0); });
+                    });
                 } else {
-                    gotoAfterRainWarnOrScene1_();
+                    gotoAfterRainWarnOrScene1Now_();
                 }
             });
             return;
         }
-        gotoAfterRainWarnOrScene1_();
+        gotoAfterRainWarnOrScene1Now_();
     }
-    function gotoAfterScene3_() {
+    function gotoAfterScene3Tail_() {
+        scheduleSceneEndHold_(gotoAfterScene3TailNow_);
+    }
+    function gotoAfterScene3Now_() {
         if (!wbgtOffSeason && s4) {
             transitionToScene(s4, playScene4);
             return;
         }
-        gotoAfterScene3Tail_();
+        gotoAfterScene3TailNow_();
+    }
+    function gotoAfterScene3_() {
+        scheduleSceneEndHold_(gotoAfterScene3Now_);
     }
     /* 256pxスロットごとに2段テキストを収める（見やすい最大サイズ・はみ出し時は縮小） */
     function sizeHeatAlertText_() {
@@ -6540,7 +6657,7 @@
         stepLogo90(420, true);
         const tracks = document.querySelectorAll('#scene3 .t3-track');
         if (!tracks.length) {
-            setTimeout(function () { gotoAfterScene3_(); }, 800);
+            scheduleSceneEndHold_(gotoAfterScene3_);
             return;
         }
         prepT3_(0);
@@ -6583,6 +6700,7 @@
     }
     function playScene1() {
         flushDisplayRefresh_(true);
+        clearSceneEndHoldTimer_();
         clearScene1FinishTimer_();
         clearScene1WbgtTimers();
         clearDemoStepTimer_();
@@ -6599,27 +6717,35 @@
     }
     /* シーン2の次はシーン3（4日予報） */
     function gotoSceneAfterScene2_() {
-        transitionToScene(s5, playScene5);
+        scheduleSceneEndHold_(function () {
+            transitionToScene(s5, playScene5);
+        });
     }
     /* シーン3（4日予報）の次は大鉄PR第1段 → 多言語WBGT (s3) */
     function shouldDeferPromoMulti_() {
         return DEMO_ONLY !== 'promo';
     }
-    function gotoSceneAfterScene5_() {
+    function gotoSceneAfterScene5Now_() {
         if (!scenePromo) {
-            gotoAfterScenePromo_();
+            gotoAfterScenePromoNow_();
             return;
         }
         transitionToScene(scenePromo, playScenePromo);
     }
-    function gotoAfterScenePromo_() {
+    function gotoSceneAfterScene5_() {
+        scheduleSceneEndHold_(gotoSceneAfterScene5Now_);
+    }
+    function gotoAfterScenePromoNow_() {
         setPromoBandCollapse_(false);
         setPromoMultiBandCollapse_(false);
         if (wbgtOffSeason) {
-            gotoAfterScene3_();
+            gotoAfterScene3Now_();
             return;
         }
         transitionToScene(s3, playScene3);
+    }
+    function gotoAfterScenePromo_() {
+        scheduleSceneEndHold_(gotoAfterScenePromoNow_);
     }
     function getPromoMessageIdx_() {
         let idx = mainLoopCycle_ % 3;
@@ -6681,6 +6807,7 @@
         if (mid) mid.style.backgroundColor = colors.bgColor;
         if (bot) bot.style.backgroundColor = 'var(--led-foot-bar-bg)';
         shell.classList.toggle('dp-dark-text', dark);
+        shell.classList.toggle('dp-level-high-em', mode === 'normal' && (lv === 3 || lv === 4));
     }
     function buildPromoSlotTrack_(trackId, setClass, slotClass, slotInnerHtml, setSlots, trackSets) {
         const track = document.getElementById(trackId);
@@ -6719,32 +6846,84 @@
         const img = '<img class="dp-wordmark-img" src="' + src + '" alt="' + alt + '">';
         buildPromoSlotTrack_('dp-bot-track', 'dp-bot-set', 'dp-bot-slot', img, DP_BOT_SET_SLOTS, DP_BOT_TRACK_SETS);
     }
+    const DP_MID_EM_SCALE_HIGH_ = 1.2;
+    function isPromoMidHighEm_() {
+        const shell = document.getElementById('dp-shell');
+        return !!(shell && shell.classList.contains('dp-level-high-em') && !shell.classList.contains('dp-dark-text'));
+    }
+    function measurePromoMidInkH_(txt) {
+        if (!txt) return 0;
+        let max = 0;
+        txt.querySelectorAll('.dp-mid-run').forEach(function (run) {
+            max = Math.max(max, run.getBoundingClientRect().height);
+        });
+        return Math.ceil(max);
+    }
     function sizePromoMidText_() {
         const probe = document.querySelector('#scenePromo .dp-mid-txt');
         if (!probe) return;
+        const highEm = isPromoMidHighEm_();
         let fz = 22;
-        const setAll = function (size) {
+        const applyAll = function (size) {
+            const emPx = Math.round(size * DP_MID_EM_SCALE_HIGH_);
+            const lhPx = Math.round(size * 1.12);
+            const emLhPx = Math.round(emPx * 1.12);
             document.querySelectorAll('#scenePromo .dp-mid-txt').forEach(function (n) {
                 n.style.fontSize = size + 'px';
+                n.querySelectorAll('.dp-mid-run:not(.dp-mid-em)').forEach(function (run) {
+                    run.style.fontSize = highEm ? (size + 'px') : '';
+                    run.style.lineHeight = highEm ? (lhPx + 'px') : '';
+                });
+                n.querySelectorAll('.dp-mid-run.dp-mid-em').forEach(function (em) {
+                    if (highEm) {
+                        em.style.fontSize = emPx + 'px';
+                        em.style.lineHeight = emLhPx + 'px';
+                    } else {
+                        em.style.fontSize = '';
+                        em.style.lineHeight = '';
+                    }
+                });
             });
         };
-        setAll(fz);
+        applyAll(fz);
         let guard = 50;
-        while (guard-- > 0 && fz > 12 && probe.scrollHeight > 66) {
+        while (guard-- > 0 && fz > 12 && measurePromoMidInkH_(probe) > 66) {
             fz -= 1;
-            setAll(fz);
+            applyAll(fz);
         }
+        centerPromoMidTextInSeg_();
+    }
+    function centerPromoMidTextInSeg_() {
+        document.querySelectorAll('#scenePromo .dp-mid-seg').forEach(function (seg) {
+            const txt = seg.querySelector('.dp-mid-txt');
+            if (!txt) return;
+            txt.style.marginLeft = '';
+            txt.style.marginRight = '';
+            txt.style.transform = '';
+            const tw = Math.ceil(txt.scrollWidth);
+            /* 512px以内は中央、超える場合は左詰めで横スクロール */
+            seg.style.justifyContent = tw <= DP_BAND_W ? 'center' : 'flex-start';
+        });
     }
     function measurePromoSegW_(track, segSel) {
         const seg = track && track.querySelector(segSel);
         if (!seg) return DP_BAND_W;
-        return Math.max(DP_BAND_W, Math.ceil(seg.getBoundingClientRect().width));
+        return DP_BAND_W;
     }
     const DP_MULTI_LAP_PX = DP_BAND_W;
     const DP_MULTI_TRACK_SETS = 2;
-    function buildPromoMultiLineTrackHtml_(text, trackId) {
-        const txt = '<span class="dp-multi-line-txt">' + escapeS1Html(text) + '</span>';
-        const set = '<div class="dp-multi-line-set">' + txt + '</div>';
+    function getPromoMultiLogoSrc_() {
+        return (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoSrc) || './daitetsu_logo.png';
+    }
+    function buildPromoMultiLineLeadHtml_() {
+        const src = getPromoMultiLogoSrc_();
+        const alt = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoAlt) || '大鉄';
+        return '<img class="dp-multi-line-logo" src="' + escapeS1Html(src) + '" alt="' + escapeS1Html(alt) + '">';
+    }
+    function buildPromoMultiLineTrackHtml_(html, trackId) {
+        const inner = '<div class="dp-multi-line-inner">' + buildPromoMultiLineLeadHtml_() +
+            '<span class="dp-multi-line-txt">' + html + '</span></div>';
+        const set = '<div class="dp-multi-line-set">' + inner + '</div>';
         return '<div class="dp-multi-line-track" id="' + trackId + '">' + set.repeat(DP_MULTI_TRACK_SETS) + '</div>';
     }
     function measurePromoMultiTxtInkH_(el) {
@@ -6758,11 +6937,16 @@
     function promoMultiTxtFitsRow_(row, fz) {
         if (!row) return true;
         const set = row.querySelector('.dp-multi-line-set');
+        const inner = row.querySelector('.dp-multi-line-inner');
         const probe = row.querySelector('.dp-multi-line-txt');
         if (!set || !probe) return true;
         probe.style.fontSize = fz + 'px';
         const maxH = set.clientHeight - 1;
-        return measurePromoMultiTxtInkH_(probe) <= maxH;
+        const inkH = Math.max(
+            measurePromoMultiTxtInkH_(probe),
+            inner ? inner.getBoundingClientRect().height : 0
+        );
+        return inkH <= maxH;
     }
     function promoMultiAllRowsFit_(fz) {
         const rows = document.querySelectorAll('#scenePromo .dp-multi-row');
@@ -6772,12 +6956,15 @@
         return true;
     }
     function applyPromoMultiSetWidths_() {
+        let maxW = DP_MULTI_LAP_PX;
         document.querySelectorAll('#scenePromo .dp-multi-line-track').forEach(function (track) {
-            const txt = track.querySelector('.dp-multi-line-txt');
-            if (!txt) return;
-            const w = Math.max(DP_MULTI_LAP_PX, Math.ceil(txt.scrollWidth + 24));
+            const inner = track.querySelector('.dp-multi-line-inner');
+            if (!inner) return;
+            maxW = Math.max(maxW, Math.ceil(inner.scrollWidth + 16));
+        });
+        document.querySelectorAll('#scenePromo .dp-multi-line-track').forEach(function (track) {
             track.querySelectorAll('.dp-multi-line-set').forEach(function (set) {
-                set.style.width = w + 'px';
+                set.style.width = maxW + 'px';
             });
         });
     }
@@ -6880,17 +7067,19 @@
         });
     }
     function afterPromoPhase1_() {
-        if (shouldDeferPromoMulti_()) {
-            finishPromoPhase1_();
-        } else {
-            playPromoMultiPhase_();
-        }
+        scheduleSceneEndHold_(function () {
+            if (shouldDeferPromoMulti_()) {
+                finishPromoPhase1_();
+            } else {
+                playPromoMultiPhase_();
+            }
+        });
     }
     function finishPromoPhase1_() {
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
         resetPromoShellLayout_();
         if (demoOnlyLoop_('promo', playScenePromo)) return;
-        gotoAfterScenePromo_();
+        gotoAfterScenePromoNow_();
     }
     function finishPromoMultiPhase_() {
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
@@ -6898,13 +7087,16 @@
         if (demoOnlyLoop_('promo', playScenePromo)) return;
         gotoAfterScene3Tail_();
     }
-    function gotoPromoMultiAfterScene4_() {
+    function gotoPromoMultiAfterScene4Now_() {
         if (!scenePromo) {
-            gotoAfterScene3Tail_();
+            gotoAfterScene3TailNow_();
             return;
         }
         setPromoBandCollapse_(true);
         transitionToScene(scenePromo, playPromoMultiPhase_);
+    }
+    function gotoPromoMultiAfterScene4_() {
+        scheduleSceneEndHold_(gotoPromoMultiAfterScene4Now_);
     }
     function playScenePromo() {
         if (dpAnimId) { cancelAnimationFrame(dpAnimId); dpAnimId = null; }
@@ -6996,11 +7188,13 @@
     function finishScene4() {
         clearScene4Timers();
         if (demoOnlyLoop_('s4', playScene4)) return;
-        if (shouldDeferPromoMulti_()) {
-            gotoPromoMultiAfterScene4_();
-            return;
-        }
-        gotoAfterScene3Tail_();
+        scheduleSceneEndHold_(function () {
+            if (shouldDeferPromoMulti_()) {
+                gotoPromoMultiAfterScene4Now_();
+                return;
+            }
+            gotoAfterScene3TailNow_();
+        });
     }
     function playScene4() {
         flushDisplayRefresh_(true);
@@ -7027,7 +7221,7 @@
         }
         const scene4ScrollTotal = scene4SetWidth * SCENE4_LAPS;
         if (!fcConveyor || !scene4SetWidth || scene4SetWidth <= 0) {
-            setTimeout(finishScene4, 500);
+            scheduleSceneEndHold_(finishScene4);
             return;
         }
         let x = 0;
