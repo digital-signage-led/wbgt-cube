@@ -1,0 +1,11 @@
+{
+  "name": "marugame-shienschool-signage",
+  "private": true,
+  "description": "香川県立丸亀支援学校 WBGT 4面サイネージ",
+  "scripts": {
+    "verify:patrol": "node scripts/verify-t3-wave.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}
