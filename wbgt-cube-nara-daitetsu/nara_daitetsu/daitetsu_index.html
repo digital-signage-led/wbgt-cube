@@ -4534,7 +4534,7 @@
     const DP_TOP_SLOT_W = DP_BAND_W;
     const DP_TOP_SET_SLOTS = 1;
     const DP_TOP_LAP_PX = DP_BAND_W;
-    const DP_TOP_TRACK_SETS = 1;
+    const DP_TOP_TRACK_SETS = 2; /* 512×2 でシームレス横スクロール */
     const DP_TOP_FONT_START_PX_ = 28;
     const DP_BOT_SLOT_W = 128;
     const DP_BOT_SET_SLOTS = 4;
@@ -7249,23 +7249,28 @@
             scheduleDemoStep_(afterPromoPhase1_);
             return;
         }
+        const topTrack = document.getElementById('dp-top-track');
         const midTrack = document.getElementById('dp-mid-track');
         const botTrack = document.getElementById('dp-bot-track');
         if (!midTrack) {
             afterPromoPhase1_();
             return;
         }
+        const topW = DP_TOP_LAP_PX;
         const midW = measurePromoSegW_(midTrack, '.dp-mid-seg');
         const botW = DP_BOT_LAP_PX;
         const scrollTotal = Math.max(DP_BAND_W, midW) * DP_LAPS;
-        let midX = 0, botX = 0;
+        let topX = 0, midX = 0, botX = 0;
         let totalScrolled = 0;
         function step() {
+            topX -= DP_SCROLL_PX;
             midX -= DP_SCROLL_PX;
             botX -= DP_BOT_SCROLL_PX;
             totalScrolled += DP_SCROLL_PX;
+            topX = wrapScrollX_(topX, topW);
             midX = wrapScrollX_(midX, midW);
             botX = wrapScrollX_(botX, botW);
+            if (topTrack) applyScrollX_(topTrack, topX);
             applyScrollX_(midTrack, midX);
             if (botTrack) applyScrollX_(botTrack, botX);
             if (totalScrolled >= scrollTotal) {
