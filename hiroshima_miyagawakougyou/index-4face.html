@@ -2336,9 +2336,25 @@
         return 'normal';
     }
     /** 背景色用: unavailable/offseason 以外は getS1WbgtLevelForDisplay_ を使用 */
+    function levelFromLastGoodWbgtSlots_() {
+        if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) return null;
+        const row = lastGoodWbgtSlots_[0];
+        if (!row || row.wbgt == null) return null;
+        return Number.isInteger(row.levelIdx) ? row.levelIdx : wbgtLevel(row.wbgt);
+    }
     function getSignageBgLevel_() {
         if (getSignageDisplayMode_() !== 'normal') return -1;
-        return getS1WbgtLevelForDisplay_();
+        const lv = getS1WbgtLevelForDisplay_();
+        if (lv >= 0) return lv;
+        const stable = levelFromLastGoodWbgtSlots_();
+        return stable != null ? stable : -1;
+    }
+    function resolveSignageBgPaint_(mode, lv) {
+        if (mode === 'normal' && lv < 0) {
+            const stable = levelFromLastGoodWbgtSlots_();
+            if (stable != null) return { mode: 'normal', lv: stable };
+        }
+        return { mode: mode, lv: lv };
     }
     /** WBGT非依存コンテンツなし — 取得不可・提供期間外は警報・アラートを出さない */
     function wbgtNormalDisplay_() {
@@ -2437,8 +2453,11 @@
     }
     function refreshSignageBg() {
         if (typeof SignageBg === 'undefined') return;
-        const mode = getSignageDisplayMode_();
-        const lv = mode === 'normal' ? getSignageBgLevel_() : -1;
+        const rawMode = getSignageDisplayMode_();
+        const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
+        const paint = resolveSignageBgPaint_(rawMode, rawLv);
+        const mode = paint.mode;
+        const lv = paint.lv;
         SignageBg.refreshAll(lv, mode);
         SignageBg.refreshTicker(lv, mode);
         if (mode === 'offseason') {
@@ -2456,13 +2475,18 @@
         SignageBg.refreshScene5(lv, mode);
         applyD5TodayFrame_();
         applyD5ForecastTextColors_();
-        const slots = lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null);
+        const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
+            ? lastGoodWbgtSlots_
+            : (lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null));
         if (slots) SignageBg.refreshForecast(slots, mode);
         if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
     }
     function refreshSignageBgIfChanged_(force) {
-        const mode = getSignageDisplayMode_();
-        const lv = mode === 'normal' ? getSignageBgLevel_() : -1;
+        const rawMode = getSignageDisplayMode_();
+        const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
+        const paint = resolveSignageBgPaint_(rawMode, rawLv);
+        const mode = paint.mode;
+        const lv = paint.lv;
         if (!force && lv === lastSignageBgLv_ && mode === lastSignageBgMode_) return;
         if (!force && shouldDeferDisplayRefresh_()) {
             pendingSignageBgRefresh_ = true;
@@ -4548,7 +4572,7 @@
         queueDisplayRefresh_();
         fitFcBarLabelFontSize_();
         fitFcWbgtFontSize();
-        lastWbgtSlots = slots;
+        lastWbgtSlots = (slots && hasFull4Slots(slots)) ? slots : lastWbgtSlots;
         if (wbgtUnavailable || (slots && slots[0] && slots[0].wbgt != null)) {
             syncWbgtLevelFromSlots(slots);
         }
@@ -4830,8 +4854,15 @@
                     const wbgtSlots = await fetchWbgtFromMoeApi();
                     timings['WBGT(GAS)'] = Math.round(performance.now() - sWbgt);
                     if (wbgtSlots === 'offseason') {
-                        applyWbgtOffSeason_();
-                        moeOk = true;
+                        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+                            console.log('[WBGT] off-season応答 — 更新中は直前値を維持');
+                            applyWbgtInSeason_();
+                            syncWbgtSlotsToDomIfReady_();
+                            moeOk = true;
+                        } else {
+                            applyWbgtOffSeason_();
+                            moeOk = true;
+                        }
                     } else {
                         applyWbgtInSeason_();
                         moeOk = applyWbgtSlotsToDom(wbgtSlots);
@@ -4970,7 +5001,7 @@
                     if (wbgt.source === 'off-season' || wbgt.inService === false) {
                         sawOffSeason = true;
                         console.log('[WBGT] 広島(67437)にデータなし');
-                        break;
+                        continue;
                     }
                     return parseMoeJson_(wbgt);
                 } catch (e) { console.warn('[環境省] GAS取得失敗:', e.message || e); }
