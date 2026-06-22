@@ -1,5 +1,5 @@
-﻿<!DOCTYPE html>
-<!-- wbgt-cube-miyagawa-4face / 宮川工業株式会社 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
+<!DOCTYPE html>
+<!-- wbgt-cube-miyagawa-4face / 宮川興業株式会社 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 会場: 広島県広島市安佐南区山本6丁目地内 / WBGT・AMeDAS 67437（広島・気象庁/環境省） -->
 <html lang="ja" class="native-640 layout-512">
 <head>
@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>WBGT Signage 4面 - 宮川工業株式会社</title>
+    <title>WBGT Signage 4面 - 宮川興業株式会社</title>
     <script>
 /** 4面 512×128 本番用（layout512 + native640） */
 (function () {
@@ -34,7 +34,7 @@
             --led-foot-bar-h: 28px;
             --led-col-body-h: 68px;
             --led-col-main-h: 100px;
-            --led-foot-font: 13px;
+            --led-foot-font: 15px;
             --led-foot-site-font: 15px;
         }
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
@@ -231,10 +231,20 @@
             display: flex; flex-direction: row; align-items: stretch;
             box-sizing: border-box;
         }
+        /* シーン1下帯: 256px×4（社名256|WBGT256|社名256|WBGT256）コの字シームレス512 */
+        .s1-wbgt-set.s1-wbgt-set-scroll {
+            width: 1024px;
+        }
         .s1-wbgt-slot, .fc-lv-slot, .s2-meta-slot {
             width: 256px; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
             box-sizing: border-box;
+        }
+        .s1-wbgt-slot-left,
+        .s1-wbgt-slot-right {
+            justify-content: center;
+            padding: 0 6px;
+            overflow: hidden;
         }
         .s1-wbgt-msg, .fc-lv-msg {
             display: inline-flex; flex-direction: row; align-items: center;
@@ -271,12 +281,23 @@
         }
         .s1-wbgt-ch, .fc-lv-ch {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 14px; flex-shrink: 0;
-            font-size: 14px; font-weight: 700; color: #1a1a1a;
+            width: 15px; flex-shrink: 0;
+            font-size: 15px; font-weight: 700; color: #1a1a1a;
         }
         .s1-wbgt-site-slot {
             display: flex; align-items: center; justify-content: center;
             padding: 0 4px; box-sizing: border-box;
+        }
+        /* シーン1下帯・社名（1行） */
+        .s1-foot-co-txt {
+            display: inline-block; flex-shrink: 0; white-space: nowrap; line-height: var(--led-foot-bar-h);
+            max-width: 244px; overflow: hidden; text-overflow: ellipsis;
+            font-family: "Noto Sans JP", sans-serif;
+            font-weight: 700; font-size: var(--led-foot-site-font); letter-spacing: 0.02em;
+            color: #1a1a1a; box-sizing: border-box; text-align: center;
+        }
+        .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact {
+            text-align: center; padding: 0;
         }
         .s1-wbgt-site-inner {
             display: inline-flex; flex-direction: row; align-items: center; justify-content: center;
@@ -1405,9 +1426,9 @@
 
   var cfg = {
     site: {
-      customer: '宮川工業株式会社',
+      customer: '宮川興業株式会社',
       rental: '',
-      label: '宮川工業株式会社',
+      label: '宮川興業株式会社',
       address: '広島県広島市安佐南区山本6丁目地内'
     },
     moe: {
@@ -1440,7 +1461,7 @@
 
   global.SIGNAGE_CONFIG = {
     logoSrc: '',
-    logoAlt: '宮川工業株式会社',
+    logoAlt: '宮川興業株式会社',
     logoPanelBg: '#3a3a3a',
     footLogoSrc: ''
   };
@@ -2119,7 +2140,7 @@
     const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '広島県';
     const MOE_POINT_CFG = {
         prefKey: 'hiroshima',
-        pointName: (SITE_CFG.site && SITE_CFG.site.label) || '宮川工業株式会社'
+        pointName: (SITE_CFG.site && SITE_CFG.site.label) || '宮川興業株式会社'
     };
     const DEFAULT_MOE_GAS_URL = (SITE_CFG.moe && SITE_CFG.moe.gasUrl) || '';
     const MOE_WBGT_API_URL = query.get('moeApi') || DEFAULT_MOE_GAS_URL;
@@ -2807,7 +2828,7 @@
     const JMA_WARN_CITY = query.get('warnCity') || '34105';  /* 広島市安佐南区 */
     const JMA_WARN_CITY_LABELS = { '34105': '広島市安佐南区', '340000': '広島県' };
     let rainWarnMeta = {
-        cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || MOE_POINT_CFG.pointName || '宮川工業株式会社',
+        cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || MOE_POINT_CFG.pointName || '宮川興業株式会社',
         updatedAt: ''
     };
     const RAIN_WHITE_LEVEL_CHIP = {
@@ -3144,7 +3165,7 @@
         return labels.slice(0, 5).join('・') + 'など';
     }
     function whiteHeaderAreaPhrase_() {
-        const name = rainWarnMeta.cityName || JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || '宮川工業株式会社';
+        const name = rainWarnMeta.cityName || JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || '宮川興業株式会社';
         return name + 'の地域で発表されています';
     }
     function whiteHeaderTexts_() {
@@ -3258,7 +3279,7 @@
             || (payload && payload.cityName)
             || JMA_WARN_CITY_LABELS[JMA_WARN_CITY]
             || MOE_POINT_CFG.pointName
-            || '宮川工業株式会社';
+            || '宮川興業株式会社';
         rainWarnMeta.updatedAt = (payload && payload.updatedAt)
             || (warnJson && warnJson.reportDatetime)
             || rainWarnMeta.updatedAt
@@ -4108,7 +4129,7 @@
         }
         const badge = document.getElementById('demo-badge');
         const liveLabel = RAIN_WHITE_DESIGN && !whiteModeForced_()
-            ? ('確認 · ' + (rainWarnMeta.cityName || '宮川工業株式会社') + ' 発表中 ' + rainWhiteQueue.length + '件')
+            ? ('確認 · ' + (rainWarnMeta.cityName || '宮川興業株式会社') + ' 発表中 ' + rainWhiteQueue.length + '件')
             : '確認 · 大雨警報';
         if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = liveLabel; }
         else if (badge) { badge.hidden = true; }
@@ -4147,6 +4168,8 @@
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
     const SCENE1_WBGT_LAPS = 2;
     const SCENE1_WBGT_SETS = 3;
+    const COMPANY_LINE_FONT_START_PX_ = 15;
+    const COMPANY_LINE_FONT_MIN_PX_ = 9;
     /** シーン1の表示時間（下帯は即スクロール開始・沖縄版と同型） */
     const SCENE1_CLOCK_HOLD_MS = 10000;
     /** 起動直後の1回目だけ短め（静止感を抑える） */
@@ -5559,11 +5582,53 @@
     }
     /* 下帯: WBGT取得不可時は「取得不可」。提供期間外は地点名で白帯を維持 */
     function getS1FootFallbackText_() {
-        return (SITE_CFG.site && SITE_CFG.site.label) || MOE_POINT_CFG.pointName || '宮川工業株式会社';
+        return (SITE_CFG.site && SITE_CFG.site.label) || MOE_POINT_CFG.pointName || '宮川興業株式会社';
     }
     function getS1SiteCustomerName_() {
         const site = SITE_CFG.site || {};
         return site.rental || site.customer || '';
+    }
+    function buildS1FootCompanyHtml_() {
+        const name = getS1SiteCustomerName_();
+        if (!name) return '';
+        return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
+    }
+    function sizeS1FootCompanyText_() {
+        const maxW = FOOT_BAR_SLOT_W - 12;
+        document.querySelectorAll('#scene1 .s1-foot-co-txt').forEach(function (el) {
+            let fz = COMPANY_LINE_FONT_START_PX_;
+            el.style.fontSize = fz + 'px';
+            let guard = 24;
+            while (guard-- > 0 && fz > COMPANY_LINE_FONT_MIN_PX_ && el.scrollWidth > maxW) {
+                fz -= 1;
+                el.style.fontSize = fz + 'px';
+            }
+        });
+    }
+    function sizeS1FootWbgtText_() {
+        const maxW = FOOT_BAR_SLOT_W - 12;
+        document.querySelectorAll('#scene1 .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact').forEach(function (el) {
+            let fz = COMPANY_LINE_FONT_START_PX_;
+            el.style.fontSize = fz + 'px';
+            let guard = 24;
+            while (guard-- > 0 && fz > 8 && el.scrollWidth > maxW) {
+                fz -= 1;
+                el.style.fontSize = fz + 'px';
+            }
+        });
+    }
+    function buildS1FootWbgtSlotHtml_(msgText) {
+        return '<div class="s1-wbgt-slot s1-wbgt-slot-right s1-wbgt-slot-wbgt">' + buildS1WbgtMsgHtml(msgText) + '</div>';
+    }
+    function buildS1FootCoSlotHtml_() {
+        return '<div class="s1-wbgt-slot s1-wbgt-slot-left s1-wbgt-slot-co">' + buildS1FootCompanyHtml_() + '</div>';
+    }
+    function buildS1FootPairHtml_(msgText) {
+        return buildS1FootCoSlotHtml_() + buildS1FootWbgtSlotHtml_(msgText);
+    }
+    function buildS1FootScrollSetHtml_(msgText) {
+        const pair = buildS1FootPairHtml_(msgText);
+        return '<div class="s1-wbgt-set s1-wbgt-set-scroll">' + pair + pair + '</div>';
     }
     function getS1SiteLogoSrc_() {
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
@@ -5609,9 +5674,7 @@
         const siteName = getS1SiteCustomerName_();
         const msgText = String(text || getS1WbgtMessageJp() || '').trim();
         if (siteName && msgText) {
-            const siteSlot = buildS1SiteSlotHtml_(siteName);
-            const msgSlot = `<div class="s1-wbgt-slot s1-wbgt-msg-slot">${buildS1WbgtMsgHtml(msgText)}</div>`;
-            return `<div class="s1-wbgt-set">${siteSlot}${msgSlot}</div>`;
+            return buildS1FootScrollSetHtml_(msgText);
         }
         const line = msgText || siteName || getS1FootFallbackText_();
         const msg = buildS1WbgtMsgHtml(line);
@@ -5662,6 +5725,8 @@
         for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
         s1WbgtTrack.innerHTML = html;
         applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
+        sizeS1FootCompanyText_();
+        sizeS1FootWbgtText_();
         const bar = document.querySelector('#scene1 .s1-wbgt-bar');
         if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
     }
