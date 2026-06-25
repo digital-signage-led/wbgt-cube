@@ -1,13 +1,13 @@
-﻿<!DOCTYPE html>
-<!-- wbgt-cube-hakata-4face / 福岡市博多区 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
-<!-- 会場: 福岡県福岡市博多区 / WBGT・AMeDAS 82182（福岡・気象庁/環境省） -->
+<!DOCTYPE html>
+<!-- wbgt-cube-hakata-4face / 博多区 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
+<!-- 会場: 福岡県福岡市博多区 / WBGT・AMeDAS 82182（博多区・気象庁/環境省） -->
 <html lang="ja" class="native-640 layout-512">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>WBGT Signage 4面 - 福岡市博多区</title>
+    <title>WBGT Signage 4面 - 博多区</title>
     <script>
 /** 4面 512×128 本番用（layout512 + native640） */
 (function () {
@@ -252,12 +252,6 @@
             line-height: 1;
             color: inherit;
         }
-        .clock-hm .clock-colon-dim { opacity: 0.3; }
-        .clock-hm .clock-colon-bright {
-            opacity: 0;
-            transition: opacity 0.05s linear;
-        }
-        .clock-hm .clock-colon-wrap.colon-on .clock-colon-bright { opacity: 1; }
         #scene1, #scene4 { overflow: hidden; position: relative; }
         #scene1.active { display: block; }
         .fc-scroll-wrap {
@@ -286,7 +280,7 @@
             display: flex; flex-direction: row; align-items: stretch;
             box-sizing: border-box;
         }
-        /* シーン1下帯: 256px×4（社名256|WBGT256|社名256|WBGT256）コの字シームレス512 */
+        /* シーン1下帯: WBGT文言のみ（512px シームレススクロール） */
         .s1-wbgt-set.s1-wbgt-set-scroll {
             width: 1024px;
         }
@@ -1481,20 +1475,20 @@
 
   var cfg = {
     site: {
-      customer: '福岡市博多区',
+      customer: '博多区',
       rental: '',
-      label: '福岡市博多区',
+      label: '博多区',
       address: '福岡県福岡市博多区'
     },
     moe: {
-      /* 環境省 WBGT（博多区に最も近い福岡 82182） */
+      /* 環境省 WBGT 82182（博多区に最寄の福岡管区気象台・AMeDAS） */
       gasUrl:
         'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
       /* 環境省 WBGT 82182（福岡管区気象台・AMeDAS と同一地点） */
       point: '82182',
       /* 表示と実データを一致させるため、欠測時フォールバックは使わない */
       fallbackPoint: '',
-      pointName: '福岡',
+      pointName: '博多区',
       alertArea: '福岡県',
       /* 環境省グラフURL用（九州 region=10 / prefecture=82） */
       region: '10',
@@ -1504,7 +1498,7 @@
       /* 気象庁 AMeDAS 82182（福岡管区気象台・WBGT と同一地点） */
       amedasPoint: '82182',
       forecastArea: '400000',
-      forecastLabel: '福岡市'
+      forecastLabel: '博多区'
     },
     geo: { lat: 33.5897, lon: 130.4207 },
     timeZone: 'Asia/Tokyo',
@@ -1516,7 +1510,7 @@
 
   global.SIGNAGE_CONFIG = {
     logoSrc: '',
-    logoAlt: '福岡市博多区',
+    logoAlt: '博多区',
     logoPanelBg: '#3a3a3a',
     footLogoSrc: ''
   };
@@ -1561,7 +1555,7 @@
         <div class="ra-pair ra-advisory" id="ra-pair">
             <div class="ra-mid-band-wrap" aria-hidden="true"><div class="ra-mid-band-unit"></div><div class="ra-mid-band-unit"></div></div>
             <div class="ra-white-header" aria-hidden="true">
-                <span class="ra-white-area">福岡市博多区の地域で発表されています</span>
+                <span class="ra-white-area">博多区の地域で発表されています</span>
                 <span class="ra-white-time">発表 --/-- --:--</span>
                 <span class="ra-white-what">警報・注意報など</span>
             </div>
@@ -1685,14 +1679,14 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">博多区</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">博多区</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">博多区</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">博多区</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">博多区</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">博多区</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">博多区</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">博多区</div></div></div>
         </div>
     </div>
 
@@ -1893,7 +1887,7 @@
         document.querySelectorAll('.content-area .col-bg-layer').forEach(function (layer) {
             const host = layer.parentElement;
             if (host && host.classList.contains('t3-unit')) {
-                applyColorsToT3UnitLayer(layer, colors);
+                applyT3UnitStrip(host, levelIdx, displayMode);
                 return;
             }
             applyColorsToLayer(layer, colors, KIND.STRIP);
@@ -1916,9 +1910,17 @@
         let levelIdx = -1;
         if (mode === 'normal') {
             const row = slots && slots[0];
-            levelIdx = row && row.wbgt != null
-                ? (Number.isInteger(row.levelIdx) ? row.levelIdx : 0)
-                : 0;
+            if (row && row.wbgt != null) {
+                const w = Number(row.wbgt);
+                if (Number.isFinite(w)) {
+                    for (let i = 0; i < LEVELS.length; i++) {
+                        if (w >= LEVELS[i].min) { levelIdx = LEVELS[i].levelIdx; break; }
+                    }
+                }
+                if (levelIdx < 0) levelIdx = 0;
+            } else {
+                levelIdx = 0;
+            }
         }
         document.querySelectorAll('#scene4 .fc-track .fc-panel').forEach(function (panel) {
             applyStrip(panel, levelIdx, mode);
@@ -2195,7 +2197,7 @@
     const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '福岡県';
     const MOE_POINT_CFG = {
         prefKey: 'fukuoka',
-        pointName: (SITE_CFG.site && SITE_CFG.site.label) || '福岡市博多区'
+        pointName: (SITE_CFG.moe && SITE_CFG.moe.pointName) || (SITE_CFG.site && SITE_CFG.site.label) || '博多区'
     };
     const DEFAULT_MOE_GAS_URL = (SITE_CFG.moe && SITE_CFG.moe.gasUrl) || '';
     const MOE_WBGT_API_URL = query.get('moeApi') || DEFAULT_MOE_GAS_URL;
@@ -2293,9 +2295,16 @@
     let wbgtUnavailable = false;
     /** 連続取得失敗がこの時間を超えたときだけ「取得不可」表示（ms） */
     const WBGT_UNAVAILABLE_GRACE_MS = 60000;
+    /** 時計・データの死活監視（タブスリープ復帰・通信断対策） */
+    const SIGNAGE_WATCHDOG_MS = 90000;
+    /** スケジュール取得に加え、最低限この間隔で再取得（長時間放置対策） */
+    const SIGNAGE_KEEPALIVE_FETCH_MS = 5 * 60 * 1000;
     let wbgtFailSinceMs_ = null;
     let lastGoodWbgtSlots_ = null;
     let wbgtUnavailableTimerId_ = null;
+    let signageWatchdogId_ = null;
+    let lastKeepaliveFetchMs_ = 0;
+    let recoverSignageDebounceId_ = null;
 
     const multi = [
         { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"Aman: Minum air cukup", fil:"Halos ligtas: Uminom ng tubig", vn:"An toàn: Bổ sung nước" },
@@ -2356,11 +2365,7 @@
         if (currentWbgtLevel >= 0) return currentWbgtLevel;
         const row = (lastGoodWbgtSlots_ && lastGoodWbgtSlots_[0]) ||
             (lastWbgtSlots && lastWbgtSlots[0]);
-        if (row && row.wbgt != null) {
-            if (Number.isInteger(row.levelIdx)) return row.levelIdx;
-            return wbgtLevel(row.wbgt);
-        }
-        return -1;
+        return wbgtLevelFromSlotRow_(row);
     }
     function syncWbgtLevelFromSlots(slots) {
         const row = slots && slots[0];
@@ -2395,9 +2400,8 @@
     /** 背景色用: unavailable/offseason 以外は getS1WbgtLevelForDisplay_ を使用 */
     function levelFromLastGoodWbgtSlots_() {
         if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) return null;
-        const row = lastGoodWbgtSlots_[0];
-        if (!row || row.wbgt == null) return null;
-        return Number.isInteger(row.levelIdx) ? row.levelIdx : wbgtLevel(row.wbgt);
+        const lv = wbgtLevelFromSlotRow_(lastGoodWbgtSlots_[0]);
+        return lv >= 0 ? lv : null;
     }
     function getSignageBgLevel_() {
         if (getSignageDisplayMode_() !== 'normal') return -1;
@@ -2537,6 +2541,7 @@
             : (lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null));
         if (slots) SignageBg.refreshForecast(slots, mode);
         if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
+        if (s3 && s3.classList.contains('active')) syncScene3Display_();
     }
     function refreshSignageBgIfChanged_(force) {
         const rawMode = getSignageDisplayMode_();
@@ -2738,7 +2743,7 @@
         else if (level === 'warning') heatAlertActive = ['warning'];
         else heatAlertActive = [];
         queueDisplayRefresh_();
-        if (s3 && s3.classList.contains('active')) refreshT3LevelBar_();
+        if (s3 && s3.classList.contains('active')) syncScene3Display_();
     }
     /* ===== 大雨警報（気象庁・5段階）＋ L3 警報4種 ===== */
     /** 気象庁情報一覧（種別順送り用 warntype=lXall）— 気象庁カテゴリ対応表準拠 */
@@ -2909,7 +2914,7 @@
     const JMA_WARN_CITY = query.get('warnCity') || '4013200';  /* 福岡市博多区 */
     const JMA_WARN_CITY_LABELS = { '4013200': '福岡市博多区', '400000': '福岡県' };
     let rainWarnMeta = {
-        cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || MOE_POINT_CFG.pointName || '福岡市博多区',
+        cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || MOE_POINT_CFG.pointName || '博多区',
         updatedAt: ''
     };
     const RAIN_WHITE_LEVEL_CHIP = {
@@ -3246,7 +3251,7 @@
         return labels.slice(0, 5).join('・') + 'など';
     }
     function whiteHeaderAreaPhrase_() {
-        const name = rainWarnMeta.cityName || JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || '福岡市博多区';
+        const name = rainWarnMeta.cityName || JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || '博多区';
         return name + 'の地域で発表されています';
     }
     function whiteHeaderTexts_() {
@@ -3360,7 +3365,7 @@
             || (payload && payload.cityName)
             || JMA_WARN_CITY_LABELS[JMA_WARN_CITY]
             || MOE_POINT_CFG.pointName
-            || '福岡市博多区';
+            || '博多区';
         rainWarnMeta.updatedAt = (payload && payload.updatedAt)
             || (warnJson && warnJson.reportDatetime)
             || rainWarnMeta.updatedAt
@@ -4209,7 +4214,7 @@
         }
         const badge = document.getElementById('demo-badge');
         const liveLabel = RAIN_WHITE_DESIGN && !whiteModeForced_()
-            ? ('確認 · ' + (rainWarnMeta.cityName || '福岡市博多区') + ' 発表中 ' + rainWhiteQueue.length + '件')
+            ? ('確認 · ' + (rainWarnMeta.cityName || '博多区') + ' 発表中 ' + rainWhiteQueue.length + '件')
             : '確認 · 大雨警報';
         if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = liveLabel; }
         else if (badge) { badge.hidden = true; }
@@ -4319,7 +4324,20 @@
     }
     function applyScrollX_(el, x) {
         if (!el) return;
-        el.style.transform = 'translate3d(' + scrollPx_(x) + 'px,0,0)';
+        el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,0,0)';
+    }
+    function normalizeGlobalScroll_(lapPx) {
+        if (!lapPx || lapPx <= 0) return false;
+        let crossed = false;
+        while (globalScrollX_ <= -lapPx) {
+            globalScrollX_ += lapPx;
+            crossed = true;
+        }
+        while (globalScrollX_ > 0) {
+            globalScrollX_ -= lapPx;
+            crossed = true;
+        }
+        return crossed;
     }
     function wrapScrollX_(x, lapW) {
         if (!lapW || lapW <= 0) return x;
@@ -4333,13 +4351,14 @@
     }
     function applyGlobalScroll_(el, lapPx) {
         if (!el || !lapPx) return;
-        applyScrollX_(el, wrapScrollX_(globalScrollX_, lapPx));
+        normalizeGlobalScroll_(lapPx);
+        applyScrollX_(el, globalScrollX_);
     }
     function getS1FootLapPx_() {
         if (!s1WbgtTrack) return SCENE1_WBGT_LAP_PX;
         const setEl = s1WbgtTrack.querySelector('.s1-wbgt-set');
         if (!setEl) return SCENE1_WBGT_LAP_PX;
-        /* 社名|WBGT×2 のシームレス周期は512px（set幅1024の半分） */
+        /* 社名|WBGT×2 のシームレス周期は512px（set幅1024の半分）— 旧レイアウト互換 */
         if (setEl.classList.contains('s1-wbgt-set-scroll')) return SCENE1_WBGT_LAP_PX;
         return Math.max(SCENE1_WBGT_LAP_PX, setEl.offsetWidth);
     }
@@ -4378,9 +4397,6 @@
     const CLOCK_SYNC_INTERVAL_MS = 60000;
     const clockHmFormatter = new Intl.DateTimeFormat('en-GB', {
         timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hour12: false
-    });
-    const clockSecFormatter = new Intl.DateTimeFormat('en-GB', {
-        timeZone: CLOCK_TZ, second: 'numeric'
     });
     const clockDateFormatter = new Intl.DateTimeFormat('ja-JP', {
         timeZone: CLOCK_TZ, month: 'long', day: 'numeric', weekday: 'short'
@@ -4527,8 +4543,8 @@
         }
     }
     function ensureClockHmStructure_(el) {
-        if (el.querySelector('.clock-colon-wrap')) return;
-        el.innerHTML = '<span class="clock-h">--</span><span class="clock-colon-wrap" aria-hidden="true"><span class="clock-colon clock-colon-dim">:</span><span class="clock-colon clock-colon-bright">:</span></span><span class="clock-m">--</span>';
+        if (el.querySelector('.clock-colon-wrap') && !el.querySelector('.clock-colon-dim')) return;
+        el.innerHTML = '<span class="clock-h">--</span><span class="clock-colon-wrap" aria-hidden="true"><span class="clock-colon">:</span></span><span class="clock-m">--</span>';
     }
     function updateClock() {
         let ms = getSyncedUtcMs();
@@ -4541,13 +4557,10 @@
             if (p.type === 'hour') h = p.value;
             if (p.type === 'minute') m = p.value;
         });
-        const sec = Number(clockSecFormatter.format(now)) || 0;
-        const colonOn = sec % 2 === 0;
         document.querySelectorAll('.clock-hm').forEach(function (el) {
             ensureClockHmStructure_(el);
             el.querySelector('.clock-h').textContent = h;
             el.querySelector('.clock-m').textContent = m;
-            el.querySelector('.clock-colon-wrap').classList.toggle('colon-on', colonOn);
         });
         document.querySelectorAll('#scene1 .s1-bar-label').forEach(el => { el.innerText = d; });
         fitS1DateFontSize_();
@@ -4582,6 +4595,16 @@
     }
     function calcWbgt(t, h) { return null; }
     function wbgtLevel(w) { return w >= 31 ? 4 : w >= 28 ? 3 : w >= 25 ? 2 : w >= 21 ? 1 : 0; }
+    /** 本番は WBGT 数値から段階を算出（API の levelIdx ずれ防止）。デモのみ levelIdx を尊重 */
+    function wbgtLevelFromSlotRow_(row) {
+        if (!row || row.wbgt == null) return -1;
+        if (DEMO_SIGNAGE_ACTIVE && Number.isInteger(row.levelIdx)) return row.levelIdx;
+        return wbgtLevel(row.wbgt);
+    }
+    /** シーン3: 上帯・多言語本文・下帯指針・列背景は必ず同一レベル */
+    function getScene3Level_() {
+        return getS1WbgtLevelForDisplay_();
+    }
     function hasFull4Slots(slots) {
         return Array.isArray(slots) && slots.length >= 4 && slots[0] != null && slots[0].wbgt != null;
     }
@@ -4698,8 +4721,12 @@
         for (let i = 0; i < 4; i++) {
             const row = rows[i] || {};
             const wbgt = normalizeWbgtCelsius(row.wbgt ?? row.value ?? row.wbgtValue);
-            const explicitLv = Number.isInteger(row.levelIdx) ? row.levelIdx : null;
-            const lv = wbgt == null ? 0 : (explicitLv != null ? explicitLv : wbgtLevel(wbgt));
+            let lv = 0;
+            if (wbgt != null) {
+                lv = (DEMO_SIGNAGE_ACTIVE && Number.isInteger(row.levelIdx))
+                    ? row.levelIdx
+                    : wbgtLevel(wbgt);
+            }
             slots.push({ wbgt, levelIdx: Math.max(0, Math.min(4, lv)), hour: row.hour || row.timeLabel || row.time || (i === 0 ? '現在' : ('+' + (i * 3) + 'h')) });
         }
         return slots;
@@ -4819,6 +4846,19 @@
     }
     function applyWbgtUnavailableToDom_() {
         if (wbgtOffSeason || !wbgtUnavailableGraceElapsed_()) return;
+        /* 一度でも取得成功していれば「取得不可」にせず直前値を維持して再試行 */
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            console.warn('[WBGT] 1分以上取得できません — 直前値を維持して再試行します');
+            wbgtUnavailable = false;
+            syncWbgtSlotsToDomIfReady_();
+            refreshSignageBgIfChanged_();
+            wbgtFailSinceMs_ = getNowMs();
+            scheduleWbgtUnavailableCheck_();
+            if (!scheduledFetchInFlight_) {
+                startBackgroundFetch_({ jma: true, moe: true, nowc: true, forecast: true, labels: ['stale-retry'] });
+            }
+            return;
+        }
         wbgtUnavailable = true;
         syncWbgtDependentAlerts_();
         const nullSlot = { wbgt: null, hour: '取得不可' };
@@ -5111,7 +5151,7 @@
                     }
                     if (wbgt.source === 'off-season' || wbgt.inService === false) {
                         sawOffSeason = true;
-                        console.log('[WBGT] 福岡(82182)にデータなし');
+                        console.log('[WBGT] 博多区(82182)にデータなし');
                         continue;
                     }
                     return parseMoeJson_(wbgt);
@@ -5566,6 +5606,46 @@
             scheduleDataRefresh();
         });
     }
+    function recoverSignage_(reason) {
+        if (DEMO_SIGNAGE_ACTIVE) return;
+        if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'recover-fallback');
+        try { updateClock(); } catch (_) {}
+        startClockTicker();
+        syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+        lastKeepaliveFetchMs_ = getNowMs();
+        if (!scheduledFetchInFlight_) {
+            startBackgroundFetch_({
+                jma: true, moe: true, nowc: true, forecast: true,
+                labels: ['recover', reason || 'auto']
+            });
+        }
+    }
+    function recoverSignageDebounced_(reason) {
+        if (recoverSignageDebounceId_ != null) clearTimeout(recoverSignageDebounceId_);
+        recoverSignageDebounceId_ = setTimeout(function () {
+            recoverSignageDebounceId_ = null;
+            recoverSignage_(reason);
+        }, 800);
+    }
+    function startSignageWatchdog_() {
+        if (signageWatchdogId_ != null) clearInterval(signageWatchdogId_);
+        if (DEMO_SIGNAGE_ACTIVE) return;
+        signageWatchdogId_ = setInterval(function () {
+            if (document.visibilityState === 'hidden') return;
+            try { updateClock(); } catch (_) {}
+            if (clockIntervalId == null && clockBackupIntervalId == null) startClockTicker();
+            const now = getNowMs();
+            const needFetch = wbgtUnavailable || lastFetchFail ||
+                (now - lastKeepaliveFetchMs_ >= SIGNAGE_KEEPALIVE_FETCH_MS);
+            if (needFetch && !scheduledFetchInFlight_) {
+                lastKeepaliveFetchMs_ = now;
+                startBackgroundFetch_({
+                    jma: true, moe: true, nowc: true, forecast: true,
+                    labels: ['watchdog']
+                });
+            }
+        }, SIGNAGE_WATCHDOG_MS);
+    }
     function latLonToTilePixel_(lat, lon, z) {
         const n = Math.pow(2, z);
         const xf = (lon + 180) / 360 * n;
@@ -5728,7 +5808,7 @@
     }
     /* 下帯: WBGT取得不可時は「取得不可」。提供期間外は地点名で白帯を維持 */
     function getS1FootFallbackText_() {
-        return (SITE_CFG.site && SITE_CFG.site.label) || MOE_POINT_CFG.pointName || '福岡市博多区';
+        return (SITE_CFG.site && SITE_CFG.site.label) || MOE_POINT_CFG.pointName || '博多区';
     }
     function getS1SiteCustomerName_() {
         const site = SITE_CFG.site || {};
@@ -5752,8 +5832,10 @@
         });
     }
     function sizeS1FootWbgtText_() {
-        const maxW = FOOT_BAR_SLOT_W - 12;
-        document.querySelectorAll('#scene1 .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact').forEach(function (el) {
+        document.querySelectorAll('#scene1 .s1-wbgt-msg-compact').forEach(function (el) {
+            const slot = el.closest('.s1-wbgt-slot');
+            const slotW = (slot && slot.classList.contains('s1-wbgt-slot-wide')) ? 512 : FOOT_BAR_SLOT_W;
+            const maxW = slotW - 12;
             let fz = COMPANY_LINE_FONT_START_PX_;
             el.style.fontSize = fz + 'px';
             let guard = 24;
@@ -5816,19 +5898,16 @@
     function buildFootBarSlotHtml(msgHtml, slotClass) {
         return `<div class="${slotClass}">${msgHtml}</div>`;
     }
+    /* 下帯: WBGT文言のみ（社名は表示しない）— 512px周期で2分割しシームレスに */
     function buildS1WbgtSetHtml(text) {
-        const siteName = getS1SiteCustomerName_();
         const msgText = String(text || getS1WbgtMessageJp() || '').trim();
-        if (siteName && msgText) {
-            return buildS1FootScrollSetHtml_(msgText);
+        if (!msgText) return '';
+        const msg = buildS1WbgtMsgHtml(msgText);
+        if (footBarUseCompact_(msgText)) {
+            const slot = `<div class="s1-wbgt-slot s1-wbgt-slot-wide s1-wbgt-slot-wbgt">${msg}</div>`;
+            return `<div class="s1-wbgt-set s1-wbgt-set-scroll">${slot}${slot}</div>`;
         }
-        const line = msgText || siteName || getS1FootFallbackText_();
-        const msg = buildS1WbgtMsgHtml(line);
-        if (footBarUseCompact_(line)) {
-            const slot = `<div class="s1-wbgt-slot s1-wbgt-slot-wide">${msg}</div>`;
-            return `<div class="s1-wbgt-set">${slot}</div>`;
-        }
-        const slot = buildFootBarSlotHtml(msg, 's1-wbgt-slot');
+        const slot = buildFootBarSlotHtml(msg, 's1-wbgt-slot s1-wbgt-slot-wbgt');
         return `<div class="s1-wbgt-set">${slot}${slot}</div>`;
     }
     function getFcLvText() {
@@ -5864,14 +5943,20 @@
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
     }
     function clearScene4LvTimers() { clearScene4Timers(); }
+    let s1FootBarCachedText_ = '';
     function refreshS1WbgtFootBar_(resetTransform) {
         if (!s1WbgtTrack) return;
         const text = getS1WbgtMessageJp();
+        if (text === s1FootBarCachedText_ && s1WbgtTrack.children.length) {
+            const bar = document.querySelector('#scene1 .s1-wbgt-bar');
+            if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
+            return;
+        }
+        s1FootBarCachedText_ = text;
         let html = '';
         for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
         s1WbgtTrack.innerHTML = html;
         applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
-        sizeS1FootCompanyText_();
         sizeS1FootWbgtText_();
         const bar = document.querySelector('#scene1 .s1-wbgt-bar');
         if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
@@ -6124,7 +6209,7 @@
             if (DEMO_T3_LANG_IDX >= 0 && DEMO_T3_LANG_IDX < all.length) return [all[DEMO_T3_LANG_IDX]];
             return all;
         }
-        const lv = getS1WbgtLevelForDisplay_();
+        const lv = getScene3Level_();
         if (lv < 0) return [];
         const m = multi[lv];
         const all = T3_LANG_KEYS.map(function (key) { return splitT3Message_(m[key]); });
@@ -6167,7 +6252,7 @@
             if (heatAlertActive.includes('special')) return T3_WBGT_GUIDE_TIERS[0];
             if (heatAlertActive.includes('warning')) return T3_WBGT_GUIDE_TIERS[1];
         }
-        const lv = getS1WbgtLevelForDisplay_();
+        const lv = getScene3Level_();
         if (lv < 0) return null;
         const tierIdx = T3_GUIDE_TIER_BY_LEVEL[lv];
         return tierIdx != null ? T3_WBGT_GUIDE_TIERS[tierIdx] : null;
@@ -6257,13 +6342,32 @@
             return;
         }
         buildT3HeatAlertTopTrack_();
-        const dispLv = getS1WbgtLevelForDisplay_();
+        const dispLv = getScene3Level_();
+        const mode = getSignageDisplayMode_();
         const lvLabel = (wbgtUnavailable || dispLv < 0) ? '--' : levelNames[dispLv];
         document.querySelectorAll('#scene3 .t3-lv-static').forEach(function (n) { n.textContent = lvLabel; });
         if (typeof SignageBg !== 'undefined' && SignageBg.applyT3TopBar) {
-            SignageBg.applyT3TopBar(staticTopBar, getSignageBgLevel_(), getSignageDisplayMode_());
+            SignageBg.applyT3TopBar(staticTopBar, dispLv, mode);
         } else if (staticTopBar) {
             staticTopBar.style.backgroundColor = '';
+        }
+    }
+    /** シーン3の上帯・本文・下帯・背景色を同一 WBGT 段階で再同期 */
+    function syncScene3Display_() {
+        if (!s3) return;
+        const lv = getScene3Level_();
+        const mode = getSignageDisplayMode_();
+        t3Messages_ = getT3Messages_();
+        buildT3GuideTrack();
+        if (typeof SignageBg !== 'undefined' && SignageBg.refreshTicker) {
+            SignageBg.refreshTicker(lv, mode);
+        }
+        refreshT3LevelBar_();
+        if (s3.classList.contains('active') && t3Messages_.length) {
+            const langIdx = (t3Flow_ && Number.isInteger(t3Flow_.langIdx))
+                ? t3Flow_.langIdx
+                : t3LangIdx_;
+            setT3Lang_(langIdx);
         }
     }
     function t3LineBoxH_(node) {
@@ -6407,7 +6511,7 @@
         if (!probe1 || !probe2) return;
         const li = langIdx != null ? langIdx : t3LangIdx_;
         const langKey = T3_LANG_KEYS[li];
-        const levelIdx = getS1WbgtLevelForDisplay_();
+        const levelIdx = getScene3Level_();
         const hasL1 = String(probe1.textContent || '').trim().length > 0;
         const setAll = function (f1, f2) {
             document.querySelectorAll('#scene3 .t3-l1').forEach(function (n) {
@@ -6533,13 +6637,7 @@
         });
     }
     function buildTicker() {
-        buildT3GuideTrack();
-        t3Messages_ = getT3Messages_();
-        if (typeof SignageBg !== 'undefined') SignageBg.refreshTicker(getSignageBgLevel_(), getSignageDisplayMode_());
-        refreshT3LevelBar_();
-        if (s3 && s3.classList.contains('active') && t3Messages_.length) {
-            sizeT3Text_(t3LangIdx_);
-        }
+        syncScene3Display_();
     }
     function playScene3() {
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
@@ -6549,15 +6647,14 @@
             return;
         }
         applyDisplayRefreshAtSceneEntry_();
-        buildTicker();
+        syncScene3Display_();
         applyPendingSignageBgAtScene_();
-        t3Messages_ = getT3Messages_();
-        buildT3GuideTrack();
-        const guidTrack = document.getElementById('t3-guid-track');
+        syncScene3Display_();
         if (!t3Messages_.length) {
             gotoAfterScene3_();
             return;
         }
+        const guidTrack = document.getElementById('t3-guid-track');
         stepLogo90(420, true);
         const tracks = document.querySelectorAll('#scene3 .t3-track');
         if (!tracks.length) {
@@ -6625,22 +6722,23 @@
             if (!s1WbgtTrack.children.length) refreshS1WbgtFootBar_(true);
             const s1FootLap = getS1FootLapPx_();
             s1Flow_ = {
-                startX: wrapScrollX_(globalScrollX_, s1FootLap),
-                x: wrapScrollX_(globalScrollX_, s1FootLap),
+                startX: globalScrollX_,
+                x: globalScrollX_,
                 laps: 0,
                 moved: false
             };
-            applyGlobalScroll_(s1WbgtTrack, s1FootLap);
+            normalizeGlobalScroll_(s1FootLap);
+            applyScrollX_(s1WbgtTrack, globalScrollX_);
             function animateS1WbgtRtl() {
                 if (advanceToken !== scene1AdvanceToken + 1) return;
-                const prevX = s1Flow_.x;
                 advanceGlobalScroll_(getScrollSpeedPx_());
-                s1Flow_.x = wrapScrollX_(globalScrollX_, s1FootLap);
-                if (!s1Flow_.moved && Math.abs(s1Flow_.x - s1Flow_.startX) > 0.5) {
+                const lapCrossed = normalizeGlobalScroll_(s1FootLap);
+                applyScrollX_(s1WbgtTrack, globalScrollX_);
+                if (!s1Flow_.moved && Math.abs(globalScrollX_ - s1Flow_.startX) > 0.5) {
                     s1Flow_.moved = true;
                 }
-                applyGlobalScroll_(s1WbgtTrack, s1FootLap);
-                if (s1Flow_.moved && detectScrollLapCrossed_(prevX, s1Flow_.x)) {
+                s1Flow_.x = globalScrollX_;
+                if (s1Flow_.moved && lapCrossed) {
                     s1Flow_.laps += 1;
                     if (s1Flow_.laps >= SCENE1_ADVANCE_LAPS) {
                         scene1AnimId = null;
@@ -6967,7 +7065,7 @@
     window.onload = async function() {
         restoreSignageStateCache_();
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
-        const forecastLocLabel = (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) || '福岡市';
+        const forecastLocLabel = (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) || '博多区';
         document.querySelectorAll('#scene5 .s2-loc').forEach(function (el) {
             el.textContent = forecastLocLabel;
         });
@@ -7024,8 +7122,10 @@
         function beginMainLoop_() {
             if (mainLoopStarted_) return;
             mainLoopStarted_ = true;
+            lastKeepaliveFetchMs_ = getNowMs();
             startSequence();
             scheduleDataRefresh();
+            startSignageWatchdog_();
             updateRainNowcastAlert_().then(function () {
                 queueDisplayRefresh_();
                 if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
@@ -7042,10 +7142,12 @@
         ]).finally(beginMainLoop_);
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
-                syncTimeFromNetwork().then(function() { updateClock(); startClockTicker(); }).catch(function() { startClockTicker(); });
-                startBackgroundFetch_({ jma: true, moe: true, nowc: true, forecast: true, labels: ['復帰'] });
+                recoverSignage_('visible');
             }
         });
+        window.addEventListener('online', function () { recoverSignage_('online'); });
+        window.addEventListener('focus', function () { recoverSignageDebounced_('focus'); });
+        window.addEventListener('pageshow', function () { recoverSignageDebounced_('pageshow'); });
     };
 
 
