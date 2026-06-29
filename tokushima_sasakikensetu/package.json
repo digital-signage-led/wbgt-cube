@@ -1,0 +1,16 @@
+{
+  "name": "tokushima_sasakikensetu",
+  "version": "1.0.0",
+  "description": "佐々木建設 WBGT サイネージ（徳島・北島町 / 老門作業所）",
+  "private": true,
+  "scripts": {
+    "refresh-ecs": "node scripts/refresh-ecs.js",
+    "prestart": "node scripts/refresh-ecs.js",
+    "start": "node server.js",
+    "proxy": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "commonjs"
+}
