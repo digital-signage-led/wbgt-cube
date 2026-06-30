@@ -1,6 +1,6 @@
 'use strict';
 
-/** 伝承バトー API を同一オリジン …/api/densho/latest として中継（CORS 回避） v20260630b */
+/** 伝承バトー API を同一オリジン …/api/densho/latest として中継（CORS 回避） v20260622c */
 var DENSHO_UPSTREAM =
     'https://densho-bato.com/member/get_json_data_latest?term_id=1&pgn=miyagawa01';
 

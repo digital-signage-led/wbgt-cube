@@ -38,14 +38,31 @@
     var path = location.pathname || '/';
     if (/\/[^/]+\.[^/]+$/i.test(path)) path = path.replace(/\/[^/]+$/, '');
     if (!path.endsWith('/')) path += '/';
-    var swVer = '20260630b';
+    var swVer = '20260622c';
+    var swFile = 'sw-densho-proxy.js';
     var scopeUrl = new URL(path, location.href).href;
+    function swScriptOk_(scriptUrl) {
+        var su = String(scriptUrl || '');
+        return su.indexOf(swFile) >= 0 && su.indexOf(path.replace(/^\//, '')) >= 0;
+    }
+    function controllerOk_() {
+        return navigator.serviceWorker.controller && swScriptOk_(navigator.serviceWorker.controller.scriptURL);
+    }
+    var fixKey = 'denshoSwLegacyFix_v2_' + path.replace(/[^\w]+/g, '_');
+    if (navigator.serviceWorker.controller && !controllerOk_() && !sessionStorage.getItem(fixKey)) {
+        sessionStorage.setItem(fixKey, '1');
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+            return Promise.all(regs.map(function (r) { return r.unregister(); }));
+        }).then(function () { location.reload(); });
+        return;
+    }
     navigator.serviceWorker.getRegistrations().then(function (regs) {
         regs.forEach(function (r) {
             if (r.scope !== scopeUrl) r.unregister();
         });
     });
-    navigator.serviceWorker.register(path + 'sw-densho-proxy.js?v=' + swVer, { scope: path, updateViaCache: 'none' }).catch(function () {});
+    navigator.serviceWorker.register(path + swFile + '?v=' + swVer, { scope: path, updateViaCache: 'none' })
+        .catch(function (e) { console.warn('[Densho] SW 登録失敗:', e); });
 })();
 
     </script>
@@ -2205,7 +2222,7 @@
         query.get('denshoProxy') || (SITE_CFG.densho && SITE_CFG.densho.proxyUrl) || '';
     const DENSHO_DATA_INTERVAL_MS =
         ((SITE_CFG.densho && SITE_CFG.densho.dataIntervalSec) || 600) * 1000;
-    const DENSHO_SW_ASSET_VER = '20260630b';
+    const DENSHO_SW_ASSET_VER = '20260622c';
     function isServeJsPort_() {
         var p = Number(location.port) || 80;
         return p >= 8765 && p <= 8775;
@@ -2228,6 +2245,15 @@
     function denshoSwReloadKey_() {
         return 'denshoSwReload_' + denshoDeployBasePath_().replace(/[^\w]+/g, '_');
     }
+    function denshoSwScriptOk_(scriptUrl) {
+        var su = String(scriptUrl || '');
+        var base = denshoDeployBasePath_().replace(/^\//, '');
+        return su.indexOf('sw-densho-proxy.js') >= 0 && (!base || su.indexOf(base) >= 0);
+    }
+    function denshoSwControllerOk_() {
+        return !!(navigator.serviceWorker && navigator.serviceWorker.controller
+            && denshoSwScriptOk_(navigator.serviceWorker.controller.scriptURL));
+    }
     function denshoUnregisterForeignSw_() {
         if (!navigator.serviceWorker) return Promise.resolve();
         var wanted = denshoSwScopeUrl_();
@@ -2244,8 +2270,10 @@
     }
     function waitForDenshoProxyReady_(ms) {
         if (isServeJsPort_() || !DENSHO_API_URL) return Promise.resolve(true);
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) return Promise.resolve(true);
-        return waitForSwController_(ms != null ? ms : 15000);
+        if (denshoSwControllerOk_()) return Promise.resolve(true);
+        return waitForSwController_(ms != null ? ms : 20000).then(function (ok) {
+            return ok && denshoSwControllerOk_();
+        });
     }
     function denshoFetchUrls_() {
         const urls = [];
@@ -2258,13 +2286,10 @@
             add(denshoLocalProxyUrl_());
             return urls;
         }
-        /* SW 有効時は同一オリジンのみ（SW が API を中継） */
-        if (navigator.serviceWorker && navigator.serviceWorker.controller && location.protocol.indexOf('http') === 0) {
+        /* SW がページを制御しているときだけ仮想プロキシ URL を使う（未登録時の 404 を防ぐ） */
+        if (location.protocol.indexOf('http') === 0 && denshoSwControllerOk_()) {
             add(denshoLocalProxyUrl_());
             return urls;
-        }
-        if (location.protocol.indexOf('http') === 0) {
-            add(denshoLocalProxyUrl_());
         }
         const host = location.hostname;
         const curPort = Number(location.port) || (location.protocol === 'https:' ? 443 : 80);
@@ -2277,21 +2302,19 @@
         return urls;
     }
     function waitForSwController_(ms) {
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-            return Promise.resolve(true);
-        }
+        if (denshoSwControllerOk_()) return Promise.resolve(true);
         return new Promise(function (resolve) {
             var done = false;
             function finish_(ok) {
                 if (done) return;
                 done = true;
-                resolve(ok);
+                resolve(!!ok && denshoSwControllerOk_());
             }
-            var timer = setTimeout(function () { finish_(!!navigator.serviceWorker.controller); }, ms || 8000);
+            var timer = setTimeout(function () { finish_(denshoSwControllerOk_()); }, ms || 8000);
             if (navigator.serviceWorker) {
                 navigator.serviceWorker.addEventListener('controllerchange', function () {
                     clearTimeout(timer);
-                    finish_(true);
+                    finish_(denshoSwControllerOk_());
                 }, { once: true });
             } else {
                 clearTimeout(timer);
@@ -2318,18 +2341,19 @@
         }).then(function () {
             return navigator.serviceWorker.ready;
         }).then(function () {
-            if (navigator.serviceWorker.controller) {
+            if (denshoSwControllerOk_()) {
                 console.log('[Densho] Service Worker 有効');
                 return true;
             }
             var reloadKey = denshoSwReloadKey_();
-            if (!sessionStorage.getItem(reloadKey)) {
-                sessionStorage.setItem(reloadKey, '1');
-                console.log('[Densho] 初回のみ再読み込み（API 取得を有効化）');
+            var reloadCount = Number(sessionStorage.getItem(reloadKey) || '0');
+            if (reloadCount < 2) {
+                sessionStorage.setItem(reloadKey, String(reloadCount + 1));
+                console.log('[Densho] 再読み込み（API 取得を有効化）', reloadCount + 1, '/ 2');
                 location.reload();
                 return 'reload';
             }
-            return waitForSwController_(8000);
+            return waitForSwController_(12000);
         }).catch(function (e) {
             console.warn('[Densho] Service Worker 失敗:', e.message || e);
             return false;
@@ -5775,7 +5799,13 @@
     }
     async function fetchDenshoBatoLatest_() {
         if (!isServeJsPort_() && DENSHO_API_URL) {
-            await waitForDenshoProxyReady_(15000);
+            const swOk = await waitForDenshoProxyReady_(20000);
+            if (!swOk) {
+                throw new Error(
+                    'Service Worker が有効化されていません。Ctrl+Shift+R で再読み込みするか、' +
+                    '開発者ツール → Application → Service Workers で旧 SW を解除してください'
+                );
+            }
         }
         const urls = denshoFetchUrls_();
         if (!urls.length) throw new Error('densho apiUrl unset');
