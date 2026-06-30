@@ -42,8 +42,36 @@
     }
     if (document.body) addBody_();
     else document.addEventListener('DOMContentLoaded', addBody_);
+    /* 本番: 解析直後にキャッシュ色を head へ注入（黒画面フラッシュ防止） */
+    (function bootSignagePaintHead_() {
+        if (/[?&]demo=1(?:&|$)/.test(location.search)) return;
+        if (/[?&]wbgtUnknown=1(?:&|$)/.test(location.search)) return;
+        var COLORS = [
+            { bg: '#308DD8', bar: '#55A5E6' },
+            { bg: '#FFD92D', bar: '#FEE968' },
+            { bg: '#FFBE2D', bar: '#FECD58' },
+            { bg: '#FF7E00', bar: '#FF9A38' },
+            { bg: '#D61914', bar: '#E94540' }
+        ];
+        var lv = 0;
+        try {
+            var raw = localStorage.getItem('fujiken_nagasaki_paint_v1');
+            if (raw) {
+                var d = JSON.parse(raw);
+                if (d && d.lv >= 0 && d.lv <= 4) lv = d.lv;
+            }
+        } catch (e) {}
+        var c = COLORS[lv] || COLORS[0];
+        var st = document.createElement('style');
+        st.id = 'signage-boot-paint';
+        st.textContent =
+            'body.native-512 .canvas,body.native-512 .content-area{background:' + c.bg + '!important;}' +
+            '#signage-boot-strip .col-bg-top{background:' + c.bar + '!important;}' +
+            '#signage-boot-strip .col-bg-body{background:' + c.bg + '!important;}' +
+            '#signage-boot-strip .col-bg-foot{background:#fff9f0!important;}';
+        document.head.appendChild(st);
+    })();
 })();
-
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap');
@@ -82,6 +110,7 @@
             overflow: hidden !important;
             position: fixed;
             top: 0; left: 0;
+            background-color: #000;
         }
         html.native-512, html.native-512 body {
             position: fixed;
@@ -107,11 +136,13 @@
             width: 512px !important;
             height: 128px !important;
             transform: none !important;
+            background-color: #308DD8;
         }
         body.layout-512.native-512 .content-area {
             position: absolute;
             top: 0; left: 0;
             margin: 0; padding: 0;
+            background-color: #308DD8;
         }
         body.layout-512.native-512 .logo-panel {
             display: none !important;
@@ -1815,6 +1846,39 @@
     footLogoSrc: '',
     footBannerSrc: './assets/fujiken-foot-banner.png'
   };
+  /* 本番: SignageConfig 読込直後にキャッシュ色を再適用（地点コードで検証） */
+  (function bootSignagePaintAfterCfg_() {
+    if (/[?&]demo=1(?:&|$)/.test(location.search)) return;
+    if (/[?&]wbgtUnknown=1(?:&|$)/.test(location.search)) return;
+    var point = (cfg.moe && cfg.moe.point) || '84496';
+    var COLORS = [
+      { bg: '#308DD8', bar: '#55A5E6' },
+      { bg: '#FFD92D', bar: '#FEE968' },
+      { bg: '#FFBE2D', bar: '#FECD58' },
+      { bg: '#FF7E00', bar: '#FF9A38' },
+      { bg: '#D61914', bar: '#E94540' }
+    ];
+    var lv = 0;
+    try {
+      var raw = localStorage.getItem('fujiken_nagasaki_paint_v1');
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d && String(d.point) === String(point) && d.lv >= 0 && d.lv <= 4) lv = d.lv;
+      }
+    } catch (e) {}
+    var c = COLORS[lv] || COLORS[0];
+    var st = document.getElementById('signage-boot-paint');
+    if (!st) {
+      st = document.createElement('style');
+      st.id = 'signage-boot-paint';
+      document.head.appendChild(st);
+    }
+    st.textContent =
+      'body.native-512 .canvas,body.native-512 .content-area{background:' + c.bg + '!important;}' +
+      '#signage-boot-strip .col-bg-top{background:' + c.bar + '!important;}' +
+      '#signage-boot-strip .col-bg-body{background:' + c.bg + '!important;}' +
+      '#signage-boot-strip .col-bg-foot{background:#fff9f0!important;}';
+  })();
 })(typeof window !== 'undefined' ? window : global);
 
 </script>
@@ -1832,6 +1896,11 @@
         </div>
     </div>
     <div class="content-area">
+    <div class="scene-strip-bg" id="signage-boot-strip" aria-hidden="true">
+        <div class="col-bg-top" style="background:#55A5E6"></div>
+        <div class="col-bg-body" style="background:#308DD8"></div>
+        <div class="col-bg-foot" style="background:#fff9f0"></div>
+    </div>
     <div class="scene" id="sceneAlert">
         <div class="ha-pair ha-warning" id="ha-pair">
             <div class="ha-unit">
@@ -2695,8 +2764,10 @@
     const SIGNAGE_STATE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
     /** 背景色のみ長期保持（更新・再起動のたびに灰に戻さない） */
     const SIGNAGE_PAINT_CACHE_KEY = 'fujiken_nagasaki_paint_v1';
-    const MOE_GAS_FETCH_TIMEOUT_MS = 12000;
-    const MOE_JSONP_TIMEOUT_MS = 10000;
+    /** 本番: 未取得時の仮色（ほぼ安全・青）。灰色は使わない */
+    const STABLE_BOOTSTRAP_WBGT_LV = 0;
+    const MOE_GAS_FETCH_TIMEOUT_MS = 20000;
+    const MOE_JSONP_TIMEOUT_MS = 15000;
     /* 環境省WBGTの提供期間外（冬季など）は true。WBGT表示を全て隠す */
     let wbgtOffSeason = false;
     let wbgtUnavailable = false;
@@ -2834,12 +2905,7 @@
         } catch (_) { return false; }
     }
     function getSignageDisplayMode_() {
-        if (isProductionNoGray_()) {
-            if (wbgtOffSeason && (lastSignageBgLv_ >= 0 || hasStableWbgtDisplay_() || currentWbgtLevel >= 0)) {
-                return 'normal';
-            }
-            if (isWbgtUnavailableForDisplay_()) return 'normal';
-        }
+        if (isProductionNoGray_()) return 'normal';
         if (wbgtOffSeason) return 'offseason';
         if (isWbgtUnavailableForDisplay_()) return 'unavailable';
         return 'normal';
@@ -2852,12 +2918,78 @@
         return Number.isInteger(row.levelIdx) ? row.levelIdx : wbgtLevel(row.wbgt);
     }
     function getStableWbgtLevelForPaint_() {
+        if (isProductionNoGray_()) {
+            const fromSlots = levelFromLastGoodWbgtSlots_();
+            if (fromSlots != null) return fromSlots;
+            if (currentWbgtLevel >= 0) return currentWbgtLevel;
+            if (lastSignageBgLv_ >= 0 && lastSignageBgMode_ === 'normal') return lastSignageBgLv_;
+            restoreSignagePaintCache_();
+            if (lastSignageBgLv_ >= 0) return lastSignageBgLv_;
+            return STABLE_BOOTSTRAP_WBGT_LV;
+        }
         if (wbgtOffSeason) return -1;
         if (currentWbgtLevel >= 0) return currentWbgtLevel;
         const fromSlots = levelFromLastGoodWbgtSlots_();
         if (fromSlots != null) return fromSlots;
         if (lastSignageBgLv_ >= 0 && lastSignageBgMode_ === 'normal') return lastSignageBgLv_;
         return -1;
+    }
+    /** 本番は常に normal + 有効レベル（灰にしない） */
+    function resolveStableSignagePaint_() {
+        if (!isProductionNoGray_()) {
+            const rawMode = getSignageDisplayMode_();
+            const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
+            return resolveSignageBgPaint_(rawMode, rawLv);
+        }
+        const lv = getStableWbgtLevelForPaint_();
+        return { mode: 'normal', lv: Math.max(0, Math.min(4, lv | 0)) };
+    }
+    function applySignageBgPaint_(mode, lv) {
+        if (typeof SignageBg === 'undefined') return;
+        SignageBg.refreshAll(lv, mode);
+        SignageBg.refreshTicker(lv, mode);
+        if (mode === 'offseason') {
+            SignageBg.refreshScene1(lv, mode);
+            SignageBg.refreshScene6(lv, mode);
+            if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
+            signageBgDomDirty_ = false;
+            return;
+        }
+        if (mode === 'unavailable') {
+            SignageBg.refreshScene1(-1, mode);
+            SignageBg.refreshScene6(-1, mode);
+            if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(-1, mode);
+            signageBgDomDirty_ = false;
+            return;
+        }
+        SignageBg.refreshScene1(lv, mode);
+        SignageBg.refreshScene2(lv, mode);
+        SignageBg.refreshScene5(lv, mode);
+        SignageBg.refreshScene6(lv, mode);
+        applyD5TodayFrame_();
+        applyD5ForecastTextColors_();
+        const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
+            ? lastGoodWbgtSlots_
+            : (lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null));
+        if (slots) SignageBg.refreshForecast(slots, mode);
+        if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
+        signageBgDomDirty_ = false;
+    }
+    /** 背景色を安定適用（本番は灰・保留なし・即時描画） */
+    function ensureStableSignagePaint_(force) {
+        const paint = resolveStableSignagePaint_();
+        const mode = paint.mode;
+        const lv = paint.lv;
+        if (isProductionNoGray_() && isGraySignagePaint_(mode, lv)) return;
+        const domNeedsPaint = signageBgDomDirty_ || signageBgLayersMissing_();
+        if (!force && !domNeedsPaint && lv === lastSignageBgLv_ && mode === lastSignageBgMode_) return;
+        lastSignageBgLv_ = lv;
+        lastSignageBgMode_ = mode;
+        pendingSignageBgRefresh_ = false;
+        pendingSignageBgLv_ = lv;
+        pendingSignageBgMode_ = mode;
+        persistSignagePaintCache_();
+        applySignageBgPaint_(mode, lv);
     }
     /** 本番は取得不可の灰色を出さない（?wbgtUnknown=1 の確認用のみ） */
     function isWbgtUnavailableForDisplay_() {
@@ -3015,45 +3147,11 @@
         return false;
     }
     function repaintLastGoodSignageBg_() {
-        if (lastSignageBgLv_ < 0 || lastSignageBgMode_ !== 'normal') restoreSignagePaintCache_();
-        if (lastSignageBgLv_ < 0 || lastSignageBgMode_ !== 'normal') return false;
-        refreshSignageBg();
-        signageBgDomDirty_ = false;
-        return true;
+        ensureStableSignagePaint_(true);
+        return lastSignageBgLv_ >= 0 && lastSignageBgMode_ === 'normal';
     }
     function refreshSignageBg() {
-        if (typeof SignageBg === 'undefined') return;
-        const rawMode = getSignageDisplayMode_();
-        const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
-        const paint = resolveSignageBgPaint_(rawMode, rawLv);
-        const mode = paint.mode;
-        const lv = paint.lv;
-        SignageBg.refreshAll(lv, mode);
-        SignageBg.refreshTicker(lv, mode);
-        if (mode === 'offseason') {
-            SignageBg.refreshScene1(lv, mode);
-            SignageBg.refreshScene6(lv, mode);
-            if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
-            return;
-        }
-        if (mode === 'unavailable') {
-            SignageBg.refreshScene1(-1, mode);
-            SignageBg.refreshScene6(-1, mode);
-            if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(-1, mode);
-            return;
-        }
-        SignageBg.refreshScene1(lv, mode);
-        SignageBg.refreshScene2(lv, mode);
-        SignageBg.refreshScene5(lv, mode);
-        SignageBg.refreshScene6(lv, mode);
-        applyD5TodayFrame_();
-        applyD5ForecastTextColors_();
-        const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
-            ? lastGoodWbgtSlots_
-            : (lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null));
-        if (slots) SignageBg.refreshForecast(slots, mode);
-        if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
-        signageBgDomDirty_ = false;
+        ensureStableSignagePaint_(true);
     }
     function shouldRejectGraySignagePaint_(mode, lv) {
         if (isProductionNoGray_()) return isGraySignagePaint_(mode, lv);
@@ -3062,6 +3160,10 @@
         return mode === 'unavailable' || (mode === 'normal' && lv < 0);
     }
     function refreshSignageBgIfChanged_(force) {
+        if (isProductionNoGray_()) {
+            ensureStableSignagePaint_(!!force);
+            return;
+        }
         const rawMode = getSignageDisplayMode_();
         const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
         const paint = resolveSignageBgPaint_(rawMode, rawLv);
@@ -3083,9 +3185,13 @@
         lastSignageBgMode_ = mode;
         pendingSignageBgRefresh_ = false;
         persistSignagePaintCache_();
-        refreshSignageBg();
+        applySignageBgPaint_(mode, lv);
     }
     function applyPendingSignageBgAtScene_() {
+        if (isProductionNoGray_()) {
+            ensureStableSignagePaint_(signageBgDomDirty_ || signageBgLayersMissing_());
+            return;
+        }
         if (pendingSignageBgRefresh_) {
             const lv = pendingSignageBgLv_;
             const mode = pendingSignageBgMode_;
@@ -3098,7 +3204,7 @@
             if (!domNeedsPaint && lv === lastSignageBgLv_ && mode === lastSignageBgMode_) return;
             lastSignageBgLv_ = lv;
             lastSignageBgMode_ = mode;
-            refreshSignageBg();
+            applySignageBgPaint_(mode, lv);
             return;
         }
         refreshSignageBgIfChanged_(false);
@@ -4906,16 +5012,23 @@
         }
     }
     function runContentScrollFlow_(tickFn, onComplete, setAnimId) {
-        clearContentScrollHoldTimers_();
-        contentScrollHoldTimerId_ = setTimeout(function () {
-            contentScrollHoldTimerId_ = null;
+        const skipEdgeHold = scrollStreamStarted_;
+        if (!skipEdgeHold) clearContentScrollHoldTimers_();
+        const startMs = skipEdgeHold ? 0 : CONTENT_EDGE_HOLD_MS;
+        const endMs = skipEdgeHold ? 0 : CONTENT_EDGE_HOLD_MS;
+        function beginFrames_() {
             function frame() {
+                scrollStreamStarted_ = true;
                 if (tickFn()) {
                     if (setAnimId) setAnimId(null);
-                    contentScrollEndHoldTimerId_ = setTimeout(function () {
-                        contentScrollEndHoldTimerId_ = null;
+                    if (endMs <= 0) {
                         if (onComplete) onComplete();
-                    }, CONTENT_EDGE_HOLD_MS);
+                    } else {
+                        contentScrollEndHoldTimerId_ = setTimeout(function () {
+                            contentScrollEndHoldTimerId_ = null;
+                            if (onComplete) onComplete();
+                        }, endMs);
+                    }
                     return;
                 }
                 const id = requestAnimationFrame(frame);
@@ -4923,7 +5036,16 @@
             }
             const id = requestAnimationFrame(frame);
             if (setAnimId) setAnimId(id);
-        }, CONTENT_EDGE_HOLD_MS);
+        }
+        if (startMs <= 0) {
+            beginFrames_();
+            return;
+        }
+        clearContentScrollHoldTimers_();
+        contentScrollHoldTimerId_ = setTimeout(function () {
+            contentScrollHoldTimerId_ = null;
+            beginFrames_();
+        }, startMs);
     }
     function runContentStaticHold_(displayMs, onComplete) {
         clearContentScrollHoldTimers_();
@@ -4943,6 +5065,8 @@
     /** 全シーン共通スクロール位置（下帯・本体とも継ぎ目でリセットしない） */
     let globalScrollX_ = 0;
     let s6FootScrollX_ = 0;
+    /** ループ1周目のシーン1以降は先頭停止なしで流し続ける */
+    let scrollStreamStarted_ = false;
     function scrollPx_(x) {
         return Math.round(x);
     }
@@ -5472,7 +5596,13 @@
                 console.warn('[WBGT] ECS取得失敗、環境省にフォールバック:', e.message || e);
             }
         }
-        return fetchWbgtFromMoeApi();
+        let slots = await fetchWbgtFromMoeApi();
+        if (slots == null && isProductionNoGray_()) {
+            console.warn('[WBGT] 初回取得失敗 — 3秒後に再試行');
+            await new Promise(function (r) { setTimeout(r, 3000); });
+            slots = await fetchWbgtFromMoeApi();
+        }
+        return slots;
     }
     function parseMoeJson_(json) {
         if (!isUsableMoeWbgtPayload_(json)) {
@@ -5573,8 +5703,9 @@
             wbgtUnavailable = false;
             if (hasStableWbgtDisplay_() || lastSignageBgLv_ >= 0 || currentWbgtLevel >= 0) {
                 syncWbgtSlotsToDomIfReady_();
-                refreshSignageBgIfChanged_(false);
             }
+            if (isProductionNoGray_()) ensureStableSignagePaint_(true);
+            else refreshSignageBgIfChanged_(false);
             return false;
         }
         if (hasStableWbgtDisplay_()) {
@@ -5624,11 +5755,13 @@
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
-        if (!slots || wbgtOffSeason) return false;
+        if (!slots) return false;
+        if (wbgtOffSeason && !isProductionNoGray_()) return false;
         syncWbgtLevelFromSlots(slots);
         updateForecastSlots(slots);
         queueOrRefreshS1FootBar_();
-        refreshSignageBgIfChanged_(signageBgDomDirty_ || signageBgLayersMissing_());
+        if (isProductionNoGray_()) ensureStableSignagePaint_(signageBgDomDirty_ || signageBgLayersMissing_());
+        else refreshSignageBgIfChanged_(signageBgDomDirty_ || signageBgLayersMissing_());
         return true;
     }
     function applyWbgtSlotsToDom(wbgtSlots) {
@@ -5649,6 +5782,7 @@
         }
         if (noteWbgtFetchFailure_()) {
             applyWbgtUnavailableToDom_();
+            if (isProductionNoGray_()) ensureStableSignagePaint_(true);
             return false;
         }
         /* 1分以内の失敗: 直前の成功値を維持（取得不可は出さない） */
@@ -5657,8 +5791,11 @@
             syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
             updateForecastSlots(lastGoodWbgtSlots_);
             queueOrRefreshS1FootBar_();
-            refreshSignageBgIfChanged_(true);
+            if (isProductionNoGray_()) ensureStableSignagePaint_(true);
+            else refreshSignageBgIfChanged_(true);
             queueDisplayRefresh_();
+        } else if (isProductionNoGray_()) {
+            ensureStableSignagePaint_(true);
         }
         return false;
     }
@@ -5680,6 +5817,7 @@
             persistSignageStateCache_();
             queueDisplayRefresh_();
             if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
+            ensureStableSignagePaint_(true);
             return;
         }
         lastGoodWbgtSlots_ = null;
@@ -5712,28 +5850,85 @@
         if (!isMainLoopPlaying_()) return false;
         return !sceneEntryRefreshAllowed_;
     }
+    function withPreservedScroll_(fn) {
+        const savedX = globalScrollX_;
+        const savedS6 = s6FootScrollX_;
+        fn();
+        globalScrollX_ = savedX;
+        s6FootScrollX_ = savedS6;
+        resyncActiveSceneScroll_();
+    }
+    function updateScrollMsgNodes_(root, text, compactCls, msgCls, chCls) {
+        if (!root) return false;
+        const nodes = root.querySelectorAll('.' + compactCls + ', .' + msgCls);
+        if (!nodes.length) return false;
+        const compact = footBarUseCompact_(text);
+        const wasCompact = nodes[0].classList.contains(compactCls);
+        if (compact !== wasCompact) return false;
+        if (compact) {
+            nodes.forEach(function (n) { n.textContent = text; });
+        } else {
+            const html = buildEvenCharSpans(text, chCls);
+            nodes.forEach(function (n) { n.innerHTML = html; });
+        }
+        return true;
+    }
     function patchS1WbgtFootBar_() {
         if (!s1WbgtTrack) return;
         const text = getS1WbgtMessageJp();
-        const probe = s1WbgtTrack.querySelector('.s1-wbgt-msg');
-        const lap = getS1FootLapPx_();
-        if (probe && probe.textContent === text && s1WbgtTrack.children.length) {
-            applyGlobalScroll_(s1WbgtTrack, lap);
-            const bar = document.querySelector('#scene1 .s1-wbgt-bar');
-            if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
+        const bar = document.querySelector('#scene1 .s1-wbgt-bar');
+        if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
+        if (updateScrollMsgNodes_(s1WbgtTrack, text, 's1-wbgt-msg-compact', 's1-wbgt-msg', 's1-wbgt-ch')) {
+            sizeS1FootWbgtText_();
+            applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
             return;
         }
-        refreshS1WbgtFootBar_(false);
+        withPreservedScroll_(function () { refreshS1WbgtFootBar_(false); });
     }
     function patchFcLvTrack_() {
         if (!fcLvTrack) return;
         const text = getFcLvText();
-        const probe = fcLvTrack.querySelector('.fc-lv-msg');
-        if (probe && probe.textContent === text && fcLvTrack.children.length) {
+        if (updateScrollMsgNodes_(fcLvTrack, text, 'fc-lv-msg-compact', 'fc-lv-msg', 'fc-lv-ch')) {
             applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
             return;
         }
-        buildFcLvTrack(false);
+        withPreservedScroll_(function () { buildFcLvTrack(false); });
+    }
+    function patchT3GuideTrack_() {
+        const el = document.getElementById('t3-guid-track');
+        const bar = document.querySelector('#scene3 .t3-guid-bar');
+        if (!el) return;
+        const tier = getT3GuideTierForDisplay_();
+        if (!tier) {
+            if (!el.childElementCount) return;
+            withPreservedScroll_(function () { buildT3GuideTrack(); });
+            return;
+        }
+        if (bar) bar.style.display = '';
+        const text = t3GuideTierText_(tier);
+        const probes = el.querySelectorAll('.s2-meta-msg-scroll');
+        if (probes.length) {
+            probes.forEach(function (n) { n.textContent = text; });
+            sizeT3GuideText_();
+            remeasureT3GuideLapPx_(el);
+            return;
+        }
+        withPreservedScroll_(function () { buildT3GuideTrack(); });
+    }
+    function patchScene2MetaTrack_() {
+        if (!s2MetaTrack || (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && lastEcsSnapshot_)) return;
+        const when = lastAmedasObsTime || (getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date());
+        const obs = formatScene2ObsClock_(when);
+        const inner = buildScene2MetaGroupsHtml_(obs);
+        const probes = s2MetaTrack.querySelectorAll('.s2-meta-msg-groups');
+        if (probes.length) {
+            probes.forEach(function (n) { n.innerHTML = inner; });
+            const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
+            scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
+            applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
+            return;
+        }
+        withPreservedScroll_(function () { buildScene2MetaTrack(when); });
     }
     function resyncActiveSceneScroll_() {
         if (s1 && s1.classList.contains('active') && s1WbgtTrack) {
@@ -5769,16 +5964,22 @@
     }
     /** データ更新時: スクロール位置・再生を維持したまま色・文言だけ差し替え */
     function applyLiveDisplayUpdate_() {
-        refreshSignageBgIfChanged_(signageBgDomDirty_ || signageBgLayersMissing_());
-        patchS1WbgtFootBar_();
-        patchFcLvTrack_();
-        if (s3 && s3.classList.contains('active')) {
-            syncScene3Display_(true);
-        } else if (s3) {
-            buildTicker();
+        sceneEntryRefreshAllowed_ = true;
+        try {
+            refreshSignageBgIfChanged_(true);
+            patchS1WbgtFootBar_();
+            patchFcLvTrack_();
+            patchScene2MetaTrack_();
+            if (s3 && s3.classList.contains('active')) {
+                syncScene3DisplayLive_();
+            } else if (s3) {
+                buildTicker();
+            }
+            resyncActiveSceneScroll_();
+            pendingDisplayRefresh = false;
+        } finally {
+            sceneEntryRefreshAllowed_ = false;
         }
-        resyncActiveSceneScroll_();
-        pendingDisplayRefresh = false;
     }
     function queueDisplayRefresh_() {
         if (shouldDeferDisplayRefresh_()) {
@@ -5787,7 +5988,7 @@
         }
         pendingDisplayRefresh = true;
         if (s3 && s3.classList.contains('active')) {
-            syncScene3Display_(true);
+            syncScene3DisplayLive_();
             resyncActiveSceneScroll_();
         }
     }
@@ -5804,10 +6005,11 @@
         if (!force && shouldDeferDisplayRefresh_()) return;
         pendingDisplayRefresh = false;
         patchS1WbgtFootBar_();
-        if (lastAmedasObsTime) buildScene2MetaTrack(lastAmedasObsTime);
+        patchScene2MetaTrack_();
         patchFcLvTrack_();
         if (s3) {
-            syncScene3Display_(!!s3.classList.contains('active'));
+            if (s3.classList.contains('active')) syncScene3DisplayLive_();
+            else buildTicker();
         }
         resyncActiveSceneScroll_();
     }
@@ -5914,6 +6116,7 @@
         console.log('[取得] ' + tag + ' 合計 ' + total + 'ms', timings, deferNote.trim());
         queueDisplayRefresh_();
         if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
+        if (isProductionNoGray_()) ensureStableSignagePaint_(signageBgDomDirty_ || signageBgLayersMissing_());
         lastFetchFail = (plan.jma && !jmaOk) || ((doMoeWbgt || doMoeAlert) && !moeOk);
         return !lastFetchFail;
         } finally {
@@ -7356,6 +7559,31 @@
             setT3Lang_(idx);
         }
     }
+    /** 再生中のシーン3: innerHTML を再生成せず文言・色だけ差し替え */
+    function syncScene3DisplayLive_() {
+        const prevLang = typeof t3LangIdx_ === 'number' ? t3LangIdx_ : 0;
+        const mode = getSignageDisplayMode_();
+        const lv = getScene3WbgtLevel_();
+        t3Messages_ = getT3Messages_();
+        if (typeof SignageBg !== 'undefined') {
+            SignageBg.refreshTicker(lv, mode);
+            if (SignageBg.refreshLogoPanel) SignageBg.refreshLogoPanel(lv, mode);
+        }
+        const alertTop = getT3HeatAlertTopForDisplay_();
+        if (!alertTop) {
+            const lvLabel = (isWbgtUnavailableForDisplay_() || lv < 0) ? '--' : levelNames[lv];
+            document.querySelectorAll('#scene3 .t3-lv-static').forEach(function (n) { n.textContent = lvLabel; });
+        }
+        patchT3GuideTrack_();
+        if (t3Messages_.length) {
+            const idx = Math.min(Math.max(0, prevLang), t3Messages_.length - 1);
+            setT3Lang_(idx);
+        }
+        if (t3Flow_) {
+            const tracks = document.querySelectorAll('#scene3 .t3-track');
+            applyT3TrackX_(tracks, t3Flow_.x);
+        }
+    }
     function t3LineBoxH_(node) {
         const fs = parseFloat(window.getComputedStyle(node).fontSize) || 0;
         const slack = fs > 0 ? Math.ceil(fs * 0.16) : 0;
@@ -7638,10 +7866,13 @@
             return;
         }
         applyDisplayRefreshAtSceneEntry_();
-        buildTicker();
+        if (scrollStreamStarted_) {
+            syncScene3DisplayLive_();
+        } else {
+            buildTicker();
+        }
         applyPendingSignageBgAtScene_();
         t3Messages_ = getT3Messages_();
-        buildT3GuideTrack();
         const guidTrack = document.getElementById('t3-guid-track');
         if (!t3Messages_.length) {
             gotoAfterScene3_();
@@ -7653,14 +7884,15 @@
             setTimeout(function () { gotoAfterScene3_(); }, 800);
             return;
         }
-        prepT3_(0);
+        const langIdx = scrollStreamStarted_ && typeof t3LangIdx_ === 'number' ? t3LangIdx_ : 0;
+        prepT3_(langIdx);
         if (isFullDemoStep_()) {
             scheduleDemoStep_(gotoAfterScene3_);
             return;
         }
         t3Flow_ = {
             x: wrapScrollX_(globalScrollX_, T3_UNIT_W),
-            langIdx: 0,
+            langIdx: langIdx,
             laps: 0
         };
         applyT3TrackX_(tracks, t3Flow_.x);
@@ -7784,7 +8016,7 @@
         applyDisplayRefreshAtSceneEntry_();
         applyPendingSignageBgAtScene_();
         compactScene2Panels();
-        buildScene2MetaTrack(lastAmedasObsTime);
+        patchScene2MetaTrack_();
         fitScene2BodyText();
         clearContentScrollHoldTimers_();
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
@@ -7833,7 +8065,7 @@
         } else {
             syncWbgtSlotsToDomIfReady_();
         }
-        buildFcLvTrack(false);
+        patchFcLvTrack_();
         compactScene4Panels();
         applyPendingSignageBgAtScene_();
         fitFcBarLabelFontSize_();
@@ -8099,8 +8331,66 @@
     function startSequence() {
         clearDemoStepTimer_();
         resetLogoRotation();
+        scrollStreamStarted_ = false;
         [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
+    }
+
+    if (query.get('debug') === '1') {
+        window.signageDebug = {
+            state: function () {
+                const active = typeof getActiveScene === 'function' ? getActiveScene() : null;
+                return {
+                    globalScrollX: globalScrollX_,
+                    scrollStreamStarted: scrollStreamStarted_,
+                    lastSignageBgLv: lastSignageBgLv_,
+                    currentWbgtLevel: currentWbgtLevel,
+                    activeScene: active ? active.id : null,
+                    footTransform: s1WbgtTrack ? s1WbgtTrack.style.transform : null,
+                    hasStripBg: !!document.querySelector('.content-area .scene-strip-bg'),
+                    hasPanelBg: !!document.querySelector('#scene1 .panel .col-bg-layer'),
+                    footText: (function () {
+                        const n = document.querySelector('#s1-wbgt-track .s1-wbgt-msg, #s1-wbgt-track .s1-wbgt-msg-compact');
+                        return n ? n.textContent : null;
+                    })()
+                };
+            },
+            liveUpdate: function () {
+                applyLiveDisplayUpdate_();
+                return window.signageDebug.state();
+            },
+            setRainMsg: function (msg) {
+                rainNowcastAlert = {
+                    level: 'approaching',
+                    messageJp: String(msg || ''),
+                    leadMin: 35,
+                    updatedAt: new Date().toISOString()
+                };
+                applyLiveDisplayUpdate_();
+                return window.signageDebug.state();
+            }
+        };
+        console.log('[debug] signageDebug — state() / liveUpdate() / setRainMsg("…")');
+    }
+
+    /** DOM解析直後に背景色を適用（onload 待ちによる黒画面を防ぐ） */
+    function bootSignagePaintOnDomReady_() {
+        if (DEMO_SIGNAGE_ACTIVE) return;
+        try {
+            restoreSignageStateCache_();
+            restoreSignagePaintCache_();
+            if (typeof SignageBg !== 'undefined') {
+                signageBgDomDirty_ = true;
+                ensureStableSignagePaint_(true);
+            }
+        } catch (e) {
+            console.warn('[boot] early paint:', e);
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootSignagePaintOnDomReady_);
+    } else {
+        bootSignagePaintOnDomReady_();
     }
 
     window.onload = async function() {
@@ -8109,6 +8399,7 @@
         if (typeof SignageBg !== 'undefined') {
             SignageBg.initHosts();
             signageBgDomDirty_ = true;
+            ensureStableSignagePaint_(true);
         }
         if (lastEcsSnapshot_) applyEcsSensorToDom_(lastEcsSnapshot_);
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
@@ -8164,8 +8455,8 @@
         if (!wbgtOffSeason) wbgtUnavailable = false;
         restoreSignagePaintCache_();
         try {
+            ensureStableSignagePaint_(true);
             syncWbgtSlotsToDomIfReady_();
-            refreshSignageBgIfChanged_(true);
             buildTicker();
             buildS1WbgtTrack(false);
             buildFcLvTrack(false);
@@ -8178,9 +8469,11 @@
         syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
         /* 初回取得を待ってからループ開始（濃い灰の時間を短く・更新の重なりを防ぐ） */
         var mainLoopStarted_ = false;
+        const MAIN_LOOP_BOOTSTRAP_MS = 22000;
         function beginMainLoop_() {
             if (mainLoopStarted_) return;
             mainLoopStarted_ = true;
+            ensureStableSignagePaint_(true);
             startSequence();
             scheduleDataRefresh();
             updateRainNowcastAlert_().then(function () {
@@ -8195,15 +8488,16 @@
         }
         Promise.race([
             runScheduledFetch({ jma: true, moe: true, nowc: false, forecast: true, labels: ['起動'] }),
-            new Promise(function (resolve) { setTimeout(resolve, 3500); })
+            new Promise(function (resolve) { setTimeout(resolve, MAIN_LOOP_BOOTSTRAP_MS); })
         ]).finally(beginMainLoop_);
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
                 if (!DEMO_WBGT_UNKNOWN) wbgtUnavailable = false;
                 else if (wbgtUnavailable && hasStableWbgtDisplay_()) wbgtUnavailable = false;
-                if (hasStableWbgtDisplay_() || lastSignageBgLv_ >= 0) {
+                if (hasStableWbgtDisplay_() || lastSignageBgLv_ >= 0 || isProductionNoGray_()) {
                     syncWbgtSlotsToDomIfReady_();
-                    refreshSignageBgIfChanged_(true);
+                    if (isProductionNoGray_()) ensureStableSignagePaint_(true);
+                    else refreshSignageBgIfChanged_(true);
                 }
                 syncTimeFromNetwork().then(function() { updateClock(); startClockTicker(); }).catch(function() { startClockTicker(); });
                 startBackgroundFetch_({ jma: true, moe: true, nowc: true, forecast: true, labels: ['復帰'] });
