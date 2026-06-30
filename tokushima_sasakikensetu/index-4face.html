@@ -1522,6 +1522,7 @@
       locationLabel: '老門作業所',
       baseUrl: 'https://www.ecs-cloud.ne.jp',
       proxyUrl: 'http://127.0.0.1:3014/api/ecs/wbgt',
+      /* ecs-live.json は通信障害時の予備のみ。表示更新は必ず本番API（/api/ecs/wbgt 経由）を先に取得 */
       liveJson: './assets/ecs-live.json',
       refreshMs: 60000
     },
@@ -2238,6 +2239,13 @@
     const ECS_WBGT_DATA_ID = query.get('ecsDataId') || ECS_CFG.dataId || '';
     const ECS_WBGT_PROXY_URL = query.get('ecsProxy') || ECS_CFG.proxyUrl || '';
     const ECS_WBGT_REFRESH_MS = Number(query.get('ecsRefreshMs') || ECS_CFG.refreshMs || SITE_CFG.refreshMs || 60000);
+    /** 計測時刻がこれより古い ecs-live.json は本番更新に使わない */
+    const ECS_STATIC_MAX_AGE_MS = Number(query.get('ecsStaticMaxAgeMs') || ECS_CFG.staticMaxAgeMs || 600000);
+    /** お客様向け表示に使える計測の最大経過時間（当日・この時間以内のみ） */
+    const ECS_DISPLAY_MAX_AGE_MS = Number(query.get('ecsDisplayMaxAgeMs') || ECS_CFG.displayMaxAgeMs || 600000);
+    let ecsUrgentRefreshTimerId_ = null;
+    /** 同時に複数回 ECS API を叩かない（起動時の bootstrap と schedule の重なり防止） */
+    let ecsFetchInFlight_ = null;
     function ecsWbgtApiUrlsToTry_() {
         if (!ECS_WBGT_DATA_ID) return [];
         const id = encodeURIComponent(ECS_WBGT_DATA_ID);
@@ -2247,11 +2255,17 @@
             const b = String(base || '').replace(/\/$/, '');
             if (b && bases.indexOf(b) < 0) bases.push(b);
         }
-        if (ECS_WBGT_PROXY_URL) addBase(ECS_WBGT_PROXY_URL);
         if (typeof location !== 'undefined' && /^https?:/.test(location.protocol)) {
             addBase(location.origin + '/api/ecs/wbgt');
         }
+        if (ECS_WBGT_PROXY_URL) addBase(ECS_WBGT_PROXY_URL);
+        if (ECS_CFG.baseUrl) {
+            addBase(String(ECS_CFG.baseUrl).replace(/\/$/, '') + '/Json/WBGTNumData');
+        }
         addBase('http://127.0.0.1:3014/api/ecs/wbgt');
+        if (typeof location !== 'undefined' && location.port && location.port !== '3014' && location.port !== '3000') {
+            addBase('http://127.0.0.1:' + location.port + '/api/ecs/wbgt');
+        }
         addBase('http://127.0.0.1:3000/api/ecs/wbgt');
         return bases.map(function (b) { return b + '/' + id + stamp; });
     }
@@ -2272,14 +2286,27 @@
         if (!parsed || !parsed.length) throw new Error('ECS empty payload');
         const snap = parseEcsWbgtRow_(parsed[0]);
         if (!snap) throw new Error('ECS WBGT parse failed');
+        if (!isEcsSnapshotDisplayable_(snap)) {
+            throw new Error('ECS data not displayable (stale): ' + (snap.time || ''));
+        }
         lastEcsSnapshot_ = snap;
         const slots = applyEcsSnapshotToSignage_(snap);
         if (!hasFull4Slots(slots)) throw new Error('ECS WBGT parse failed');
         clearWbgtUnavailableGrace_();
         wbgtUnavailable = false;
         persistSignageStateCache_();
-        console.log('[WBGT] ECS現場計測 OK', sourceLabel || '', ECS_CFG.locationLabel || '', snap.time || '', '現在', slots[0].wbgt + '℃');
+        if (isEcsStaticFallbackSource_(sourceLabel)) {
+            console.error('[WBGT] 本番API不可 — ecs-live.json を暫定使用（npm start / プロキシを確認）',
+                sourceLabel, snap.time || '', slots[0].wbgt + '℃');
+        } else {
+            console.log('[WBGT] ECS現場計測 OK（本番API）', sourceLabel || '', ECS_CFG.locationLabel || '',
+                snap.time || '', '現在', slots[0].wbgt + '℃');
+        }
         return slots;
+    }
+    function isEcsStaticFallbackSource_(sourceLabel) {
+        const s = String(sourceLabel || '');
+        return s.indexOf('ecs-live.json') >= 0 || s.indexOf('/assets/ecs-live') >= 0;
     }
     async function fetchEcsStaticFallback_() {
         const url = ecsLiveStaticUrl_();
@@ -2387,6 +2414,8 @@
     let pendingSignageBgRefresh_ = false;
     let pendingSignageBgLv_ = null;
     let pendingSignageBgMode_ = '';
+    let pendingForecastSlotsRefresh_ = false;
+    let pendingScene2MetaEcsSnap_ = null;
     let lastAmedasSnapshot_ = null;
     const SIGNAGE_STATE_CACHE_KEY = 'cspi2026_signage_state_v1';
     const SIGNAGE_STATE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -2751,7 +2780,7 @@
                 slots: lastGoodWbgtSlots_,
                 level: currentWbgtLevel,
                 amedas: lastAmedasSnapshot_,
-                ecs: lastEcsSnapshot_
+                ecs: (lastEcsSnapshot_ && isEcsSnapshotDisplayable_(lastEcsSnapshot_)) ? lastEcsSnapshot_ : null
             }));
         } catch (_) {}
     }
@@ -2769,7 +2798,12 @@
                 currentWbgtLevel = -1;
                 return true;
             }
-            if (data.slots && hasFull4Slots(data.slots)) {
+            const ecsModeActive = !!(ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID);
+            const ecsCacheStale = ecsModeActive && (!data.ecs || !isEcsSnapshotDisplayable_(data.ecs));
+            if (ecsCacheStale) {
+                console.warn('[WBGT] 保存キャッシュのECS計測時刻が古いため再取得します', data.ecs && data.ecs.time);
+            }
+            if (data.slots && hasFull4Slots(data.slots) && !ecsCacheStale) {
                 lastGoodWbgtSlots_ = cloneWbgtSlots_(data.slots);
                 lastWbgtSlots = lastGoodWbgtSlots_;
                 wbgtOffSeason = false;
@@ -2780,7 +2814,7 @@
                 currentWbgtLevel = data.level;
             }
             if (data.amedas) applyAmedasSnapshot_(data.amedas);
-            if (data.ecs && ECS_WBGT_ENABLED) {
+            if (data.ecs && ECS_WBGT_ENABLED && !ecsCacheStale) {
                 lastEcsSnapshot_ = data.ecs;
                 wbgtUnavailable = false;
                 if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) {
@@ -4826,6 +4860,21 @@
             });
         });
     }
+    function updateForecastSlotsIfAllowed_(slots) {
+        if (mainLoopStarted_ && shouldDeferDisplayRefresh_()) {
+            pendingForecastSlotsRefresh_ = true;
+            return;
+        }
+        updateForecastSlots(slots);
+    }
+    function flushPendingForecastSlots_() {
+        if (!pendingForecastSlotsRefresh_) return;
+        pendingForecastSlotsRefresh_ = false;
+        const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
+            ? lastGoodWbgtSlots_
+            : (lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
+        if (slots) updateForecastSlots(slots);
+    }
     function scene4WbgtDomNeedsRefresh_(slots) {
         const sample = document.querySelector('#scene4 .fc-val-live');
         if (!sample || !slots || !hasFull4Slots(slots)) return true;
@@ -4838,8 +4887,7 @@
         return num.textContent !== expected;
     }
     function applyScene4EcsWbgt_(wbgt) {
-        if (wbgt == null || !Number.isFinite(Number(wbgt))) return;
-        const html = formatFcWbgtHtml(wbgt);
+        const html = (wbgt == null || !Number.isFinite(Number(wbgt))) ? '--' : formatFcWbgtHtml(wbgt);
         document.querySelectorAll('#scene4 .fc-val-live').forEach(function (el) { el.innerHTML = html; });
     }
     function updateForecastSlots(slots) {
@@ -4947,13 +4995,17 @@
     }
     function applyEcsSnapshotToSignage_(snap) {
         if (!snap || !ECS_WBGT_ENABLED) return null;
+        if (!isEcsSnapshotDisplayable_(snap)) {
+            console.warn('[WBGT] 古いECSデータは表示しません', snap.time);
+            return null;
+        }
         applyEcsSensorToDom_(snap);
         const slots = ecsSnapshotToSlots_(snap);
         if (!slots) return null;
         lastGoodWbgtSlots_ = cloneWbgtSlots_(slots);
         wbgtUnavailable = false;
         syncWbgtLevelFromSlots(slots);
-        updateForecastSlots(slots);
+        updateForecastSlotsIfAllowed_(slots);
         refreshSignageBgIfChanged_();
         return slots;
     }
@@ -4976,6 +5028,92 @@
         }
         if (!timeStr) return '';
         return String(timeStr);
+    }
+    function ecsRowObsMs_(row) {
+        if (!row) return null;
+        return parseEcsTimeAsJstMs_(row.Time || row.time);
+    }
+    function ecsRowAgeMs_(row) {
+        const obsMs = ecsRowObsMs_(row);
+        if (obsMs == null) return null;
+        return getNowMs() - obsMs;
+    }
+    function ecsRowIsSameJstDay_(row) {
+        const obsMs = ecsRowObsMs_(row);
+        if (obsMs == null) return false;
+        const nowP = jstPartsFromMs(getNowMs());
+        const obsP = jstPartsFromMs(obsMs);
+        return nowP.year === obsP.year && nowP.month === obsP.month && nowP.day === obsP.day;
+    }
+    function ecsRowIsTooStale_(row, maxAgeMs) {
+        const age = ecsRowAgeMs_(row);
+        if (age == null) return true;
+        return age > (maxAgeMs != null ? maxAgeMs : ECS_STATIC_MAX_AGE_MS);
+    }
+    function ecsSnapshotIsStale_(snap) {
+        return !isEcsSnapshotDisplayable_(snap);
+    }
+    function isEcsSnapshotDisplayable_(snap) {
+        if (!snap || !snap.time) return false;
+        if (!ecsRowIsSameJstDay_({ Time: snap.time })) return false;
+        return !ecsRowIsTooStale_({ Time: snap.time }, ECS_DISPLAY_MAX_AGE_MS);
+    }
+    function patchScene2MetaTrackEcsFetching_() {
+        if (!s2MetaTrack) return false;
+        const locEl = s2MetaTrack.querySelector('.s2-meta-loc');
+        if (!locEl) return false;
+        const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
+        locEl.textContent = loc;
+        s2MetaTrack.querySelectorAll('.s2-meta-group:not(.s2-meta-loc)').forEach(function (el) {
+            el.textContent = 'WBGT・気温・黒球温度・湿度：取得中…';
+        });
+        return true;
+    }
+    function buildScene2MetaTrackEcsFetching_() {
+        if (!s2MetaTrack) return;
+        if (patchScene2MetaTrackEcsFetching_()) return;
+        const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
+        const inner = '<span class="s2-meta-group s2-meta-loc">' + escapeS1Html(loc) + '</span>' +
+            '<span class="s2-meta-group">' + escapeS1Html('WBGT・気温・黒球温度・湿度：取得中…') + '</span>';
+        const msg = '<span class="s2-meta-msg-scroll s2-meta-msg-groups">' + inner + '</span>';
+        const slot = '<div class="s2-meta-slot s2-meta-slot-flow">' + msg + '</div>';
+        let html = '';
+        for (let i = 0; i < SCENE2_META_SETS; i++) {
+            html += '<div class="s2-meta-set s2-meta-set-flow">' + slot + '</div>';
+        }
+        s2MetaTrack.innerHTML = html;
+        const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
+        scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
+        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
+    }
+    function clearEcsDisplayFromDom_() {
+        if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID) return;
+        setTextAll('.wbgt-live-val', '--');
+        setTextAll('.temp-val', '--');
+        setTextAll('.globe-val', '--');
+        setTextAll('.humi-val', '--');
+        applyScene4EcsWbgt_(null);
+        buildScene2MetaTrackEcsFetching_();
+        fitScene2BodyText();
+    }
+    function scheduleEcsUrgentRefresh_() {
+        if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID || DEMO_SIGNAGE_ACTIVE) return;
+        if (ecsUrgentRefreshTimerId_ != null) clearTimeout(ecsUrgentRefreshTimerId_);
+        if (lastEcsSnapshot_ && isEcsSnapshotDisplayable_(lastEcsSnapshot_)) return;
+        ecsUrgentRefreshTimerId_ = setTimeout(function () {
+            ecsUrgentRefreshTimerId_ = null;
+            fetchWbgtFromEcsApi().then(function (slots) {
+                if (slots) {
+                    applyWbgtInSeason_();
+                    wbgtUnavailable = false;
+                    applyWbgtSlotsToDom(slots);
+                }
+            }).catch(function (e) {
+                console.warn('[WBGT] ECS再取得:', e.message || e);
+            }).finally(function () {
+                scheduleEcsUrgentRefresh_();
+            });
+        }, 20000);
     }
     function buildScene2EcsPanelHtml_(type) {
         const spec = {
@@ -5032,37 +5170,65 @@
     }
     function applyEcsSensorToDom_(snap) {
         if (!snap || !ECS_WBGT_ENABLED) return;
+        if (!isEcsSnapshotDisplayable_(snap)) return;
         if (snap.wbgt != null) {
             setTextAll('.wbgt-live-val', formatEcsSensorNum_(snap.wbgt));
-            applyScene4EcsWbgt_(snap.wbgt);
+            if (!(mainLoopStarted_ && shouldDeferDisplayRefresh_() && s4 && !s4.classList.contains('active'))) {
+                applyScene4EcsWbgt_(snap.wbgt);
+            } else {
+                pendingForecastSlotsRefresh_ = true;
+            }
         }
         if (snap.temp != null) setTextAll('.temp-val', formatEcsSensorNum_(snap.temp));
         if (snap.globe != null) setTextAll('.globe-val', formatEcsSensorNum_(snap.globe));
         if (snap.humi != null) setTextAll('.humi-val', formatEcsSensorNum_(snap.humi));
-        buildScene2MetaTrackEcs_(snap);
+        if (mainLoopStarted_ && getActiveScene()) {
+            if (!patchScene2MetaTrackEcs_(snap)) pendingScene2MetaEcsSnap_ = snap;
+        } else {
+            buildScene2MetaTrackEcs_(snap);
+            pendingScene2MetaEcsSnap_ = null;
+        }
         fitScene2BodyText();
     }
     async function fetchWbgtFromEcsApi() {
+        if (ecsFetchInFlight_) return ecsFetchInFlight_;
+        ecsFetchInFlight_ = fetchWbgtFromEcsApiImpl_().finally(function () {
+            ecsFetchInFlight_ = null;
+        });
+        return ecsFetchInFlight_;
+    }
+    async function fetchWbgtFromEcsApiImpl_() {
+        /* 本番APIを必ず先に試行。ecs-live.json は全API失敗時の予備（主データ源にしない） */
         let lastErr = null;
-        try {
-            const rows = await fetchEcsStaticFallback_();
-            return commitEcsPayload_(rows, ecsLiveStaticUrl_());
-        } catch (e) {
-            lastErr = e;
-            console.warn('[WBGT] ECS静的データ:', e.message || e);
-        }
         const urls = ecsWbgtApiUrlsToTry_();
         for (let i = 0; i < urls.length; i++) {
             const url = urls[i];
             try {
-                const res = await fetchWithTimeout_(fetch(url, { cache: 'no-store', mode: 'cors' }), 4000, 'ECS');
+                const res = await fetchWithTimeout_(fetch(url, { cache: 'no-store', mode: 'cors' }), 8000, 'ECS');
                 if (!res.ok) throw new Error('ECS HTTP ' + res.status);
                 const rows = parseEcsApiRows_(JSON.parse(await res.text()));
+                if (!rows || !rows.length) throw new Error('ECS empty payload');
                 return commitEcsPayload_(rows, url);
             } catch (e) {
                 lastErr = e;
-                console.warn('[WBGT] ECS取得失敗:', url, e.message || e);
+                console.warn('[WBGT] ECS本番API取得失敗:', url, e.message || e);
             }
+        }
+        console.error('[WBGT] 本番APIすべて失敗 — ecs-live.json を試行します（server.js 起動を確認）');
+        let staticRows = null;
+        try {
+            staticRows = await fetchEcsStaticFallback_();
+        } catch (e) {
+            lastErr = e;
+            console.warn('[WBGT] ECS静的データ:', e.message || e);
+        }
+        if (staticRows && staticRows.length) {
+            const row = staticRows[0];
+            if (!ecsRowIsTooStale_(row, ECS_STATIC_MAX_AGE_MS) && ecsRowIsSameJstDay_(row)) {
+                return commitEcsPayload_(staticRows, ecsLiveStaticUrl_());
+            }
+            console.warn('[WBGT] ECS静的データが古いため表示しません:', row.Time);
+            lastErr = lastErr || new Error('ECS static stale (' + (row.Time || '') + ')');
         }
         throw lastErr || new Error('ECS fetch failed');
     }
@@ -5188,12 +5354,17 @@
         console.warn('[WBGT] 1分以上取得できないため「取得不可」表示');
     }
     function syncWbgtSlotsToDomIfReady_() {
+        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID &&
+            (!lastEcsSnapshot_ || !isEcsSnapshotDisplayable_(lastEcsSnapshot_))) {
+            if (!(mainLoopStarted_ && getActiveScene())) clearEcsDisplayFromDom_();
+            return false;
+        }
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
         if (!slots || wbgtOffSeason) return false;
         syncWbgtLevelFromSlots(slots);
-        updateForecastSlots(slots);
+        updateForecastSlotsIfAllowed_(slots);
         queueOrRefreshS1FootBar_();
         refreshSignageBgIfChanged_();
         return true;
@@ -5208,7 +5379,7 @@
             }
             noteWbgtFetchSuccess_(wbgtSlots);
             syncWbgtLevelFromSlots(wbgtSlots);
-            updateForecastSlots(wbgtSlots);
+            updateForecastSlotsIfAllowed_(wbgtSlots);
             queueOrRefreshS1FootBar_();
             refreshSignageBgIfChanged_();
             queueDisplayRefresh_();
@@ -5222,7 +5393,7 @@
         if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
             wbgtUnavailable = false;
             syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-            updateForecastSlots(lastGoodWbgtSlots_);
+            updateForecastSlotsIfAllowed_(lastGoodWbgtSlots_);
             queueOrRefreshS1FootBar_();
             refreshSignageBgIfChanged_();
             queueDisplayRefresh_();
@@ -5283,6 +5454,7 @@
         if (!pendingDisplayRefresh && !force) return;
         if (!force && shouldDeferDisplayRefresh_()) return;
         pendingDisplayRefresh = false;
+        flushPendingForecastSlots_();
         refreshS1WbgtFootBar_(false);
         if (lastAmedasObsTime) buildScene2MetaTrack(lastAmedasObsTime);
         buildTicker();
@@ -5808,8 +5980,12 @@
     }
     function buildScene2MetaTrack(latest) {
         if (!s2MetaTrack) return;
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && lastEcsSnapshot_) {
-            buildScene2MetaTrackEcs_(lastEcsSnapshot_);
+        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
+            if (lastEcsSnapshot_ && isEcsSnapshotDisplayable_(lastEcsSnapshot_)) {
+                buildScene2MetaTrackEcs_(lastEcsSnapshot_);
+            } else {
+                buildScene2MetaTrackEcsFetching_();
+            }
             return;
         }
         const when = latest || lastAmedasObsTime || (getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date());
@@ -5868,7 +6044,7 @@
         fitScene2BodyText();
         captureAmedasSnapshot_(obs, latest);
         persistSignageStateCache_();
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && lastEcsSnapshot_) {
+        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && lastEcsSnapshot_ && isEcsSnapshotDisplayable_(lastEcsSnapshot_)) {
             applyEcsSensorToDom_(lastEcsSnapshot_);
         }
 
@@ -7196,7 +7372,12 @@
         applyDisplayRefreshAtSceneEntry_();
         applyPendingSignageBgAtScene_();
         compactScene2Panels();
-        buildScene2MetaTrack(lastAmedasObsTime);
+        if (pendingScene2MetaEcsSnap_ && isEcsSnapshotDisplayable_(pendingScene2MetaEcsSnap_)) {
+            buildScene2MetaTrackEcs_(pendingScene2MetaEcsSnap_);
+            pendingScene2MetaEcsSnap_ = null;
+        } else {
+            buildScene2MetaTrack(lastAmedasObsTime);
+        }
         fitScene2BodyText();
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
         stepLogo90(420, true);
@@ -7246,8 +7427,11 @@
         }
         if (!lastWbgtSlots && DEMO_SIGNAGE_ACTIVE && currentWbgtLevel >= 0) {
             updateForecastSlots(mockSlotsForDemoLevel(currentWbgtLevel));
-        } else if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && lastEcsSnapshot_) {
+        } else if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && lastEcsSnapshot_ && isEcsSnapshotDisplayable_(lastEcsSnapshot_)) {
             applyEcsSnapshotToSignage_(lastEcsSnapshot_);
+        } else if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
+            clearEcsDisplayFromDom_();
+            syncWbgtSlotsToDomIfReady_();
         } else {
             syncWbgtSlotsToDomIfReady_();
         }
@@ -7385,17 +7569,14 @@
             return;
         }
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            if (lastEcsSnapshot_ && isEcsSnapshotDisplayable_(lastEcsSnapshot_)) {
                 applyWbgtInSeason_();
                 wbgtUnavailable = false;
-                applyWbgtSlotsToDom(lastGoodWbgtSlots_);
-                return;
-            }
-            if (lastEcsSnapshot_) {
-                applyWbgtInSeason_();
                 applyEcsSnapshotToSignage_(lastEcsSnapshot_);
                 return;
             }
+            clearEcsDisplayFromDom_();
+            return;
         }
         wbgtOffSeason = false;
         wbgtUnavailable = false;
@@ -7519,7 +7700,11 @@
         restoreSignageStateCache_();
         initScene2EcsMode_();
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
-        if (lastEcsSnapshot_) applyEcsSnapshotToSignage_(lastEcsSnapshot_);
+        if (lastEcsSnapshot_ && isEcsSnapshotDisplayable_(lastEcsSnapshot_)) {
+            applyEcsSnapshotToSignage_(lastEcsSnapshot_);
+        } else if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
+            clearEcsDisplayFromDom_();
+        }
         try {
             syncWbgtSlotsToDomIfReady_();
             refreshSignageBgIfChanged_(true);
@@ -7528,10 +7713,15 @@
         }
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
             bootstrapEcsData_().then(function (slots) {
-                if (!slots) return;
+                if (!slots) {
+                    clearEcsDisplayFromDom_();
+                    return;
+                }
                 applyWbgtInSeason_();
                 wbgtUnavailable = false;
                 applyWbgtSlotsToDom(slots);
+            }).finally(function () {
+                scheduleEcsUrgentRefresh_();
             });
         }
         const forecastLocLabel = (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) || '北島町';
@@ -7593,8 +7783,17 @@
             if (mainLoopStartedLocal_) return;
             mainLoopStartedLocal_ = true;
             mainLoopStarted_ = true;
-            startSequence();
             scheduleDataRefresh();
+            const active = getActiveScene();
+            const midPlay = !!(scene1AnimId || scene2AnimId || scene4AnimId || scene5AnimId ||
+                tickerAnimId || s1Flow_ || haFlow_ || t3Flow_);
+            if (!midPlay) {
+                if (active === s1) {
+                    playScene1();
+                } else if (!active) {
+                    startSequence();
+                }
+            }
             updateRainNowcastAlert_().then(function () {
                 queueDisplayRefresh_();
                 if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
