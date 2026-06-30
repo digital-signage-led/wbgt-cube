@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = Number(process.env.PORT) || 3014;
+const ECS_DATA_ID = process.env.ECS_DATA_ID || '1050';
+const ECS_BG_REFRESH_MS = Number(process.env.ECS_REFRESH_MS) || 30000;
 const ROOT = __dirname;
 const ECS_LIVE_PATH = path.join(ROOT, 'assets', 'ecs-live.json');
 const MIME = {
@@ -50,7 +52,9 @@ function serveStatic(filePath, res) {
             return;
         }
         const ext = path.extname(filePath).toLowerCase();
-        res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+        const headers = { 'Content-Type': MIME[ext] || 'application/octet-stream' };
+        if (ext === '.html' || ext === '.json') headers['Cache-Control'] = 'no-store';
+        res.writeHead(200, headers);
         res.end(data);
     });
 }
@@ -61,6 +65,25 @@ function corsHeaders_() {
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
     };
+}
+
+function refreshEcsLiveBackground_() {
+    const url = 'https://www.ecs-cloud.ne.jp/Json/WBGTNumData/' +
+        encodeURIComponent(ECS_DATA_ID) + '?r=' + Date.now();
+    https.get(url, { headers: { 'User-Agent': 'tokushima-sasakikensetu-signage/1.0' } }, function (up) {
+        const chunks = [];
+        up.on('data', function (chunk) { chunks.push(chunk); });
+        up.on('end', function () {
+            if (up.statusCode !== 200) return;
+            try {
+                fs.writeFileSync(ECS_LIVE_PATH, Buffer.concat(chunks), 'utf8');
+            } catch (err) {
+                console.warn('[ecs-live] bg write failed:', err.message);
+            }
+        });
+    }).on('error', function (err) {
+        console.warn('[ecs-live] bg fetch failed:', err.message);
+    });
 }
 
 http.createServer(function (req, res) {
@@ -86,5 +109,7 @@ http.createServer(function (req, res) {
     serveStatic(filePath, res);
 }).listen(PORT, function () {
     console.log('Signage server: http://127.0.0.1:' + PORT + '/');
-    console.log('ECS proxy:    http://127.0.0.1:' + PORT + '/api/ecs/wbgt/1050');
+    console.log('ECS proxy:    http://127.0.0.1:' + PORT + '/api/ecs/wbgt/' + ECS_DATA_ID);
+    refreshEcsLiveBackground_();
+    setInterval(refreshEcsLiveBackground_, ECS_BG_REFRESH_MS);
 });
