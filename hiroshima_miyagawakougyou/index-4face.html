@@ -2233,6 +2233,16 @@
         if (!path.endsWith('/')) path += '/';
         return path;
     }
+    function isGithubPagesHost_() {
+        var h = String(location.hostname || '');
+        return h === 'digital-signage-led.github.io' || /\.github\.io$/i.test(h);
+    }
+    function denshoStaticJsonUrl_() {
+        return location.origin + denshoDeployBasePath_() + 'densho-latest.json';
+    }
+    function denshoStaticJsonEnabled_() {
+        return !isServeJsPort_() && location.protocol.indexOf('http') === 0 && isGithubPagesHost_();
+    }
     function denshoLocalProxyUrl_() {
         return location.origin + denshoDeployBasePath_() + 'api/densho/latest';
     }
@@ -2282,6 +2292,9 @@
             if (u && urls.indexOf(u) < 0) urls.push(u);
         };
         add(DENSHO_PROXY_URL);
+        if (denshoStaticJsonEnabled_()) {
+            add(denshoStaticJsonUrl_());
+        }
         if (isServeJsPort_() && location.protocol.indexOf('http') === 0) {
             add(denshoLocalProxyUrl_());
             return urls;
@@ -5798,7 +5811,7 @@
         };
     }
     async function fetchDenshoBatoLatest_() {
-        if (!isServeJsPort_() && DENSHO_API_URL) {
+        if (!isServeJsPort_() && DENSHO_API_URL && !denshoStaticJsonEnabled_() && !DENSHO_PROXY_URL) {
             const swOk = await waitForDenshoProxyReady_(20000);
             if (!swOk) {
                 throw new Error(
@@ -5822,6 +5835,9 @@
                     });
                 }(), 35000, 'Densho');
                 if (i > 0) console.log('[WBGT] 現地センサー取得 OK（プロキシ経由）', url);
+                else if (denshoStaticJsonEnabled_() && url.indexOf('densho-latest.json') >= 0) {
+                    console.log('[WBGT] 現地センサー取得 OK（GitHub Pages 静的 JSON）');
+                }
                 return bundle;
             } catch (e) {
                 lastErr = e;
@@ -7916,7 +7932,7 @@
         }
         const swReady = await ensureDenshoServiceWorker_();
         if (swReady === 'reload') return;
-        if (!isServeJsPort_() && denshoLiveOnly_()) {
+        if (!isServeJsPort_() && denshoLiveOnly_() && !denshoStaticJsonEnabled_()) {
             await waitForDenshoProxyReady_(15000);
         }
         if (isServeJsPort_()) {

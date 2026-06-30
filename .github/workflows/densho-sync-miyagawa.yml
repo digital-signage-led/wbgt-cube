@@ -1,0 +1,26 @@
+name: Sync Miyagawa densho JSON
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch densho sensor JSON
+        run: |
+          curl -fsSL "https://densho-bato.com/member/get_json_data_latest?term_id=1&pgn=miyagawa01" \
+            -o hiroshima_miyagawakougyou/densho-latest.json
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hiroshima_miyagawakougyou/densho-latest.json
+          git diff --staged --quiet || git commit -m "Update densho-latest.json (miyagawa sensor)"
+          git push
