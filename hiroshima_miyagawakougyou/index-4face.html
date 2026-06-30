@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- wbgt-cube-miyagawa-4face / 宮川興業株式会社 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 会場: 広島県広島市安佐南区山本6丁目地内 / WBGT・AMeDAS 67437（広島・気象庁/環境省） -->
 <html lang="ja" class="native-640 layout-512">
@@ -30,6 +30,14 @@
     if (!('serviceWorker' in navigator) || location.protocol.indexOf('http') !== 0) return;
     var p = Number(location.port) || 80;
     if (p >= 8765 && p <= 8775) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (r) { r.unregister(); });
+        });
+        return;
+    }
+    var host = String(location.hostname || '');
+    var useStaticJson = host === 'digital-signage-led.github.io' || /\.github\.io$/i.test(host);
+    if (useStaticJson) {
         navigator.serviceWorker.getRegistrations().then(function (regs) {
             regs.forEach(function (r) { r.unregister(); });
         });
@@ -2238,7 +2246,8 @@
         return h === 'digital-signage-led.github.io' || /\.github\.io$/i.test(h);
     }
     function denshoStaticJsonUrl_() {
-        return location.origin + denshoDeployBasePath_() + 'densho-latest.json';
+        var bust = Math.floor(Date.now() / 600000);
+        return location.origin + denshoDeployBasePath_() + 'densho-latest.json?_=' + bust;
     }
     function denshoStaticJsonEnabled_() {
         return !isServeJsPort_() && location.protocol.indexOf('http') === 0 && isGithubPagesHost_();
@@ -2346,6 +2355,14 @@
                 return Promise.all(regs.map(function (r) { return r.unregister(); }));
             }).then(function () {
                 console.log('[Densho] serve.js プロキシ使用（port ' + location.port + '）');
+                return true;
+            });
+        }
+        if (denshoStaticJsonEnabled_()) {
+            return navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            }).then(function () {
+                console.log('[Densho] GitHub Pages — densho-latest.json を使用（SW なし）');
                 return true;
             });
         }
@@ -2485,10 +2502,7 @@
         const daily = loadDenshoDailyTemp_(latest);
         lastAmedasRainNow = (Number(sensu.rain) > 0) || (Number(sensu.rain_1h) > 0);
         if (obs) captureAmedasSnapshot_(obs, latest);
-        buildScene2MetaTrack(lastAmedasObsTime);
-        if (shouldDeferDisplayRefresh_()) {
-            queueDisplayRefresh_();
-        }
+        queueOrBuildScene2MetaTrack_(lastAmedasObsTime);
         fitScene2BodyTextDeferred_();
         const tempNum = sensu.temp != null && Number.isFinite(Number(sensu.temp)) ? Number(sensu.temp) : null;
         return {
@@ -5391,6 +5405,13 @@
         }
         refreshS1WbgtFootBar_(false);
     }
+    function queueOrBuildScene2MetaTrack_(latest) {
+        if (shouldDeferDisplayRefresh_()) {
+            queueDisplayRefresh_();
+            return;
+        }
+        buildScene2MetaTrack(latest);
+    }
     function flushDisplayRefresh_(force) {
         if (!pendingDisplayRefresh && !force) return;
         if (!force && shouldDeferDisplayRefresh_()) return;
@@ -5464,7 +5485,8 @@
                         console.warn('[取得] 気象庁4日予報失敗:', e.message || e);
                     }
                 }
-                console.log('[取得] ' + (plan.labels || []).join(', ') + ' 合計 ' + Math.round(performance.now() - tAll) + 'ms');
+                console.log('[取得] ' + (plan.labels || []).join(', ') + ' 合計 ' + Math.round(performance.now() - tAll) + 'ms'
+                    + (shouldDeferDisplayRefresh_() ? ' · ループ中のため帯の組み替えは保留' : ''));
                 lastFetchFail = !ok;
                 return ok;
             }
@@ -6296,10 +6318,7 @@
 
         lastAmedasRainNow = (p10 != null && Number(p10) > 0) || (p1h != null && Number(p1h) > 0);
 
-        buildScene2MetaTrack(lastAmedasObsTime);
-        if (shouldDeferDisplayRefresh_()) {
-            queueDisplayRefresh_();
-        }
+        queueOrBuildScene2MetaTrack_(lastAmedasObsTime);
         fitScene2BodyText();
         captureAmedasSnapshot_(obs, latest);
         persistSignageStateCache_();
@@ -6658,6 +6677,9 @@
         if (!fcLvTrack) return;
         if (clearTimers) clearScene4Timers();
         const text = getFcLvText();
+        const prev = fcLvTrack.getAttribute('data-foot-text') || '';
+        if (!clearTimers && prev === text && fcLvTrack.children.length > 0) return;
+        fcLvTrack.setAttribute('data-foot-text', text);
         let html = '';
         for (let i = 0; i < SCENE4_LV_SETS; i++) html += buildFcLvSetHtml(text);
         fcLvTrack.innerHTML = html;
@@ -6672,6 +6694,9 @@
     function refreshS1WbgtFootBar_(resetTransform) {
         if (!s1WbgtTrack) return;
         const text = getS1WbgtMessageJp();
+        const prev = s1WbgtTrack.getAttribute('data-foot-text') || '';
+        if (!resetTransform && prev === text && s1WbgtTrack.children.length > 0) return;
+        s1WbgtTrack.setAttribute('data-foot-text', text);
         let html = '';
         for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
         s1WbgtTrack.innerHTML = html;
@@ -7936,6 +7961,9 @@
             await waitForDenshoProxyReady_(15000);
         }
         if (isServeJsPort_()) {
+            await runScheduledFetch(defaultFetchPlan_({ labels: ['起動'] }));
+            beginMainLoop_();
+        } else if (denshoStaticJsonEnabled_()) {
             await runScheduledFetch(defaultFetchPlan_({ labels: ['起動'] }));
             beginMainLoop_();
         } else {
