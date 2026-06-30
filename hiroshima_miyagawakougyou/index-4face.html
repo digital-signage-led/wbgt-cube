@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- wbgt-cube-miyagawa-4face / 宮川興業株式会社 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 会場: 広島県広島市安佐南区山本6丁目地内 / WBGT・AMeDAS 67437（広島・気象庁/環境省） -->
 <html lang="ja" class="native-640 layout-512">
@@ -24,6 +24,18 @@
     }
     if (document.body) addBody_();
     else document.addEventListener('DOMContentLoaded', addBody_);
+})();
+/* 伝承バトー API — Live Server 用 SW（start.bat の 8765 番では使わない） */
+(function () {
+    if (!('serviceWorker' in navigator) || location.protocol.indexOf('http') !== 0) return;
+    var p = Number(location.port) || 80;
+    if (p >= 8765 && p <= 8775) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (r) { r.unregister(); });
+        });
+        return;
+    }
+    navigator.serviceWorker.register('sw-densho-proxy.js', { scope: '/', updateViaCache: 'none' }).catch(function () {});
 })();
 
     </script>
@@ -186,12 +198,12 @@
         .col-bg-host.wbgt-off-season .panel-clock .time-val { color: #ebebeb; }
 
         .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; flex-shrink: 0; gap: 4px; border: none; outline: none; background: transparent; }
-        .panel-clock { padding: 0; gap: 0; justify-content: flex-start; }
-        .s1-top-bar { width: 100%; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+        .panel-clock { padding: 0; gap: 0; justify-content: flex-start; overflow: hidden; }
+        .s1-top-bar { width: 100%; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; }
         .s1-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.42px; }
         #scene1 .panel-clock .s1-bar-label {
             font-size: 20px;
-            line-height: 1.05;
+            line-height: 32px;
             letter-spacing: 0.2px;
             max-width: 124px;
             overflow: hidden;
@@ -200,9 +212,44 @@
             padding: 0 4px;
             box-sizing: border-box;
         }
-        .s1-body { width: 100%; height: var(--led-col-body-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+        .s1-body { width: 100%; height: var(--led-col-body-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; }
         .s1-foot { width: 100%; height: var(--led-foot-bar-h); flex-shrink: 0; box-sizing: border-box; }
-        .panel-clock .time-val { font-size: 42px; font-weight: 800; color: #ebebeb; line-height: 1; font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif; }
+        .panel-clock .time-val,
+        .clock-hm {
+            display: inline-flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            max-width: 124px;
+            overflow: hidden;
+            font-size: 42px;
+            font-weight: 800;
+            color: #ebebeb;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            font-family: "Inter", sans-serif;
+        }
+        .clock-hm .clock-h,
+        .clock-hm .clock-m,
+        .clock-hm .clock-colon {
+            flex-shrink: 0;
+            font-size: inherit;
+            font-weight: inherit;
+            font-family: inherit;
+            font-variant-numeric: inherit;
+            line-height: 1;
+            color: inherit;
+        }
+        .clock-hm .clock-colon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 0.4em;
+            align-self: center;
+            transform: translateY(-0.08em);
+        }
         #scene1, #scene4 { overflow: hidden; position: relative; }
         #scene1.active { display: block; }
         .fc-scroll-wrap {
@@ -363,23 +410,6 @@
         .s2-unit:empty { display: none; }
         .s2-unit { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); font-family: "Inter", sans-serif; }
         .weather-svg { width: 46px; height: 46px; }
-        .s2-tmaxmin-card {
-            display: inline-flex; align-items: baseline; justify-content: center;
-            gap: 2px; padding: 3px 7px 4px;
-            background: #ffffff; border-radius: 8px;
-            max-width: 118px; box-sizing: border-box; overflow: hidden;
-            white-space: nowrap; line-height: 1;
-        }
-        .s2-tmax-high, .s2-tmax-low {
-            font-size: 28px; font-weight: 800; line-height: 1;
-            font-family: "Inter", sans-serif;
-        }
-        .s2-tmax-high { color: #e02020; }
-        .s2-tmax-low { color: #2060e0; }
-        .s2-tmax-sep, .s2-tmax-unit {
-            font-size: 16px; font-weight: 700; color: #1a1a1a;
-            font-family: "Inter", sans-serif;
-        }
 
         .conveyor-track { display: flex; flex-direction: row; width: 2304px; transition: none; gap: 0; }
         #scene2 { overflow: hidden; position: relative; }
@@ -387,14 +417,11 @@
         .s2-scroll-wrap { width: 512px; height: var(--led-col-main-h); overflow: hidden; position: relative; z-index: 1; }
         #scene2 .s2-panel, #scene2 .s2-panel-data { height: var(--led-col-main-h); }
         #scene2 .s2-bar-label { font-size: 20px; line-height: 1.05; letter-spacing: 0.2px; }
-        #scene2 .s2-num { font-size: 40px; }
-        #scene2 .s2-dir-text.dir-val { font-size: 34px; }
-        #scene2 .s2-unit { font-size: 16px; }
+        #scene2 .s2-num { font-size: 44px; }
+        #scene2 .s2-dir-text.dir-val { font-size: 36px; }
+        #scene2 .s2-dir-text.wbgtstr-val { font-size: 36px; line-height: 1.05; font-weight: 800; }
+        #scene2 .s2-unit { font-size: 17px; }
         #scene2 .weather-svg { width: 54px; height: 54px; }
-        #scene2 .s2-tmax-high, #scene2 .s2-tmax-low { font-size: 40px; }
-        #scene2 .s2-tmax-sep { font-size: 40px; font-weight: 800; }
-        #scene2 .s2-tmax-unit { font-size: 16px; }
-
         #scene2 .s2-panel .col-bg-foot, #scene2 .s2-panel-data .col-bg-foot { display: none; }
         /* 列間の縦すき間（黒線）を防ぐ — 背景を1px重ねてシームレスに */
         #scene1 .col-bg-host { flex-shrink: 0; }
@@ -457,6 +484,15 @@
         #scene5 .d5-panel .s2-top-bar { height: 32px; flex-shrink: 0; }
         #scene5 .d5-panel .s2-body { height: var(--led-col-body-h); flex-shrink: 0; max-width: 128px; }
         #scene5 .d5-panel .s2-foot { height: var(--led-foot-bar-h); flex-shrink: 0; }
+        #scene5 .s2-foot .s2-loc {
+            font-size: 18px;
+            font-weight: 800;
+            font-family: "Inter", sans-serif;
+            font-variant-numeric: tabular-nums;
+            color: #1a1a1a;
+            letter-spacing: 0.02em;
+            line-height: 1;
+        }
         #scene5 .d5-panel .col-bg-foot { display: none; }
         #scene5 .col-bg-host { flex-shrink: 0; }
         #scene5 .col-bg-layer { width: calc(100% + 1px); }
@@ -645,16 +681,16 @@
         .t3-slot {
             width: 256px; height: 100%; max-height: 100%; flex-shrink: 0; box-sizing: border-box;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 1px; padding: 0 2px; overflow: visible;
+            gap: 0; padding: 0 2px; overflow: visible;
         }
         .t3-l1, .t3-l2 {
-            line-height: 1.1; font-weight: 900; white-space: nowrap;
+            line-height: 1; font-weight: 900; white-space: nowrap;
             letter-spacing: 0.3px; text-align: center;
             font-family: "Noto Sans JP", "Inter", sans-serif;
             color: #ebebeb; max-width: 252px;
             box-sizing: border-box;
             overflow: visible; flex-shrink: 0;
-            height: auto; padding: 0 0 1px;
+            height: auto; padding: 0;
         }
         /* --- 熱中症アラート（256×128モジュール×2。各256内で同じ文言が追随して流れる） --- */
         #sceneAlert.active { display: block; }
@@ -1431,30 +1467,30 @@
       label: '宮川興業株式会社',
       address: '広島県広島市安佐南区山本6丁目地内'
     },
+    /* 現地センサー（伝承バトー）— WBGT・気象データの唯一のソース */
+    densho: {
+      apiUrl:
+        'https://densho-bato.com/member/get_json_data_latest?term_id=1&pgn=miyagawa01',
+      proxyUrl: '',
+      dataIntervalSec: 600
+    },
     moe: {
-      /* 環境省 WBGT（山本6丁目に最も近い広島 67437） */
-      gasUrl:
-        'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
-      /* 環境省 WBGT 67437（広島地方気象台・AMeDAS と同一地点） */
+      gasUrl: '',
       point: '67437',
-      /* 表示と実データを一致させるため、欠測時フォールバックは使わない */
       fallbackPoint: '',
-      pointName: '広島',
+      pointName: '山本8号',
       alertArea: '広島県',
-      /* 環境省グラフURL用（中国 region=08 / prefecture=34） */
       region: '08',
       prefecture: '34'
     },
     jma: {
-      /* 気象庁 AMeDAS 67437（広島地方気象台・WBGT と同一地点） */
       amedasPoint: '67437',
-      forecastArea: '340000',
-      forecastLabel: '広島市'
+      forecastArea: '340000'
     },
     geo: { lat: 34.4366, lon: 132.4382 },
     timeZone: 'Asia/Tokyo',
     refreshMs: 60000,
-    footSource: '出典：気象庁・環境省データ'
+    footSource: '出典：みまわり伝書鳩'
   };
 
   global.SignageConfig = cfg;
@@ -1596,8 +1632,12 @@
             <div class="s2-panel-data s2-strip" data-s2="wind"><div class="s2-top-bar"><span class="s2-bar-label">風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num wind-val"></span><span class="s2-unit">m/s</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="humi"><div class="s2-top-bar"><span class="s2-bar-label">湿度</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num humi-val"></span><span class="s2-unit">%</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
-            <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
+            <div class="s2-panel-data s2-strip" data-s2="wbgt"><div class="s2-top-bar"><span class="s2-bar-label">WBGT</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num wbgt-s2-val"></span><span class="s2-unit">℃</span></div></div></div>
+            <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="wbgtstr"><div class="s2-top-bar"><span class="s2-bar-label">暑さ警戒</span></div><div class="s2-body"><div class="s2-dir-text wbgtstr-val"></div></div></div>
+            <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="rain1h"><div class="s2-top-bar"><span class="s2-bar-label">1時間雨量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain1h-val"></span><span class="s2-unit">mm</span></div></div></div>
+            <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="rain24h"><div class="s2-top-bar"><span class="s2-bar-label">24時間雨量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain24h-val"></span><span class="s2-unit">mm</span></div></div></div>
+            <div class="s2-panel-data s2-strip" data-s2="uvi"><div class="s2-top-bar"><span class="s2-bar-label">UV指数</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num uvi-val"></span></div></div></div>
             <div class="s2-panel s2-strip" data-s2="weather"><div class="s2-top-bar"><span class="s2-bar-label">天気</span></div><div class="s2-body"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div></div>
             <div class="s2-panel-data s2-strip" data-s2="temp"><div class="s2-top-bar"><span class="s2-bar-label">気温</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num temp-val"></span><span class="s2-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="rain"><div class="s2-top-bar"><span class="s2-bar-label">降水量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain-val"></span><span class="s2-unit">mm</span></div></div></div>
@@ -1605,8 +1645,12 @@
             <div class="s2-panel-data s2-strip" data-s2="wind"><div class="s2-top-bar"><span class="s2-bar-label">風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num wind-val"></span><span class="s2-unit">m/s</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="humi"><div class="s2-top-bar"><span class="s2-bar-label">湿度</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num humi-val"></span><span class="s2-unit">%</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
-            <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
+            <div class="s2-panel-data s2-strip" data-s2="wbgt"><div class="s2-top-bar"><span class="s2-bar-label">WBGT</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num wbgt-s2-val"></span><span class="s2-unit">℃</span></div></div></div>
+            <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="wbgtstr"><div class="s2-top-bar"><span class="s2-bar-label">暑さ警戒</span></div><div class="s2-body"><div class="s2-dir-text wbgtstr-val"></div></div></div>
+            <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="rain1h"><div class="s2-top-bar"><span class="s2-bar-label">1時間雨量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain1h-val"></span><span class="s2-unit">mm</span></div></div></div>
+            <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="rain24h"><div class="s2-top-bar"><span class="s2-bar-label">24時間雨量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain24h-val"></span><span class="s2-unit">mm</span></div></div></div>
+            <div class="s2-panel-data s2-strip" data-s2="uvi"><div class="s2-top-bar"><span class="s2-bar-label">UV指数</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num uvi-val"></span></div></div></div>
         </div>
         </div>
         <div class="s2-meta-bar"><div class="s2-meta-track" id="s2-meta-track"></div></div>
@@ -1630,14 +1674,14 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">広島市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">広島市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">広島市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">広島市</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">広島市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">広島市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">広島市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">広島市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">--/--</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">--/--</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">--/--</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">--/--</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">--/--</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">--/--</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">--/--</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">--/--</div></div></div>
         </div>
     </div>
 
@@ -2145,6 +2189,279 @@
     const DEFAULT_MOE_GAS_URL = (SITE_CFG.moe && SITE_CFG.moe.gasUrl) || '';
     const MOE_WBGT_API_URL = query.get('moeApi') || DEFAULT_MOE_GAS_URL;
     const MOE_WBGT_BACKUP_URL = query.get('moeBackup') || '';
+    const DENSHO_API_URL =
+        query.get('denshoApi') || (SITE_CFG.densho && SITE_CFG.densho.apiUrl) || '';
+    const DENSHO_PROXY_URL =
+        query.get('denshoProxy') || (SITE_CFG.densho && SITE_CFG.densho.proxyUrl) || '';
+    const DENSHO_DATA_INTERVAL_MS =
+        ((SITE_CFG.densho && SITE_CFG.densho.dataIntervalSec) || 600) * 1000;
+    function isServeJsPort_() {
+        var p = Number(location.port) || 80;
+        return p >= 8765 && p <= 8775;
+    }
+    function denshoSwReloadKey_() {
+        return 'denshoSwReload_' + (location.port || '80');
+    }
+    function denshoFetchUrls_() {
+        const urls = [];
+        const add = function (u) {
+            u = String(u || '').trim();
+            if (u && urls.indexOf(u) < 0) urls.push(u);
+        };
+        add(DENSHO_PROXY_URL);
+        if (isServeJsPort_() && location.protocol.indexOf('http') === 0) {
+            add(location.origin + '/api/densho/latest');
+            return urls;
+        }
+        /* SW 有効時は同一オリジンのみ（SW が API を中継） */
+        if (navigator.serviceWorker && navigator.serviceWorker.controller && location.protocol.indexOf('http') === 0) {
+            add(location.origin + '/api/densho/latest');
+            return urls;
+        }
+        if (location.protocol.indexOf('http') === 0) {
+            add(location.origin + '/api/densho/latest');
+        }
+        const host = location.hostname;
+        const curPort = Number(location.port) || (location.protocol === 'https:' ? 443 : 80);
+        if ((host === 'localhost' || host === '127.0.0.1') && location.protocol.indexOf('http') === 0) {
+            if (curPort !== 8765) add('http://' + host + ':8765/api/densho/latest');
+            for (let p = 3000; p <= 3010; p++) {
+                if (p !== curPort && p !== 8765) add('http://' + host + ':' + p + '/api/densho/latest');
+            }
+        }
+        return urls;
+    }
+    function waitForSwController_(ms) {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            return Promise.resolve(true);
+        }
+        return new Promise(function (resolve) {
+            var done = false;
+            function finish_(ok) {
+                if (done) return;
+                done = true;
+                resolve(ok);
+            }
+            var timer = setTimeout(function () { finish_(!!navigator.serviceWorker.controller); }, ms || 8000);
+            if (navigator.serviceWorker) {
+                navigator.serviceWorker.addEventListener('controllerchange', function () {
+                    clearTimeout(timer);
+                    finish_(true);
+                }, { once: true });
+            } else {
+                clearTimeout(timer);
+                finish_(false);
+            }
+        });
+    }
+    function ensureDenshoServiceWorker_() {
+        if (!('serviceWorker' in navigator) || !DENSHO_API_URL) return Promise.resolve(true);
+        if (location.protocol === 'file:') {
+            console.error('[Densho] file:// では API を取得できません。start.bat で開いてください');
+            return Promise.resolve(false);
+        }
+        if (isServeJsPort_()) {
+            return navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            }).then(function () {
+                console.log('[Densho] serve.js プロキシ使用（port ' + location.port + '）');
+                return true;
+            });
+        }
+        return navigator.serviceWorker.register('sw-densho-proxy.js', { scope: '/', updateViaCache: 'none' }).then(function () {
+            return navigator.serviceWorker.ready;
+        }).then(function () {
+            if (navigator.serviceWorker.controller) {
+                console.log('[Densho] Service Worker 有効');
+                return true;
+            }
+            var reloadKey = denshoSwReloadKey_();
+            if (!sessionStorage.getItem(reloadKey)) {
+                sessionStorage.setItem(reloadKey, '1');
+                console.log('[Densho] 初回のみ再読み込み（API 取得を有効化）');
+                location.reload();
+                return 'reload';
+            }
+            return waitForSwController_(8000);
+        }).catch(function (e) {
+            console.warn('[Densho] Service Worker 失敗:', e.message || e);
+            return false;
+        });
+    }
+    let scheduledDenshoBundle_ = null;
+    let denshoSiteLabel_ = (SITE_CFG.moe && SITE_CFG.moe.pointName) || '';
+    /** 現地センサーAPIのみ（環境省GAS・気象庁AMeDAS/予報は使わない） */
+    function denshoLiveOnly_() {
+        return !!DENSHO_API_URL;
+    }
+    /** APIの数値を丸め・桁揃えせずそのまま表示用文字列にする */
+    function apiRawDisplay_(raw) {
+        if (raw === null || raw === undefined || raw === '') return '';
+        if (typeof raw === 'string') {
+            const t = raw.trim();
+            return t;
+        }
+        if (typeof raw === 'number') {
+            return Number.isFinite(raw) ? String(raw) : '';
+        }
+        return String(raw);
+    }
+    function denshoDisp_(display, key, fallback) {
+        if (display && display[key] != null && String(display[key]).trim() !== '') {
+            return String(display[key]).trim();
+        }
+        return apiRawDisplay_(fallback);
+    }
+    function denshoJsonFieldLiteral_(text, key) {
+        if (!text || !key) return null;
+        const re = new RegExp('"' + key + '"\\s*:\\s*("(?:\\\\.|[^"\\\\])*"|[-+]?[0-9]+(?:\\.[0-9]+)?)');
+        const m = String(text).match(re);
+        if (!m || !m[1]) return null;
+        const token = m[1];
+        if (token.charAt(0) === '"') {
+            try { return JSON.parse(token); } catch (_) { return token.slice(1, -1); }
+        }
+        return token;
+    }
+    function denshoSensuDisplayFromJsonText_(text) {
+        const out = {};
+        if (!text) return out;
+        const blockMatch = text.match(/"sensu15xx"\s*:\s*(\{[\s\S]*?\})\s*,\s*"(?:atmos|sea_level_pressure|power_voltage|date)"/);
+        const block = blockMatch ? blockMatch[1] : text;
+        [
+            'temp', 'cumtemp', 'humi', 'uv', 'uvi', 'illumi', 'rain', 'rain_1h', 'rain_24h', 'rain_bgn',
+            'wind_dir', 'wind_speed', 'max_wind_speed', 'wbgt'
+        ].forEach(function (key) {
+            const re = new RegExp('"' + key + '"\\s*:\\s*("(?:\\\\.|[^"\\\\])*"|[-+]?[0-9]+(?:\\.[0-9]+)?)');
+            const m = block.match(re);
+            if (!m || !m[1]) return;
+            const token = m[1];
+            if (token.charAt(0) === '"') {
+                try { out[key] = String(JSON.parse(token)); } catch (_) { out[key] = token.slice(1, -1); }
+            } else {
+                out[key] = token;
+            }
+        });
+        const pres = denshoJsonFieldLiteral_(text, 'sea_level_pressure');
+        const atmos = denshoJsonFieldLiteral_(text, 'atmos');
+        if (pres != null) out.sea_level_pressure = String(pres);
+        if (atmos != null) out.atmos = String(atmos);
+        return out;
+    }
+    function defaultFetchPlan_(event) {
+        if (denshoLiveOnly_()) {
+            return Object.assign(
+                { densho: true, moe: false, jma: false, nowc: false, forecast: true, labels: ['densho-sensor'] },
+                event || {}
+            );
+        }
+        return Object.assign(
+            { jma: true, moe: true, nowc: true, forecast: true, labels: ['fetch'] },
+            event || {}
+        );
+    }
+    function applyDenshoSiteLabels_(termName) {
+        const label = String(termName || '').trim();
+        if (!label) return;
+        denshoSiteLabel_ = label;
+        document.querySelectorAll('#scene2 .s2-loc').forEach(function (el) { el.textContent = label; });
+    }
+    function applyDenshoSensorExtrasToDom_(sensu, sensuDisplay) {
+        if (!sensu) return;
+        const wbgtStr = String(sensu.wbgt_str || '').trim();
+        setTextAll('.wbgt-s2-val', denshoDisp_(sensuDisplay, 'wbgt', sensu.wbgt));
+        setTextAll('.wbgtstr-val', wbgtStr);
+        setTextAll('.rain1h-val', denshoDisp_(sensuDisplay, 'rain_1h', sensu.rain_1h));
+        setTextAll('.rain24h-val', denshoDisp_(sensuDisplay, 'rain_24h', sensu.rain_24h));
+        setTextAll('.uvi-val', denshoDisp_(sensuDisplay, 'uvi', sensu.uvi));
+        fitScene2BodyTextDeferred_();
+    }
+    function applyDenshoSensorToDom_(bundle) {
+        const sensu = bundle && bundle.sensu;
+        const sensuDisplay = bundle && bundle.sensuDisplay;
+        const row = bundle && bundle.row;
+        const latest = bundle && bundle.observedAt;
+        if (!sensu) return null;
+        const obs = denshoBatoToAmedasObs_(row, latest, sensuDisplay);
+        if (latest) lastAmedasObsTime = latest instanceof Date ? latest : new Date(latest);
+        const pres = row && (row.sea_level_pressure != null ? row.sea_level_pressure
+            : (row.atmos != null ? row.atmos : null));
+        const presDisp = sensuDisplay && sensuDisplay.sea_level_pressure != null
+            ? sensuDisplay.sea_level_pressure
+            : (sensuDisplay && sensuDisplay.atmos != null ? sensuDisplay.atmos : null);
+        const icon = obs ? amedasToWeatherIcon(obs) : '#icon-sunny';
+        document.querySelectorAll('.weather-icon-use').forEach(function (el) { el.setAttribute('href', icon); });
+        setTextAll('.temp-val', denshoDisp_(sensuDisplay, 'temp', sensu.temp));
+        setTextAll('.humi-val', denshoDisp_(sensuDisplay, 'humi', sensu.humi));
+        setTextAll('.rain-val', denshoDisp_(sensuDisplay, 'rain', sensu.rain));
+        setTextAll('.wind-val', denshoDisp_(sensuDisplay, 'wind_speed', sensu.wind_speed));
+        setTextAll('.gust-val', denshoDisp_(sensuDisplay, 'max_wind_speed', sensu.max_wind_speed));
+        setTextAll('.pres-val', presDisp != null ? String(presDisp) : apiRawDisplay_(pres));
+        setTextAll('.dir-val', String(sensu.wind_dir_str || '').trim());
+        const daily = loadDenshoDailyTemp_(latest);
+        lastAmedasRainNow = (Number(sensu.rain) > 0) || (Number(sensu.rain_1h) > 0);
+        if (obs) captureAmedasSnapshot_(obs, latest);
+        buildScene2MetaTrack(lastAmedasObsTime);
+        if (shouldDeferDisplayRefresh_()) {
+            queueDisplayRefresh_();
+        }
+        fitScene2BodyTextDeferred_();
+        const tempNum = sensu.temp != null && Number.isFinite(Number(sensu.temp)) ? Number(sensu.temp) : null;
+        return {
+            todayMaxTemp: daily ? daily.max : tempNum,
+            todayLiveIcon: icon
+        };
+    }
+    function updateRainFromDensho_(sensu) {
+        if (!sensu) {
+            rainNowcastAlert = { level: 'none', messageJp: '', leadMin: null, updatedAt: new Date().toISOString() };
+            return;
+        }
+        const p10 = Number(sensu.rain);
+        const p1h = Number(sensu.rain_1h);
+        const raining = (Number.isFinite(p10) && p10 > 0) || (Number.isFinite(p1h) && p1h > 0);
+        if (raining) {
+            rainNowcastAlert = {
+                level: 'raining',
+                messageJp: '【降雨】付近で雨が降っています。傘をご用意ください。',
+                leadMin: 0,
+                updatedAt: new Date().toISOString()
+            };
+        } else {
+            rainNowcastAlert = { level: 'none', messageJp: '', leadMin: null, updatedAt: new Date().toISOString() };
+        }
+    }
+    function applyDenshoBundleToDom_(bundle) {
+        if (!bundle || !bundle.sensu) return false;
+        applyDenshoSiteLabels_(bundle.term && bundle.term.name);
+        applyWbgtInSeason_();
+        wbgtUnavailable = false;
+        clearWbgtUnavailableGrace_();
+        const wbgtOk = applyWbgtSlotsToDom(denshoBatoToWbgtSlots_(bundle.sensu, bundle.sensuDisplay));
+        const latest = bundle.observedAt || new Date();
+        if (latest) {
+            applySyncedUtcMs(latest instanceof Date ? latest.getTime() : Date.now(), 'densho-sensor');
+            updateClock();
+        }
+        if (denshoLiveOnly_()) {
+            applyDenshoSensorToDom_(bundle);
+            applyDenshoSensorExtrasToDom_(bundle.sensu, bundle.sensuDisplay);
+        } else {
+            const obs = denshoBatoToAmedasObs_(bundle.row, bundle.observedAt);
+            if (obs) {
+                applyJmaAmedasToDom(obs, latest);
+                const wds = bundle.sensu && bundle.sensu.wind_dir_str;
+                if (wds) setTextAll('.dir-val', String(wds));
+            }
+            applyDenshoSensorExtrasToDom_(bundle.sensu, bundle.sensuDisplay);
+        }
+        updateRainFromDensho_(bundle.sensu);
+        compactScene2Panels();
+        queueDisplayRefresh_();
+        queueOrRefreshS1FootBar_();
+        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
+        return wbgtOk;
+    }
     const MOE_WBGT_FALLBACK_POINT =
         query.get('moeFallback') || (SITE_CFG.moe && SITE_CFG.moe.fallbackPoint) || '';
     function moePointCodesToTry_() {
@@ -2221,6 +2538,8 @@
     let lastAmedasRainNow = false;
     let lastAmedasObsTime = null;
     let pendingDisplayRefresh = false;
+    /** シーン切替直後のみ表示組み替えを許可（取得中は現在シーンを維持） */
+    let sceneEntryRefreshAllowed_ = false;
     let lastSignageBgLv_ = null;
     let lastSignageBgMode_ = '';
     let pendingSignageBgRefresh_ = false;
@@ -2247,7 +2566,7 @@
         { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
         { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
     ];
-    const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
+    const SCENE4_FOOT_ATTR = (SITE_CFG.footSource) || '出典：現地センサー・気象庁データ';
     const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
 
     function fcBarLabelForPanel_(index) {
@@ -2297,6 +2616,7 @@
     function getS1WbgtLevelForDisplay_() {
         if (wbgtOffSeason || wbgtUnavailable) return -1;
         if (currentWbgtLevel >= 0) return currentWbgtLevel;
+        if (denshoLiveOnly_()) return -1;
         const row = (lastGoodWbgtSlots_ && lastGoodWbgtSlots_[0]) ||
             (lastWbgtSlots && lastWbgtSlots[0]);
         if (row && row.wbgt != null) {
@@ -2312,7 +2632,7 @@
             return;
         }
         if (row.wbgt == null) {
-            if (!wbgtUnavailable && lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            if (!denshoLiveOnly_() && !wbgtUnavailable && lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
                 syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
                 return;
             }
@@ -2350,7 +2670,7 @@
         return stable != null ? stable : -1;
     }
     function resolveSignageBgPaint_(mode, lv) {
-        if (mode === 'normal' && lv < 0) {
+        if (!denshoLiveOnly_() && mode === 'normal' && lv < 0) {
             const stable = levelFromLastGoodWbgtSlots_();
             if (stable != null) return { mode: 'normal', lv: stable };
         }
@@ -2395,6 +2715,45 @@
     function buildScheduledFetchEvents(fromMs, horizonHours) {
         const events = [];
         const horizonEnd = fromMs + horizonHours * 3600000;
+        if (denshoLiveOnly_()) {
+            const intervalMs = DENSHO_DATA_INTERVAL_MS;
+            let t = Math.ceil(fromMs / intervalMs) * intervalMs + 15000;
+            while (t <= horizonEnd) {
+                if (t > fromMs) {
+                    events.push({ at: t, densho: true, forecast: false, labels: ['densho-sensor'] });
+                }
+                t += intervalMs;
+            }
+            const sp = jstPartsFromMs(fromMs);
+            const maxDays = Math.ceil(horizonHours / 24) + 1;
+            for (let dayOff = 0; dayOff <= maxDays; dayOff++) {
+                const dp = jstAddDays(sp.year, sp.month, sp.day, dayOff);
+                for (let h = 0; h < 24; h++) {
+                    if (JMA_FORECAST_HOURS.includes(h)) {
+                        const atFc = jstMsFromParts(dp.year, dp.month, dp.day, h, JMA_FORECAST_MINUTE, 0);
+                        if (atFc > fromMs && atFc <= horizonEnd) {
+                            events.push({
+                                at: atFc, densho: true, forecast: true,
+                                labels: ['densho-sensor', 'jma-forecast']
+                            });
+                        }
+                    }
+                }
+            }
+            const merged = new Map();
+            for (const e of events) {
+                const prev = merged.get(e.at) || {
+                    at: e.at, densho: false, forecast: false, labels: []
+                };
+                prev.densho = prev.densho || e.densho;
+                prev.forecast = prev.forecast || e.forecast;
+                if (e.labels) e.labels.forEach(function (lb) {
+                    if (prev.labels.indexOf(lb) < 0) prev.labels.push(lb);
+                });
+                merged.set(e.at, prev);
+            }
+            return Array.from(merged.values()).sort(function (a, b) { return a.at - b.at; });
+        }
         const sp = jstPartsFromMs(fromMs);
         const maxDays = Math.ceil(horizonHours / 24) + 1;
         for (let dayOff = 0; dayOff <= maxDays; dayOff++) {
@@ -2418,10 +2777,25 @@
                         events.push({ at: atFc, jma: true, moe: false, nowc: false, forecast: true, label: 'jma-forecast' });
                     }
                 }
-                for (const m of MOE_WBGT_MINUTES) {
-                    const at = jstMsFromParts(dp.year, dp.month, dp.day, h, m, 0) + MOE_WBGT_AFTER_SEC * 1000;
-                    if (at > fromMs && at <= horizonEnd) {
-                        events.push({ at, jma: false, moe: true, nowc: false, forecast: false, label: 'moe-wbgt' });
+                if (!DENSHO_API_URL) {
+                    for (const m of MOE_WBGT_MINUTES) {
+                        const at = jstMsFromParts(dp.year, dp.month, dp.day, h, m, 0) + MOE_WBGT_AFTER_SEC * 1000;
+                        if (at > fromMs && at <= horizonEnd) {
+                            events.push({ at, jma: false, moe: true, nowc: false, forecast: false, label: 'moe-wbgt' });
+                        }
+                    }
+                }
+                if (DENSHO_API_URL) {
+                    const intervalMs = DENSHO_DATA_INTERVAL_MS;
+                    let t = Math.ceil(fromMs / intervalMs) * intervalMs + 15000;
+                    while (t <= horizonEnd) {
+                        if (t > fromMs) {
+                            events.push({
+                                at: t, jma: true, moe: true, nowc: false, forecast: false,
+                                labels: ['densho-sensor']
+                            });
+                        }
+                        t += intervalMs;
                     }
                 }
                 if (MOE_ALERT_HOURS.includes(h)) {
@@ -2434,12 +2808,14 @@
         }
         const merged = new Map();
         for (const e of events) {
-            const prev = merged.get(e.at) || { at: e.at, jma: false, moe: false, nowc: false, forecast: false, labels: [] };
+            const prev = merged.get(e.at) || { at: e.at, jma: false, moe: false, nowc: false, forecast: false, densho: false, labels: [] };
             prev.jma = prev.jma || e.jma;
             prev.moe = prev.moe || e.moe;
             prev.nowc = prev.nowc || e.nowc;
             prev.forecast = prev.forecast || e.forecast;
+            prev.densho = prev.densho || e.densho;
             if (e.label && prev.labels.indexOf(e.label) < 0) prev.labels.push(e.label);
+            if (e.labels) e.labels.forEach(function (lb) { if (prev.labels.indexOf(lb) < 0) prev.labels.push(lb); });
             merged.set(e.at, prev);
         }
         return Array.from(merged.values()).sort((a, b) => a.at - b.at);
@@ -2488,7 +2864,7 @@
         const mode = paint.mode;
         const lv = paint.lv;
         if (!force && lv === lastSignageBgLv_ && mode === lastSignageBgMode_) return;
-        if (!force && shouldDeferDisplayRefresh_()) {
+        if (shouldDeferDisplayRefresh_()) {
             pendingSignageBgRefresh_ = true;
             pendingSignageBgLv_ = lv;
             pendingSignageBgMode_ = mode;
@@ -2556,7 +2932,7 @@
         applyJmaAmedasToDom(obs, when && !isNaN(when.getTime()) ? when : null);
     }
     function persistSignageStateCache_() {
-        if (DEMO_SIGNAGE_ACTIVE) return;
+        if (DEMO_SIGNAGE_ACTIVE || denshoLiveOnly_()) return;
         try {
             localStorage.setItem(SIGNAGE_STATE_CACHE_KEY, JSON.stringify({
                 v: 1,
@@ -2570,7 +2946,7 @@
         } catch (_) {}
     }
     function restoreSignageStateCache_() {
-        if (DEMO_SIGNAGE_ACTIVE) return false;
+        if (DEMO_SIGNAGE_ACTIVE || denshoLiveOnly_()) return false;
         try {
             const raw = localStorage.getItem(SIGNAGE_STATE_CACHE_KEY);
             if (!raw) return false;
@@ -3948,7 +4324,6 @@
         }
     }
     function finishMainLoopToS1_() {
-        applyDeferredLoopRefresh_(true);
         if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
         transitionToScene(s1, playScene1);
     }
@@ -3976,13 +4351,13 @@
         const hasQueue = whiteBundle ? getRainWhiteScrollQueue_().length : rainWarnActive.length;
         if (!hasQueue) {
             if (DEMO_RAINWARN_ONLY) return;
-            finishMainLoopToS1_();
+            finishRainWarnScene_();
             return;
         }
         const idx = startIdx || 0;
         if (!setRainWarn_(idx)) {
             if (DEMO_RAINWARN_ONLY) return;
-            finishMainLoopToS1_();
+            finishRainWarnScene_();
             return;
         }
         const heroBundle = !whiteBundle && pairEl && pairEl.classList.contains('ra-hero-bundle');
@@ -3992,7 +4367,7 @@
         const tracks = document.querySelectorAll('#sceneRainWarn .ra-track');
         if (!tracks.length && !midBundle) {
             if (DEMO_RAINWARN_ONLY) return;
-            finishMainLoopToS1_();
+            finishRainWarnScene_();
             return;
         }
         raFlow_ = {
@@ -4067,7 +4442,7 @@
                         return;
                     } else {
                         raAnimId = null; raFlow_ = null;
-                        finishMainLoopToS1_();
+                        finishRainWarnScene_();
                         return;
                     }
                 }
@@ -4106,7 +4481,7 @@
                             return;
                         } else {
                             raAnimId = null; raFlow_ = null;
-                            finishMainLoopToS1_();
+                            finishRainWarnScene_();
                             return;
                         }
                     }
@@ -4116,28 +4491,30 @@
             applyRaTrackX_(tracks, raFlow_.x);
             raAnimId = requestAnimationFrame(step);
         }
-        raAnimId = requestAnimationFrame(step);
+        scheduleSceneMotionStart_(function () {
+            raAnimId = requestAnimationFrame(step);
+        });
     }
     function playSceneRainWarnStep_(idx) {
         clearDemoStepTimer_();
         raFlow_ = null;
-        if (!rainWarnActive.length) { finishMainLoopToS1_(); return; }
+        if (!rainWarnActive.length) { finishRainWarnScene_(); return; }
         const key = rainWarnActive[idx];
-        if (!key) { finishMainLoopToS1_(); return; }
+        if (!key) { finishRainWarnScene_(); return; }
         const entries = kindsForLevel_(key).map(function (kind) {
             return { level: key, kind: kind, name: jmaKindName_(key, kind) };
         });
         if (shouldUseHeroBundle_(key) || entries.length > 1) {
             setRainWarnHeroBundle_(key, entries);
         } else if (!setRainWarn_(idx)) {
-            finishMainLoopToS1_();
+            finishRainWarnScene_();
             return;
         }
         stepLogo90(420, true);
         scheduleDemoStep_(function () {
             const next = idx + 1;
             if (next < rainWarnActive.length) playSceneRainWarn(next);
-            else finishMainLoopToS1_();
+            else finishRainWarnScene_();
         });
     }
     async function startRainWarnOnlyDemo_() {
@@ -4190,24 +4567,23 @@
     const FOOT_BAR_SLOT_W = 256;
     const FOOT_BAR_LAP_PX = FOOT_BAR_SLOT_W * 2;
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
-    const SCENE1_WBGT_LAPS = 2;
+    /** 下帯を何周したら次シーンへ進むか */
+    const SCENE1_ADVANCE_LAPS = 1;
     const SCENE1_WBGT_SETS = 3;
     const COMPANY_LINE_FONT_START_PX_ = 15;
     const COMPANY_LINE_FONT_MIN_PX_ = 9;
-    /** シーン1の表示時間（下帯は即スクロール開始・沖縄版と同型） */
+    /** 下帯なし（時刻のみ）のときの表示時間 */
     const SCENE1_CLOCK_HOLD_MS = 10000;
-    /** 起動直後の1回目だけ短め（静止感を抑える） */
-    const SCENE1_BOOT_HOLD_MS = 8000;
     const SCENE1_WBGT_HOLD_MS = SCENE1_CLOCK_HOLD_MS;
     const SCENE1_WBGT_SPEED_PX = 0.6;
     const SCENE1_SAFETY_MS = 20000;
-    let scene1LoopCount_ = 0;
     let scene1AnimId = null;
     let scene1HoldTimerId = null;
     let scene1EndHoldTimerId = null;
     let scene1SafetyTimerId = null;
     let scene1AdvanceToken = 0;
-    const SCENE2_PANEL_COUNT = 9;
+    let s1Flow_ = null;
+    const SCENE2_PANEL_COUNT = 13;
     const SCENE2_LAPS = 2;
     const SCENE2_SCROLL_PX = 0.8;
     const SCENE2_META_LAP_PX = FOOT_BAR_LAP_PX;
@@ -4226,7 +4602,9 @@
     let scene4FcLvLapPx = SCENE4_LV_LAP_PX;
     const SCENE4_LV_LAPS = 2;
     const SCENE4_LV_SETS = 3;
-    const SCENE4_LV_SPEED_PX = 0.6;
+    /** シーン4 白下帯（出典・指針）のスクロール速度 px/frame（本体より遅く） */
+    const SCENE4_LV_SPEED_PX = 0.45;
+    let scene4FootScrollX_ = 0;
     const SCENE5_PANEL_COUNT = 4;
     const SCENE5_LAPS = 2;
     const SCENE5_SCROLL_PX = 0.8;
@@ -4234,29 +4612,42 @@
     let scene5AnimId = null;
     const T3_UNIT_W = 256;
     const T3_USABLE_W = T3_UNIT_W - 4;
-    const T3_SLOT_GAP = 1;
+    const T3_SLOT_GAP = 0;
     const T3_LINE_LH_JP = 1;
-    const T3_LINE_LH_LATIN = 1.1;
-    const T3_L1_MAX = 36;       /* l1 上限（l1 > l2、l2 は T3_L2_RATIO 倍） */
+    const T3_LINE_LH_LATIN = 1;
+    const T3_L1_MAX = 52;       /* l1 上限（l1 > l2、l2 は T3_L2_RATIO 倍） */
     const T3_L2_RATIO = 0.82;
+    const T3_MIN_SCALE_X = 0.72; /* 横圧縮の下限（これ以下ならフォントを縮小） */
     const T3_LINE_H = 1.14;
     const T3_SCROLL_PX = 0.8;
     const T3_TOP_HA_W = 256;
     const T3_TOP_HA_FONT_MAX = 20;
-    const T3_LAPS_BEFORE_SWITCH = 4;
+    const T3_LAPS_BEFORE_SWITCH = 1;
     let t3GuidLapPx = SCENE2_META_LAP_PX;
     let t3Messages_ = [];
     let t3Flow_ = null;
+    /** シーン3入場時は日本語のみ表示（前回の外国語・上帯アラートのちらつき防止） */
+    let t3JpIntroActive_ = false;
     const SCENE_W = 512;
-    /** シーン切替スライド（次シーンはスライド開始と同時に再生） */
+    /** シーン切替スライド（次シーンはスライド完了後に静止→再生） */
     const SCENE_SLIDE_MS = 450;
+    /** シーン表示後、スクロール開始までの静止（ms） */
+    const SCENE_ENTRY_HOLD_MS = 1000;
+    /** シーン終了後、次シーンへ切替えるまでの静止（ms） */
+    const SCENE_EXIT_HOLD_MS = 1000;
     const GLOBAL_SCROLL_SPEED_PX = 0.75;
     const DEMO_SCROLL_SPEED_PX = 0.5;
     function getScrollSpeedPx_() {
         return (DEMO_SIGNAGE && !DEMO_ONLY) ? DEMO_SCROLL_SPEED_PX : GLOBAL_SCROLL_SPEED_PX;
     }
+    function getScene4FootSpeedPx_() {
+        return (DEMO_SIGNAGE && !DEMO_ONLY)
+            ? Math.min(SCENE4_LV_SPEED_PX, DEMO_SCROLL_SPEED_PX)
+            : SCENE4_LV_SPEED_PX;
+    }
     let sceneSlideAnimId = null;
     let sceneEndHoldTimerId_ = null;
+    let sceneMotionHoldTimerId_ = null;
     /** 全シーン共通スクロール位置（下帯・本体とも継ぎ目でリセットしない） */
     let globalScrollX_ = 0;
     function scrollPx_(x) {
@@ -4280,14 +4671,61 @@
         if (!el || !lapPx) return;
         applyScrollX_(el, wrapScrollX_(globalScrollX_, lapPx));
     }
+    function applyScene4FootScroll_(lapPx) {
+        if (!fcLvTrack || !lapPx) return;
+        applyScrollX_(fcLvTrack, wrapScrollX_(scene4FootScrollX_, lapPx));
+    }
     function getS1FootLapPx_() {
-        return SCENE1_WBGT_LAP_PX * SCENE1_WBGT_LAPS;
+        if (!s1WbgtTrack) return SCENE1_WBGT_LAP_PX;
+        const setEl = s1WbgtTrack.querySelector('.s1-wbgt-set');
+        if (!setEl) return SCENE1_WBGT_LAP_PX;
+        /* 社名|WBGT×2 のシームレス周期は512px（set幅1024の半分） */
+        if (setEl.classList.contains('s1-wbgt-set-scroll')) return SCENE1_WBGT_LAP_PX;
+        return Math.max(SCENE1_WBGT_LAP_PX, setEl.offsetWidth);
     }
     function clearSceneEndHoldTimer_() {
         if (sceneEndHoldTimerId_ != null) {
             clearTimeout(sceneEndHoldTimerId_);
             sceneEndHoldTimerId_ = null;
         }
+    }
+    function clearSceneMotionHoldTimer_() {
+        if (sceneMotionHoldTimerId_ != null) {
+            clearTimeout(sceneMotionHoldTimerId_);
+            sceneMotionHoldTimerId_ = null;
+        }
+    }
+    /** シーン切替後、静止してからスクロール等を開始 */
+    function scheduleSceneMotionStart_(startFn) {
+        clearSceneMotionHoldTimer_();
+        if (!startFn) return;
+        if (SCENE_ENTRY_HOLD_MS <= 0) {
+            startFn();
+            return;
+        }
+        sceneMotionHoldTimerId_ = setTimeout(function () {
+            sceneMotionHoldTimerId_ = null;
+            startFn();
+        }, SCENE_ENTRY_HOLD_MS);
+    }
+    /** シーン終了後、静止してから次シーンへ進む */
+    function scheduleSceneEndHold_(endFn) {
+        clearSceneEndHoldTimer_();
+        if (!endFn) return;
+        if (SCENE_EXIT_HOLD_MS <= 0) {
+            endFn();
+            return;
+        }
+        sceneEndHoldTimerId_ = setTimeout(function () {
+            sceneEndHoldTimerId_ = null;
+            endFn();
+        }, SCENE_EXIT_HOLD_MS);
+    }
+    function finishHeatAlertScene_() {
+        scheduleSceneEndHold_(gotoAfterRainWarnOrScene1_);
+    }
+    function finishRainWarnScene_() {
+        scheduleSceneEndHold_(finishMainLoopToS1_);
     }
     function clearSceneSlideAnim_() {
         if (sceneSlideAnimId != null) {
@@ -4299,6 +4737,8 @@
         return newX > prevX;
     }
     function clearOutgoingSceneAnims_() {
+        clearSceneMotionHoldTimer_();
+        clearSceneEndHoldTimer_();
         if (scene1AnimId) { cancelAnimationFrame(scene1AnimId); scene1AnimId = null; }
         if (scene2AnimId) { cancelAnimationFrame(scene2AnimId); scene2AnimId = null; }
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
@@ -4446,15 +4886,52 @@
             setAll(fz);
         }
     }
+    function fitClockHmFontSize_() {
+        const probe = document.querySelector('#scene1 .panel-clock .clock-hm');
+        if (!probe) return;
+        const maxW = 120;
+        const setAll = function (fz) {
+            document.querySelectorAll('#scene1 .panel-clock .time-val').forEach(function (el) {
+                el.style.fontSize = fz + 'px';
+            });
+        };
+        let fz = 42;
+        setAll(fz);
+        let guard = 40;
+        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 28) {
+            fz -= 1;
+            setAll(fz);
+        }
+    }
+    function ensureClockHmStructure_(el) {
+        if (el.querySelector('.clock-colon') && !el.querySelector('.clock-colon-wrap')) return;
+        el.innerHTML = '<span class="clock-h">--</span><span class="clock-colon" aria-hidden="true">:</span><span class="clock-m">--</span>';
+    }
     function updateClock() {
         let ms = getSyncedUtcMs();
         if (ms == null) { applySyncedUtcMs(Date.now(), 'local-fallback'); ms = getSyncedUtcMs(); }
         const now = new Date(Math.floor(ms));
-        const t = clockHmFormatter.format(now);
         const d = clockDateFormatter.format(now);
-        document.querySelectorAll('.clock-hm').forEach(el => { el.innerText = t; });
+        let h = '';
+        let m = '';
+        clockHmFormatter.formatToParts(now).forEach(function (p) {
+            if (p.type === 'hour') h = p.value;
+            if (p.type === 'minute') m = p.value;
+        });
+        document.querySelectorAll('.clock-hm').forEach(function (el) {
+            ensureClockHmStructure_(el);
+            el.querySelector('.clock-h').textContent = h;
+            el.querySelector('.clock-m').textContent = m;
+        });
         document.querySelectorAll('#scene1 .s1-bar-label').forEach(el => { el.innerText = d; });
+        const d5Key = d5TodayDateKey_();
+        if (d5Key !== lastD5DateKey_) {
+            lastD5DateKey_ = d5Key;
+            applyD5FootDates_();
+            fitD5PanelText_();
+        }
         fitS1DateFontSize_();
+        fitClockHmFontSize_();
     }
     function startClockTicker() {
         if (clockIntervalId != null) { clearTimeout(clockIntervalId); clockIntervalId = null; }
@@ -4497,9 +4974,12 @@
             return hp ? (Number(hp.value) + '時') : '';
         } catch (e) { return ''; }
     }
-    function formatFcWbgtHtml(wbgt) {
+    function formatFcWbgtHtml(wbgt, wbgtDisp) {
         if (wbgt == null) return '--';
-        return `<span class="fc-wbgt-num">${Number(wbgt).toFixed(1)}</span><span class="fc-wbgt-unit">℃</span>`;
+        const txt = denshoLiveOnly_()
+            ? (wbgtDisp != null && String(wbgtDisp).trim() !== '' ? String(wbgtDisp).trim() : apiRawDisplay_(wbgt))
+            : Number(wbgt).toFixed(1);
+        return `<span class="fc-wbgt-num">${txt}</span><span class="fc-wbgt-unit">℃</span>`;
     }
     function fitFcBarLabelFontSize_() {
         const probe = document.querySelector('#scene4 .fc-bar-label');
@@ -4560,11 +5040,12 @@
     }
     function updateForecastSlots(slots) {
         const arr = (slots && slots.length) ? slots : [{ wbgt: null, levelIdx: 0, hour: '現在' }];
+        const denshoCurrent = denshoLiveOnly_() && arr[0] && arr[0].wbgt != null ? arr[0] : null;
         document.querySelectorAll('#scene4 .fc-track .fc-panel').forEach(function (panel, i) {
             const slotIdx = i % SCENE4_PANEL_COUNT;
-            const slot = arr[slotIdx] || arr[0];
+            const slot = denshoCurrent || arr[slotIdx] || arr[0];
             const isUnknown = slot.wbgt == null;
-            const wbgtHtml = isUnknown ? '--' : formatFcWbgtHtml(slot.wbgt);
+            const wbgtHtml = isUnknown ? '--' : formatFcWbgtHtml(slot.wbgt, slot.wbgtDisp);
             panel.className = 'fc-panel fc-slot-' + (slotIdx % 2);
             panel.querySelectorAll('.fc-bar-label').forEach(function (el) { el.innerText = fcBarLabelForPanel_(slotIdx); });
             panel.querySelectorAll('.fc-val-live').forEach(function (el) { el.innerHTML = wbgtHtml; });
@@ -4572,7 +5053,7 @@
         queueDisplayRefresh_();
         fitFcBarLabelFontSize_();
         fitFcWbgtFontSize();
-        lastWbgtSlots = (slots && hasFull4Slots(slots)) ? slots : lastWbgtSlots;
+        lastWbgtSlots = (slots && hasFull4Slots(slots)) ? slots : (denshoLiveOnly_() ? null : lastWbgtSlots);
         if (wbgtUnavailable || (slots && slots[0] && slots[0].wbgt != null)) {
             syncWbgtLevelFromSlots(slots);
         }
@@ -4715,6 +5196,10 @@
         persistSignageStateCache_();
     }
     function noteWbgtFetchFailure_() {
+        if (denshoLiveOnly_()) {
+            if (wbgtFailSinceMs_ == null) wbgtFailSinceMs_ = getNowMs();
+            return true;
+        }
         if (wbgtFailSinceMs_ == null) wbgtFailSinceMs_ = getNowMs();
         if (wbgtUnavailableGraceElapsed_()) return true;
         scheduleWbgtUnavailableCheck_();
@@ -4729,19 +5214,20 @@
         syncWbgtLevelFromSlots(nullSlots);
         updateForecastSlots(nullSlots);
         queueDisplayRefresh_();
-        refreshS1WbgtFootBar_(false);
+        queueOrRefreshS1FootBar_();
         refreshSignageBgIfChanged_(true);
         if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
         console.warn('[WBGT] 1分以上取得できないため「取得不可」表示');
     }
     function syncWbgtSlotsToDomIfReady_() {
+        if (denshoLiveOnly_() && wbgtUnavailable) return false;
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
-            : (lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
+            : (!denshoLiveOnly_() && lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
         if (!slots || wbgtOffSeason) return false;
         syncWbgtLevelFromSlots(slots);
         updateForecastSlots(slots);
-        refreshS1WbgtFootBar_(false);
+        queueOrRefreshS1FootBar_();
         refreshSignageBgIfChanged_();
         return true;
     }
@@ -4756,7 +5242,7 @@
             noteWbgtFetchSuccess_(wbgtSlots);
             syncWbgtLevelFromSlots(wbgtSlots);
             updateForecastSlots(wbgtSlots);
-            refreshS1WbgtFootBar_(false);
+            queueOrRefreshS1FootBar_();
             refreshSignageBgIfChanged_();
             queueDisplayRefresh_();
             return true;
@@ -4765,12 +5251,12 @@
             applyWbgtUnavailableToDom_();
             return false;
         }
-        /* 1分以内の失敗: 直前の成功値を維持（取得不可は出さない） */
-        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+        /* 1分以内の失敗: 直前の成功値を維持（取得不可は出さない）— 現地センサー単独時は無効 */
+        if (!denshoLiveOnly_() && lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
             wbgtUnavailable = false;
             syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
             updateForecastSlots(lastGoodWbgtSlots_);
-            refreshS1WbgtFootBar_(false);
+            queueOrRefreshS1FootBar_();
             refreshSignageBgIfChanged_();
             queueDisplayRefresh_();
         }
@@ -4808,21 +5294,55 @@
         return !!getActiveScene();
     }
     function shouldDeferDisplayRefresh_() {
-        return isMainLoopPlaying_();
-    }
-    function applyDeferredLoopRefresh_(force) {
-        flushDisplayRefresh_(!!force);
+        if (!isMainLoopPlaying_()) return false;
+        return !sceneEntryRefreshAllowed_;
     }
     function queueDisplayRefresh_() {
         pendingDisplayRefresh = true;
+    }
+    function queueOrRefreshS1FootBar_() {
+        if (shouldDeferDisplayRefresh_()) {
+            queueDisplayRefresh_();
+            return;
+        }
+        refreshS1WbgtFootBar_(false);
     }
     function flushDisplayRefresh_(force) {
         if (!pendingDisplayRefresh && !force) return;
         if (!force && shouldDeferDisplayRefresh_()) return;
         pendingDisplayRefresh = false;
         refreshS1WbgtFootBar_(false);
+        buildScene2MetaTrack(lastAmedasObsTime);
         buildTicker();
         buildFcLvTrack(false);
+    }
+    function applyDisplayRefreshAtSceneEntry_() {
+        sceneEntryRefreshAllowed_ = true;
+        try {
+            flushDisplayRefresh_(true);
+        } finally {
+            sceneEntryRefreshAllowed_ = false;
+        }
+    }
+    function applyDenshoFetchFailureToDom_() {
+        clearLiveSensorDom_();
+        wbgtUnavailable = true;
+        const nullSlot = { wbgt: null, hour: '取得不可' };
+        const nullSlots = [nullSlot, nullSlot, nullSlot, nullSlot];
+        syncWbgtLevelFromSlots(nullSlots);
+        updateForecastSlots(nullSlots);
+        syncWbgtDependentAlerts_();
+        queueDisplayRefresh_();
+        queueOrRefreshS1FootBar_();
+        refreshSignageBgIfChanged_(true);
+        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
+    }
+    async function applyJmaForecastFromDenshoLive_() {
+        const snap = lastAmedasSnapshot_;
+        const maxT = snap && snap.maxT != null ? Number(snap.maxT)
+            : (snap && snap.temp != null ? Number(snap.temp) : null);
+        const fc = await fetchJmaForecast_();
+        applyJmaDailyForecastToDom(fc, maxT, snap && snap.icon);
     }
     async function runScheduledFetch(event) {
         if (scheduledFetchInFlight_) {
@@ -4830,88 +5350,124 @@
             return !lastFetchFail;
         }
         scheduledFetchInFlight_ = true;
+        scheduledDenshoBundle_ = null;
         try {
-        const plan = Object.assign(
-            { jma: true, moe: true, nowc: true, forecast: true, labels: ['fetch'] },
-            event || {}
-        );
-        const tAll = performance.now();
-        const timings = {};
-        let jmaOk = !plan.jma;
-        let moeOk = !plan.moe;
-        const jobs = [];
-        if (plan.nowc) {
-            jobs.push((async function () {
-                const s = performance.now();
-                try { await updateRainNowcastAlert_(); }
-                finally { timings['雨雲ナウキャスト'] = Math.round(performance.now() - s); }
-            })());
-        }
-        if (plan.moe) {
-            jobs.push((async function () {
-                const sWbgt = performance.now();
+            const plan = defaultFetchPlan_(event);
+            if (denshoLiveOnly_()) {
+                const tAll = performance.now();
+                let ok = false;
                 try {
-                    const wbgtSlots = await fetchWbgtFromMoeApi();
-                    timings['WBGT(GAS)'] = Math.round(performance.now() - sWbgt);
-                    if (wbgtSlots === 'offseason') {
-                        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-                            console.log('[WBGT] off-season応答 — 更新中は直前値を維持');
-                            applyWbgtInSeason_();
-                            syncWbgtSlotsToDomIfReady_();
-                            moeOk = true;
-                        } else {
-                            applyWbgtOffSeason_();
-                            moeOk = true;
-                        }
-                    } else {
-                        applyWbgtInSeason_();
-                        moeOk = applyWbgtSlotsToDom(wbgtSlots);
-                    }
-                    const sAlert = performance.now();
-                    await updateHeatAlertFromGas_();
-                    timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
+                    scheduledDenshoBundle_ = await fetchDenshoBatoLatest_();
+                    ok = applyDenshoBundleToDom_(scheduledDenshoBundle_);
+                    const s = scheduledDenshoBundle_ && scheduledDenshoBundle_.sensu;
+                    console.log('[取得] 現地センサー', ok ? 'OK' : 'データ不足',
+                        scheduledDenshoBundle_ && scheduledDenshoBundle_.term ? scheduledDenshoBundle_.term.name : '',
+                        s ? (s.wbgt + '℃ ' + (s.wbgt_str || '')) : '');
                 } catch (e) {
-                    console.warn('[取得] WBGT系:', e.message || e);
-                    moeOk = false;
+                    console.warn('[取得] 現地センサー失敗:', e.message || e);
+                    applyDenshoFetchFailureToDom_();
                 }
-            })());
-        }
-        if (plan.jma) {
-            jobs.push((async function () {
-                const s = performance.now();
-                try {
-                    const tasks = [fetchJmaAmedasObservation_()];
-                    if (plan.forecast) tasks.push(fetchJmaForecast_());
-                    const results = await Promise.all(tasks);
-                    const { latest, obs } = results[0];
-                    if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'local-fallback');
-                    const live = applyJmaAmedasToDom(obs, latest);
-                    if (plan.forecast && results[1]) {
-                        applyJmaDailyForecastToDom(results[1], live.todayMaxTemp, live.todayLiveIcon);
+                if (plan.forecast) {
+                    try {
+                        const tFc = performance.now();
+                        await applyJmaForecastFromDenshoLive_();
+                        console.log('[取得] 気象庁4日予報 OK', Math.round(performance.now() - tFc) + 'ms');
+                    } catch (e) {
+                        console.warn('[取得] 気象庁4日予報失敗:', e.message || e);
                     }
-                    compactScene2Panels();
-                    queueDisplayRefresh_();
-                    const sWarn = performance.now();
-                    await updateRainWarnFromGas_();
-                    timings['大雨警報'] = Math.round(performance.now() - sWarn);
-                    jmaOk = true;
-                } catch (error) {
-                    console.error('JMA fetch error:', error);
-                    jmaOk = false;
-                } finally {
-                    timings['気象庁'] = Math.round(performance.now() - s);
                 }
-            })());
-        }
-        await Promise.all(jobs);
-        const total = Math.round(performance.now() - tAll);
-        const tag = (plan.labels || []).join(', ');
-        const deferNote = shouldDeferDisplayRefresh_() ? ' · ループ中のため表示組み替えは保留' : '';
-        console.log('[取得] ' + tag + ' 合計 ' + total + 'ms', timings, deferNote.trim());
-        queueDisplayRefresh_();
-        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
-        lastFetchFail = (plan.jma && !jmaOk) || (plan.moe && !moeOk);
-        return !lastFetchFail;
+                console.log('[取得] ' + (plan.labels || []).join(', ') + ' 合計 ' + Math.round(performance.now() - tAll) + 'ms');
+                lastFetchFail = !ok;
+                return ok;
+            }
+            const tAll = performance.now();
+            const timings = {};
+            let jmaOk = !plan.jma;
+            let moeOk = !plan.moe;
+            const jobs = [];
+            if (plan.nowc) {
+                jobs.push((async function () {
+                    const s = performance.now();
+                    try { await updateRainNowcastAlert_(); }
+                    finally { timings['雨雲ナウキャスト'] = Math.round(performance.now() - s); }
+                })());
+            }
+            if (plan.moe) {
+                jobs.push((async function () {
+                    const sWbgt = performance.now();
+                    try {
+                        const wbgtSlots = await fetchWbgtFromMoeApi();
+                        timings['WBGT(GAS)'] = Math.round(performance.now() - sWbgt);
+                        if (wbgtSlots === 'offseason') {
+                            if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+                                console.log('[WBGT] off-season応答 — 更新中は直前値を維持');
+                                applyWbgtInSeason_();
+                                syncWbgtSlotsToDomIfReady_();
+                                moeOk = true;
+                            } else {
+                                applyWbgtOffSeason_();
+                                moeOk = true;
+                            }
+                        } else {
+                            applyWbgtInSeason_();
+                            moeOk = applyWbgtSlotsToDom(wbgtSlots);
+                        }
+                        const sAlert = performance.now();
+                        await updateHeatAlertFromGas_();
+                        timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
+                    } catch (e) {
+                        console.warn('[取得] WBGT系:', e.message || e);
+                        moeOk = false;
+                    }
+                })());
+            }
+            if (plan.jma) {
+                jobs.push((async function () {
+                    const s = performance.now();
+                    try {
+                        const amedas = await fetchJmaAmedasObservation_();
+                        const latest = amedas.latest;
+                        const obs = amedas.obs;
+                        const tasks = [];
+                        if (plan.forecast) tasks.push(fetchJmaForecast_());
+                        const fcResults = tasks.length ? await Promise.all(tasks) : [];
+                        if (timeSync.baseUtcMs == null && latest) {
+                            applySyncedUtcMs(
+                                latest instanceof Date ? latest.getTime() : Date.now(),
+                                'local-fallback'
+                            );
+                        }
+                        if (obs) {
+                            const live = applyJmaAmedasToDom(obs, latest);
+                            if (plan.forecast && fcResults[0]) {
+                                applyJmaDailyForecastToDom(fcResults[0], live.todayMaxTemp, live.todayLiveIcon);
+                            }
+                        } else if (plan.forecast && fcResults[0]) {
+                            applyJmaDailyForecastToDom(fcResults[0], null, null);
+                        }
+                        compactScene2Panels();
+                        queueDisplayRefresh_();
+                        const sWarn = performance.now();
+                        await updateRainWarnFromGas_();
+                        timings['大雨警報'] = Math.round(performance.now() - sWarn);
+                        jmaOk = true;
+                    } catch (error) {
+                        console.error('JMA fetch error:', error);
+                        jmaOk = false;
+                    } finally {
+                        timings['気象庁'] = Math.round(performance.now() - s);
+                    }
+                })());
+            }
+            await Promise.all(jobs);
+            const total = Math.round(performance.now() - tAll);
+            const tag = (plan.labels || []).join(', ');
+            const deferNote = shouldDeferDisplayRefresh_() ? ' · ループ中のため表示組み替えは保留' : '';
+            console.log('[取得] ' + tag + ' 合計 ' + total + 'ms', timings, deferNote.trim());
+            queueDisplayRefresh_();
+            if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
+            lastFetchFail = (plan.jma && !jmaOk) || (plan.moe && !moeOk);
+            return !lastFetchFail;
         } finally {
             scheduledFetchInFlight_ = false;
         }
@@ -4921,7 +5477,7 @@
         if (lastFetchFail) {
             console.warn('[Schedule] 取得失敗のため', FETCH_RETRY_MS / 1000, '秒後に再試行');
             dataRefreshTimerId = setTimeout(async function() {
-                await runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['retry'] });
+                await runScheduledFetch(defaultFetchPlan_({ labels: ['retry'] }));
                 scheduleDataRefresh();
             }, FETCH_RETRY_MS);
             return;
@@ -4967,6 +5523,7 @@
             alertJson.today ? alertJson.today.label : '', alertJson.tomorrow ? alertJson.tomorrow.label : '');
     }
     async function fetchWbgtFromMoeApi() {
+        if (denshoLiveOnly_()) return null;
         if (!MOE_WBGT_API_URL) {
             console.error('[WBGT] moe.gasUrl 未設定 — HTML 内の SignageConfig を確認してください');
             return null;
@@ -5014,6 +5571,185 @@
         }
         console.warn('[WBGT] 取得失敗: GAS URL と SignageConfig の moe.gasUrl を確認してください');
         return null;
+    }
+    function normalizeDenshoSensu_(raw) {
+        if (!raw) return null;
+        return {
+            temp: raw.temp != null ? raw.temp : raw['温度'],
+            cumtemp: raw.cumtemp != null ? raw.cumtemp : raw.cumtemp,
+            humi: raw.humi != null ? raw.humi : raw['湿度'],
+            uv: raw.uv,
+            uvi: raw.uvi,
+            illumi: raw.illumi,
+            rain: raw.rain != null ? raw.rain : raw['雨'],
+            rain_1h: raw.rain_1h,
+            rain_24h: raw.rain_24h,
+            rain_bgn: raw.rain_bgn,
+            wind_dir: raw.wind_dir,
+            wind_dir_str: raw.wind_dir_str,
+            wind_speed: raw.wind_speed != null ? raw.wind_speed : raw['風速'],
+            max_wind_speed: raw.max_wind_speed != null ? raw.max_wind_speed : raw['最大風速'],
+            wbgt: raw.wbgt,
+            wbgt_str: raw.wbgt_str
+        };
+    }
+    function parseDenshoBatoJson_(json, rawText) {
+        const terms = (json && json.term) || (json && json['学期']);
+        const term = terms && terms[0];
+        const dataArr = term && (term.data || term['データ']);
+        const row = dataArr && dataArr[0];
+        const sensuRaw = row && row.sensu15xx;
+        const sensu = normalizeDenshoSensu_(sensuRaw);
+        if (!term || !row || !sensu) throw new Error('Densho data empty');
+        const dateStr = row.date || row['日付'];
+        const sensuDisplay = denshoSensuDisplayFromJsonText_(rawText || '');
+        return {
+            term: term,
+            row: Object.assign({}, row, { sensu15xx: sensu }),
+            sensu: sensu,
+            sensuDisplay: sensuDisplay,
+            observedAt: parseDenshoBatoDate_(dateStr)
+        };
+    }
+    function parseDenshoBatoDate_(dateStr) {
+        const s = String(dateStr || '').trim();
+        if (s.length < 14) return null;
+        const iso = s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8) + 'T' +
+            s.slice(8, 10) + ':' + s.slice(10, 12) + ':' + s.slice(12, 14) + '+09:00';
+        const d = new Date(iso);
+        return Number.isFinite(d.getTime()) ? d : null;
+    }
+    function wbgtLevelFromLabel_(label) {
+        const t = String(label || '').trim();
+        const map = [
+            ['厳重警戒', 3],
+            ['ほぼ安全', 0],
+            ['注意', 1],
+            ['警戒', 2],
+            ['危険', 4]
+        ];
+        for (let i = 0; i < map.length; i++) {
+            if (t.indexOf(map[i][0]) >= 0) return map[i][1];
+        }
+        return null;
+    }
+    function denshoBatoToWbgtSlots_(sensu, sensuDisplay) {
+        if (!sensu) return null;
+        const wbgt = normalizeWbgtCelsius(sensu.wbgt);
+        if (wbgt == null) return null;
+        const lvFromStr = wbgtLevelFromLabel_(sensu.wbgt_str);
+        const lv = lvFromStr != null ? lvFromStr : wbgtLevel(wbgt);
+        const levelIdx = Math.max(0, Math.min(4, lv));
+        const wbgtDisp = denshoDisp_(sensuDisplay, 'wbgt', sensu.wbgt);
+        const current = { wbgt: wbgt, wbgtDisp: wbgtDisp, levelIdx: levelIdx, hour: '現在' };
+        /* 現地センサーは現在値のみ。+3h/+6h/+9h はAPIにないため非表示 */
+        const empty = { wbgt: null, levelIdx: null, hour: '' };
+        return [current, Object.assign({}, empty, { hour: '+3h' }), Object.assign({}, empty, { hour: '+6h' }), Object.assign({}, empty, { hour: '+9h' })];
+    }
+    const DENSHO_DAILY_TEMP_KEY = 'denshoDailyTemp_v1';
+    function denshoJstDateKey_(when) {
+        const d = when instanceof Date ? when : new Date(when || Date.now());
+        const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+            timeZone: CLOCK_TZ, year: 'numeric', month: '2-digit', day: '2-digit'
+        }).formatToParts(d).map(function (x) { return [x.type, x.value]; }));
+        return p.year + '-' + p.month + '-' + p.day;
+    }
+    function loadDenshoDailyTemp_(when) {
+        const dayKey = denshoJstDateKey_(when);
+        try {
+            const raw = localStorage.getItem(DENSHO_DAILY_TEMP_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (!data || data.day !== dayKey) return null;
+            if (!Number.isFinite(data.max) || !Number.isFinite(data.min)) return null;
+            return {
+                max: data.max,
+                min: data.min,
+                maxDisp: data.maxDisp != null ? String(data.maxDisp) : apiRawDisplay_(data.max),
+                minDisp: data.minDisp != null ? String(data.minDisp) : apiRawDisplay_(data.min)
+            };
+        } catch (_) {
+            return null;
+        }
+    }
+    function updateDenshoDailyTemp_(temp, when, tempDisp) {
+        if (temp == null || !Number.isFinite(Number(temp))) {
+            return loadDenshoDailyTemp_(when);
+        }
+        const t = Number(temp);
+        const disp = tempDisp != null && String(tempDisp).trim() !== '' ? String(tempDisp).trim() : apiRawDisplay_(temp);
+        const dayKey = denshoJstDateKey_(when);
+        let data = loadDenshoDailyTemp_(when);
+        if (!data) {
+            data = { max: t, min: t, maxDisp: disp, minDisp: disp };
+        } else {
+            if (t >= data.max) {
+                data.max = t;
+                data.maxDisp = disp;
+            }
+            if (t <= data.min) {
+                data.min = t;
+                data.minDisp = disp;
+            }
+        }
+        try {
+            localStorage.setItem(DENSHO_DAILY_TEMP_KEY, JSON.stringify({
+                day: dayKey,
+                max: data.max,
+                min: data.min,
+                maxDisp: data.maxDisp,
+                minDisp: data.minDisp
+            }));
+        } catch (_) {}
+        return data;
+    }
+    function denshoBatoToAmedasObs_(row, observedAt, sensuDisplay) {
+        const s = (row && row.sensu15xx) || {};
+        const pres = row && (row.sea_level_pressure != null ? row.sea_level_pressure
+            : (row['海面気圧'] != null ? row['海面気圧'] : row.atmos));
+        const when = observedAt || new Date();
+        const daily = updateDenshoDailyTemp_(s.temp, when, denshoDisp_(sensuDisplay, 'temp', s.temp));
+        return {
+            temp: s.temp != null ? [s.temp] : null,
+            humidity: s.humi != null ? [s.humi] : null,
+            precipitation10m: s.rain != null ? [s.rain] : null,
+            precipitation1h: s.rain_1h != null ? [s.rain_1h] : null,
+            wind: s.wind_speed != null ? [s.wind_speed] : null,
+            windDirection: s.wind_dir != null ? [s.wind_dir] : null,
+            gust: s.max_wind_speed != null ? [s.max_wind_speed] : null,
+            normalPressure: pres != null ? [pres] : null,
+            maxTemp: daily ? [daily.max] : null,
+            minTemp: daily ? [daily.min] : null
+        };
+    }
+    async function fetchDenshoBatoLatest_() {
+        const urls = denshoFetchUrls_();
+        if (!urls.length) throw new Error('densho apiUrl unset');
+        let lastErr = null;
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            try {
+                const bundle = await fetchWithTimeout_(function () {
+                    return fetch(url, { cache: 'no-store', mode: 'cors' }).then(function (res) {
+                        if (!res.ok) throw new Error('Densho HTTP ' + res.status + ' (' + url + ')');
+                        return res.text();
+                    }).then(function (text) {
+                        return parseDenshoBatoJson_(JSON.parse(text), text);
+                    });
+                }(), 35000, 'Densho');
+                if (i > 0) console.log('[WBGT] 現地センサー取得 OK（プロキシ経由）', url);
+                return bundle;
+            } catch (e) {
+                lastErr = e;
+                if (i < urls.length - 1) {
+                    console.warn('[WBGT] 現地センサー取得失敗、別経路を試行:', e.message || e);
+                }
+            }
+        }
+        throw lastErr || new Error(
+            '現地センサー API 取得失敗 — ブラウザの CORS 制限のためプロキシが必要です。' +
+            ' node serve.js を実行して表示するか、sw-densho-proxy.js を同じフォルダに置いて http:// で開いてください'
+        );
     }
     function setTextAll(selector, text) {
         document.querySelectorAll(selector).forEach(el => { el.innerText = text; });
@@ -5153,12 +5889,46 @@
     }
     const D5_REL_LABELS = ['今日', '明日', '明後日', '明々後日'];
     const D5_FORECAST_INDICES = [0, 1, 2, 3];
+    let lastD5DateKey_ = '';
+    function d5DatePartsInTz_(ms, dayOffset) {
+        const parts = new Intl.DateTimeFormat('en-CA', {
+            timeZone: CLOCK_TZ,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).formatToParts(new Date(ms + (dayOffset || 0) * 86400000));
+        return Object.fromEntries(parts.map(function (x) { return [x.type, x.value]; }));
+    }
+    function formatD5DayDate_(dayOffset) {
+        let ms = getSyncedUtcMs();
+        if (ms == null) ms = Date.now();
+        const p = d5DatePartsInTz_(ms, dayOffset);
+        return Number(p.month) + '/' + Number(p.day);
+    }
+    function d5TodayDateKey_() {
+        let ms = getSyncedUtcMs();
+        if (ms == null) ms = Date.now();
+        const p = d5DatePartsInTz_(ms, 0);
+        return p.year + '-' + p.month + '-' + p.day;
+    }
     function applyD5BarLabels_() {
         for (let day = 0; day < SCENE5_PANEL_COUNT; day++) {
-            document.querySelectorAll(`.d5-day-${day} .s2-bar-label`).forEach(function (el) {
+            document.querySelectorAll('.d5-day-' + day + ' .s2-bar-label').forEach(function (el) {
                 el.textContent = D5_REL_LABELS[day] || '--';
             });
         }
+    }
+    function applyD5FootDates_() {
+        for (let day = 0; day < SCENE5_PANEL_COUNT; day++) {
+            const dateLabel = formatD5DayDate_(day);
+            document.querySelectorAll('.d5-day-' + day + ' .s2-loc').forEach(function (el) {
+                el.textContent = dateLabel;
+            });
+        }
+    }
+    function applyD5SceneLabels_() {
+        applyD5BarLabels_();
+        applyD5FootDates_();
     }
     /** 今日枠線: ほぼ安全(0)・厳重警戒(3)・危険(4)は白、注意(1)・警戒(2)は黒 */
     function isD5TodayFrameWhite_(levelIdx) {
@@ -5239,6 +6009,17 @@
                 break;
             }
         });
+        document.querySelectorAll('#scene5 .s2-foot .s2-loc').forEach(function (el) {
+            let size = 18;
+            const minSize = 11;
+            el.style.fontWeight = '800';
+            el.style.fontSize = size + 'px';
+            el.style.letterSpacing = '0.02em';
+            while (size > minSize && el.scrollWidth > maxW) {
+                size -= 1;
+                el.style.fontSize = size + 'px';
+            }
+        });
     }
     function applyJmaDailyForecastToDom(forecastJson, todayMaxTemp, todayLiveIcon) {
         const weekly = Array.isArray(forecastJson) ? forecastJson[1] : null;
@@ -5252,7 +6033,7 @@
             if (area.tempsMax) tempsMax = area.tempsMax;
             if (area.weatherCodes && !weatherCodes) weatherCodes = area.weatherCodes;
         }
-        applyD5BarLabels_();
+        applyD5SceneLabels_();
         for (let day = 0; day < SCENE5_PANEL_COUNT; day++) {
             const idx = D5_FORECAST_INDICES[day];
             let temp = tempsMax && tempsMax[idx] !== '' ? Number(tempsMax[idx]) : null;
@@ -5281,13 +6062,19 @@
     }
     const SCENE2_META_LABELS = {
         weather: '天気', temp: '気温', rain: '降水量', wdir: '風向き', wind: '風速',
-        humi: '湿度', pres: '気圧', tmaxmin: '最高/最低', gust: '最大瞬間風速'
+        humi: '湿度', pres: '気圧', wbgt: 'WBGT', wbgtstr: '暑さ警戒',
+        rain1h: '1時間雨量', rain24h: '24時間雨量', uvi: 'UV指数',
+        gust: '最大瞬間風速'
     };
-    const SCENE2_META_ORDER = ['weather', 'temp', 'rain', 'wdir', 'wind', 'humi', 'pres', 'tmaxmin', 'gust'];
+    const SCENE2_META_ORDER = [
+        'weather', 'temp', 'rain', 'wdir', 'wind', 'humi', 'pres',
+        'wbgt', 'wbgtstr', 'rain1h', 'rain24h', 'uvi', 'gust'
+    ];
     function scene2FootTextForType_(type, obs) {
         switch (type) {
             case 'rain': return obs.time + '・10分';
-            case 'tmaxmin': return obs.date + '日中';
+            case 'rain1h': return obs.time + '・1時間';
+            case 'rain24h': return obs.date + '・24時間';
             case 'gust': return obs.date + '最大';
             default: return obs.stamp + '時点';
         }
@@ -5314,6 +6101,31 @@
         const slot = `<div class="s2-meta-slot s2-meta-slot-flow">${msg}</div>`;
         return `<div class="s2-meta-set s2-meta-set-flow">${slot}</div>`;
     }
+    function remeasureScene2MetaLapPx_() {
+        if (!s2MetaTrack) return;
+        const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
+        if (set && set.offsetWidth > 0) {
+            scene2MetaLapPx = Math.max(SCENE2_META_LAP_PX, set.offsetWidth);
+        }
+        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
+    }
+    function sizeScene2MetaText_() {
+        const bar = document.querySelector('#scene2 .s2-meta-bar');
+        const probe = document.querySelector('#scene2 .s2-meta-group');
+        if (!bar || !probe || !String(probe.textContent || '').trim()) return;
+        const barH = bar.clientHeight > 0 ? bar.clientHeight : 28;
+        const targets = document.querySelectorAll('#scene2 .s2-meta-msg-scroll');
+        let fz = 15;
+        targets.forEach(function (n) {
+            n.style.fontSize = fz + 'px';
+            n.style.lineHeight = barH + 'px';
+        });
+        let guard = 28;
+        while (guard-- > 0 && fz > 9 && probe.scrollWidth > 504) {
+            fz -= 1;
+            targets.forEach(function (n) { n.style.fontSize = fz + 'px'; });
+        }
+    }
     function buildScene2MetaTrack(latest) {
         if (!s2MetaTrack) return;
         const when = latest || lastAmedasObsTime || (getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date());
@@ -5327,9 +6139,37 @@
         let html = '';
         for (let i = 0; i < SCENE2_META_SETS; i++) html += buildScene2MetaSetHtml(obs);
         s2MetaTrack.innerHTML = html;
-        const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
-        scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
-        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
+        sizeScene2MetaText_();
+        remeasureScene2MetaLapPx_();
+        if (s2 && s2.classList.contains('active')) {
+            requestAnimationFrame(function () {
+                sizeScene2MetaText_();
+                remeasureScene2MetaLapPx_();
+            });
+        }
+    }
+    function clearLiveSensorDom_() {
+        document.querySelectorAll('.weather-icon-use').forEach(function (el) { el.setAttribute('href', '#icon-sunny'); });
+        setTextAll('.temp-val', '');
+        setTextAll('.humi-val', '');
+        setTextAll('.rain-val', '');
+        setTextAll('.pres-val', '');
+        setTextAll('.dir-val', '');
+        setTextAll('.wind-val', '');
+        setTextAll('.gust-val', '');
+        setTextAll('.wbgt-s2-val', '');
+        setTextAll('.wbgtstr-val', '');
+        setTextAll('.rain1h-val', '');
+        setTextAll('.rain24h-val', '');
+        setTextAll('.uvi-val', '');
+        lastAmedasRainNow = false;
+        lastAmedasObsTime = null;
+        lastAmedasSnapshot_ = null;
+        if (s2MetaTrack) {
+            s2MetaTrack.innerHTML = '';
+            scene2MetaLapPx = SCENE2_META_LAP_PX;
+        }
+        queueDisplayRefresh_();
     }
     function applyJmaAmedasToDom(obs, latest) {
         if (latest) lastAmedasObsTime = latest instanceof Date ? latest : new Date(latest);
@@ -5342,8 +6182,6 @@
         const wind = amedasFieldValue(obs.wind);
         const pres = amedasFieldValue(obs.normalPressure) ?? amedasFieldValue(obs.pressure);
         const wdir = amedasFieldValue(obs.windDirection);
-        const maxT = amedasFieldValue(obs.maxTemp);
-        const minT = amedasFieldValue(obs.minTemp);
         const gust = amedasFieldValue(obs.gust);
 
         setTextAll('.temp-val', temp != null ? String(Math.round(Number(temp))) : '');
@@ -5354,15 +6192,14 @@
         setTextAll('.dir-val', windDirTxt);
         setTextAll('.wind-val', wind != null ? Number(wind).toFixed(1) : '');
 
-        const maxTxt = maxT != null ? Math.round(Number(maxT)) : null;
-        const minTxt = minT != null ? Math.round(Number(minT)) : null;
-        setTextAll('.tmaxmax-val', maxTxt != null ? String(maxTxt) : '--');
-        setTextAll('.tmin-val', minTxt != null ? String(minTxt) : '--');
         setTextAll('.gust-val', gust != null ? Number(gust).toFixed(1) : '');
 
         lastAmedasRainNow = (p10 != null && Number(p10) > 0) || (p1h != null && Number(p1h) > 0);
 
         buildScene2MetaTrack(lastAmedasObsTime);
+        if (shouldDeferDisplayRefresh_()) {
+            queueDisplayRefresh_();
+        }
         fitScene2BodyText();
         captureAmedasSnapshot_(obs, latest);
         persistSignageStateCache_();
@@ -5371,6 +6208,10 @@
             todayMaxTemp: maxT != null ? Number(maxT) : (temp != null ? Number(temp) : null),
             todayLiveIcon: icon
         };
+    }
+    function fitScene2BodyTextDeferred_() {
+        fitScene2BodyText();
+        requestAnimationFrame(fitScene2BodyText);
     }
     function fitScene2BodyText() {
         const maxW = 116;
@@ -5386,30 +6227,13 @@
         document.querySelectorAll('#scene2 .s2-dir-text').forEach(el => {
             let size = 20;
             let minSize = 14;
-            if (el.classList.contains('dir-val')) { size = 34; minSize = 24; }
+            if (el.classList.contains('dir-val')) { size = 36; minSize = 25; }
+            if (el.classList.contains('wbgtstr-val')) { size = 36; minSize = 22; }
             el.style.fontSize = size + 'px';
             while (size > minSize && el.scrollWidth > maxW) {
                 size -= 1;
                 el.style.fontSize = size + 'px';
             }
-        });
-        document.querySelectorAll('#scene2 .s2-tmaxmin-card').forEach(card => {
-            const hi = card.querySelector('.tmaxmax-val');
-            const lo = card.querySelector('.tmin-val');
-            const sep = card.querySelector('.s2-tmax-sep');
-            const unit = card.querySelector('.s2-tmax-unit');
-            let numSize = 40;
-            if (hi) hi.style.fontSize = numSize + 'px';
-            if (lo) lo.style.fontSize = numSize + 'px';
-            if (sep) sep.style.fontSize = numSize + 'px';
-            while (numSize > 24 && card.scrollWidth > maxW) {
-                numSize -= 1;
-                if (hi) hi.style.fontSize = numSize + 'px';
-                if (lo) lo.style.fontSize = numSize + 'px';
-                if (sep) sep.style.fontSize = numSize + 'px';
-            }
-            const unitSize = Math.max(12, Math.round(numSize * 0.4));
-            if (unit) unit.style.fontSize = unitSize + 'px';
         });
         document.querySelectorAll('#scene2 .s2-sub-line').forEach(el => {
             let size = 18;
@@ -5422,9 +6246,9 @@
         document.querySelectorAll('#scene2 .s2-val').forEach(wrap => {
             const num = wrap.querySelector('.s2-num');
             if (!num) return;
-            let size = 40;
+            let size = 44;
             num.style.fontSize = size + 'px';
-            while (size > 24 && wrap.scrollWidth > maxW) {
+            while (size > 26 && wrap.scrollWidth > maxW) {
                 size -= 1;
                 num.style.fontSize = size + 'px';
             }
@@ -5440,11 +6264,7 @@
         conveyor.style.width = `${scene2SetWidth * 2}px`;
     }
     async function fetchWeatherAndWbgt(opts) {
-        const plan = Object.assign(
-            { jma: true, moe: true, nowc: true, forecast: true, labels: ['manual'] },
-            opts || {}
-        );
-        return runScheduledFetch(plan);
+        return runScheduledFetch(defaultFetchPlan_(Object.assign({ labels: ['manual'] }, opts || {})));
     }
     function startBackgroundFetch_(plan) {
         fetchWeatherAndWbgt(plan).finally(function () {
@@ -5559,7 +6379,7 @@
                 console.warn('[雨雲] ナウキャストの基準時刻が古いため雨判定を行いません:', basetime,
                     '(' + Math.round((nowMs - baseMs) / 60000) + '分前)');
                 queueDisplayRefresh_();
-                refreshS1WbgtFootBar_(false);
+                queueOrRefreshS1FootBar_();
                 if (!getActiveScene()) flushDisplayRefresh_();
                 return;
             }
@@ -5580,7 +6400,7 @@
             console.log('[雨雲] ナウキャスト', alert.level, alert.messageJp || '(なし)',
                 'center', near.center.toFixed(2), 'outer', near.outer.toFixed(2));
             queueDisplayRefresh_();
-            refreshS1WbgtFootBar_(false);
+            queueOrRefreshS1FootBar_();
             if (!getActiveScene()) flushDisplayRefresh_();
         } catch (e) {
             console.warn('[雨雲] ナウキャスト取得失敗:', e.message || e);
@@ -5613,7 +6433,7 @@
     }
     /* 下帯: WBGT取得不可時は「取得不可」。提供期間外は地点名で白帯を維持 */
     function getS1FootFallbackText_() {
-        return (SITE_CFG.site && SITE_CFG.site.label) || MOE_POINT_CFG.pointName || '宮川興業株式会社';
+        return denshoSiteLabel_ || (SITE_CFG.site && SITE_CFG.site.label) || MOE_POINT_CFG.pointName || '宮川興業株式会社';
     }
     function getS1SiteCustomerName_() {
         const site = SITE_CFG.site || {};
@@ -5743,7 +6563,7 @@
         fcLvTrack.innerHTML = html;
         const setEl = fcLvTrack.querySelector('.fc-lv-set');
         scene4FcLvLapPx = setEl ? Math.max(SCENE4_LV_LAP_PX, setEl.offsetWidth) : SCENE4_LV_LAP_PX;
-        applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
+        applyScene4FootScroll_(scene4FcLvLapPx);
     }
     function clearScene4Timers() {
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
@@ -5800,23 +6620,26 @@
     function transitionToScene(nextEl, onComplete) {
         clearSceneEndHoldTimer_();
         clearSceneSlideAnim_();
+        clearSceneMotionHoldTimer_();
         clearOutgoingSceneAnims_();
         const current = getActiveScene();
         if (!nextEl) { onComplete?.(); return; }
         if (current === nextEl) { onComplete?.(); return; }
         nextEl.style.display = sceneDisplayMode(nextEl);
         nextEl.classList.add('active');
+        function sceneReady_() {
+            onComplete?.();
+        }
         if (!current || SCENE_SLIDE_MS <= 0) {
             if (current) hideSceneEl(current);
             applyScrollX_(nextEl, 0);
             nextEl.style.zIndex = '';
-            onComplete?.();
+            sceneReady_();
             return;
         }
         nextEl.style.zIndex = '2';
         applyScrollX_(nextEl, SCENE_W);
         current.style.zIndex = '1';
-        onComplete?.();
         const t0 = performance.now();
         function tick(now) {
             const p = Math.min(1, (now - t0) / SCENE_SLIDE_MS);
@@ -5831,6 +6654,7 @@
                 hideSceneEl(current);
                 applyScrollX_(nextEl, 0);
                 nextEl.style.zIndex = '';
+                sceneReady_();
             }
         }
         sceneSlideAnimId = requestAnimationFrame(tick);
@@ -5843,10 +6667,13 @@
     }
     function finishScene1() {
         scene1AdvanceToken += 1;
+        s1Flow_ = null;
         clearScene1WbgtTimers();
         if (demoOnlyLoop_('s1', playScene1)) return;
         if (!s2) return;
-        transitionToScene(s2, playScene2);
+        scheduleSceneEndHold_(function () {
+            transitionToScene(s2, playScene2);
+        });
     }
     /* シーン3の後 → シーン5(WBGT予報) → アラート → 警報 → シーン1 */
     function gotoAfterScene3Tail_() {
@@ -5858,12 +6685,16 @@
         }
         gotoAfterRainWarnOrScene1_();
     }
-    function gotoAfterScene3_() {
+    function gotoAfterScene3Body_() {
         if (!wbgtOffSeason && s4) {
             transitionToScene(s4, playScene4);
             return;
         }
         gotoAfterScene3Tail_();
+    }
+    function gotoAfterScene3_() {
+        t3JpIntroActive_ = false;
+        scheduleSceneEndHold_(gotoAfterScene3Body_);
     }
     /* 256×128スロット中央に収まるサイズ（256÷128=2 のパネル内で中央揃え） */
     function sizeHeatAlertText_() {
@@ -5925,7 +6756,7 @@
             scheduleDemoStep_(function () {
                 const next = idx + 1;
                 if (next < heatAlertActive.length) playSceneAlert(next);
-                else gotoAfterRainWarnOrScene1_();
+                else finishHeatAlertScene_();
             });
             return;
         }
@@ -5965,7 +6796,7 @@
                             return;
                         } else {
                             haAnimId = null; haFlow_ = null;
-                            gotoAfterRainWarnOrScene1_();
+                            finishHeatAlertScene_();
                             return;
                         }
                     }
@@ -5975,7 +6806,9 @@
             applyHaTrackX_(tracks, haFlow_.x);
             haAnimId = requestAnimationFrame(step);
         }
-        haAnimId = requestAnimationFrame(step);
+        scheduleSceneMotionStart_(function () {
+            haAnimId = requestAnimationFrame(step);
+        });
     }
     function startAlertOnlyDemo_() {
         resetLogoRotation();
@@ -6020,10 +6853,25 @@
     }
     function buildT3GuideSetHtml_(text) {
         const group = '<span class="s2-meta-group">' + escapeS1Html(text) + '</span>';
-        const inner = group + group;
-        const msg = '<span class="s2-meta-msg-scroll s2-meta-msg-groups">' + inner + '</span>';
+        const msg = '<span class="s2-meta-msg-scroll s2-meta-msg-groups">' + group + '</span>';
         const slot = '<div class="s2-meta-slot s2-meta-slot-flow">' + msg + '</div>';
-        return '<div class="s2-meta-set s2-meta-set-flow">' + slot + '</div>';
+        return '<div class="s2-meta-set s2-meta-set-flow">' + slot + slot + '</div>';
+    }
+    function measureT3GuideLapPx_(trackEl) {
+        if (!trackEl) return SCENE2_META_LAP_PX;
+        const slot = trackEl.querySelector('.s2-meta-slot-flow');
+        if (slot && slot.offsetWidth > 0) {
+            return Math.max(SCENE2_META_LAP_PX, slot.offsetWidth);
+        }
+        const setEl = trackEl.querySelector('.s2-meta-set-flow');
+        if (setEl && setEl.offsetWidth > 0) {
+            return Math.max(SCENE2_META_LAP_PX, Math.floor(setEl.offsetWidth / 2));
+        }
+        return SCENE2_META_LAP_PX;
+    }
+    function remeasureT3GuideLapPx_(trackEl) {
+        t3GuidLapPx = measureT3GuideLapPx_(trackEl);
+        if (trackEl) applyGlobalScroll_(trackEl, t3GuidLapPx);
     }
     /** 環境省発表または ?heatalert= 指定時のみアラート指針を下帯に出す（フルデモの仮アラートは除く） */
     function isHeatAlertPublishedForGuide_() {
@@ -6057,17 +6905,19 @@
         let html = '';
         for (let i = 0; i < SCENE2_META_SETS; i++) html += buildT3GuideSetHtml_(text);
         el.innerHTML = html;
-        const setEl = el.querySelector('.s2-meta-set-flow');
-        t3GuidLapPx = setEl ? Math.max(SCENE2_META_LAP_PX, setEl.offsetWidth) : SCENE2_META_LAP_PX;
-        applyGlobalScroll_(el, t3GuidLapPx);
         sizeT3GuideText_();
-        requestAnimationFrame(sizeT3GuideText_);
+        remeasureT3GuideLapPx_(el);
+        requestAnimationFrame(function () {
+            sizeT3GuideText_();
+            remeasureT3GuideLapPx_(el);
+        });
     }
     const T3_HEAT_ALERT_TOP = {
         warning: { text: '熱中症警戒アラート発表中', cls: 't3-top-ha-warning' },
         special: { text: '熱中症特別警戒アラート発表中', cls: 't3-top-ha-special' }
     };
     function getT3HeatAlertTopForDisplay_() {
+        if (t3JpIntroActive_) return null;
         if (!isHeatAlertPublishedForGuide_()) return null;
         if (heatAlertActive.includes('special')) return T3_HEAT_ALERT_TOP.special;
         if (heatAlertActive.includes('warning')) return T3_HEAT_ALERT_TOP.warning;
@@ -6136,14 +6986,14 @@
     }
     function t3LineBoxH_(node) {
         const fs = parseFloat(window.getComputedStyle(node).fontSize) || 0;
-        const slack = fs > 0 ? Math.ceil(fs * 0.16) : 0;
+        const slack = fs > 0 ? Math.ceil(fs * 0.05) : 0;
         const rect = node.getBoundingClientRect();
         return Math.ceil(Math.max(node.offsetHeight, node.scrollHeight, rect.height)) + slack;
     }
     function t3SlotClipsVert_(slot, bodyEl) {
         if (!slot || !bodyEl) return false;
         const bodyR = bodyEl.getBoundingClientRect();
-        const pad = 2;
+        const pad = 1;
         let clips = false;
         slot.querySelectorAll('.t3-l1, .t3-l2').forEach(function (n) {
             if (!String(n.textContent || '').trim()) return;
@@ -6159,8 +7009,8 @@
         return h1 + g + h2;
     }
     function t3TextOverflows_(probe1, probe2, hasL1, usableW, usableH, gap) {
-        if (hasL1 && probe1.scrollWidth > usableW) return true;
-        if (probe2.scrollWidth > usableW) return true;
+        if (hasL1 && probe1 && !t3LineFitsWidth_(probe1, usableW)) return true;
+        if (probe2 && !t3LineFitsWidth_(probe2, usableW)) return true;
         return t3TextBlockH_(probe1, probe2, hasL1, gap) > usableH;
     }
     function fitT3LineScale_(nodes, maxW) {
@@ -6170,13 +7020,24 @@
             n.style.transformOrigin = 'center center';
             const sw = n.scrollWidth;
             if (sw > maxW && sw > 0) {
-                n.style.transform = 'scaleX(' + (maxW / sw).toFixed(4) + ')';
+                const scale = Math.max(T3_MIN_SCALE_X, maxW / sw);
+                n.style.transform = 'scaleX(' + scale.toFixed(4) + ')';
             }
         });
     }
     function t3LineFitsWidth_(node, maxW) {
         if (!node || !String(node.textContent || '').trim()) return true;
-        return node.scrollWidth <= maxW;
+        const sw = node.scrollWidth;
+        if (sw <= maxW) return true;
+        return sw * T3_MIN_SCALE_X <= maxW;
+    }
+    function t3ApplyBandScaleX_(usableW) {
+        fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l1'), usableW);
+        fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l2'), usableW);
+    }
+    function t3FontsFitVert_(slot, bodyEl, probe1, probe2, hasL1, gap, usableH) {
+        return !t3SlotClipsVert_(slot, bodyEl) &&
+            t3TextBlockH_(probe1, probe2, hasL1, gap) <= usableH;
     }
     function t3LineHeightForLang_(langKey) {
         return langKey === 'jp' ? T3_LINE_LH_JP : T3_LINE_LH_LATIN;
@@ -6184,13 +7045,12 @@
     function applyT3LineStyle_(nodes, fontPx, langKey) {
         if (!nodes || !nodes.length) return;
         const lh = t3LineHeightForLang_(langKey);
-        const padB = langKey === 'jp' ? 0 : 1;
         nodes.forEach(function (n) {
             n.style.lineHeight = String(lh);
             n.style.height = 'auto';
             n.style.minHeight = '0';
             n.style.maxHeight = 'none';
-            n.style.paddingBottom = padB + 'px';
+            n.style.paddingBottom = '0';
             n.style.overflow = 'visible';
         });
     }
@@ -6200,18 +7060,17 @@
     }
     function t3SeedFonts_(fixed, hasL1, langKey, usableH, gap) {
         const lh = t3LineHeightForLang_(langKey);
-        const padB = langKey === 'jp' ? 0 : 1;
         const ratio = t3RatioFromFixed_(fixed, hasL1);
         if (!hasL1) {
-            return { f1: 0, f2: Math.max(8, Math.floor((usableH - padB) / lh)) };
+            return { f1: 0, f2: Math.max(8, Math.floor(usableH / lh)) };
         }
-        const budget = usableH - gap - padB * 2;
+        const budget = usableH - gap;
         const f1 = Math.max(8, Math.floor(budget / (lh * (1 + ratio))));
         return { f1: f1, f2: Math.max(8, Math.round(f1 * ratio)) };
     }
     function t3FontsFit_(slot, bodyEl, probe1, probe2, hasL1, gap, usableW, usableH) {
-        const vertOk = !t3SlotClipsVert_(slot, bodyEl) &&
-            t3TextBlockH_(probe1, probe2, hasL1, gap) <= usableH;
+        t3ApplyBandScaleX_(usableW);
+        const vertOk = t3FontsFitVert_(slot, bodyEl, probe1, probe2, hasL1, gap, usableH);
         const w1 = hasL1 && probe1 && !t3LineFitsWidth_(probe1, usableW);
         const w2 = probe2 && !t3LineFitsWidth_(probe2, usableW);
         return vertOk && !w1 && !w2;
@@ -6248,6 +7107,8 @@
             const tryF1 = hasL1 ? f1 + 1 : 0;
             const tryF2 = hasL1 ? Math.max(8, Math.round(tryF1 * ratio)) : f2 + 1;
             setSizes(tryF1, tryF2);
+            t3ApplyBandScaleX_(usableW);
+            if (!t3FontsFitVert_(slot, bodyEl, probe1, probe2, hasL1, gap, usableH)) break;
             if (!t3FontsFit_(slot, bodyEl, probe1, probe2, hasL1, gap, usableW, usableH)) break;
             f1 = tryF1;
             f2 = tryF2;
@@ -6255,6 +7116,7 @@
         setSizes(f1, f2);
         guard = 64;
         while (guard-- > 0) {
+            t3ApplyBandScaleX_(usableW);
             if (t3FontsFit_(slot, bodyEl, probe1, probe2, hasL1, gap, usableW, usableH)) break;
             if (hasL1 && f1 > 8) {
                 f1 -= 1;
@@ -6266,6 +7128,7 @@
             }
             setSizes(f1, f2);
         }
+        t3ApplyBandScaleX_(usableW);
     }
     function sizeT3Text_(langIdx) {
         const slot = document.querySelector('#scene3 .t3-slot');
@@ -6304,23 +7167,50 @@
             return Math.max(l2Min, Math.min(f2, maxL2));
         };
         if (!hasL1) {
-            let f2 = Math.min(T3_L1_MAX, Math.floor((usableH - 2) / T3_LINE_H));
+            let f2 = Math.min(T3_L1_MAX, Math.floor((usableH - 1) / t3LineHeightForLang_(langKey)));
+            setAll(0, f2);
+            let grow = 96;
+            while (grow-- > 0) {
+                const tryF2 = f2 + 1;
+                setAll(0, tryF2);
+                t3ApplyBandScaleX_(usableW);
+                if (!t3FontsFitVert_(slot, bodyEl, probe1, probe2, false, gap, usableH)) break;
+                if (!t3LineFitsWidth_(probe2, usableW)) break;
+                f2 = tryF2;
+            }
             setAll(0, f2);
             let guard = 200;
-            while (guard-- > 0 && f2 > l2Min && t3TextOverflows_(probe1, probe2, false, usableW, usableH, gap)) {
+            while (guard-- > 0 && f2 > l2Min) {
+                t3ApplyBandScaleX_(usableW);
+                if (t3FontsFitVert_(slot, bodyEl, probe1, probe2, false, gap, usableH) &&
+                    t3LineFitsWidth_(probe2, usableW)) break;
                 f2 -= 1;
                 setAll(0, f2);
             }
-            fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l2'), usableW);
+            t3ApplyBandScaleX_(usableW);
             return;
         }
         let f1 = Math.min(T3_L1_MAX, Math.floor((usableH - gap) / (T3_LINE_H * (1 + T3_L2_RATIO))));
         let f2 = capL2_(f1, Math.round(f1 * T3_L2_RATIO));
         setAll(f1, f2);
+        let grow = 96;
+        while (grow-- > 0) {
+            const tryF1 = f1 + 1;
+            const tryF2 = capL2_(tryF1, Math.round(tryF1 * T3_L2_RATIO));
+            setAll(tryF1, tryF2);
+            t3ApplyBandScaleX_(usableW);
+            if (!t3FontsFitVert_(slot, bodyEl, probe1, probe2, hasL1, gap, usableH)) break;
+            if (!t3FontsFit_(slot, bodyEl, probe1, probe2, hasL1, gap, usableW, usableH)) break;
+            f1 = tryF1;
+            f2 = tryF2;
+        }
+        setAll(f1, f2);
         let guard = 200;
-        while (guard-- > 0 && t3TextOverflows_(probe1, probe2, hasL1, usableW, usableH, gap)) {
-            const w1 = hasL1 && probe1.scrollWidth > usableW;
-            const w2 = probe2.scrollWidth > usableW;
+        while (guard-- > 0) {
+            t3ApplyBandScaleX_(usableW);
+            if (t3FontsFit_(slot, bodyEl, probe1, probe2, hasL1, gap, usableW, usableH)) break;
+            const w1 = hasL1 && probe1 && !t3LineFitsWidth_(probe1, usableW);
+            const w2 = probe2 && !t3LineFitsWidth_(probe2, usableW);
             const tall = t3TextBlockH_(probe1, probe2, hasL1, gap) > usableH;
             if ((w1 || tall) && f1 > 8) {
                 f1 -= 1;
@@ -6334,8 +7224,7 @@
             }
             setAll(f1, f2);
         }
-        fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l1'), usableW);
-        fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l2'), usableW);
+        t3ApplyBandScaleX_(usableW);
         let clipGuard = 80;
         while (clipGuard-- > 0 && t3SlotClipsVert_(slot, bodyEl)) {
             if (hasL1 && f1 > 8) {
@@ -6347,8 +7236,7 @@
                 break;
             }
             setAll(f1, f2);
-            fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l1'), usableW);
-            fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l2'), usableW);
+            t3ApplyBandScaleX_(usableW);
         }
     }
     function sizeT3GuideText_() {
@@ -6368,15 +7256,45 @@
             targets.forEach(function (n) { n.style.fontSize = fz + 'px'; });
         }
     }
+    function prepScene3BeforeShow_() {
+        t3Messages_ = getT3Messages_();
+        if (!t3Messages_.length) return false;
+        t3JpIntroActive_ = true;
+        t3LangIdx_ = 0;
+        setT3Lang_(0);
+        globalScrollX_ = 0;
+        document.querySelectorAll('#scene3 .t3-track').forEach(function (t) {
+            applyScrollX_(t, 0);
+        });
+        syncT3TopHaScroll_(0);
+        buildT3GuideTrack();
+        refreshT3LevelBar_();
+        return true;
+    }
+    function endScene3JpIntro_() {
+        if (!t3JpIntroActive_) return;
+        t3JpIntroActive_ = false;
+        refreshT3LevelBar_();
+    }
     function setT3Lang_(idx) {
         const msg = t3Messages_[idx];
         if (!msg) return false;
         t3LangIdx_ = idx;
-        document.querySelectorAll('#scene3 .t3-l1').forEach(function (n) { n.textContent = msg.l1; });
-        document.querySelectorAll('#scene3 .t3-l2').forEach(function (n) { n.textContent = msg.l2; });
+        document.querySelectorAll('#scene3 .t3-l1').forEach(function (n) {
+            n.textContent = msg.l1;
+            n.style.transform = '';
+        });
+        document.querySelectorAll('#scene3 .t3-l2').forEach(function (n) {
+            n.textContent = msg.l2;
+            n.style.transform = '';
+        });
         sizeT3Text_(idx);
-        requestAnimationFrame(function () { requestAnimationFrame(function () { sizeT3Text_(idx); }); });
         return true;
+    }
+    function snapT3ScrollToLap_(lapW) {
+        if (!lapW || lapW <= 0) return wrapScrollX_(globalScrollX_, T3_UNIT_W);
+        globalScrollX_ = Math.round(globalScrollX_ / lapW) * lapW;
+        return wrapScrollX_(globalScrollX_, lapW);
     }
     function applyT3TrackX_(tracks, x) {
         const tx = scrollPx_(x);
@@ -6394,10 +7312,15 @@
         buildT3GuideTrack();
         t3Messages_ = getT3Messages_();
         if (typeof SignageBg !== 'undefined') SignageBg.refreshTicker(getSignageBgLevel_(), getSignageDisplayMode_());
-        refreshT3LevelBar_();
         if (s3 && s3.classList.contains('active') && t3Messages_.length) {
-            sizeT3Text_(t3LangIdx_);
+            if (t3JpIntroActive_ && t3LangIdx_ !== 0) {
+                t3LangIdx_ = 0;
+                setT3Lang_(0);
+            } else if (!t3JpIntroActive_) {
+                sizeT3Text_(t3LangIdx_);
+            }
         }
+        refreshT3LevelBar_();
     }
     function playScene3() {
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
@@ -6406,33 +7329,29 @@
             gotoAfterScene3_();
             return;
         }
-        flushDisplayRefresh_(false);
-        buildTicker();
-        applyPendingSignageBgAtScene_();
-        t3Messages_ = getT3Messages_();
-        buildT3GuideTrack();
-        const guidTrack = document.getElementById('t3-guid-track');
-        if (!t3Messages_.length) {
+        if (!prepScene3BeforeShow_()) {
             gotoAfterScene3_();
             return;
         }
+        applyDisplayRefreshAtSceneEntry_();
+        applyPendingSignageBgAtScene_();
+        const guidTrack = document.getElementById('t3-guid-track');
         stepLogo90(420, true);
         const tracks = document.querySelectorAll('#scene3 .t3-track');
         if (!tracks.length) {
             setTimeout(function () { gotoAfterScene3_(); }, 800);
             return;
         }
-        prepT3_(0);
         if (isFullDemoStep_()) {
             scheduleDemoStep_(gotoAfterScene3_);
             return;
         }
         t3Flow_ = {
-            x: wrapScrollX_(globalScrollX_, T3_UNIT_W),
+            x: 0,
             langIdx: 0,
             laps: 0
         };
-        applyT3TrackX_(tracks, t3Flow_.x);
+        applyT3TrackX_(tracks, 0);
         function step() {
             const prevX = t3Flow_.x;
             advanceGlobalScroll_(getScrollSpeedPx_());
@@ -6446,10 +7365,13 @@
                         if (demoOnlyLoop_('s3', playScene3)) return;
                         tickerAnimId = null;
                         t3Flow_ = null;
+                        t3JpIntroActive_ = false;
                         stopLogoSpinInterval();
                         gotoAfterScene3_();
                         return;
                     }
+                    if (t3Flow_.langIdx === 1) endScene3JpIntro_();
+                    t3Flow_.x = snapT3ScrollToLap_(T3_UNIT_W);
                     setT3Lang_(t3Flow_.langIdx);
                 }
             }
@@ -6459,11 +7381,13 @@
             }
             tickerAnimId = requestAnimationFrame(step);
         }
-        tickerAnimId = requestAnimationFrame(step);
+        scheduleSceneMotionStart_(function () {
+            tickerAnimId = requestAnimationFrame(step);
+        });
     }
     function playScene1() {
         const advanceToken = scene1AdvanceToken + 1;
-        flushDisplayRefresh_(false);
+        applyDisplayRefreshAtSceneEntry_();
         clearScene1WbgtTimers();
         clearDemoStepTimer_();
         refreshS1WbgtFootBar_(true);
@@ -6478,41 +7402,68 @@
             scheduleDemoStep_(finishScene1);
             return;
         }
-        const holdMs = scene1LoopCount_ === 0 ? SCENE1_BOOT_HOLD_MS : SCENE1_CLOCK_HOLD_MS;
-        scene1LoopCount_ += 1;
         if (s1WbgtTrack && showWbgtFoot) {
             if (!s1WbgtTrack.children.length) refreshS1WbgtFootBar_(true);
             const s1FootLap = getS1FootLapPx_();
+            s1Flow_ = {
+                startX: wrapScrollX_(globalScrollX_, s1FootLap),
+                x: wrapScrollX_(globalScrollX_, s1FootLap),
+                laps: 0,
+                moved: false
+            };
             applyGlobalScroll_(s1WbgtTrack, s1FootLap);
             function animateS1WbgtRtl() {
                 if (advanceToken !== scene1AdvanceToken + 1) return;
+                const prevX = s1Flow_.x;
                 advanceGlobalScroll_(getScrollSpeedPx_());
+                s1Flow_.x = wrapScrollX_(globalScrollX_, s1FootLap);
+                if (!s1Flow_.moved && Math.abs(s1Flow_.x - s1Flow_.startX) > 0.5) {
+                    s1Flow_.moved = true;
+                }
                 applyGlobalScroll_(s1WbgtTrack, s1FootLap);
+                if (s1Flow_.moved && detectScrollLapCrossed_(prevX, s1Flow_.x)) {
+                    s1Flow_.laps += 1;
+                    if (s1Flow_.laps >= SCENE1_ADVANCE_LAPS) {
+                        scene1AnimId = null;
+                        s1Flow_ = null;
+                        finishScene1();
+                        return;
+                    }
+                }
                 scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
             }
-            scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+            scheduleSceneMotionStart_(function () {
+                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+            });
+        } else {
+            s1Flow_ = null;
+            scene1HoldTimerId = setTimeout(function () {
+                scene1HoldTimerId = null;
+                if (advanceToken !== scene1AdvanceToken + 1) return;
+                finishScene1();
+            }, SCENE1_CLOCK_HOLD_MS);
         }
-        scene1HoldTimerId = setTimeout(function () {
-            scene1HoldTimerId = null;
-            if (advanceToken !== scene1AdvanceToken + 1) return;
-            if (scene1AnimId) { cancelAnimationFrame(scene1AnimId); scene1AnimId = null; }
-            finishScene1();
-        }, holdMs);
     }
-    /* シーン2の次はシーン3（4日予報） */
+    /* シーン2の次はシーン5（4日予報） */
     function gotoSceneAfterScene2_() {
-        transitionToScene(s5, playScene5);
+        scheduleSceneEndHold_(function () {
+            transitionToScene(s5, playScene5);
+        });
     }
     /* シーン5（4日予報）の次はシーン3（多言語WBGT） */
     function gotoSceneAfterScene5_() {
-        if (!s3) { gotoAfterScene3_(); return; }
-        transitionToScene(s3, playScene3);
+        scheduleSceneEndHold_(function () {
+            prepScene3BeforeShow_();
+            if (!s3) { gotoAfterScene3Body_(); return; }
+            transitionToScene(s3, playScene3);
+        });
     }
     function playScene2() {
+        applyDisplayRefreshAtSceneEntry_();
         applyPendingSignageBgAtScene_();
         compactScene2Panels();
         buildScene2MetaTrack(lastAmedasObsTime);
-        fitScene2BodyText();
+        fitScene2BodyTextDeferred_();
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
@@ -6542,15 +7493,19 @@
             }
             scene2AnimId = requestAnimationFrame(animateScene2);
         }
-        scene2AnimId = requestAnimationFrame(animateScene2);
+        scheduleSceneMotionStart_(function () {
+            sizeScene2MetaText_();
+            remeasureScene2MetaLapPx_();
+            scene2AnimId = requestAnimationFrame(animateScene2);
+        });
     }
     function finishScene4() {
         clearScene4Timers();
         if (demoOnlyLoop_('s4', playScene4)) return;
-        gotoAfterScene3Tail_();
+        scheduleSceneEndHold_(gotoAfterScene3Tail_);
     }
     function playScene4() {
-        flushDisplayRefresh_(false);
+        applyDisplayRefreshAtSceneEntry_();
         clearScene4Timers();
         if (wbgtOffSeason) {
             if (previewOffSeasonHold_('s4', playScene4)) return;
@@ -6578,14 +7533,16 @@
             return;
         }
         let totalScrolled = 0;
-        applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
+        scene4FootScrollX_ = globalScrollX_;
+        applyScene4FootScroll_(scene4FcLvLapPx);
         applyGlobalScroll_(fcConveyor, scene4SetWidth);
         fcConveyor.style.transition = 'none';
         function animateScene4() {
             advanceGlobalScroll_(getScrollSpeedPx_());
+            scene4FootScrollX_ -= getScene4FootSpeedPx_();
             totalScrolled += getScrollSpeedPx_();
             applyGlobalScroll_(fcConveyor, scene4SetWidth);
-            applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
+            applyScene4FootScroll_(scene4FcLvLapPx);
             if (totalScrolled >= scene4ScrollTotal) {
                 scene4AnimId = null;
                 stopLogoSpinInterval();
@@ -6594,11 +7551,14 @@
             }
             scene4AnimId = requestAnimationFrame(animateScene4);
         }
-        scene4AnimId = requestAnimationFrame(animateScene4);
+        scheduleSceneMotionStart_(function () {
+            scene4AnimId = requestAnimationFrame(animateScene4);
+        });
     }
     function playScene5() {
         if (!s5 || !d5Conveyor) { gotoSceneAfterScene5_(); return; }
         if (scene5AnimId) cancelAnimationFrame(scene5AnimId);
+        applyDisplayRefreshAtSceneEntry_();
         compactScene5Panels();
         fitD5PanelText_();
         applyD5TodayFrame_();
@@ -6635,7 +7595,9 @@
             }
             scene5AnimId = requestAnimationFrame(animateScene5);
         }
-        scene5AnimId = requestAnimationFrame(animateScene5);
+        scheduleSceneMotionStart_(function () {
+            scene5AnimId = requestAnimationFrame(animateScene5);
+        });
     }
     function mockSlotsForDemoLevel(levelIdx) {
         const w = DEMO_WBGT_BY_LEVEL[levelIdx];
@@ -6656,13 +7618,11 @@
         setTextAll('.dir-val', '南');
         setTextAll('.wind-val', '2.5');
         setTextAll('.pres-val', '1013');
-        setTextAll('.tmaxmax-val', '32');
-        setTextAll('.tmin-val', '24');
         setTextAll('.gust-val', '6.0');
         buildScene2MetaTrack(getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date());
-        fitScene2BodyText();
+        fitScene2BodyTextDeferred_();
         document.querySelectorAll('.d5-temp').forEach(el => { el.innerText = '32'; });
-        applyD5BarLabels_();
+        applyD5SceneLabels_();
         applyD5TodayFrame_();
         applyD5ForecastTextColors_();
         fitD5PanelText_();
@@ -6783,9 +7743,8 @@
             return;
         }
         if (sceneKey === 's3') {
-            buildTicker();
+            prepScene3BeforeShow_();
             const tracks = document.querySelectorAll('#scene3 .t3-track');
-            prepT3_(0);
             applyT3TrackX_(tracks, 0);
             if (s3) { s3.style.display = 'flex'; s3.classList.add('active'); }
             if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = 'プレビュー · ' + SCENE_LABEL_BY_KEY.s3 + ' · ' + rainTag; }
@@ -6803,10 +7762,7 @@
     window.onload = async function() {
         restoreSignageStateCache_();
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
-        const forecastLocLabel = (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) || '広島市';
-        document.querySelectorAll('#scene5 .s2-loc').forEach(function (el) {
-            el.textContent = forecastLocLabel;
-        });
+        applyD5SceneLabels_();
         const logoEl = document.getElementById('signage-logo');
         const logoCfg = window.SIGNAGE_CONFIG;
         if (logoEl && logoCfg && logoCfg.logoSrc) {
@@ -6862,24 +7818,34 @@
             mainLoopStarted_ = true;
             startSequence();
             scheduleDataRefresh();
-            updateRainNowcastAlert_().then(function () {
-                queueDisplayRefresh_();
-                if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
-            });
+            if (!denshoLiveOnly_()) {
+                updateRainNowcastAlert_().then(function () {
+                    queueDisplayRefresh_();
+                    if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
+                });
+            }
         }
         if (s1) {
             s1.style.display = sceneDisplayMode(s1);
             s1.classList.add('active');
             updateClock();
         }
-        Promise.race([
-            runScheduledFetch({ jma: true, moe: true, nowc: false, forecast: true, labels: ['起動'] }),
-            new Promise(function (resolve) { setTimeout(resolve, 3500); })
-        ]).finally(beginMainLoop_);
+        const swReady = await ensureDenshoServiceWorker_();
+        if (swReady === 'reload') return;
+        if (isServeJsPort_()) {
+            await runScheduledFetch(defaultFetchPlan_({ labels: ['起動'] }));
+            beginMainLoop_();
+        } else {
+            var bootWaitMs = denshoLiveOnly_() ? 35000 : 3500;
+            Promise.race([
+                runScheduledFetch(defaultFetchPlan_({ labels: ['起動'] })),
+                new Promise(function (resolve) { setTimeout(resolve, bootWaitMs); })
+            ]).finally(beginMainLoop_);
+        }
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
                 syncTimeFromNetwork().then(function() { updateClock(); startClockTicker(); }).catch(function() { startClockTicker(); });
-                startBackgroundFetch_({ jma: true, moe: true, nowc: true, forecast: true, labels: ['復帰'] });
+                startBackgroundFetch_(defaultFetchPlan_({ labels: ['復帰'] }));
             }
         });
     };
