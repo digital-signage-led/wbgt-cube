@@ -25,7 +25,7 @@
     if (document.body) addBody_();
     else document.addEventListener('DOMContentLoaded', addBody_);
 })();
-/* 伝承バトー API — Live Server 用 SW（start.bat の 8765 番では使わない） */
+/* 伝承バトー API — サブディレクトリ配信（GitHub Pages 等）向け SW */
 (function () {
     if (!('serviceWorker' in navigator) || location.protocol.indexOf('http') !== 0) return;
     var p = Number(location.port) || 80;
@@ -35,7 +35,17 @@
         });
         return;
     }
-    navigator.serviceWorker.register('sw-densho-proxy.js', { scope: '/', updateViaCache: 'none' }).catch(function () {});
+    var path = location.pathname || '/';
+    if (/\/[^/]+\.[^/]+$/i.test(path)) path = path.replace(/\/[^/]+$/, '');
+    if (!path.endsWith('/')) path += '/';
+    var swVer = '20260630b';
+    var scopeUrl = new URL(path, location.href).href;
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) {
+            if (r.scope !== scopeUrl) r.unregister();
+        });
+    });
+    navigator.serviceWorker.register(path + 'sw-densho-proxy.js?v=' + swVer, { scope: path, updateViaCache: 'none' }).catch(function () {});
 })();
 
     </script>
@@ -2195,12 +2205,47 @@
         query.get('denshoProxy') || (SITE_CFG.densho && SITE_CFG.densho.proxyUrl) || '';
     const DENSHO_DATA_INTERVAL_MS =
         ((SITE_CFG.densho && SITE_CFG.densho.dataIntervalSec) || 600) * 1000;
+    const DENSHO_SW_ASSET_VER = '20260630b';
     function isServeJsPort_() {
         var p = Number(location.port) || 80;
         return p >= 8765 && p <= 8775;
     }
+    function denshoDeployBasePath_() {
+        var path = location.pathname || '/';
+        if (/\/[^/]+\.[^/]+$/i.test(path)) path = path.replace(/\/[^/]+$/, '');
+        if (!path.endsWith('/')) path += '/';
+        return path;
+    }
+    function denshoLocalProxyUrl_() {
+        return location.origin + denshoDeployBasePath_() + 'api/densho/latest';
+    }
+    function denshoSwScriptUrl_() {
+        return denshoDeployBasePath_() + 'sw-densho-proxy.js?v=' + DENSHO_SW_ASSET_VER;
+    }
+    function denshoSwScopeUrl_() {
+        return new URL(denshoSwScope_(), location.href).href;
+    }
     function denshoSwReloadKey_() {
-        return 'denshoSwReload_' + (location.port || '80');
+        return 'denshoSwReload_' + denshoDeployBasePath_().replace(/[^\w]+/g, '_');
+    }
+    function denshoUnregisterForeignSw_() {
+        if (!navigator.serviceWorker) return Promise.resolve();
+        var wanted = denshoSwScopeUrl_();
+        return navigator.serviceWorker.getRegistrations().then(function (regs) {
+            return Promise.all(regs.map(function (r) {
+                if (r.scope === wanted) return Promise.resolve();
+                console.log('[Densho] 旧 Service Worker を解除:', r.scope);
+                return r.unregister();
+            }));
+        });
+    }
+    function denshoSwScope_() {
+        return denshoDeployBasePath_();
+    }
+    function waitForDenshoProxyReady_(ms) {
+        if (isServeJsPort_() || !DENSHO_API_URL) return Promise.resolve(true);
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) return Promise.resolve(true);
+        return waitForSwController_(ms != null ? ms : 15000);
     }
     function denshoFetchUrls_() {
         const urls = [];
@@ -2210,16 +2255,16 @@
         };
         add(DENSHO_PROXY_URL);
         if (isServeJsPort_() && location.protocol.indexOf('http') === 0) {
-            add(location.origin + '/api/densho/latest');
+            add(denshoLocalProxyUrl_());
             return urls;
         }
         /* SW 有効時は同一オリジンのみ（SW が API を中継） */
         if (navigator.serviceWorker && navigator.serviceWorker.controller && location.protocol.indexOf('http') === 0) {
-            add(location.origin + '/api/densho/latest');
+            add(denshoLocalProxyUrl_());
             return urls;
         }
         if (location.protocol.indexOf('http') === 0) {
-            add(location.origin + '/api/densho/latest');
+            add(denshoLocalProxyUrl_());
         }
         const host = location.hostname;
         const curPort = Number(location.port) || (location.protocol === 'https:' ? 443 : 80);
@@ -2268,7 +2313,9 @@
                 return true;
             });
         }
-        return navigator.serviceWorker.register('sw-densho-proxy.js', { scope: '/', updateViaCache: 'none' }).then(function () {
+        return denshoUnregisterForeignSw_().then(function () {
+            return navigator.serviceWorker.register(denshoSwScriptUrl_(), { scope: denshoSwScope_(), updateViaCache: 'none' });
+        }).then(function () {
             return navigator.serviceWorker.ready;
         }).then(function () {
             if (navigator.serviceWorker.controller) {
@@ -5325,6 +5372,10 @@
         }
     }
     function applyDenshoFetchFailureToDom_() {
+        if (!noteWbgtFetchFailure_()) {
+            console.warn('[取得] 現地センサー未取得（再試行します）');
+            return;
+        }
         clearLiveSensorDom_();
         wbgtUnavailable = true;
         const nullSlot = { wbgt: null, hour: '取得不可' };
@@ -5723,6 +5774,9 @@
         };
     }
     async function fetchDenshoBatoLatest_() {
+        if (!isServeJsPort_() && DENSHO_API_URL) {
+            await waitForDenshoProxyReady_(15000);
+        }
         const urls = denshoFetchUrls_();
         if (!urls.length) throw new Error('densho apiUrl unset');
         let lastErr = null;
@@ -7832,6 +7886,9 @@
         }
         const swReady = await ensureDenshoServiceWorker_();
         if (swReady === 'reload') return;
+        if (!isServeJsPort_() && denshoLiveOnly_()) {
+            await waitForDenshoProxyReady_(15000);
+        }
         if (isServeJsPort_()) {
             await runScheduledFetch(defaultFetchPlan_({ labels: ['起動'] }));
             beginMainLoop_();

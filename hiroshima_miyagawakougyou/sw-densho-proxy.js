@@ -1,6 +1,6 @@
 'use strict';
 
-/** 伝承バトー API を同一オリジン /api/densho/latest として中継（CORS 回避） */
+/** 伝承バトー API を同一オリジン …/api/densho/latest として中継（CORS 回避） v20260630b */
 var DENSHO_UPSTREAM =
     'https://densho-bato.com/member/get_json_data_latest?term_id=1&pgn=miyagawa01';
 
@@ -14,7 +14,7 @@ self.addEventListener('activate', function (event) {
 
 self.addEventListener('fetch', function (event) {
     var url = new URL(event.request.url);
-    if (url.pathname !== '/api/densho/latest') return;
+    if (!/\/api\/densho\/latest$/.test(url.pathname)) return;
     event.respondWith(fetch(DENSHO_UPSTREAM, { cache: 'no-store' }).then(function (res) {
         return res.text().then(function (body) {
             return new Response(body, {
