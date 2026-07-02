@@ -578,17 +578,12 @@
         #scene2 .s2-tmaxmin-card { padding: 2px 6px 3px; max-height: calc(var(--led-col-body-h) - 4px); }
 
         #scene2 .s2-panel .col-bg-foot, #scene2 .s2-panel-data .col-bg-foot { display: none; }
-        /* 列間の縦すき間（黒線）を防ぐ — 背景を1px重ねてシームレスに */
-        #scene1 .col-bg-host { flex-shrink: 0; }
-        #scene1 .col-bg-layer { width: calc(100% + 1px); }
-        #scene1 .col-bg-top, #scene1 .col-bg-body, #scene1 .col-bg-foot { width: 100%; }
-        #scene2 .col-bg-host { flex-shrink: 0; }
-        #scene2 .col-bg-layer { width: calc(100% + 1px); }
-        #scene2 .col-bg-top, #scene2 .col-bg-body, #scene2 .col-bg-foot { width: 100%; }
-        #scene4 .col-bg-host { flex-shrink: 0; }
-        #scene4 .fc-panel .col-bg-layer { width: calc(100% + 1px); }
-        #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
-        #scene3 .t3-col .col-bg-layer { width: calc(100% + 1px); }
+        /* 一体ストリップ背景のシーン: 列ごと bg レイヤーは 128px 境界に縦線が出るため使わない */
+        #scene1 .col-bg-layer,
+        #scene2 .col-bg-layer,
+        #scene4 .fc-panel .col-bg-layer,
+        #scene5 .col-bg-layer,
+        #scene3 .t3-unit .col-bg-layer { display: none !important; }
 
         .forecast-scene { display: none; overflow: hidden; }
         .fc-panel {
@@ -641,7 +636,6 @@
         #scene5 .d5-panel .s2-foot { height: var(--led-foot-bar-h); flex-shrink: 0; }
         #scene5 .d5-panel .col-bg-foot { display: none; }
         #scene5 .col-bg-host { flex-shrink: 0; }
-        #scene5 .col-bg-layer { width: calc(100% + 1px); }
         #scene5 .d5-body {
             flex-direction: row;
             align-items: center;
@@ -2210,6 +2204,12 @@
     function applyStrip(el, levelIdx, displayMode) {
         ensureBgLayer(el, KIND.STRIP);
         applyColorsToLayer(el.querySelector('.col-bg-layer'), colorsForDisplay(levelIdx, displayMode), KIND.STRIP);
+        syncStripHostContrast_(el, levelIdx, displayMode);
+    }
+
+    /** 一体ストリップ背景のシーン: 文字色クラスのみ（列ごと bg は縦線の原因になるため使わない） */
+    function syncStripHostContrast_(el, levelIdx, displayMode) {
+        if (!el) return;
         el.classList.toggle('col-bg-dark-text', isDarkTextForDisplay(levelIdx, displayMode));
         el.classList.toggle('wbgt-off-season', displayMode === 'offseason');
         el.classList.toggle('wbgt-unavailable', displayMode === 'unavailable');
@@ -2264,28 +2264,21 @@
         if (foot) foot.style.backgroundColor = LED_FOOT_BAR_BG;
     }
 
-    /** 既存レイヤーにも必ず色を上書き（キャッシュ・再描画ずれ対策） */
+    /** 既存レイヤーにも必ず色を上書き（シーン3上バー等。列背景は一体ストリップに任せる） */
     function repaintStripHosts_(levelIdx, displayMode) {
-        const colors = colorsForDisplay(levelIdx, displayMode);
-        document.querySelectorAll('.content-area .col-bg-layer').forEach(function (layer) {
-            const host = layer.parentElement;
-            if (host && host.classList.contains('t3-unit')) {
-                applyColorsToT3UnitLayer(layer, colors);
-                return;
-            }
-            applyColorsToLayer(layer, colors, KIND.STRIP);
-        });
         applyT3TopBar(document.querySelector('#scene3 .t3-scene-top-bar'), levelIdx, displayMode);
     }
 
     function refreshScene2(levelIdx, displayMode) {
-        document.querySelectorAll('#scene2 .s2-panel, #scene2 .s2-panel-data').forEach(panel => {
-            applyStrip(panel, levelIdx, displayMode);
+        document.querySelectorAll('#scene2 .s2-panel, #scene2 .s2-panel-data').forEach(function (panel) {
+            syncStripHostContrast_(panel, levelIdx, displayMode);
         });
     }
 
     function refreshScene1(levelIdx, displayMode) {
-        document.querySelectorAll('#scene1 .panel').forEach(panel => applyStrip(panel, levelIdx, displayMode));
+        document.querySelectorAll('#scene1 .panel').forEach(function (panel) {
+            syncStripHostContrast_(panel, levelIdx, displayMode);
+        });
     }
 
     function refreshForecast(slots, displayMode) {
@@ -2298,7 +2291,7 @@
                 : 0;
         }
         document.querySelectorAll('#scene4 .fc-track .fc-panel').forEach(function (panel) {
-            applyStrip(panel, levelIdx, mode);
+            syncStripHostContrast_(panel, levelIdx, mode);
         });
     }
 
@@ -2306,12 +2299,12 @@
         const dark = isDarkTextForDisplay(levelIdx, displayMode);
         const forecastLv = dark ? levelIdx : 0;
         const forecastMode = dark ? displayMode : 'normal';
-        document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(panel => {
-            applyStrip(panel, forecastLv, forecastMode);
+        document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(function (panel) {
+            syncStripHostContrast_(panel, forecastLv, forecastMode);
             panel.classList.toggle('col-bg-dark-text', dark);
         });
-        document.querySelectorAll('#scene5 .d5-panel.d5-today-focus').forEach(panel => {
-            applyStrip(panel, levelIdx, displayMode);
+        document.querySelectorAll('#scene5 .d5-panel.d5-today-focus').forEach(function (panel) {
+            syncStripHostContrast_(panel, levelIdx, displayMode);
             panel.classList.toggle('col-bg-dark-text', dark);
         });
     }
@@ -2335,8 +2328,8 @@
     }
 
     function refreshTicker(levelIdx, displayMode) {
-        document.querySelectorAll('#scene3 .t3-unit').forEach(panel => {
-            applyT3UnitStrip(panel, levelIdx, displayMode);
+        document.querySelectorAll('#scene3 .t3-unit').forEach(function (panel) {
+            syncStripHostContrast_(panel, levelIdx, displayMode);
         });
         applyT3TopBar(document.querySelector('#scene3 .t3-scene-top-bar'), levelIdx, displayMode);
     }
@@ -3142,8 +3135,6 @@
     function signageBgLayersMissing_() {
         const content = document.querySelector('.content-area');
         if (!content || !content.querySelector('.scene-strip-bg')) return true;
-        const panel = document.querySelector('#scene1 .panel');
-        if (panel && !panel.querySelector('.col-bg-layer')) return true;
         return false;
     }
     function repaintLastGoodSignageBg_() {
