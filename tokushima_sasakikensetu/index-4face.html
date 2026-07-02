@@ -2453,7 +2453,7 @@
     let pendingForecastSlotsRefresh_ = false;
     let pendingScene2MetaEcsSnap_ = null;
     let lastAmedasSnapshot_ = null;
-    const SIGNAGE_STATE_CACHE_KEY = 'cspi2026_signage_state_v2_ecs';
+    const SIGNAGE_STATE_CACHE_KEY = 'cspi2026_signage_state_v3_boot';
     const SIGNAGE_STATE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
     const MOE_GAS_FETCH_TIMEOUT_MS = 12000;
     const MOE_JSONP_TIMEOUT_MS = 10000;
@@ -2590,6 +2590,7 @@
             }
             const disp = getS1WbgtLevelForDisplay_();
             if (disp >= 0) return { mode: 'normal', lv: disp };
+            if (currentWbgtLevel >= 0) return { mode: 'normal', lv: currentWbgtLevel };
             return { mode: 'normal', lv: 0 };
         }
         if (mode === 'normal' && lv < 0) {
@@ -2598,6 +2599,7 @@
             if (lastSignageBgLv_ != null && lastSignageBgLv_ >= 0 && lastSignageBgMode_ === 'normal') {
                 return { mode: 'normal', lv: lastSignageBgLv_ };
             }
+            if (currentWbgtLevel >= 0) return { mode: 'normal', lv: currentWbgtLevel };
             if (!wbgtOffSeason) return { mode: 'normal', lv: 0 };
         }
         return { mode: mode, lv: lv };
@@ -2848,6 +2850,11 @@
                 wbgtOffSeason: ECS_ONLY_WBGT ? false : !!wbgtOffSeason,
                 slots: lastGoodWbgtSlots_,
                 level: currentWbgtLevel,
+                signageLevel: (function () {
+                    const bg = getSignageBgLevel_();
+                    if (bg >= 0) return bg;
+                    return currentWbgtLevel >= 0 ? currentWbgtLevel : -1;
+                })(),
                 amedas: lastAmedasSnapshot_,
                 ecs: (lastEcsSnapshot_ && isEcsSnapshotHoldableForDisplay_(lastEcsSnapshot_)) ? lastEcsSnapshot_ : null,
                 jmaForecast: lastJmaForecastCtx_ ? {
@@ -2912,6 +2919,9 @@
                     lastWbgtSlots = lastGoodWbgtSlots_;
                     syncWbgtLevelFromSlots(ecsSlots);
                 }
+            } else if (Number.isInteger(data.signageLevel) && data.signageLevel >= 0) {
+                currentWbgtLevel = data.signageLevel;
+                wbgtUnavailable = false;
             }
             if (ECS_ONLY_WBGT) enforceEcsWbgtInSeason_();
             return !!(data.slots || data.wbgtOffSeason || Number.isInteger(data.level) || data.ecs || data.jmaForecast);
@@ -2938,10 +2948,8 @@
         if (painted || currentWbgtLevel >= 0) {
             wbgtUnavailable = false;
             if (ECS_ONLY_WBGT) wbgtOffSeason = false;
-            refreshSignageBgIfChanged_(true);
+            refreshSignageBg();
             buildS1WbgtTrack(false);
-            buildFcLvTrack(false);
-            buildTicker();
             console.log('[キャッシュ] 最終取得データを表示に反映',
                 ecsSnap ? ('WBGT ' + ecsSnap.wbgt + '℃ ' + (ecsSnap.time || '')) : ('level ' + currentWbgtLevel));
         }
@@ -5390,6 +5398,19 @@
     }
     async function fetchWbgtFromEcsApiImpl_() {
         let lastErr = null;
+        /* GitHub Pages / ローカル: 同梱 ecs-live.json を先に試す（API 遅延・失敗時の即表示） */
+        if (isStaticPagesHost_() || isLocalSignageServer_()) {
+            try {
+                const staticSlots = await fetchEcsStaticPayload_();
+                if (staticSlots) {
+                    console.log('[WBGT] ECS現場計測 OK（ecs-live.json・GitHub Pages）');
+                    return staticSlots;
+                }
+            } catch (e) {
+                lastErr = e;
+                console.warn('[WBGT] ecs-live.json:', e.message || e);
+            }
+        }
         /* 現場サーバー: ローカルAPI優先。静的ホスト: GASプロキシ経由で CORS 回避 */
         const urls = ecsWbgtApiUrlsToTry_();
         for (let i = 0; i < urls.length; i++) {
@@ -6574,6 +6595,12 @@
     function getS1SiteCustomerName_() {
         const site = SITE_CFG.site || {};
         return site.rental || site.customer || '';
+    }
+    function getSiteLocationLabel_() {
+        if (ECS_CFG.locationLabel) return ECS_CFG.locationLabel;
+        if (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) return SITE_CFG.jma.forecastLabel;
+        if (SITE_CFG.site && SITE_CFG.site.label) return SITE_CFG.site.label;
+        return '北島町';
     }
     function buildS1FootCompanyHtml_() {
         const name = getS1SiteCustomerName_();
@@ -7965,43 +7992,82 @@
         transitionToScene(s1, playScene1);
     }
 
-    window.onload = async function() {
-        try { localStorage.removeItem('cspi2026_signage_state_v1'); } catch (e) {}
-        const cacheRestored = restoreSignageStateCache_();
-        enforceEcsWbgtInSeason_();
-        initScene2EcsMode_();
-        if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
-        if (cacheRestored || hasEcsDisplayOnScreen_()) {
-            applyRestoredSignageCacheToDom_();
+    let signageBootDone_ = false;
+    let signageUiPrimed_ = false;
+    function signageImmediateBoot_() {
+        if (signageBootDone_ || DEMO_SIGNAGE_ACTIVE) return;
+        try {
+            try { localStorage.removeItem('cspi2026_signage_state_v1'); } catch (e) {}
+            applySyncedUtcMs(Date.now(), 'boot-fallback');
+            const cacheRestored = restoreSignageStateCache_();
+            enforceEcsWbgtInSeason_();
+            initScene2EcsMode_();
+            if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
+            updateClock();
+            startClockTicker();
+            if (cacheRestored || hasEcsDisplayOnScreen_()) {
+                applyRestoredSignageCacheToDom_();
+                signageUiPrimed_ = true;
+            }
+            if (s1) {
+                s1.style.display = sceneDisplayMode(s1);
+                s1.classList.add('active');
+            }
+            signageBootDone_ = true;
+        } catch (err) {
+            console.error('[起動] 同期ブート:', err);
+            try { updateClock(); startClockTicker(); } catch (_) {}
         }
+    }
+    function primeSignageUiOnce_() {
+        if (signageUiPrimed_) return;
+        try {
+            syncWbgtSlotsToDomIfReady_();
+            refreshSignageBgIfChanged_(true);
+            buildS1WbgtTrack(false);
+            buildFcLvTrack(false);
+            buildTicker();
+            signageUiPrimed_ = true;
+        } catch (err) {
+            console.error('Init display:', err);
+        }
+    }
+    function applyEcsBootstrapSlots_(slots) {
+        if (!slots) return false;
+        applyWbgtInSeason_();
+        wbgtUnavailable = false;
+        applyWbgtSlotsToDom(slots);
+        refreshSignageBgIfChanged_(true);
+        if (!signageUiPrimed_) {
+            buildS1WbgtTrack(false);
+            signageUiPrimed_ = true;
+        } else {
+            refreshS1WbgtFootBar_(false);
+        }
+        return true;
+    }
+
+    window.onload = async function() {
+        if (!signageBootDone_) signageImmediateBoot_();
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && !DEMO_SIGNAGE_ACTIVE) {
-            bootstrapEcsData_().then(function (ecsBootSlots) {
-                if (ecsBootSlots) {
-                    applyWbgtInSeason_();
-                    wbgtUnavailable = false;
-                    applyWbgtSlotsToDom(ecsBootSlots);
-                    refreshSignageBgIfChanged_(true);
-                    buildS1WbgtTrack(false);
-                    buildTicker();
-                } else if (!hasEcsDisplayOnScreen_()) {
-                    clearEcsDisplayFromDom_();
-                }
-            }).catch(function () {
-                if (hasEcsDisplayOnScreen_()) syncEcsDisplayFromLastGood_();
-            });
-            scheduleEcsUrgentRefresh_();
+            const needEcsFetch = !lastEcsSnapshot_ || !isEcsSnapshotDisplayable_(lastEcsSnapshot_);
+            if (needEcsFetch) {
+                bootstrapEcsData_().then(function (ecsBootSlots) {
+                    if (ecsBootSlots) {
+                        applyEcsBootstrapSlots_(ecsBootSlots);
+                    } else if (!hasEcsDisplayOnScreen_()) {
+                        clearEcsDisplayFromDom_();
+                    }
+                }).catch(function () {
+                    if (hasEcsDisplayOnScreen_()) syncEcsDisplayFromLastGood_();
+                });
+            }
         } else if (hasEcsDisplayOnScreen_()) {
             const ecsSnap = getEcsSnapshotForDisplay_();
             if (ecsSnap) applyEcsSnapshotToSignage_(ecsSnap);
             else syncEcsDisplayFromLastGood_();
         } else if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
             clearEcsDisplayFromDom_();
-        }
-        try {
-            syncWbgtSlotsToDomIfReady_();
-            refreshSignageBgIfChanged_(true);
-        } catch (err) {
-            console.warn('Init bg paint:', err);
         }
         const forecastLocLabel = (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) || '北島町';
         document.querySelectorAll('#scene5 .s2-loc').forEach(function (el) {
@@ -8041,17 +8107,17 @@
         }
         await syncTimeFromNetwork().catch(function () {});
         updateClock();
-        startClockTicker();
-        /* 初回取得完了まで「取得不可」は出さない。色はキャッシュ復元または pending（誤った level 0 を出さない） */
+        if (!signageBootDone_) startClockTicker();
         if (!wbgtOffSeason) wbgtUnavailable = false;
-        try {
-            syncWbgtSlotsToDomIfReady_();
-            refreshSignageBgIfChanged_(true);
-            buildTicker();
-            buildS1WbgtTrack(false);
-            buildFcLvTrack(false);
-        } catch (err) {
-            console.error('Init display:', err);
+        if (!signageUiPrimed_) {
+            primeSignageUiOnce_();
+        } else {
+            try {
+                buildFcLvTrack(false);
+                buildTicker();
+            } catch (err) {
+                console.warn('Init ticker:', err);
+            }
         }
         setInterval(function () {
             syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
@@ -8081,11 +8147,10 @@
                 if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
             });
         }
-        if (s1) {
+        if (s1 && !s1.classList.contains('active')) {
             s1.style.display = sceneDisplayMode(s1);
             s1.classList.add('active');
             updateClock();
-            startClockTicker();
         }
         Promise.race([
             runScheduledFetch({ jma: true, moe: true, nowc: false, forecast: true, labels: ['起動'] }),
@@ -8098,6 +8163,8 @@
             }
         });
     };
+
+    signageImmediateBoot_();
 
 
 </script>
