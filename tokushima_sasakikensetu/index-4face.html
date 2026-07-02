@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- wbgt-cube-sasakikensetu-4face / 佐々木建設株式会社 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 会場: 〒771-0203 徳島県板野郡北島町中村前須13-9 / WBGT・AMeDAS 71106（徳島・気象庁/環境省） -->
 <html lang="ja" class="native-640 layout-512">
@@ -467,7 +467,7 @@
         #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
         #scene3 .t3-col .col-bg-layer { width: calc(100% + 1px); }
 
-        .forecast-scene { display: none; overflow: hidden; }
+        .forecast-scene:not(.active) { display: none; overflow: hidden; }
         .fc-panel {
             width: 128px; max-width: 128px;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
@@ -509,7 +509,7 @@
             font-size: 20px; font-weight: 700; font-family: "Inter", sans-serif;
             line-height: 1; margin-left: 1px;
         }
-        .daily-scene { display: none; overflow: hidden; }
+        .daily-scene:not(.active) { display: none; overflow: hidden; }
         .d5-track { display: flex; flex-direction: row; width: 1024px; transition: none; gap: 0; }
         .d5-panel { width: 128px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-sizing: border-box; flex-shrink: 0; overflow: hidden; padding: 0; gap: 0; border: none; outline: none; background: transparent; }
         /* シーン5: 時刻と同型 上32 + 中72 + 下24（列内フッタ） */
@@ -1481,14 +1481,12 @@
 <body class="native-640 layout-512">
 <script>
 /**
- * 現場ごとの設定（GAS は 1 本共通・地点は moe.point で切替）
+ * 現場ごとの設定
  *
- * moe.point … 環境省 WBGT 5桁地点コード（必須）
- * moe.pointName … 任意（省略時は GAS が CSV ヘッダーから取得）
- * moe.alertArea … 熱中症アラート用の府県名（本番で alert 利用時）
+ * ecs … 環境クラウド WBGT（本案件の主データ源）
+ * jma … 気象庁 AMeDAS・4日予報
  *
- * jma.amedasPoint … 気象庁 AMeDAS（4面・5面共通）
- * jma.forecastArea … 気象庁予報区域（4面・5面共通）
+ * moe … 環境省 WBGT（本案件では未使用・ecs.enabled 時は無効）
  */
 (function (global) {
   'use strict';
@@ -1501,7 +1499,8 @@
       address: '〒771-0203 徳島県板野郡北島町中村前須13-9'
     },
     moe: {
-      /* 環境省 WBGT（ECS 取得失敗時のフォールバック） */
+      /* 環境省 WBGT（本案件では未使用。ecs.enabled 時は取得しない） */
+      enabled: false,
       gasUrl:
         'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
       point: '71106',
@@ -1521,7 +1520,8 @@
       loId: '019373',
       locationLabel: '老門作業所',
       baseUrl: 'https://www.ecs-cloud.ne.jp',
-      proxyUrl: '',
+      proxyUrl:
+        'https://script.google.com/macros/s/AKfycbw8QiGNbF9xw6UXlhfyu6lhsCJZCuVFc-jkru3NbjT9RR7DkyUP7f-fBtj5nQDOnp22Fw/exec',
       /* GitHub Pages 等の静的ホストでは ecs-live.json を優先。現場PCは /api/ecs/wbgt（npm start） */
       liveJson: './assets/ecs-live.json',
       refreshMs: 30000
@@ -1536,7 +1536,7 @@
     geo: { lat: 34.1256, lon: 134.5470 },
     timeZone: 'Asia/Tokyo',
     refreshMs: 30000,
-    footSource: '出典：気象庁・環境省データ',
+    footSource: '出典：気象庁データ',
     footSourceEcs: '出典：環境クラウドサービス・老門作業所'
   };
 
@@ -1956,13 +1956,7 @@
 
     function refreshScene5(levelIdx, displayMode) {
         const dark = isDarkTextForDisplay(levelIdx, displayMode);
-        const forecastLv = dark ? levelIdx : 0;
-        const forecastMode = dark ? displayMode : 'normal';
-        document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(panel => {
-            applyStrip(panel, forecastLv, forecastMode);
-            panel.classList.toggle('col-bg-dark-text', dark);
-        });
-        document.querySelectorAll('#scene5 .d5-panel.d5-today-focus').forEach(panel => {
+        document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
             applyStrip(panel, levelIdx, displayMode);
             panel.classList.toggle('col-bg-dark-text', dark);
         });
@@ -2238,6 +2232,9 @@
     const ECS_WBGT_ENABLED = query.get('ecs') !== '0' && ECS_CFG.enabled !== false;
     const ECS_WBGT_DATA_ID = query.get('ecsDataId') || ECS_CFG.dataId || '';
     const ECS_WBGT_PROXY_URL = query.get('ecsProxy') || ECS_CFG.proxyUrl || '';
+    /** 環境クラウド有効時は環境省 WBGT を使わない（本案件） */
+    const ECS_ONLY_WBGT = ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID;
+    const USE_MOE_WBGT = !ECS_ONLY_WBGT && query.get('moe') !== '0';
     const ECS_WBGT_REFRESH_MS = Number(query.get('ecsRefreshMs') || ECS_CFG.refreshMs || SITE_CFG.refreshMs || 30000);
     function getEcsPollIntervalMs_() {
         return Math.max(15000, ECS_WBGT_REFRESH_MS);
@@ -2262,30 +2259,48 @@
         return h === 'github.io' || h.slice(-10) === '.github.io' ||
             h.slice(-14) === '.githubusercontent.com';
     }
+    function isEcsGasProxyBase_(base) {
+        return /script\.google\.com\/macros\//i.test(String(base || ''));
+    }
+    function buildEcsFetchUrl_(base, dataId) {
+        const b = String(base || '').replace(/\/$/, '');
+        if (!b) return '';
+        const stamp = Date.now();
+        if (isEcsGasProxyBase_(b)) {
+            try {
+                const u = new URL(b);
+                u.searchParams.set('dataId', String(dataId));
+                u.searchParams.set('r', String(stamp));
+                return u.toString();
+            } catch (_) {
+                const sep = b.indexOf('?') >= 0 ? '&' : '?';
+                return b + sep + 'dataId=' + encodeURIComponent(dataId) + '&r=' + stamp;
+            }
+        }
+        return b + '/' + encodeURIComponent(dataId) + '?r=' + stamp;
+    }
     function ecsWbgtApiUrlsToTry_() {
         if (!ECS_WBGT_DATA_ID) return [];
-        const id = encodeURIComponent(ECS_WBGT_DATA_ID);
-        const stamp = '?r=' + Date.now();
-        const bases = [];
-        function addBase(base) {
-            const b = String(base || '').replace(/\/$/, '');
-            if (b && bases.indexOf(b) < 0) bases.push(b);
+        const urls = [];
+        function pushUrl(base) {
+            const url = buildEcsFetchUrl_(base, ECS_WBGT_DATA_ID);
+            if (url && urls.indexOf(url) < 0) urls.push(url);
         }
         if (isLocalSignageServer_()) {
             if (typeof location !== 'undefined' && /^https?:/.test(location.protocol)) {
-                addBase(location.origin + '/api/ecs/wbgt');
+                pushUrl(location.origin + '/api/ecs/wbgt');
             }
-            if (ECS_WBGT_PROXY_URL) addBase(ECS_WBGT_PROXY_URL);
-            addBase('http://127.0.0.1:3014/api/ecs/wbgt');
+            pushUrl('http://127.0.0.1:3014/api/ecs/wbgt');
             if (typeof location !== 'undefined' && location.port && location.port !== '3014' && location.port !== '3000') {
-                addBase('http://127.0.0.1:' + location.port + '/api/ecs/wbgt');
+                pushUrl('http://127.0.0.1:' + location.port + '/api/ecs/wbgt');
             }
-            addBase('http://127.0.0.1:3000/api/ecs/wbgt');
+            pushUrl('http://127.0.0.1:3000/api/ecs/wbgt');
         }
-        if (ECS_CFG.baseUrl) {
-            addBase(String(ECS_CFG.baseUrl).replace(/\/$/, '') + '/Json/WBGTNumData');
+        if (ECS_WBGT_PROXY_URL) pushUrl(ECS_WBGT_PROXY_URL);
+        if (!isStaticPagesHost_() && ECS_CFG.baseUrl) {
+            pushUrl(String(ECS_CFG.baseUrl).replace(/\/$/, '') + '/Json/WBGTNumData');
         }
-        return bases.map(function (b) { return b + '/' + id + stamp; });
+        return urls;
     }
     function ecsLiveStaticUrl_() {
         const rel = String(ECS_CFG.liveJson || './assets/ecs-live.json').replace(/^\.\//, '');
@@ -2438,7 +2453,7 @@
     let pendingForecastSlotsRefresh_ = false;
     let pendingScene2MetaEcsSnap_ = null;
     let lastAmedasSnapshot_ = null;
-    const SIGNAGE_STATE_CACHE_KEY = 'cspi2026_signage_state_v1';
+    const SIGNAGE_STATE_CACHE_KEY = 'cspi2026_signage_state_v2_ecs';
     const SIGNAGE_STATE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
     const MOE_GAS_FETCH_TIMEOUT_MS = 12000;
     const MOE_JSONP_TIMEOUT_MS = 10000;
@@ -2459,7 +2474,7 @@
         { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
         { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
     ];
-    const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
+    const SCENE4_FOOT_ATTR = '出典：環境クラウドサービス・老門作業所';
     const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
 
     function fcBarLabelForPanel_(index) {
@@ -2507,13 +2522,14 @@
     const MOE_ALERT_MINUTE = 3;
 
     function getS1WbgtLevelForDisplay_() {
-        if (wbgtOffSeason || wbgtUnavailable) return -1;
+        if (ECS_ONLY_WBGT && wbgtUnavailable) return -1;
+        if (!ECS_ONLY_WBGT && (wbgtOffSeason || wbgtUnavailable)) return -1;
         if (currentWbgtLevel >= 0) return currentWbgtLevel;
         const row = (lastGoodWbgtSlots_ && lastGoodWbgtSlots_[0]) ||
             (lastWbgtSlots && lastWbgtSlots[0]);
         if (row && row.wbgt != null) {
             if (Number.isInteger(row.levelIdx)) return row.levelIdx;
-            return wbgtLevel(row.wbgt);
+            return wbgtLevelForSignage_(row.wbgt);
         }
         return -1;
     }
@@ -2540,9 +2556,13 @@
             currentWbgtLevel = row.levelIdx;
             return;
         }
-        currentWbgtLevel = wbgtLevel(row.wbgt);
+        currentWbgtLevel = wbgtLevelForSignage_(row.wbgt);
     }
     function getSignageDisplayMode_() {
+        if (ECS_ONLY_WBGT) {
+            if (wbgtUnavailable) return 'unavailable';
+            return 'normal';
+        }
         if (wbgtOffSeason) return 'offseason';
         if (wbgtUnavailable) return 'unavailable';
         return 'normal';
@@ -2552,7 +2572,7 @@
         if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) return null;
         const row = lastGoodWbgtSlots_[0];
         if (!row || row.wbgt == null) return null;
-        return Number.isInteger(row.levelIdx) ? row.levelIdx : wbgtLevel(row.wbgt);
+        return Number.isInteger(row.levelIdx) ? row.levelIdx : wbgtLevelForSignage_(row.wbgt);
     }
     function getSignageBgLevel_() {
         if (getSignageDisplayMode_() !== 'normal') return -1;
@@ -2644,6 +2664,7 @@
                         events.push({ at: atFc, jma: true, moe: false, nowc: false, forecast: true, label: 'jma-forecast' });
                     }
                 }
+                if (!ECS_ONLY_WBGT) {
                 for (const m of MOE_WBGT_MINUTES) {
                     const at = jstMsFromParts(dp.year, dp.month, dp.day, h, m, 0) + MOE_WBGT_AFTER_SEC * 1000;
                     if (at > fromMs && at <= horizonEnd) {
@@ -2655,6 +2676,7 @@
                     if (atAl > fromMs && atAl <= horizonEnd) {
                         events.push({ at: atAl, jma: false, moe: true, nowc: false, forecast: false, label: 'moe-alert' });
                     }
+                }
                 }
             }
         }
@@ -2670,10 +2692,18 @@
         }
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
             const step = getEcsPollIntervalMs_();
+            const fcStep = 1800000;
             for (let t = fromMs + step; t <= horizonEnd; t += step) {
                 const prev = merged.get(t) || { at: t, jma: false, moe: false, nowc: false, forecast: false, labels: [] };
                 prev.moe = true;
                 if (prev.labels.indexOf('ecs-wbgt') < 0) prev.labels.push('ecs-wbgt');
+                merged.set(t, prev);
+            }
+            for (let t = fromMs + fcStep; t <= horizonEnd; t += fcStep) {
+                const prev = merged.get(t) || { at: t, jma: false, moe: false, nowc: false, forecast: false, labels: [] };
+                prev.jma = true;
+                prev.forecast = true;
+                if (prev.labels.indexOf('jma-forecast') < 0) prev.labels.push('jma-forecast');
                 merged.set(t, prev);
             }
         }
@@ -2707,9 +2737,7 @@
         }
         SignageBg.refreshScene1(lv, mode);
         SignageBg.refreshScene2(lv, mode);
-        SignageBg.refreshScene5(lv, mode);
-        applyD5TodayFrame_();
-        applyD5ForecastTextColors_();
+        applyD5PanelColors_();
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null));
@@ -2729,7 +2757,7 @@
         if (active === s1) SignageBg.refreshScene1(lv, mode);
         else if (active === s2) SignageBg.refreshScene2(lv, mode);
         else if (active === s4 && lastGoodWbgtSlots_) SignageBg.refreshForecast(lastGoodWbgtSlots_, mode);
-        else if (active === s5) SignageBg.refreshScene5(lv, mode);
+        else if (active === s5) applyD5PanelColors_();
         else if (active === s3) SignageBg.refreshTicker(lv, mode);
         lastSignageBgLv_ = lv;
         lastSignageBgMode_ = mode;
@@ -2813,10 +2841,11 @@
         if (DEMO_SIGNAGE_ACTIVE) return;
         try {
             localStorage.setItem(SIGNAGE_STATE_CACHE_KEY, JSON.stringify({
-                v: 1,
+                v: 2,
                 point: MOE_WBGT_POINT,
+                ecsDataId: ECS_WBGT_DATA_ID || '',
                 savedAt: Date.now(),
-                wbgtOffSeason: !!wbgtOffSeason,
+                wbgtOffSeason: ECS_ONLY_WBGT ? false : !!wbgtOffSeason,
                 slots: lastGoodWbgtSlots_,
                 level: currentWbgtLevel,
                 amedas: lastAmedasSnapshot_,
@@ -2826,13 +2855,19 @@
     }
     function restoreSignageStateCache_() {
         if (DEMO_SIGNAGE_ACTIVE) return false;
+        if (ECS_ONLY_WBGT) enforceEcsWbgtInSeason_();
         try {
             const raw = localStorage.getItem(SIGNAGE_STATE_CACHE_KEY);
             if (!raw) return false;
             const data = JSON.parse(raw);
-            if (!data || String(data.point) !== String(MOE_WBGT_POINT)) return false;
+            if (!data) return false;
+            if (ECS_ONLY_WBGT) {
+                if (data.ecsDataId && String(data.ecsDataId) !== String(ECS_WBGT_DATA_ID)) return false;
+            } else if (String(data.point) !== String(MOE_WBGT_POINT)) {
+                return false;
+            }
             if (Date.now() - (data.savedAt || 0) > SIGNAGE_STATE_CACHE_MAX_AGE_MS) return false;
-            if (data.wbgtOffSeason) {
+            if (data.wbgtOffSeason && !ECS_ONLY_WBGT) {
                 wbgtOffSeason = true;
                 wbgtUnavailable = false;
                 currentWbgtLevel = -1;
@@ -2857,15 +2892,12 @@
             if (data.ecs && ECS_WBGT_ENABLED && !ecsCacheStale) {
                 lastEcsSnapshot_ = data.ecs;
                 wbgtUnavailable = false;
-                if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) {
-                    const slots = ecsSnapshotToSlots_(data.ecs);
-                    if (slots) {
-                        lastGoodWbgtSlots_ = cloneWbgtSlots_(slots);
-                        lastWbgtSlots = lastGoodWbgtSlots_;
-                        syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-                    }
-                }
+                wbgtOffSeason = false;
+                applyWbgtInSeason_();
+                const ecsSlots = ecsSnapshotToSlots_(data.ecs);
+                if (ecsSlots) syncWbgtLevelFromSlots(ecsSlots);
             }
+            if (ECS_ONLY_WBGT) enforceEcsWbgtInSeason_();
             return !!(data.slots || data.wbgtOffSeason || Number.isInteger(data.level) || data.ecs);
         } catch (_) { return false; }
     }
@@ -4834,7 +4866,18 @@
         return dirs[Math.round((((deg % 360) + 360) % 360) / 22.5) % 16];
     }
     function calcWbgt(t, h) { return null; }
+    /** 環境省 WBGT 段階（推定値 est15WG: 21 / 25 / 28 / 31℃） */
     function wbgtLevel(w) { return w >= 31 ? 4 : w >= 28 ? 3 : w >= 25 ? 2 : w >= 21 ? 1 : 0; }
+    /** 環境クラウド機器表示と同じ段階境界（22 / 26 / 29 / 32℃） */
+    function ecsWbgtLevel(w) {
+        const v = Number(w);
+        if (!Number.isFinite(v)) return 0;
+        return v >= 32 ? 4 : v >= 29 ? 3 : v >= 26 ? 2 : v >= 22 ? 1 : 0;
+    }
+    function wbgtLevelForSignage_(w) {
+        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) return ecsWbgtLevel(w);
+        return wbgtLevel(w);
+    }
     function hasFull4Slots(slots) {
         return Array.isArray(slots) && slots.length >= 4 && slots[0] != null && slots[0].wbgt != null;
     }
@@ -5014,7 +5057,7 @@
         if (!row || typeof row !== 'object') return null;
         const wbgt = normalizeWbgtCelsius(row.Wbgt != null ? row.Wbgt : row.wbgt);
         if (wbgt == null) return null;
-        const lv = wbgtLevel(wbgt);
+        const lv = ecsWbgtLevel(wbgt);
         return {
             wbgt: wbgt,
             levelIdx: lv,
@@ -5036,7 +5079,7 @@
         if (!snap || snap.wbgt == null) return null;
         const slot = {
             wbgt: snap.wbgt,
-            levelIdx: Number.isInteger(snap.levelIdx) ? snap.levelIdx : wbgtLevel(snap.wbgt),
+            levelIdx: Number.isInteger(snap.levelIdx) ? snap.levelIdx : ecsWbgtLevel(snap.wbgt),
             hour: '現在'
         };
         return [slot, Object.assign({}, slot), Object.assign({}, slot), Object.assign({}, slot)];
@@ -5051,6 +5094,8 @@
         const slots = ecsSnapshotToSlots_(snap);
         if (!slots) return null;
         lastGoodWbgtSlots_ = cloneWbgtSlots_(slots);
+        applyWbgtInSeason_();
+        wbgtOffSeason = false;
         wbgtUnavailable = false;
         syncWbgtLevelFromSlots(slots);
         updateForecastSlotsIfAllowed_(slots);
@@ -5299,21 +5344,19 @@
     }
     async function fetchWbgtFromEcsApiImpl_() {
         let lastErr = null;
-        /* 現場サーバー: 本番APIを最優先（遅延最小）。GitHub Pages は ecs-live.json のみ */
-        if (!isStaticPagesHost_()) {
-            const urls = ecsWbgtApiUrlsToTry_();
-            for (let i = 0; i < urls.length; i++) {
-                const url = urls[i];
-                try {
-                    const res = await fetchWithTimeout_(fetch(url, { cache: 'no-store', mode: 'cors' }), 5000, 'ECS');
-                    if (!res.ok) throw new Error('ECS HTTP ' + res.status);
-                    const rows = parseEcsApiRows_(JSON.parse(await res.text()));
-                    if (!rows || !rows.length) throw new Error('ECS empty payload');
-                    return commitEcsPayload_(rows, url);
-                } catch (e) {
-                    lastErr = e;
-                    console.warn('[WBGT] ECS本番API取得失敗:', url, e.message || e);
-                }
+        /* 現場サーバー: ローカルAPI優先。静的ホスト: GASプロキシ経由で CORS 回避 */
+        const urls = ecsWbgtApiUrlsToTry_();
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            try {
+                const res = await fetchWithTimeout_(fetch(url, { cache: 'no-store', mode: 'cors' }), 5000, 'ECS');
+                if (!res.ok) throw new Error('ECS HTTP ' + res.status);
+                const rows = parseEcsApiRows_(JSON.parse(await res.text()));
+                if (!rows || !rows.length) throw new Error('ECS empty payload');
+                return commitEcsPayload_(rows, url);
+            } catch (e) {
+                lastErr = e;
+                console.warn('[WBGT] ECS API取得失敗:', url, e.message || e);
             }
         }
         try {
@@ -5334,13 +5377,9 @@
     }
     async function fetchWbgtData_() {
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            try {
-                const slots = await fetchWbgtFromEcsApi();
-                if (slots) return slots;
-            } catch (e) {
-                console.warn('[WBGT] ECS取得失敗、環境省にフォールバック:', e.message || e);
-            }
+            return fetchWbgtFromEcsApi();
         }
+        if (!USE_MOE_WBGT) return null;
         return fetchWbgtFromMoeApi();
     }
     function parseMoeJson_(json) {
@@ -5461,7 +5500,7 @@
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
-        if (!slots || wbgtOffSeason) return false;
+        if (!slots || (!ECS_ONLY_WBGT && wbgtOffSeason)) return false;
         syncWbgtLevelFromSlots(slots);
         updateForecastSlotsIfAllowed_(slots);
         queueOrRefreshS1FootBar_();
@@ -5500,7 +5539,19 @@
         return false;
     }
     /* 提供期間外: WBGTレベルを無効化し、WBGT表示を全て隠す（該当シーンはループでスキップ） */
+    function enforceEcsWbgtInSeason_() {
+        if (!ECS_ONLY_WBGT) return;
+        if (wbgtOffSeason) {
+            console.log('[WBGT] ECS現場モード: オフシーズン判定を無効化（環境省の季節運用は適用しません）');
+        }
+        wbgtOffSeason = false;
+        applyWbgtInSeason_();
+    }
     function applyWbgtOffSeason_() {
+        if (ECS_ONLY_WBGT) {
+            enforceEcsWbgtInSeason_();
+            return;
+        }
         wbgtOffSeason = true;
         wbgtUnavailable = false;
         clearWbgtUnavailableGrace_();
@@ -5595,25 +5646,47 @@
             jobs.push((async function () {
                 const sWbgt = performance.now();
                 try {
-                    const wbgtSlots = await fetchWbgtData_();
-                    timings[ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID ? 'WBGT(ECS)' : 'WBGT(GAS)'] = Math.round(performance.now() - sWbgt);
-                    if (wbgtSlots === 'offseason') {
-                        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-                            console.log('[WBGT] off-season応答 — 更新中は直前値を維持');
-                            applyWbgtInSeason_();
-                            syncWbgtSlotsToDomIfReady_();
-                            moeOk = true;
-                        } else {
-                            applyWbgtOffSeason_();
-                            moeOk = true;
+                    if (ECS_ONLY_WBGT) {
+                        applyWbgtInSeason_();
+                        wbgtOffSeason = false;
+                        try {
+                            const ecsSlots = await fetchWbgtFromEcsApi();
+                            timings['WBGT(ECS)'] = Math.round(performance.now() - sWbgt);
+                            if (ecsSlots && hasFull4Slots(ecsSlots)) {
+                                moeOk = applyWbgtSlotsToDom(ecsSlots);
+                            } else if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+                                syncWbgtSlotsToDomIfReady_();
+                                moeOk = true;
+                            } else {
+                                moeOk = false;
+                            }
+                        } catch (e) {
+                            console.warn('[WBGT] ECS取得:', e.message || e);
+                            moeOk = !!(lastGoodWbgtSlots_ && syncWbgtSlotsToDomIfReady_());
                         }
                     } else {
-                        applyWbgtInSeason_();
-                        moeOk = applyWbgtSlotsToDom(wbgtSlots);
+                        const wbgtSlots = await fetchWbgtData_();
+                        timings['WBGT(GAS)'] = Math.round(performance.now() - sWbgt);
+                        if (wbgtSlots === 'offseason') {
+                            if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+                                console.log('[WBGT] off-season応答 — 更新中は直前値を維持');
+                                applyWbgtInSeason_();
+                                syncWbgtSlotsToDomIfReady_();
+                                moeOk = true;
+                            } else {
+                                applyWbgtOffSeason_();
+                                moeOk = true;
+                            }
+                        } else {
+                            applyWbgtInSeason_();
+                            moeOk = applyWbgtSlotsToDom(wbgtSlots);
+                        }
+                        if (USE_MOE_WBGT) {
+                            const sAlert = performance.now();
+                            await updateHeatAlertFromGas_();
+                            timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
+                        }
                     }
-                    const sAlert = performance.now();
-                    await updateHeatAlertFromGas_();
-                    timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
                 } catch (e) {
                     console.warn('[取得] WBGT系:', e.message || e);
                     moeOk = false;
@@ -5632,6 +5705,7 @@
                     const live = applyJmaAmedasToDom(obs, latest);
                     if (plan.forecast && results[1]) {
                         applyJmaDailyForecastToDom(results[1], live.todayMaxTemp, live.todayLiveIcon);
+                        console.log('[天気予報] 気象庁4日予報を更新しました');
                     }
                     compactScene2Panels();
                     queueDisplayRefresh_();
@@ -5712,6 +5786,7 @@
             alertJson.today ? alertJson.today.label : '', alertJson.tomorrow ? alertJson.tomorrow.label : '');
     }
     async function fetchWbgtFromMoeApi() {
+        if (!USE_MOE_WBGT) return null;
         if (!MOE_WBGT_API_URL) {
             console.error('[WBGT] moe.gasUrl 未設定 — HTML 内の SignageConfig を確認してください');
             return null;
@@ -5898,6 +5973,7 @@
     }
     const D5_REL_LABELS = ['今日', '明日', '明後日', '明々後日'];
     const D5_FORECAST_INDICES = [0, 1, 2, 3];
+    let lastJmaForecastCtx_ = null;
     function applyD5BarLabels_() {
         for (let day = 0; day < SCENE5_PANEL_COUNT; day++) {
             document.querySelectorAll(`.d5-day-${day} .s2-bar-label`).forEach(function (el) {
@@ -5916,6 +5992,29 @@
         frame.setAttribute('aria-hidden', 'true');
         panel.appendChild(frame);
     }
+    /** 4日予報の各列: ECS現場は全列を現在WBGT段階色、それ以外は今日のみ現在段階・他日は注意/警戒時のみ同色 */
+    function getD5PanelWbgtLevel_(dayIndex, todayLv, mode) {
+        if (ECS_ONLY_WBGT) return todayLv;
+        if (dayIndex === 0) return todayLv;
+        const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
+            ? SignageBg.isDarkTextForDisplay(todayLv, mode)
+            : (mode === 'normal' && (todayLv === 1 || todayLv === 2));
+        return dark ? todayLv : 0;
+    }
+    function applyD5PanelColors_() {
+        const mode = getSignageDisplayMode_();
+        const todayLv = mode === 'normal' ? getSignageBgLevel_() : -1;
+        if (typeof SignageBg !== 'undefined' && SignageBg.applyStrip) {
+            for (let day = 0; day < SCENE5_PANEL_COUNT; day++) {
+                const panelLv = getD5PanelWbgtLevel_(day, todayLv, mode);
+                document.querySelectorAll('#scene5 .d5-day-' + day).forEach(function (panel) {
+                    SignageBg.applyStrip(panel, panelLv, mode);
+                });
+            }
+        }
+        applyD5ForecastTextColors_();
+        applyD5TodayFrame_();
+    }
     function applyD5TodayFrame_() {
         const mode = getSignageDisplayMode_();
         const lv = mode === 'normal' ? getSignageBgLevel_() : -1;
@@ -5928,15 +6027,16 @@
     /** 全列: 注意・警戒は黒、それ以外は白（「/」・気温・日付ラベル） */
     function applyD5ForecastTextColors_() {
         const mode = getSignageDisplayMode_();
-        const bgLv = mode === 'normal' ? getSignageBgLevel_() : -1;
-        const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
-            ? SignageBg.isDarkTextForDisplay(bgLv, mode)
-            : (mode === 'normal' && (bgLv === 1 || bgLv === 2));
-        const c = dark ? '#000000' : '#ebebeb';
-        document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(function (panel) {
-            panel.classList.toggle('col-bg-dark-text', dark);
-        });
+        const todayLv = mode === 'normal' ? getSignageBgLevel_() : -1;
         document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
+            const dayMatch = panel.className.match(/\bd5-day-(\d)\b/);
+            const dayIdx = dayMatch ? Number(dayMatch[1]) : 0;
+            const panelLv = getD5PanelWbgtLevel_(dayIdx, todayLv, mode);
+            const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
+                ? SignageBg.isDarkTextForDisplay(panelLv, mode)
+                : (mode === 'normal' && (panelLv === 1 || panelLv === 2));
+            panel.classList.toggle('col-bg-dark-text', dark);
+            const c = dark ? '#000000' : '#ebebeb';
             panel.querySelectorAll('.s2-bar-label, .d5-sep, .d5-temp, .s2-unit').forEach(function (n) {
                 n.style.color = c;
             });
@@ -6008,6 +6108,7 @@
         const weekly = Array.isArray(forecastJson) ? forecastJson[1] : null;
         const series = weekly && weekly.timeSeries;
         if (!Array.isArray(series)) return;
+        lastJmaForecastCtx_ = { forecastJson: forecastJson, todayMaxTemp: todayMaxTemp, todayLiveIcon: todayLiveIcon };
         let tempsMax = null;
         let weatherCodes = null;
         for (const block of series) {
@@ -6027,9 +6128,16 @@
             document.querySelectorAll(`.d5-day-${day} .d5-temp`).forEach(el => { el.innerText = tempStr; });
             document.querySelectorAll(`.d5-day-${day} .d5-weather-use`).forEach(el => el.setAttribute('href', icon));
         }
-        applyD5TodayFrame_();
-        applyD5ForecastTextColors_();
+        applyD5PanelColors_();
         fitD5PanelText_();
+    }
+    function refreshJmaForecastOnDom_() {
+        if (!lastJmaForecastCtx_) return;
+        applyJmaDailyForecastToDom(
+            lastJmaForecastCtx_.forecastJson,
+            lastJmaForecastCtx_.todayMaxTemp,
+            lastJmaForecastCtx_.todayLiveIcon
+        );
     }
     function formatScene2ObsClock_(date) {
         const d = date instanceof Date ? date : new Date(date);
@@ -6391,7 +6499,7 @@
         return rainNowcastAlert && rainNowcastAlert.messageJp ? rainNowcastAlert.messageJp : '';
     }
     function getWbgtOnlyMessageJp() {
-        if (wbgtOffSeason) return '';
+        if (!ECS_ONLY_WBGT && wbgtOffSeason) return '';
         if (wbgtUnavailable) return unknownMsg.jp;
         const lv = getS1WbgtLevelForDisplay_();
         if (lv < 0) return '';
@@ -6399,7 +6507,7 @@
     }
     /* 下帯: 1分以上取得不可のときだけ「取得不可」。それ以外は直前値のWBGT文言＋雨タグ */
     function getS1WbgtMessageJp() {
-        if (wbgtOffSeason) return '';
+        if (!ECS_ONLY_WBGT && wbgtOffSeason) return '';
         if (wbgtUnavailable) return unknownMsg.jp;
         const lv = getS1WbgtLevelForDisplay_();
         const rain = getRainAlertMessageJp();
@@ -6409,7 +6517,7 @@
         return rain || wbgt;
     }
     function hasS1WbgtFootMessage_() {
-        if (wbgtOffSeason) return false;
+        if (!ECS_ONLY_WBGT && wbgtOffSeason) return false;
         return !!String(getS1WbgtMessageJp() || '').trim();
     }
     /* 下帯: WBGT取得不可時は「取得不可」。提供期間外は地点名で白帯を維持 */
@@ -6619,8 +6727,9 @@
     }
     function sceneDisplayMode(el) {
         if (!el) return 'block';
+        if (el.id === 'scene3') return 'flex';
         if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
-        if (el.id === 'scene1' || el.id === 'scene3') return 'block';
+        if (el.id === 'scene1') return 'block';
         return 'flex';
     }
     function hideSceneEl(el) {
@@ -6641,6 +6750,7 @@
         if (!nextEl) { onComplete?.(); return; }
         if (current === nextEl) { onComplete?.(); return; }
         nextEl.style.display = sceneDisplayMode(nextEl);
+        if (nextEl.id === 'scene3') nextEl.style.flexDirection = 'column';
         nextEl.classList.add('active');
         if (!current || SCENE_SLIDE_MS <= 0) {
             if (current) hideSceneEl(current);
@@ -6837,7 +6947,7 @@
     }
     /* シーン3（多言語枠）: 日・英・インドネシア・フィリピン・ベトナム */
     function getT3Messages_() {
-        if (wbgtOffSeason) return [];
+        if (!ECS_ONLY_WBGT && wbgtOffSeason) return [];
         if (wbgtUnavailable) {
             const all = T3_LANG_KEYS.map(function (key) { return splitT3Message_(unknownMsg[key]); });
             if (DEMO_T3_LANG_IDX >= 0 && DEMO_T3_LANG_IDX < all.length) return [all[DEMO_T3_LANG_IDX]];
@@ -6972,7 +7082,7 @@
         });
     }
     function getScene3WbgtLevel_() {
-        if (wbgtOffSeason || wbgtUnavailable) return -1;
+        if (!ECS_ONLY_WBGT && (wbgtOffSeason || wbgtUnavailable)) return -1;
         return getS1WbgtLevelForDisplay_();
     }
     /** シーン3: レベル名・列色・多言語文・下帯指針を同一 WBGT レベルで一括更新 */
@@ -6991,7 +7101,11 @@
         const staticTopBar = document.querySelector('#scene3 .t3-static-top-bar');
         const alertTop = getT3HeatAlertTopForDisplay_();
         if (staticTopBar) {
-            staticTopBar.classList.remove('col-bg-dark-text');
+            if (alertTop) {
+                staticTopBar.classList.remove('col-bg-dark-text');
+            } else if (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay) {
+                staticTopBar.classList.toggle('col-bg-dark-text', SignageBg.isDarkTextForDisplay(lv, mode));
+            }
         }
         if (!alertTop) {
             const lvLabel = (wbgtUnavailable || lv < 0) ? '--' : levelNames[lv];
@@ -7331,12 +7445,17 @@
     }
     function playScene3() {
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+        enforceEcsWbgtInSeason_();
         if (wbgtOffSeason) {
             if (previewOffSeasonHold_('s3', playScene3)) return;
             gotoAfterScene3_();
             return;
         }
         applyDisplayRefreshAtSceneEntry_();
+        if (s3) {
+            s3.style.display = 'flex';
+            s3.style.flexDirection = 'column';
+        }
         buildTicker();
         applyPendingSignageBgAtScene_();
         t3Messages_ = getT3Messages_();
@@ -7518,6 +7637,7 @@
         gotoSceneAfterScene4_();
     }
     function playScene4() {
+        enforceEcsWbgtInSeason_();
         applyDisplayRefreshAtSceneEntry_();
         clearScene4Timers();
         if (wbgtOffSeason) {
@@ -7576,9 +7696,9 @@
         if (scene5AnimId) cancelAnimationFrame(scene5AnimId);
         applyDisplayRefreshAtSceneEntry_();
         compactScene5Panels();
+        refreshJmaForecastOnDom_();
         fitD5PanelText_();
-        applyD5TodayFrame_();
-        applyD5ForecastTextColors_();
+        applyD5PanelColors_();
         applyPendingSignageBgAtScene_();
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
@@ -7645,7 +7765,7 @@
     }
     function applyReviewEnv_() {
         applyRainPreviewFromParam_();
-        if (DEMO_WBGT_OFF) {
+        if (DEMO_WBGT_OFF && !ECS_ONLY_WBGT) {
             applyWbgtOffSeason_();
             buildS1WbgtTrack(false);
             buildTicker();
@@ -7799,7 +7919,9 @@
     }
 
     window.onload = async function() {
+        try { localStorage.removeItem('cspi2026_signage_state_v1'); } catch (e) {}
         restoreSignageStateCache_();
+        enforceEcsWbgtInSeason_();
         initScene2EcsMode_();
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && !DEMO_SIGNAGE_ACTIVE) {
@@ -7882,6 +8004,10 @@
             syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
         }, CLOCK_SYNC_INTERVAL_MS);
         /* 初回取得を待ってからループ開始（濃い灰の時間を短く・更新の重なりを防ぐ） */
+        if (ECS_ONLY_WBGT) {
+            wbgtOffSeason = false;
+            wbgtUnavailable = false;
+        }
         var mainLoopStartedLocal_ = false;
         function beginMainLoop_() {
             if (mainLoopStartedLocal_) return;
@@ -7910,7 +8036,7 @@
         }
         Promise.race([
             runScheduledFetch({ jma: true, moe: true, nowc: false, forecast: true, labels: ['起動'] }),
-            new Promise(function (resolve) { setTimeout(resolve, 3500); })
+            new Promise(function (resolve) { setTimeout(resolve, 8000); })
         ]).finally(beginMainLoop_);
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
