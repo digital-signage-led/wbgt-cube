@@ -2849,7 +2849,12 @@
                 slots: lastGoodWbgtSlots_,
                 level: currentWbgtLevel,
                 amedas: lastAmedasSnapshot_,
-                ecs: (lastEcsSnapshot_ && isEcsSnapshotHoldableForDisplay_(lastEcsSnapshot_)) ? lastEcsSnapshot_ : null
+                ecs: (lastEcsSnapshot_ && isEcsSnapshotHoldableForDisplay_(lastEcsSnapshot_)) ? lastEcsSnapshot_ : null,
+                jmaForecast: lastJmaForecastCtx_ ? {
+                    forecastJson: lastJmaForecastCtx_.forecastJson,
+                    todayMaxTemp: lastJmaForecastCtx_.todayMaxTemp,
+                    todayLiveIcon: lastJmaForecastCtx_.todayLiveIcon
+                } : null
             }));
         } catch (_) {}
     }
@@ -2878,28 +2883,69 @@
             if (ecsCacheStale) {
                 console.warn('[WBGT] 保存キャッシュのECS計測時刻が古いため再取得します', data.ecs && data.ecs.time);
             }
-            if (data.slots && hasFull4Slots(data.slots) && !ecsCacheStale) {
+            if (data.slots && hasFull4Slots(data.slots) && !ecsCacheStale && !(data.ecs && ECS_WBGT_ENABLED)) {
                 lastGoodWbgtSlots_ = cloneWbgtSlots_(data.slots);
                 lastWbgtSlots = lastGoodWbgtSlots_;
                 wbgtOffSeason = false;
                 wbgtUnavailable = false;
                 syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
                 syncWbgtSlotsToDomIfReady_();
-            } else if (Number.isInteger(data.level) && data.level >= 0) {
+            } else if (Number.isInteger(data.level) && data.level >= 0 && !(data.ecs && ECS_WBGT_ENABLED)) {
                 currentWbgtLevel = data.level;
             }
             if (data.amedas) applyAmedasSnapshot_(data.amedas);
+            if (data.jmaForecast && data.jmaForecast.forecastJson) {
+                lastJmaForecastCtx_ = {
+                    forecastJson: data.jmaForecast.forecastJson,
+                    todayMaxTemp: data.jmaForecast.todayMaxTemp,
+                    todayLiveIcon: data.jmaForecast.todayLiveIcon
+                };
+            }
             if (data.ecs && ECS_WBGT_ENABLED && !ecsCacheStale) {
                 lastEcsSnapshot_ = data.ecs;
                 wbgtUnavailable = false;
                 wbgtOffSeason = false;
                 applyWbgtInSeason_();
                 const ecsSlots = ecsSnapshotToSlots_(data.ecs);
-                if (ecsSlots) syncWbgtLevelFromSlots(ecsSlots);
+                if (ecsSlots) {
+                    lastGoodWbgtSlots_ = cloneWbgtSlots_(ecsSlots);
+                    lastWbgtSlots = lastGoodWbgtSlots_;
+                    syncWbgtLevelFromSlots(ecsSlots);
+                }
             }
             if (ECS_ONLY_WBGT) enforceEcsWbgtInSeason_();
-            return !!(data.slots || data.wbgtOffSeason || Number.isInteger(data.level) || data.ecs);
+            return !!(data.slots || data.wbgtOffSeason || Number.isInteger(data.level) || data.ecs || data.jmaForecast);
         } catch (_) { return false; }
+    }
+    /** 再読込直後: localStorage 復元分を即座に画面へ反映（ネットワーク待ちしない） */
+    function applyRestoredSignageCacheToDom_() {
+        if (DEMO_SIGNAGE_ACTIVE) return false;
+        let painted = false;
+        const ecsSnap = getEcsSnapshotForDisplay_();
+        if (ecsSnap && ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
+            applyEcsSnapshotToSignage_(ecsSnap);
+            painted = true;
+        } else if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            wbgtUnavailable = false;
+            wbgtOffSeason = false;
+            applyWbgtSlotsToDom(lastGoodWbgtSlots_);
+            painted = true;
+        }
+        if (lastJmaForecastCtx_) {
+            refreshJmaForecastOnDom_();
+            painted = true;
+        }
+        if (painted || currentWbgtLevel >= 0) {
+            wbgtUnavailable = false;
+            if (ECS_ONLY_WBGT) wbgtOffSeason = false;
+            refreshSignageBgIfChanged_(true);
+            buildS1WbgtTrack(false);
+            buildFcLvTrack(false);
+            buildTicker();
+            console.log('[キャッシュ] 最終取得データを表示に反映',
+                ecsSnap ? ('WBGT ' + ecsSnap.wbgt + '℃ ' + (ecsSnap.time || '')) : ('level ' + currentWbgtLevel));
+        }
+        return painted;
     }
 
     const s1 = document.getElementById('scene1');
@@ -6130,6 +6176,7 @@
         }
         applyD5PanelColors_();
         fitD5PanelText_();
+        persistSignageStateCache_();
     }
     function refreshJmaForecastOnDom_() {
         if (!lastJmaForecastCtx_) return;
@@ -7920,22 +7967,28 @@
 
     window.onload = async function() {
         try { localStorage.removeItem('cspi2026_signage_state_v1'); } catch (e) {}
-        restoreSignageStateCache_();
+        const cacheRestored = restoreSignageStateCache_();
         enforceEcsWbgtInSeason_();
         initScene2EcsMode_();
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
+        if (cacheRestored || hasEcsDisplayOnScreen_()) {
+            applyRestoredSignageCacheToDom_();
+        }
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && !DEMO_SIGNAGE_ACTIVE) {
-            if (hasEcsDisplayOnScreen_()) syncEcsDisplayFromLastGood_();
-            const ecsBootSlots = await bootstrapEcsData_();
-            if (ecsBootSlots) {
-                applyWbgtInSeason_();
-                wbgtUnavailable = false;
-                applyWbgtSlotsToDom(ecsBootSlots);
-            } else if (hasEcsDisplayOnScreen_()) {
-                syncEcsDisplayFromLastGood_();
-            } else {
-                clearEcsDisplayFromDom_();
-            }
+            bootstrapEcsData_().then(function (ecsBootSlots) {
+                if (ecsBootSlots) {
+                    applyWbgtInSeason_();
+                    wbgtUnavailable = false;
+                    applyWbgtSlotsToDom(ecsBootSlots);
+                    refreshSignageBgIfChanged_(true);
+                    buildS1WbgtTrack(false);
+                    buildTicker();
+                } else if (!hasEcsDisplayOnScreen_()) {
+                    clearEcsDisplayFromDom_();
+                }
+            }).catch(function () {
+                if (hasEcsDisplayOnScreen_()) syncEcsDisplayFromLastGood_();
+            });
             scheduleEcsUrgentRefresh_();
         } else if (hasEcsDisplayOnScreen_()) {
             const ecsSnap = getEcsSnapshotForDisplay_();
