@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- wbgt-cube-hiroshima-koujigumi-4face / 福山市 鴻治組 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 同階層: assets/kohji_logo.png（時刻下の下帯） -->
 <!-- 会場: 広島県福山市瀬戸町長和 / WBGT・AMeDAS 67401（福山・気象庁/環境省） -->
@@ -4524,9 +4524,9 @@
         if (!Number.isFinite(serverUtcMs)) throw new Error('jma-latest parse');
         return utcMsWithRtt(serverUtcMs, t0, t1);
     }
+    /** JMA latest_time は観測時刻（10分単位）のため時計同期には使わない */
     const TIME_SYNC_CHAIN = [
         { name: 'NICT', fetch: fetchUtcMsFromNict },
-        { name: 'jma-amedas', fetch: fetchUtcMsFromJmaLatest },
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo },
         { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi }
     ];
@@ -4569,7 +4569,13 @@
         let ms = getSyncedUtcMs();
         if (ms == null) { applySyncedUtcMs(Date.now(), 'local-fallback'); ms = getSyncedUtcMs(); }
         const now = new Date(Math.floor(ms));
-        const t = clockHmFormatter.format(now);
+        let h = '';
+        let m = '';
+        clockHmFormatter.formatToParts(now).forEach(function (p) {
+            if (p.type === 'hour') h = p.value;
+            if (p.type === 'minute') m = p.value;
+        });
+        const t = h + ':' + m;
         const d = clockDateFormatter.format(now);
         document.querySelectorAll('.clock-hm').forEach(el => { el.innerText = t; });
         document.querySelectorAll('#scene1 .s1-bar-label').forEach(el => { el.innerText = d; });
