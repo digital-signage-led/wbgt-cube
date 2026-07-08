@@ -605,15 +605,16 @@
             flex-shrink: 0;
             font-family: "Inter", sans-serif;
             opacity: 0.9;
-            color: #ebebeb;
         }
-        /* 全列: ほぼ安全など=白文字 / 注意・警戒=黒文字 */
+        /* 全列: ほぼ安全など=白文字 / 注意・警戒=黒文字（上バー・本体を同一ルールで） */
+        #scene5 .d5-panel:not(.col-bg-dark-text) .s2-top-bar .s2-bar-label,
         #scene5 .d5-panel:not(.col-bg-dark-text) .s2-bar-label,
         #scene5 .d5-panel:not(.col-bg-dark-text) .d5-sep,
         #scene5 .d5-panel:not(.col-bg-dark-text) .d5-temp,
         #scene5 .d5-panel:not(.col-bg-dark-text) .s2-unit {
             color: #ebebeb !important;
         }
+        #scene5 .d5-panel.col-bg-dark-text .s2-top-bar .s2-bar-label,
         #scene5 .d5-panel.col-bg-dark-text .s2-bar-label,
         #scene5 .d5-panel.col-bg-dark-text .d5-sep,
         #scene5 .d5-panel.col-bg-dark-text .d5-temp,
@@ -1956,11 +1957,12 @@
         if (foot) foot.style.backgroundColor = LED_FOOT_BAR_BG;
     }
 
-    /** 既存レイヤーにも必ず色を上書き（キャッシュ・再描画ずれ対策） */
+    /** 既存レイヤーにも必ず色を上書き（キャッシュ・再描画ずれ対策）。シーン5は refreshScene5 で列ごとに管理するため除外 */
     function repaintStripHosts_(levelIdx, displayMode) {
         const colors = colorsForDisplay(levelIdx, displayMode);
         document.querySelectorAll('.content-area .col-bg-layer').forEach(function (layer) {
             const host = layer.parentElement;
+            if (host && host.closest('#scene5')) return;
             if (host && host.classList.contains('t3-unit')) {
                 applyColorsToT3UnitLayer(layer, colors);
                 return;
@@ -2636,9 +2638,8 @@
         }
         SignageBg.refreshScene1(lv, mode);
         SignageBg.refreshScene2(lv, mode);
-        SignageBg.refreshScene5(lv, mode);
-        applyD5TodayFrame_();
         applyD5ForecastTextColors_();
+        applyD5TodayFrame_();
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null));
@@ -5527,21 +5528,15 @@
             panel.classList.toggle('d5-today-frame-white', white);
         });
     }
-    /** 全列: 注意・警戒は黒、それ以外は白（「/」・気温・日付ラベル） */
+    /** シーン5: 背景色と文字色クラスを同期（予報更新単体でも背景ずれを防ぐ） */
     function applyD5ForecastTextColors_() {
-        const mode = getSignageDisplayMode_();
-        const bgLv = mode === 'normal' ? getSignageBgLevel_() : -1;
-        const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
-            ? SignageBg.isDarkTextForDisplay(bgLv, mode)
-            : (mode === 'normal' && (bgLv === 1 || bgLv === 2));
-        const c = dark ? '#000000' : '#ebebeb';
-        document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(function (panel) {
-            panel.classList.toggle('col-bg-dark-text', dark);
-        });
-        document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
-            panel.querySelectorAll('.s2-bar-label, .d5-sep, .d5-temp, .s2-unit').forEach(function (n) {
-                n.style.color = c;
-            });
+        if (typeof SignageBg === 'undefined' || !SignageBg.refreshScene5) return;
+        const rawMode = getSignageDisplayMode_();
+        const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
+        const paint = resolveSignageBgPaint_(rawMode, rawLv);
+        SignageBg.refreshScene5(paint.lv, paint.mode);
+        document.querySelectorAll('#scene5 .s2-bar-label, #scene5 .d5-sep, #scene5 .d5-temp, #scene5 .s2-unit').forEach(function (n) {
+            n.style.removeProperty('color');
         });
     }
     function compactScene5Panels() {
