@@ -5495,8 +5495,7 @@
     }
     function applyScene2Scroll_() {
         if (!scene2SetWidth) return;
-        normalizeGlobalScroll_(scene2SetWidth);
-        if (conveyor) applyScrollX_(conveyor, globalScrollX_);
+        if (conveyor) applyScrollX_(conveyor, wrapScrollX_(globalScrollX_, scene2SetWidth));
         if (s2MetaTrack) applyScrollX_(s2MetaTrack, wrapScrollX_(globalScrollX_, scene2MetaLapPx));
     }
     function applyJmaAmedasToDom(obs, latest) {
