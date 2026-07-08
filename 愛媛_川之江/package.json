@@ -1,0 +1,13 @@
+{
+  "name": "ehime-kawanoe",
+  "version": "1.0.0",
+  "description": "井原工業 WBGT サイネージ（愛媛・四国中央市川之江 / 4面 512×128）",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "commonjs"
+}
