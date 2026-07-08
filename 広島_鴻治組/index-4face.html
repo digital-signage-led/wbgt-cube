@@ -37,7 +37,7 @@
             --led-foot-bar-h: 28px;
             --led-col-body-h: 68px;
             --led-col-main-h: 100px;
-            --led-foot-font: 15px;
+            --led-foot-font: 17px;
         }
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
         .demo-badge {
@@ -286,8 +286,8 @@
         }
         .s1-wbgt-ch, .fc-lv-ch {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 15px; flex-shrink: 0;
-            font-size: 15px; font-weight: 700; color: #1a1a1a;
+            width: 17px; flex-shrink: 0;
+            font-size: 17px; font-weight: 700; color: #1a1a1a;
         }
         .s1-wbgt-site-slot {
             display: flex; align-items: center; justify-content: center;
@@ -5772,7 +5772,7 @@
     function sizeS1FootWbgtText_() {
         const maxW = FOOT_BAR_SLOT_W - 12;
         document.querySelectorAll('#scene1 .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact').forEach(function (el) {
-            let fz = 15;
+            let fz = 17;
             el.style.fontSize = fz + 'px';
             let guard = 24;
             while (guard-- > 0 && fz > 8 && el.scrollWidth > maxW) {
