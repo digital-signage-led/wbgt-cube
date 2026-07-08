@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-sasakikensetu-4face / 佐々木建設株式会社 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
-<!-- 会場: 〒771-0203 徳島県板野郡北島町中村前須13-9 / WBGT・AMeDAS 71106（徳島・気象庁/環境省） -->
+<!-- 会場: 〒771-0295 徳島県板野郡松茂町 / WBGT・AMeDAS 71106（徳島・気象庁） -->
 <html lang="ja" class="native-640 layout-512">
 <head>
     <meta charset="UTF-8">
@@ -28,14 +28,15 @@
 
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;800;900&family=M+PLUS+Rounded+1c:wght@700&display=swap');
         :root {
             --led-foot-bar-bg: #fff9f0;
             --led-foot-bar-h: 28px;
             --led-col-body-h: 68px;
             --led-col-main-h: 100px;
-            --led-foot-font: 15px;
-            --led-foot-site-font: 15px;
+            --led-foot-font: 18px;
+            --led-foot-site-font: 17px;
+            --led-foot-scroll-font: 20px;
         }
         body { margin: 0; padding: 0; background-color: #308DD8; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
         .demo-badge {
@@ -188,9 +189,9 @@
         .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; flex-shrink: 0; gap: 4px; border: none; outline: none; background: transparent; }
         .panel-clock { padding: 0; gap: 0; justify-content: flex-start; overflow: hidden; }
         .s1-top-bar { width: 100%; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; }
-        .s1-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.42px; }
+        .s1-bar-label { font-size: 16px; font-weight: 800; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.42px; }
         #scene1 .panel-clock .s1-bar-label {
-            font-size: 20px;
+            font-size: 22px;
             line-height: 32px;
             letter-spacing: 0.2px;
             max-width: 124px;
@@ -212,8 +213,8 @@
             white-space: nowrap;
             max-width: 124px;
             overflow: hidden;
-            font-size: 42px;
-            font-weight: 800;
+            font-size: 48px;
+            font-weight: 900;
             color: #ebebeb;
             line-height: 1;
             font-variant-numeric: tabular-nums;
@@ -277,6 +278,33 @@
         .s1-wbgt-set.s1-wbgt-set-scroll {
             width: 1024px;
         }
+        .fc-lv-set.fc-lv-set-scroll {
+            width: 1024px;
+        }
+        /* シーン4下帯: 256px×2（作業所名|出典）コの字シームレス512 */
+        #scene4 .fc-lv-bar .fc-lv-slot {
+            width: 256px;
+            max-width: 256px;
+            min-width: 256px;
+            padding: 0 6px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        #scene4 .fc-lv-bar .fc-lv-msg-compact {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            font-size: var(--led-foot-scroll-font);
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: var(--led-foot-bar-h);
+            white-space: nowrap;
+            overflow: hidden;
+            text-align: center;
+            padding: 0 4px;
+            box-sizing: border-box;
+            font-family: "Noto Sans JP", sans-serif;
+        }
         .s1-wbgt-slot, .fc-lv-slot, .s2-meta-slot {
             width: 256px; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
@@ -294,13 +322,13 @@
         }
         .s1-wbgt-msg-compact, .fc-lv-msg-compact {
             display: block; width: 100%; max-width: 100%;
-            font-size: var(--led-foot-font); font-weight: 700; color: #1a1a1a; line-height: var(--led-foot-bar-h);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: var(--led-foot-font); font-weight: 800; color: #1a1a1a; line-height: var(--led-foot-bar-h);
+            white-space: nowrap; overflow: hidden;
             text-align: center; padding: 0 6px; box-sizing: border-box;
         }
         .s2-meta-msg-scroll {
             display: inline-block; white-space: nowrap; line-height: var(--led-foot-bar-h);
-            font-size: var(--led-foot-font); font-weight: 700; color: #1a1a1a;
+            font-size: var(--led-foot-font); font-weight: 800; color: #1a1a1a;
             font-family: "Noto Sans JP", sans-serif; padding: 0 10px;
         }
         .s2-meta-msg-groups {
@@ -318,13 +346,67 @@
             display: flex; flex-direction: row; align-items: stretch;
             box-sizing: border-box;
         }
+        #scene2 .s2-meta-bar .s2-meta-msg-scroll {
+            display: inline-flex; align-items: center;
+            height: var(--led-foot-bar-h); max-height: var(--led-foot-bar-h);
+            line-height: 1.12; overflow: visible; box-sizing: border-box;
+            font-size: var(--led-foot-scroll-font);
+        }
+        /* シーン2下帯: 256px×2（作業所名|計測情報）コの字シームレス512 */
+        #scene2 .s2-meta-bar .s2-meta-set-scroll {
+            width: 1024px;
+        }
+        #scene2 .s2-meta-bar .s2-meta-slot-256 {
+            width: 256px;
+            max-width: 256px;
+            min-width: 256px;
+            padding: 0 6px;
+            overflow: hidden;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #scene2 .s2-meta-bar .s2-meta-msg-compact {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            font-size: var(--led-foot-scroll-font);
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: var(--led-foot-bar-h);
+            white-space: nowrap;
+            overflow: hidden;
+            text-align: center;
+            padding: 0 4px;
+            box-sizing: border-box;
+            font-family: "Noto Sans JP", sans-serif;
+        }
+        #scene2 .s2-meta-bar .s2-meta-set-flow {
+            min-width: 0; width: auto;
+        }
+        #scene2 .s2-meta-bar .s2-meta-slot-flow {
+            min-width: 0; width: auto;
+            padding: 0 10px;
+            justify-content: flex-start;
+        }
         .s1-wbgt-slot-wide, .fc-lv-slot-wide, .s2-meta-slot-wide {
             width: 512px; max-width: 512px; flex-shrink: 0;
         }
         .s1-wbgt-ch, .fc-lv-ch {
             display: inline-flex; align-items: center; justify-content: center;
-            width: 15px; flex-shrink: 0;
-            font-size: 15px; font-weight: 700; color: #1a1a1a;
+            flex-shrink: 0;
+            font-weight: 800; color: #1a1a1a;
+        }
+        .s1-wbgt-ch {
+            width: 15px;
+            font-size: 15px;
+        }
+        #scene4 .fc-lv-bar .fc-lv-ch {
+            width: 1.05em;
+            min-width: 16px;
+            font-size: 20px;
+            font-weight: 800;
         }
         .s1-wbgt-site-slot {
             display: flex; align-items: center; justify-content: center;
@@ -350,9 +432,9 @@
         /* シーン1下帯・社名（1行） */
         .s1-foot-co-txt {
             display: inline-block; flex-shrink: 0; white-space: nowrap; line-height: var(--led-foot-bar-h);
-            max-width: 244px; overflow: hidden; text-overflow: ellipsis;
+            max-width: 244px; overflow: hidden;
             font-family: "Noto Sans JP", sans-serif;
-            font-weight: 700; font-size: var(--led-foot-site-font); letter-spacing: 0.02em;
+            font-weight: 800; font-size: var(--led-foot-site-font); letter-spacing: 0.02em;
             color: #1a1a1a; box-sizing: border-box; text-align: center;
         }
         .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact {
@@ -371,9 +453,9 @@
             display: block; object-fit: contain;
         }
         .s1-wbgt-site-label {
-            font-size: var(--led-foot-site-font); font-weight: 700; color: #1a1a1a; line-height: var(--led-foot-bar-h);
+            font-size: var(--led-foot-site-font); font-weight: 800; color: #1a1a1a; line-height: var(--led-foot-bar-h);
             font-family: "Noto Sans JP", sans-serif;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            white-space: nowrap; overflow: hidden;
             max-width: 196px; flex-shrink: 1;
         }
         .s1-wbgt-msg-slot .s1-wbgt-msg-compact {
@@ -445,10 +527,10 @@
         #scene2.active { display: block; }
         .s2-scroll-wrap { width: 512px; height: var(--led-col-main-h); overflow: hidden; position: relative; z-index: 1; }
         #scene2 .s2-panel, #scene2 .s2-panel-data { height: var(--led-col-main-h); }
-        #scene2 .s2-bar-label { font-size: 20px; line-height: 1.05; letter-spacing: 0.2px; }
-        #scene2 .s2-num { font-size: 44px; }
-        #scene2 .s2-dir-text.dir-val { font-size: 34px; }
-        #scene2 .s2-unit { font-size: 20px; }
+        #scene2 .s2-bar-label { font-size: 22px; line-height: 1.05; letter-spacing: 0.2px; font-weight: 800; }
+        #scene2 .s2-num { font-size: 50px; font-weight: 900; }
+        #scene2 .s2-dir-text.dir-val { font-size: 36px; font-weight: 900; }
+        #scene2 .s2-unit { font-size: 22px; font-weight: 800; }
         #scene2 .weather-svg { width: 54px; height: 54px; }
         #scene2 .s2-tmax-high, #scene2 .s2-tmax-low { font-size: 40px; }
         #scene2 .s2-tmax-sep { font-size: 40px; font-weight: 800; }
@@ -478,7 +560,8 @@
         #scene4 .fc-top-bar, #scene4 .fc-body { background: transparent; border: none; position: relative; z-index: 1; }
         .fc-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; letter-spacing: 0.42px; font-family: "Noto Sans JP", sans-serif; }
         #scene4 .fc-bar-label {
-            font-size: 20px;
+            font-size: 22px;
+            font-weight: 800;
             line-height: 1.05;
             letter-spacing: 0.2px;
             max-width: 124px;
@@ -491,23 +574,27 @@
         .fc-body {
             width: 100%; max-width: 128px; height: var(--led-col-body-h); max-height: var(--led-col-body-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center; box-sizing: border-box;
-            overflow: hidden; padding: 0 6px;
+            overflow: hidden; padding: 0 4px;
         }
         /* シーン4: 時刻と同型（スクロール104=32+72、下帯24は fc-lv-bar） */
         #scene4 .fc-panel .col-bg-layer { height: var(--led-col-main-h); }
         #scene4 .fc-panel .col-bg-foot { display: none; }
         .fc-wbgt {
-            display: inline-flex; align-items: baseline; justify-content: center; gap: 2px;
-            max-width: 112px; text-align: center; white-space: nowrap; overflow: hidden;
-            line-height: 1; color: #ebebeb;
+            display: inline-flex; align-items: baseline; justify-content: center; gap: 1px;
+            max-width: 100%; width: auto; min-width: 0; text-align: center; white-space: nowrap;
+            overflow: hidden; line-height: 1; color: #ebebeb; box-sizing: border-box;
         }
         .fc-wbgt-num {
-            font-size: 44px; font-weight: 800; font-variant-numeric: tabular-nums;
-            font-family: "Inter", sans-serif; letter-spacing: -0.04em;
+            font-size: 40px; font-weight: 900; font-variant-numeric: tabular-nums;
+            font-family: "Inter", sans-serif; letter-spacing: -0.03em;
+            flex-shrink: 1; min-width: 0;
         }
         .fc-wbgt-unit {
-            font-size: 20px; font-weight: 700; font-family: "Inter", sans-serif;
-            line-height: 1; margin-left: 1px;
+            font-size: 14px; font-weight: 800; font-family: "Inter", sans-serif;
+            line-height: 1; flex-shrink: 0;
+        }
+        #scene4 .fc-wbgt {
+            max-width: 118px;
         }
         .daily-scene:not(.active) { display: none; overflow: hidden; }
         .d5-track { display: flex; flex-direction: row; width: 1024px; transition: none; gap: 0; }
@@ -526,7 +613,7 @@
             padding: 0 4px;
         }
         #scene5 .s2-bar-label {
-            font-size: 22px; line-height: 1.05; letter-spacing: 0.2px;
+            font-size: 24px; line-height: 1.05; letter-spacing: 0.2px; font-weight: 800;
             max-width: 124px; overflow: hidden; text-overflow: ellipsis;
             white-space: nowrap; padding: 0 4px; box-sizing: border-box;
         }
@@ -542,7 +629,7 @@
             flex-shrink: 0;
         }
         #scene5 .d5-body .weather-svg {
-            width: 58px; height: 58px;
+            width: 64px; height: 64px;
             flex-shrink: 0;
         }
         #scene5 .d5-sep {
@@ -567,9 +654,10 @@
         #scene5 .d5-panel.col-bg-dark-text .s2-unit {
             color: #000000 !important;
         }
-        #scene5 .d5-body .s2-val { flex-shrink: 0; }
-        #scene5 .d5-body .s2-num { font-size: 52px; line-height: 1; }
-        #scene5 .d5-body .s2-unit { font-size: 24px; line-height: 1; }
+        #scene5 .d5-body .s2-val { flex-shrink: 0; align-items: baseline; }
+        #scene5 .d5-body .s2-num { font-size: 60px; line-height: 1; font-weight: 900; }
+        #scene5 .d5-body .s2-unit { font-size: 18px; line-height: 1; font-weight: 700; align-self: flex-end; padding-bottom: 2px; }
+        #scene5 .s2-foot .s2-loc { font-size: 17px; font-weight: 800; }
         /* 今日のみ 128×128 枠で強調 — 実DOM（LEDサイネージで ::after が欠ける対策） */
         #scene5 .d5-panel.d5-today-focus {
             position: relative;
@@ -615,7 +703,7 @@
             box-sizing: border-box; padding: 0 4px; overflow: hidden;
         }
         .t3-scene-top-bar .t3-lv-label {
-            font-size: 20px; font-weight: 700; letter-spacing: 0.42px;
+            font-size: 22px; font-weight: 800; letter-spacing: 0.42px;
             font-family: "Noto Sans JP", sans-serif; color: #ebebeb;
             white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
             max-width: 120px; text-align: center;
@@ -648,7 +736,7 @@
         }
         .t3-top-ha-msg {
             display: inline-block; max-width: 120px;
-            font-size: 20px; font-weight: 700; letter-spacing: 0.42px;
+            font-size: 22px; font-weight: 800; letter-spacing: 0.42px;
             font-family: "Noto Sans JP", sans-serif; white-space: nowrap;
             line-height: 1; text-align: center; color: #ebebeb;
         }
@@ -691,7 +779,7 @@
             display: inline-flex; align-items: center;
             height: var(--led-foot-bar-h); max-height: var(--led-foot-bar-h);
             line-height: 1.12; overflow: hidden; box-sizing: border-box;
-            font-size: 15px; padding: 0 4px;
+            font-size: 17px; font-weight: 800; padding: 0 4px;
         }
         #scene3 .t3-guid-bar .s2-meta-set-flow {
             min-width: 0; width: auto;
@@ -722,7 +810,7 @@
             font-family: "Noto Sans JP", "Inter", sans-serif;
             color: #ebebeb; width: 100%; max-width: 248px;
             box-sizing: border-box;
-            overflow: visible; flex-shrink: 0;
+            overflow: hidden; flex-shrink: 0;
             height: auto; padding: 0;
         }
         /* --- 熱中症アラート（256×128モジュール×2。各256内で同じ文言が追随して流れる） --- */
@@ -1496,7 +1584,7 @@
       customer: '佐々木建設株式会社',
       rental: '',
       label: '佐々木建設株式会社',
-      address: '〒771-0203 徳島県板野郡北島町中村前須13-9'
+      address: '〒771-0295 徳島県板野郡松茂町'
     },
     moe: {
       /* 環境省 WBGT（本案件では未使用。ecs.enabled 時は取得しない） */
@@ -1505,7 +1593,7 @@
         'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
       point: '71106',
       fallbackPoint: '',
-      pointName: '徳島',
+      pointName: '松茂町',
       alertArea: '徳島県',
       region: '09',
       prefecture: '71'
@@ -1529,11 +1617,11 @@
     jma: {
       amedasPoint: '71106',
       forecastArea: '360000',
-      forecastLabel: '北島町',
+      forecastLabel: '松茂町',
       warnArea: '360000',
-      warnCity: '3640200'
+      warnCity: '3640100'
     },
-    geo: { lat: 34.1256, lon: 134.5470 },
+    geo: { lat: 34.1338, lon: 134.5806 },
     timeZone: 'Asia/Tokyo',
     refreshMs: 30000,
     footSource: '出典：気象庁データ',
@@ -1590,7 +1678,7 @@
         <div class="ra-pair ra-advisory" id="ra-pair">
             <div class="ra-mid-band-wrap" aria-hidden="true"><div class="ra-mid-band-unit"></div><div class="ra-mid-band-unit"></div></div>
             <div class="ra-white-header" aria-hidden="true">
-                <span class="ra-white-area">北島町の地域で発表されています</span>
+                <span class="ra-white-area">松茂町の地域で発表されています</span>
                 <span class="ra-white-time">発表 --/-- --:--</span>
                 <span class="ra-white-what">警報・注意報など</span>
             </div>
@@ -1714,14 +1802,14 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北島町</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北島町</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北島町</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北島町</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北島町</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北島町</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北島町</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北島町</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
         </div>
     </div>
 
@@ -2865,6 +2953,16 @@
             }));
         } catch (_) {}
     }
+    function cacheRestoreHasUsableDisplay_(data, ecsCacheStale) {
+        if (!data) return false;
+        if (data.wbgtOffSeason && !ECS_ONLY_WBGT) return true;
+        if (data.ecs && ECS_WBGT_ENABLED && !ecsCacheStale) return true;
+        if (data.slots && hasFull4Slots(data.slots) && !ecsCacheStale && !(data.ecs && ECS_WBGT_ENABLED)) return true;
+        if (Number.isInteger(data.signageLevel) && data.signageLevel >= 0) return true;
+        if (Number.isInteger(data.level) && data.level >= 0 && !(data.ecs && ECS_WBGT_ENABLED)) return true;
+        if (data.jmaForecast && data.jmaForecast.forecastJson) return true;
+        return !!(data.amedas);
+    }
     function restoreSignageStateCache_() {
         if (DEMO_SIGNAGE_ACTIVE) return false;
         if (ECS_ONLY_WBGT) enforceEcsWbgtInSeason_();
@@ -2924,7 +3022,7 @@
                 wbgtUnavailable = false;
             }
             if (ECS_ONLY_WBGT) enforceEcsWbgtInSeason_();
-            return !!(data.slots || data.wbgtOffSeason || Number.isInteger(data.level) || data.ecs || data.jmaForecast);
+            return cacheRestoreHasUsableDisplay_(data, ecsCacheStale);
         } catch (_) { return false; }
     }
     /** 再読込直後: localStorage 復元分を即座に画面へ反映（ネットワーク待ちしない） */
@@ -2950,6 +3048,8 @@
             if (ECS_ONLY_WBGT) wbgtOffSeason = false;
             refreshSignageBg();
             buildS1WbgtTrack(false);
+            buildFcLvTrack(false);
+            buildTicker();
             console.log('[キャッシュ] 最終取得データを表示に反映',
                 ecsSnap ? ('WBGT ' + ecsSnap.wbgt + '℃ ' + (ecsSnap.time || '')) : ('level ' + currentWbgtLevel));
         }
@@ -2997,7 +3097,7 @@
     const heatAlertForced = !NO_HEAT_ALERT && (parseHeatAlertParam_().length > 0 || DEMO_SIGNAGE || DEMO_ALERT_ONLY);
     if (!NO_HEAT_ALERT && !heatAlertActive.length && (DEMO_SIGNAGE || DEMO_ALERT_ONLY)) heatAlertActive = ['warning', 'special'];
     const HA_UNIT_W = 256;      /* LEDモジュール1枚の幅 */
-    const HA_L1_MAX = 34;       /* 1段目 最大フォント（256幅に収まる範囲） */
+    const HA_L1_MAX = 40;       /* 1段目 最大フォント（256幅に収まる範囲） */
     const HA_L2_RATIO = 0.58;   /* 2段目は1段目の約58% */
     const HA_SCROLL_PX = 1.2;   /* 文字スクロール速度 px/フレーム（ゆっくりめ） */
     const HA_LAPS_BEFORE_SWITCH = 4; /* 256px×4周で次アラートへ */
@@ -3214,8 +3314,8 @@
         };
     }
     const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '360000';   /* 徳島県 */
-    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '3640200';  /* 北島町 */
-    const JMA_WARN_CITY_LABELS = { '3640200': '北島町', '360000': '徳島県' };
+    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '3640100';  /* 松茂町 */
+    const JMA_WARN_CITY_LABELS = { '3640100': '松茂町', '3640200': '北島町', '360000': '徳島県' };
     let rainWarnMeta = {
         cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || MOE_POINT_CFG.pointName || '佐々木建設株式会社',
         updatedAt: ''
@@ -4569,12 +4669,15 @@
     }
     const FOOT_BAR_SLOT_W = 256;
     const FOOT_BAR_LAP_PX = FOOT_BAR_SLOT_W * 2;
+    const FOOT_BAR_SCROLL_FONT_START_PX_ = 20;
+    const FOOT_BAR_SCROLL_FONT_MIN_PX_ = 12;
+    const FOOT_BAR_SCROLL_FONT_MAX_PX_ = 22;
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
     /** 下帯を何周したら次シーンへ進むか */
     const SCENE1_ADVANCE_LAPS = 1;
     const SCENE1_WBGT_SETS = 3;
-    const COMPANY_LINE_FONT_START_PX_ = 15;
-    const COMPANY_LINE_FONT_MIN_PX_ = 9;
+    const COMPANY_LINE_FONT_START_PX_ = 18;
+    const COMPANY_LINE_FONT_MIN_PX_ = 10;
     /** 下帯なし（時刻のみ）のときの表示時間 */
     const SCENE1_CLOCK_HOLD_MS = 10000;
     const SCENE1_WBGT_HOLD_MS = SCENE1_CLOCK_HOLD_MS;
@@ -4599,6 +4702,7 @@
     const SCENE4_PANEL_COUNT = 4;
     const SCENE4_LAPS = 2;
     const SCENE4_SCROLL_PX = 0.8;
+    const SCENE4_FC_LV_SLOT_W = FOOT_BAR_SLOT_W;
     const SCENE4_LV_LAP_PX = FOOT_BAR_LAP_PX;
     let scene4SetWidth = SCENE4_PANEL_COUNT * 128;
     let scene4AnimId = null;
@@ -4617,12 +4721,12 @@
     const T3_BODY_VERT_PAD = 2;
     const T3_LINE_LH_JP = 1.04;
     const T3_LINE_LH_LATIN = 1.10;
-    const T3_L1_MAX = 56;       /* l1 上限（l1 > l2、l2 は T3_L2_RATIO 倍） */
+    const T3_L1_MAX = 62;       /* l1 上限（l1 > l2、l2 は T3_L2_RATIO 倍） */
     const T3_L2_RATIO = 0.82;
     const T3_LINE_H = 1.02;
     const T3_SCROLL_PX = 0.8;
     const T3_TOP_HA_W = 256;
-    const T3_TOP_HA_FONT_MAX = 20;
+    const T3_TOP_HA_FONT_MAX = 22;
     const T3_LAPS_BEFORE_SWITCH = 1;
     let t3GuidLapPx = SCENE2_META_LAP_PX;
     let t3Messages_ = [];
@@ -4660,6 +4764,32 @@
     function applyGlobalScroll_(el, lapPx) {
         if (!el || !lapPx) return;
         applyScrollX_(el, wrapScrollX_(globalScrollX_, lapPx));
+    }
+    function measureS2MetaFlowLapPx_(trackEl) {
+        if (!trackEl) return SCENE2_META_LAP_PX;
+        const slot = trackEl.querySelector('.s2-meta-slot-flow');
+        if (slot && slot.offsetWidth > 0) return slot.offsetWidth;
+        const setEl = trackEl.querySelector('.s2-meta-set-flow');
+        if (setEl && setEl.offsetWidth > 0) return Math.max(1, Math.floor(setEl.offsetWidth / 2));
+        return SCENE2_META_LAP_PX;
+    }
+    function getScene2MetaLapPx_(trackEl) {
+        const el = trackEl || s2MetaTrack;
+        if (!el) return FOOT_BAR_LAP_PX;
+        if (el.querySelector('.s2-meta-set-scroll')) return FOOT_BAR_LAP_PX;
+        return measureS2MetaFlowLapPx_(el);
+    }
+    function remeasureScene2MetaLapPx_(trackEl) {
+        const el = trackEl || s2MetaTrack;
+        scene2MetaLapPx = getScene2MetaLapPx_(el);
+        applyGlobalScroll_(el, scene2MetaLapPx);
+    }
+    function getFcLvLapPx_() {
+        if (!fcLvTrack) return SCENE4_LV_LAP_PX;
+        const setEl = fcLvTrack.querySelector('.fc-lv-set');
+        if (!setEl) return SCENE4_LV_LAP_PX;
+        if (setEl.classList.contains('fc-lv-set-scroll')) return SCENE4_LV_LAP_PX;
+        return Math.max(SCENE4_LV_LAP_PX, setEl.offsetWidth);
     }
     function getS1FootLapPx_() {
         if (!s1WbgtTrack) return SCENE1_WBGT_LAP_PX;
@@ -4829,36 +4959,117 @@
     function fitS1DateFontSize_() {
         const probe = document.querySelector('#scene1 .panel-clock .s1-bar-label');
         if (!probe) return;
-        const maxW = 120;
-        const setAll = function (fz) {
-            document.querySelectorAll('#scene1 .panel-clock .s1-bar-label').forEach(function (el) {
-                el.style.fontSize = fz + 'px';
-            });
-        };
-        let fz = 20;
-        setAll(fz);
-        let guard = 40;
-        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 13) {
-            fz -= 1;
-            setAll(fz);
-        }
+        fitTextToWidth_(
+            document.querySelectorAll('#scene1 .panel-clock .s1-bar-label'),
+            120, 22, 14, 24
+        );
     }
     function fitClockHmFontSize_() {
         const probe = document.querySelector('#scene1 .panel-clock .clock-hm');
         if (!probe) return;
-        const maxW = 120;
-        const setAll = function (fz) {
-            document.querySelectorAll('#scene1 .panel-clock .time-val').forEach(function (el) {
-                el.style.fontSize = fz + 'px';
+        fitTextToWidth_(
+            document.querySelectorAll('#scene1 .panel-clock .time-val'),
+            120, 48, 30, 52
+        );
+    }
+    /** 帯・ラベル共通: 枠内に収まる最大サイズへ（はみ出し・切れ防止） */
+    function fitTextToWidth_(target, maxW, startPx, minPx, maxPx) {
+        const nodes = !target ? [] : (target.length !== undefined && !target.style ? Array.from(target) : [target]);
+        const probe = nodes[0];
+        if (!probe || !maxW) return startPx;
+        let fz = startPx;
+        const apply = function (size) {
+            nodes.forEach(function (n) {
+                if (!n) return;
+                n.style.fontSize = size + 'px';
             });
         };
-        let fz = 42;
-        setAll(fz);
-        let guard = 40;
-        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 28) {
-            fz -= 1;
-            setAll(fz);
+        apply(fz);
+        const cap = maxPx != null ? maxPx : startPx;
+        let grow = 48;
+        while (grow-- > 0 && fz < cap) {
+            apply(fz + 1);
+            if (probe.scrollWidth > maxW) {
+                apply(fz);
+                break;
+            }
+            fz += 1;
         }
+        let shrink = 64;
+        while (shrink-- > 0 && probe.scrollWidth > maxW && fz > minPx) {
+            fz -= 1;
+            apply(fz);
+        }
+        return fz;
+    }
+    function fitFcLvFootText_() {
+        const nodes = Array.from(document.querySelectorAll('#scene4 .fc-lv-bar .fc-lv-msg-compact'));
+        if (!nodes.length) return;
+        const maxW = SCENE4_FC_LV_SLOT_W - 12;
+        let probe = nodes[0];
+        nodes.forEach(function (el) {
+            if ((el.textContent || '').length > (probe.textContent || '').length) probe = el;
+        });
+        const fz = fitTextToWidth_(
+            probe, maxW,
+            FOOT_BAR_SCROLL_FONT_START_PX_,
+            FOOT_BAR_SCROLL_FONT_MIN_PX_,
+            FOOT_BAR_SCROLL_FONT_MAX_PX_
+        );
+        nodes.forEach(function (el) {
+            el.style.fontSize = fz + 'px';
+        });
+    }
+    function fitFootBandCompact_() {
+        document.querySelectorAll('.s1-wbgt-msg-compact').forEach(function (el) {
+            const maxW = el.closest('.s1-wbgt-slot-wide') ? 500 : FOOT_BAR_SLOT_W - 12;
+            fitTextToWidth_(el, maxW, 18, 10, 21);
+        });
+    }
+    function fitScene2MetaFootText_() {
+        const nodes = Array.from(document.querySelectorAll('#scene2 .s2-meta-bar .s2-meta-msg-compact'));
+        if (nodes.length) {
+            const maxW = FOOT_BAR_SLOT_W - 12;
+            let probe = nodes[0];
+            nodes.forEach(function (el) {
+                if ((el.textContent || '').length > (probe.textContent || '').length) probe = el;
+            });
+            const fz = fitTextToWidth_(
+                probe, maxW,
+                FOOT_BAR_SCROLL_FONT_START_PX_,
+                FOOT_BAR_SCROLL_FONT_MIN_PX_,
+                FOOT_BAR_SCROLL_FONT_MAX_PX_
+            );
+            nodes.forEach(function (el) {
+                el.style.fontSize = fz + 'px';
+            });
+            return;
+        }
+        document.querySelectorAll('#scene2 .s2-meta-bar .s2-meta-msg-scroll').forEach(function (el) {
+            const bar = el.closest('.s2-meta-bar');
+            const maxH = bar && bar.clientHeight > 0 ? bar.clientHeight - 1 : 27;
+            let fz = FOOT_BAR_SCROLL_FONT_START_PX_;
+            const minFz = FOOT_BAR_SCROLL_FONT_MIN_PX_;
+            const maxFz = FOOT_BAR_SCROLL_FONT_MAX_PX_;
+            const apply = function () {
+                el.style.fontSize = fz + 'px';
+                el.style.lineHeight = maxH + 'px';
+            };
+            apply();
+            while (fz < maxFz) {
+                fz += 1;
+                apply();
+                if (el.scrollHeight > maxH) {
+                    fz -= 1;
+                    apply();
+                    break;
+                }
+            }
+            while (fz > minFz && el.scrollHeight > maxH) {
+                fz -= 1;
+                apply();
+            }
+        });
     }
     function ensureClockHmStructure_(el) {
         if (el.querySelector('.clock-h') && el.querySelector('.clock-m')) return;
@@ -4949,21 +5160,11 @@
         return `<span class="fc-wbgt-num">${Number(wbgt).toFixed(1)}</span><span class="fc-wbgt-unit">℃</span>`;
     }
     function fitFcBarLabelFontSize_() {
-        const probe = document.querySelector('#scene4 .fc-bar-label');
-        if (!probe) return;
-        const maxW = 120;
-        const setAll = function (fz) {
-            document.querySelectorAll('#scene4 .fc-bar-label').forEach(function (el) {
-                el.style.fontSize = fz + 'px';
-            });
-        };
-        let fz = 20;
-        setAll(fz);
-        let guard = 40;
-        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 13) {
-            fz -= 1;
-            setAll(fz);
-        }
+        if (!document.querySelector('#scene4 .fc-bar-label')) return;
+        fitTextToWidth_(
+            document.querySelectorAll('#scene4 .fc-bar-label'),
+            120, 22, 14, 24
+        );
     }
     /** WBGT数値: 計測中は非表示にし、最終サイズだけ一度だけ適用（大→小のチラつき防止） */
     function fitNumUnitInBox_(wrap, num, unit, opts) {
@@ -4984,7 +5185,7 @@
                 const mid = Math.floor((lo + hi) / 2);
                 num.style.fontSize = mid + 'px';
                 if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(mid * unitRatio)) + 'px';
-                if (wrap.scrollWidth <= maxW && wrap.scrollHeight <= maxH) {
+                if (wrap.scrollWidth <= maxW - 2 && wrap.scrollHeight <= maxH - 1) {
                     best = mid;
                     lo = mid + 1;
                 } else {
@@ -5001,7 +5202,7 @@
     function fitFcWbgtFontSize() {
         document.querySelectorAll('#scene4 .fc-wbgt').forEach(function (wrap) {
             fitNumUnitInBox_(wrap, wrap.querySelector('.fc-wbgt-num'), wrap.querySelector('.fc-wbgt-unit'), {
-                maxW: 112, maxH: 64, minSz: 32, maxSz: 56, unitMin: 12, unitRatio: 0.36
+                maxW: 118, maxH: 60, minSz: 26, maxSz: 44, unitMin: 11, unitRatio: 0.3
             });
         });
     }
@@ -5228,7 +5429,9 @@
     }
     function hasEcsDisplayOnScreen_() {
         if (getEcsSnapshotForDisplay_()) return true;
-        return !!(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_));
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) return true;
+        if (ECS_ONLY_WBGT && currentWbgtLevel >= 0) return true;
+        return false;
     }
     function syncEcsDisplayFromLastGood_() {
         const snap = getEcsSnapshotForDisplay_();
@@ -5238,38 +5441,45 @@
             refreshSignageBgIfChanged_();
         }
     }
+    function scene2MetaSetHasSeamlessSlots_(trackEl) {
+        const set = trackEl && trackEl.querySelector('.s2-meta-set-scroll');
+        if (!set) return false;
+        return set.querySelectorAll('.s2-meta-slot-256').length >= 2;
+    }
     function patchScene2MetaTrackEcsFetching_() {
         if (!s2MetaTrack) return false;
-        const locEl = s2MetaTrack.querySelector('.s2-meta-loc');
-        if (!locEl) return false;
+        if (!scene2MetaSetHasSeamlessSlots_(s2MetaTrack)) return false;
+        const locEls = s2MetaTrack.querySelectorAll('.s2-meta-loc');
+        if (!locEls.length) return false;
         const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
-        locEl.textContent = loc;
-        s2MetaTrack.querySelectorAll('.s2-meta-group:not(.s2-meta-loc)').forEach(function (el) {
+        locEls.forEach(function (el) { el.textContent = loc; });
+        s2MetaTrack.querySelectorAll('.s2-meta-data').forEach(function (el) {
             el.textContent = 'WBGT・気温・黒球温度・湿度：取得中…';
         });
+        fitScene2MetaFootText_();
+        remeasureScene2MetaLapPx_(s2MetaTrack);
         return true;
     }
     function buildScene2MetaTrackEcsFetching_() {
         if (!s2MetaTrack) return;
         if (patchScene2MetaTrackEcsFetching_()) return;
         const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
-        const inner = '<span class="s2-meta-group s2-meta-loc">' + escapeS1Html(loc) + '</span>' +
-            '<span class="s2-meta-group">' + escapeS1Html('WBGT・気温・黒球温度・湿度：取得中…') + '</span>';
-        const msg = '<span class="s2-meta-msg-scroll s2-meta-msg-groups">' + inner + '</span>';
-        const slot = '<div class="s2-meta-slot s2-meta-slot-flow">' + msg + '</div>';
         let html = '';
         for (let i = 0; i < SCENE2_META_SETS; i++) {
-            html += '<div class="s2-meta-set s2-meta-set-flow">' + slot + '</div>';
+            html += buildScene2MetaScrollSetHtml_(loc, 'WBGT・気温・黒球温度・湿度：取得中…');
         }
         s2MetaTrack.innerHTML = html;
-        const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
-        scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
-        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
+        fitScene2MetaFootText_();
+        remeasureScene2MetaLapPx_(s2MetaTrack);
     }
     function clearEcsDisplayFromDom_() {
         if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID) return;
         if (hasEcsDisplayOnScreen_() || (mainLoopStarted_ && getActiveScene())) {
             syncEcsDisplayFromLastGood_();
+            return;
+        }
+        if (ECS_ONLY_WBGT && currentWbgtLevel >= 0) {
+            refreshSignageBgIfChanged_(true);
             return;
         }
         setTextAll('.wbgt-live-val', '--');
@@ -5334,30 +5544,33 @@
         if (patchScene2MetaTrackEcs_(snap)) return;
         const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
         const obsTime = formatEcsObsTime_(snap.time) || '--';
-        const inner = '<span class="s2-meta-group s2-meta-loc">' + escapeS1Html(loc) + '</span>' +
-            '<span class="s2-meta-group">' + escapeS1Html('WBGT・気温・黒球温度・湿度：' + obsTime) + '</span>';
-        const msg = '<span class="s2-meta-msg-scroll s2-meta-msg-groups">' + inner + '</span>';
-        const slot = '<div class="s2-meta-slot s2-meta-slot-flow">' + msg + '</div>';
+        const metaText = 'WBGT・気温・黒球温度・湿度：' + obsTime;
         let html = '';
         for (let i = 0; i < SCENE2_META_SETS; i++) {
-            html += '<div class="s2-meta-set s2-meta-set-flow">' + slot + '</div>';
+            html += buildScene2MetaScrollSetHtml_(loc, metaText);
         }
         s2MetaTrack.innerHTML = html;
-        const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
-        scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
-        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
+        fitScene2MetaFootText_();
+        remeasureScene2MetaLapPx_(s2MetaTrack);
+        requestAnimationFrame(function () {
+            fitScene2MetaFootText_();
+            remeasureScene2MetaLapPx_(s2MetaTrack);
+        });
     }
     function patchScene2MetaTrackEcs_(snap) {
         if (!s2MetaTrack || !snap) return false;
-        const locEl = s2MetaTrack.querySelector('.s2-meta-loc');
-        if (!locEl) return false;
+        if (!scene2MetaSetHasSeamlessSlots_(s2MetaTrack)) return false;
+        const locEls = s2MetaTrack.querySelectorAll('.s2-meta-loc');
+        if (!locEls.length) return false;
         const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
         const obsTime = formatEcsObsTime_(snap.time) || '--';
         const metaText = 'WBGT・気温・黒球温度・湿度：' + obsTime;
-        locEl.textContent = loc;
-        s2MetaTrack.querySelectorAll('.s2-meta-group:not(.s2-meta-loc)').forEach(function (el) {
+        locEls.forEach(function (el) { el.textContent = loc; });
+        s2MetaTrack.querySelectorAll('.s2-meta-data').forEach(function (el) {
             el.textContent = metaText;
         });
+        fitScene2MetaFootText_();
+        remeasureScene2MetaLapPx_(s2MetaTrack);
         return true;
     }
     function applyEcsSensorToDom_(snap) {
@@ -5674,6 +5887,7 @@
         pendingDisplayRefresh = false;
         flushPendingForecastSlots_();
         refreshS1WbgtFootBar_(false);
+        fitFootBandCompact_();
         if (lastAmedasObsTime) buildScene2MetaTrack(lastAmedasObsTime);
         buildTicker();
         buildFcLvTrack(false);
@@ -6118,12 +6332,10 @@
         const maxW = 120;
         const maxH = 68;
         document.querySelectorAll('#scene5 .s2-bar-label').forEach(function (el) {
-            let size = 22;
-            el.style.fontSize = size + 'px';
-            while (size > 14 && el.scrollWidth > maxW) {
-                size -= 1;
-                el.style.fontSize = size + 'px';
-            }
+            fitTextToWidth_(el, maxW, 24, 14, 26);
+        });
+        document.querySelectorAll('#scene5 .s2-foot .s2-loc').forEach(function (el) {
+            fitTextToWidth_(el, 118, 17, 11, 19);
         });
         document.querySelectorAll('#scene5 .d5-weather-row').forEach(function (row) {
             const icon = row.querySelector('.weather-svg');
@@ -6131,10 +6343,10 @@
             const wrap = row.querySelector('.s2-val');
             const num = wrap && wrap.querySelector('.d5-temp');
             if (!num) return;
-            let iconSz = 58;
-            let sepSz = 38;
-            let numSz = 52;
-            let unitSz = 24;
+            let iconSz = 64;
+            let sepSz = 40;
+            let numSz = 60;
+            let unitSz = 18;
             const apply = function () {
                 if (icon) { icon.style.width = iconSz + 'px'; icon.style.height = iconSz + 'px'; }
                 if (sep) sep.style.fontSize = sepSz + 'px';
@@ -6149,10 +6361,9 @@
             let growGuard = 24;
             while (growGuard-- > 0) {
                 const prev = { iconSz: iconSz, sepSz: sepSz, numSz: numSz, unitSz: unitSz };
-                if (numSz < 56) numSz += 1;
-                else if (iconSz < 62) iconSz += 1;
-                else if (sepSz < 42) sepSz += 1;
-                else if (unitSz < 26) unitSz += 1;
+                if (numSz < 64) numSz += 1;
+                else if (iconSz < 68) iconSz += 1;
+                else if (sepSz < 44) sepSz += 1;
                 else break;
                 apply();
                 if (overflows()) {
@@ -6163,10 +6374,10 @@
             }
             let guard = 60;
             while (guard-- > 0 && overflows()) {
+                if (unitSz > 12) { unitSz -= 1; apply(); continue; }
                 if (numSz > 30) { numSz -= 1; apply(); continue; }
                 if (iconSz > 38) { iconSz -= 2; apply(); continue; }
                 if (sepSz > 26) { sepSz -= 1; apply(); continue; }
-                if (unitSz > 16) { unitSz -= 1; apply(); continue; }
                 break;
             }
         });
@@ -6248,11 +6459,25 @@
             return `<span class="s2-meta-group">${escapeS1Html(g.labels + '：' + g.text)}</span>`;
         }).join('');
     }
+    function buildScene2MetaSlotsHtml_(loc, metaText) {
+        const locSlot = '<div class="s2-meta-slot s2-meta-slot-256"><span class="s2-meta-msg-compact s2-meta-loc">' +
+            escapeS1Html(loc) + '</span></div>';
+        const dataSlot = '<div class="s2-meta-slot s2-meta-slot-256"><span class="s2-meta-msg-compact s2-meta-data">' +
+            escapeS1Html(metaText) + '</span></div>';
+        return locSlot + dataSlot;
+    }
+    function buildScene2MetaScrollSetHtml_(loc, metaText) {
+        const slots = buildScene2MetaSlotsHtml_(loc, metaText);
+        return '<div class="s2-meta-set s2-meta-set-scroll">' + slots + slots + '</div>';
+    }
+    function buildScene2MetaFlowSetHtml_(slot) {
+        return '<div class="s2-meta-set s2-meta-set-flow">' + slot + slot + '</div>';
+    }
     function buildScene2MetaSetHtml(obs) {
-        const inner = buildScene2MetaGroupsHtml_(obs);
-        const msg = `<span class="s2-meta-msg-scroll s2-meta-msg-groups">${inner}</span>`;
-        const slot = `<div class="s2-meta-slot s2-meta-slot-flow">${msg}</div>`;
-        return `<div class="s2-meta-set s2-meta-set-flow">${slot}</div>`;
+        const loc = getSiteLocationLabel_();
+        const groups = buildScene2MetaGroups_(obs);
+        const metaLine = groups.map(function (g) { return g.labels + '：' + g.text; }).join('　');
+        return buildScene2MetaScrollSetHtml_(loc, metaLine);
     }
     function buildScene2MetaTrack(latest) {
         if (!s2MetaTrack) return;
@@ -6270,15 +6495,18 @@
         const groups = buildScene2MetaGroups_(obs);
         if (!groups.length) {
             s2MetaTrack.innerHTML = '';
-            scene2MetaLapPx = SCENE2_META_LAP_PX;
+            scene2MetaLapPx = FOOT_BAR_LAP_PX;
             return;
         }
         let html = '';
         for (let i = 0; i < SCENE2_META_SETS; i++) html += buildScene2MetaSetHtml(obs);
         s2MetaTrack.innerHTML = html;
-        const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
-        scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
-        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
+        fitScene2MetaFootText_();
+        remeasureScene2MetaLapPx_(s2MetaTrack);
+        requestAnimationFrame(function () {
+            fitScene2MetaFootText_();
+            remeasureScene2MetaLapPx_(s2MetaTrack);
+        });
     }
     function applyJmaAmedasToDom(obs, latest) {
         if (latest) lastAmedasObsTime = latest instanceof Date ? latest : new Date(latest);
@@ -6332,23 +6560,12 @@
     function fitScene2BodyText() {
         const maxW = 116;
         document.querySelectorAll('#scene2 .s2-bar-label').forEach(el => {
-            let size = 20;
-            const minSize = 14;
-            el.style.fontSize = size + 'px';
-            while (size > minSize && el.scrollWidth > maxW) {
-                size -= 1;
-                el.style.fontSize = size + 'px';
-            }
+            fitTextToWidth_(el, maxW, 22, 14, 24);
         });
         document.querySelectorAll('#scene2 .s2-dir-text').forEach(el => {
-            let size = 20;
-            let minSize = 14;
-            if (el.classList.contains('dir-val')) { size = 34; minSize = 24; }
-            el.style.fontSize = size + 'px';
-            while (size > minSize && el.scrollWidth > maxW) {
-                size -= 1;
-                el.style.fontSize = size + 'px';
-            }
+            const start = el.classList.contains('dir-val') ? 36 : 22;
+            const min = el.classList.contains('dir-val') ? 24 : 14;
+            fitTextToWidth_(el, maxW, start, min, start + 4);
         });
         document.querySelectorAll('#scene2 .s2-tmaxmin-card').forEach(card => {
             const hi = card.querySelector('.tmaxmax-val');
@@ -6378,7 +6595,7 @@
         });
         const ecsWraps = document.querySelectorAll('#scene2 .s2-val');
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && ecsWraps.length) {
-            const ecsOpts = { maxW: 116, maxH: 64, minSz: 32, maxSz: 56, unitMin: 12, unitRatio: 0.36 };
+            const ecsOpts = { maxW: 116, maxH: 64, minSz: 36, maxSz: 62, unitMin: 14, unitRatio: 0.36 };
             let unified = ecsOpts.maxSz;
             ecsWraps.forEach(function (wrap) {
                 const num = wrap.querySelector('.s2-num');
@@ -6398,9 +6615,9 @@
             const num = wrap.querySelector('.s2-num');
             const unit = wrap.querySelector('.s2-unit');
             if (!num) return;
-            let size = 40;
+            let size = 44;
             num.style.fontSize = size + 'px';
-            while (size > 24 && wrap.scrollWidth > maxW) {
+            while (size > 26 && wrap.scrollWidth > maxW) {
                 size -= 1;
                 num.style.fontSize = size + 'px';
             }
@@ -6600,7 +6817,7 @@
         if (ECS_CFG.locationLabel) return ECS_CFG.locationLabel;
         if (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) return SITE_CFG.jma.forecastLabel;
         if (SITE_CFG.site && SITE_CFG.site.label) return SITE_CFG.site.label;
-        return '北島町';
+        return '松茂町';
     }
     function buildS1FootCompanyHtml_() {
         const name = getS1SiteCustomerName_();
@@ -6608,27 +6825,13 @@
         return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
     }
     function sizeS1FootCompanyText_() {
-        const maxW = FOOT_BAR_SLOT_W - 12;
         document.querySelectorAll('#scene1 .s1-foot-co-txt').forEach(function (el) {
-            let fz = COMPANY_LINE_FONT_START_PX_;
-            el.style.fontSize = fz + 'px';
-            let guard = 24;
-            while (guard-- > 0 && fz > COMPANY_LINE_FONT_MIN_PX_ && el.scrollWidth > maxW) {
-                fz -= 1;
-                el.style.fontSize = fz + 'px';
-            }
+            fitTextToWidth_(el, FOOT_BAR_SLOT_W - 12, COMPANY_LINE_FONT_START_PX_, COMPANY_LINE_FONT_MIN_PX_, 21);
         });
     }
     function sizeS1FootWbgtText_() {
-        const maxW = FOOT_BAR_SLOT_W - 12;
         document.querySelectorAll('#scene1 .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact').forEach(function (el) {
-            let fz = COMPANY_LINE_FONT_START_PX_;
-            el.style.fontSize = fz + 'px';
-            let guard = 24;
-            while (guard-- > 0 && fz > 8 && el.scrollWidth > maxW) {
-                fz -= 1;
-                el.style.fontSize = fz + 'px';
-            }
+            fitTextToWidth_(el, FOOT_BAR_SLOT_W - 12, COMPANY_LINE_FONT_START_PX_, 10, 21);
         });
     }
     function buildS1FootWbgtSlotHtml_(msgText) {
@@ -6721,40 +6924,45 @@
         const slot = buildFootBarSlotHtml(msg, 's1-wbgt-slot');
         return `<div class="s1-wbgt-set">${slot}${slot}</div>`;
     }
-    function getFcLvText() {
-        return getFootSourceText_();
+    function getFcLvSlotTexts_() {
+        const loc = (ECS_CFG.locationLabel || getSiteLocationLabel_() || '').trim();
+        const src = getFootSourceText_();
+        return [loc || src, src || loc];
     }
-    function buildFcLvMsgHtml(text) {
-        if (footBarUseCompact_(text)) {
-            return `<span class="fc-lv-msg-compact">${escapeS1Html(text)}</span>`;
-        }
-        return `<span class="fc-lv-msg">${buildEvenCharSpans(text, 'fc-lv-ch')}</span>`;
+    function getFcLvTrackKey_() {
+        return getFcLvSlotTexts_().join('\u0001');
     }
-    function buildFcLvSetHtml(text) {
-        const msg = buildFcLvMsgHtml(text);
-        if (footBarUseCompact_(text)) {
-            const slot = `<div class="fc-lv-slot fc-lv-slot-wide">${msg}</div>`;
-            return `<div class="fc-lv-set">${slot}</div>`;
-        }
-        const slot = buildFootBarSlotHtml(msg, 'fc-lv-slot');
-        return `<div class="fc-lv-set">${slot}${slot}</div>`;
+    function buildFcLvSlotHtml_(text) {
+        return `<div class="fc-lv-slot"><span class="fc-lv-msg-compact">${escapeS1Html(text)}</span></div>`;
+    }
+    function buildFcLvSetHtml() {
+        const texts = getFcLvSlotTexts_();
+        let slots = '';
+        texts.forEach(function (t) { slots += buildFcLvSlotHtml_(t); });
+        return `<div class="fc-lv-set fc-lv-set-scroll">${slots}${slots}</div>`;
     }
     function buildFcLvTrack(clearTimers) {
         if (!fcLvTrack) return;
-        const text = getFcLvText();
-        if (text === lastFcLvText_ && fcLvTrack.querySelector('.fc-lv-set')) {
+        const trackKey = getFcLvTrackKey_();
+        if (trackKey === lastFcLvText_ && fcLvTrack.querySelector('.fc-lv-set')) {
             if (clearTimers) clearScene4Timers();
-            applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
+            fitFcLvFootText_();
+            applyGlobalScroll_(fcLvTrack, getFcLvLapPx_());
             return;
         }
-        lastFcLvText_ = text;
+        lastFcLvText_ = trackKey;
         if (clearTimers) clearScene4Timers();
         let html = '';
-        for (let i = 0; i < SCENE4_LV_SETS; i++) html += buildFcLvSetHtml(text);
+        for (let i = 0; i < SCENE4_LV_SETS; i++) html += buildFcLvSetHtml();
         fcLvTrack.innerHTML = html;
-        const setEl = fcLvTrack.querySelector('.fc-lv-set');
-        scene4FcLvLapPx = setEl ? Math.max(SCENE4_LV_LAP_PX, setEl.offsetWidth) : SCENE4_LV_LAP_PX;
+        fitFcLvFootText_();
+        scene4FcLvLapPx = getFcLvLapPx_();
         applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
+        requestAnimationFrame(function () {
+            fitFcLvFootText_();
+            scene4FcLvLapPx = getFcLvLapPx_();
+            applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
+        });
     }
     function clearScene4Timers() {
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
@@ -6776,6 +6984,7 @@
         applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
         sizeS1FootCompanyText_();
         sizeS1FootWbgtText_();
+        fitFootBandCompact_();
         const bar = document.querySelector('#scene1 .s1-wbgt-bar');
         if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
     }
@@ -6896,6 +7105,18 @@
         let f1 = Math.min(HA_L1_MAX, Math.floor((usableH - 2) / (1 + HA_L2_RATIO)));
         let f2 = Math.max(10, Math.round(f1 * HA_L2_RATIO));
         setAll(f1, f2);
+        let grow = 48;
+        while (grow-- > 0 && f1 < HA_L1_MAX) {
+            const nf1 = f1 + 1;
+            const nf2 = Math.max(10, Math.round(nf1 * HA_L2_RATIO));
+            setAll(nf1, nf2);
+            if (probe.scrollWidth > usableW) {
+                setAll(f1, f2);
+                break;
+            }
+            f1 = nf1;
+            f2 = nf2;
+        }
         let g = 120;
         while (probe.scrollWidth > usableW && f1 > 8 && g-- > 0) {
             f1 -= 1;
@@ -7041,19 +7262,10 @@
         const group = '<span class="s2-meta-group">' + escapeS1Html(text) + '</span>';
         const msg = '<span class="s2-meta-msg-scroll s2-meta-msg-groups">' + group + '</span>';
         const slot = '<div class="s2-meta-slot s2-meta-slot-flow">' + msg + '</div>';
-        return '<div class="s2-meta-set s2-meta-set-flow">' + slot + slot + '</div>';
+        return buildScene2MetaFlowSetHtml_(slot);
     }
     function measureT3GuideLapPx_(trackEl) {
-        if (!trackEl) return SCENE2_META_LAP_PX;
-        const slot = trackEl.querySelector('.s2-meta-slot-flow');
-        if (slot && slot.offsetWidth > 0) {
-            return slot.offsetWidth;
-        }
-        const setEl = trackEl.querySelector('.s2-meta-set-flow');
-        if (setEl && setEl.offsetWidth > 0) {
-            return Math.max(1, Math.floor(setEl.offsetWidth / 2));
-        }
-        return SCENE2_META_LAP_PX;
+        return measureS2MetaFlowLapPx_(trackEl);
     }
     function remeasureT3GuideLapPx_(trackEl) {
         t3GuidLapPx = measureT3GuideLapPx_(trackEl);
@@ -7120,6 +7332,16 @@
         const usableW = T3_TOP_HA_W - 8;
         let fz = T3_TOP_HA_FONT_MAX;
         document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
+        let grow = 40;
+        while (grow-- > 0 && fz < T3_TOP_HA_FONT_MAX + 2 && probe.scrollWidth <= usableW) {
+            fz += 1;
+            document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
+            if (probe.scrollWidth > usableW) {
+                fz -= 1;
+                document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
+                break;
+            }
+        }
         let guard = 80;
         while (guard-- > 0 && fz > 8 && probe.scrollWidth > usableW) {
             fz -= 1;
@@ -7184,6 +7406,7 @@
         if (!alertTop) {
             const lvLabel = (wbgtUnavailable || lv < 0) ? '--' : levelNames[lv];
             document.querySelectorAll('#scene3 .t3-lv-static').forEach(function (n) { n.textContent = lvLabel; });
+            fitTextToWidth_(document.querySelectorAll('#scene3 .t3-lv-static'), 120, 22, 14, 24);
         }
         buildT3GuideTrack();
         if (s3 && s3.classList.contains('active') && t3Messages_.length) {
@@ -7453,9 +7676,9 @@
         const barH = bar.clientHeight > 0 ? bar.clientHeight : 28;
         const maxH = barH - 1;
         const targets = document.querySelectorAll('#scene3 .t3-guid-bar .s2-meta-msg-scroll');
-        let fz = 15;
+        let fz = 17;
         const minFz = 11;
-        const maxFz = 17;
+        const maxFz = 20;
         const applyGuide_ = function () {
             targets.forEach(function (n) {
                 n.style.fontSize = fz + 'px';
@@ -7671,7 +7894,13 @@
         } else {
             buildScene2MetaTrack(lastAmedasObsTime);
         }
+        remeasureScene2MetaLapPx_(s2MetaTrack);
+        fitScene2MetaFootText_();
         fitScene2BodyText();
+        requestAnimationFrame(function () {
+            fitScene2MetaFootText_();
+            remeasureScene2MetaLapPx_(s2MetaTrack);
+        });
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
@@ -7684,6 +7913,7 @@
             return;
         }
         let totalScrolled = 0;
+        scene2MetaLapPx = getScene2MetaLapPx_(s2MetaTrack);
         applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
         applyGlobalScroll_(conveyor, scene2SetWidth);
         conveyor.style.transition = 'none';
@@ -7730,10 +7960,15 @@
             syncWbgtSlotsToDomIfReady_();
         }
         buildFcLvTrack(false);
+        scene4FcLvLapPx = getFcLvLapPx_();
         compactScene4Panels();
         applyPendingSignageBgAtScene_();
         fitFcBarLabelFontSize_();
         fitFcWbgtFontSize();
+        requestAnimationFrame(function () {
+            fitFcWbgtFontSize();
+            fitFcLvFootText_();
+        });
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
             scheduleDemoStep_(finishScene4);
@@ -8005,7 +8240,7 @@
             if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
             updateClock();
             startClockTicker();
-            if (cacheRestored || hasEcsDisplayOnScreen_()) {
+            if (cacheRestored) {
                 applyRestoredSignageCacheToDom_();
                 signageUiPrimed_ = true;
             }
@@ -8050,7 +8285,7 @@
     window.onload = async function() {
         if (!signageBootDone_) signageImmediateBoot_();
         if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && !DEMO_SIGNAGE_ACTIVE) {
-            const needEcsFetch = !lastEcsSnapshot_ || !isEcsSnapshotDisplayable_(lastEcsSnapshot_);
+            const needEcsFetch = !hasEcsDisplayOnScreen_();
             if (needEcsFetch) {
                 bootstrapEcsData_().then(function (ecsBootSlots) {
                     if (ecsBootSlots) {
@@ -8069,7 +8304,7 @@
         } else if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
             clearEcsDisplayFromDom_();
         }
-        const forecastLocLabel = (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) || '北島町';
+        const forecastLocLabel = (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) || '松茂町';
         document.querySelectorAll('#scene5 .s2-loc').forEach(function (el) {
             el.textContent = forecastLocLabel;
         });
@@ -8113,8 +8348,7 @@
             primeSignageUiOnce_();
         } else {
             try {
-                buildFcLvTrack(false);
-                buildTicker();
+                refreshS1WbgtFootBar_(false);
             } catch (err) {
                 console.warn('Init ticker:', err);
             }
