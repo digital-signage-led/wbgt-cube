@@ -2310,8 +2310,8 @@
         { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"Aman: Minum air cukup", fil:"Halos ligtas: Uminom ng tubig", vn:"An toàn: Bổ sung nước" },
         { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"Waspada: Minum air aktif", fil:"Babala: Uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
         { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"Siaga: Istirahat rutin", fil:"Alerto: Magpahinga", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
-        { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
-        { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
+        { jp:"【厳重警戒】こまめに休憩・体調確認", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
+        { jp:"【危険】休憩・水分塩分補給を徹底", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
     ];
     const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
     const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
@@ -2329,13 +2329,13 @@
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
     const T3_WBGT_GUIDE_TIERS = [
-        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '過去に例のない危険な暑さとなり、重大な健康上の被害が生じる恐れがある。' },
-        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '熱中症による健康上の被害が生じる恐れがある。' },
-        { range: '31以上', color: '赤', title: '危険', guide: '安静時でも熱中症になる危険性が大きい。外出はなるべく避け、運動や作業は原則中止する。' },
-        { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '外出時は炎天下を避け、室内でも室温の上昇に注意する。10～20分おきに水分や塩分を補給し、激しい運動や作業は避ける。' },
-        { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給を行う。激しい運動や作業をする場合には、30分おきくらいに休憩を入れる。' },
-        { range: '21～25未満', color: '水色', title: '注意', guide: '激しい運動や重労働をする場合には、十分注意する。熱中症の兆候に注意し、積極的に水分や塩分を補給する。' },
-        { range: '21未満', color: '青', title: 'ほぼ安全', guide: '熱中症の危険性は少ないが、水分や塩分の補給は必要。' }
+        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '記録的な暑さです。無理をせず、涼しい場所での休憩と水分・塩分補給を最優先にしてください。' },
+        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '危険な暑さです。こまめな休憩と水分・塩分補給を徹底し、体調の変化に注意してください。' },
+        { range: '31以上', color: '赤', title: '危険', guide: '熱中症の危険性が非常に高い状態です。休憩の間隔を短くし、水分・塩分補給と体調確認を徹底してください。' },
+        { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '炎天下を避け、10～20分おきに水分や塩分を補給してください。負荷の高い作業は控えめにしましょう。' },
+        { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給してください。負荷の高い作業では30分おきに休憩を入れましょう。' },
+        { range: '21～25未満', color: '水色', title: '注意', guide: '熱中症の兆候に注意し、こまめに水分や塩分を補給してください。' },
+        { range: '21未満', color: '青', title: 'ほぼ安全', guide: '熱中症の危険性は低い状態です。引き続き水分や塩分の補給を心掛けましょう。' }
     ];
     /* levelIdx 0〜4 → T3_WBGT_GUIDE_TIERS のインデックス（31以上〜21未満） */
     const T3_GUIDE_TIER_BY_LEVEL = [6, 5, 4, 3, 2];
@@ -5463,7 +5463,19 @@
         const inner = buildScene2MetaGroupsHtml_(obs);
         const msg = `<span class="s2-meta-msg-scroll s2-meta-msg-groups">${inner}</span>`;
         const slot = `<div class="s2-meta-slot s2-meta-slot-flow">${msg}</div>`;
-        return `<div class="s2-meta-set s2-meta-set-flow">${slot}</div>`;
+        return `<div class="s2-meta-set s2-meta-set-flow">${slot}${slot}</div>`;
+    }
+    function measureScene2MetaLapPx_(trackEl) {
+        if (!trackEl) return SCENE2_META_LAP_PX;
+        const slot = trackEl.querySelector('.s2-meta-slot-flow');
+        if (slot && slot.offsetWidth > 0) {
+            return Math.max(SCENE2_META_LAP_PX, slot.offsetWidth);
+        }
+        const setEl = trackEl.querySelector('.s2-meta-set-flow');
+        if (setEl && setEl.offsetWidth > 0) {
+            return Math.max(SCENE2_META_LAP_PX, Math.floor(setEl.offsetWidth / 2));
+        }
+        return SCENE2_META_LAP_PX;
     }
     function buildScene2MetaTrack(latest) {
         if (!s2MetaTrack) return;
@@ -5478,9 +5490,14 @@
         let html = '';
         for (let i = 0; i < SCENE2_META_SETS; i++) html += buildScene2MetaSetHtml(obs);
         s2MetaTrack.innerHTML = html;
-        const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
-        scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
-        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
+        scene2MetaLapPx = measureScene2MetaLapPx_(s2MetaTrack);
+        applyScene2Scroll_();
+    }
+    function applyScene2Scroll_() {
+        if (!scene2SetWidth) return;
+        normalizeGlobalScroll_(scene2SetWidth);
+        if (conveyor) applyScrollX_(conveyor, globalScrollX_);
+        if (s2MetaTrack) applyScrollX_(s2MetaTrack, wrapScrollX_(globalScrollX_, scene2MetaLapPx));
     }
     function applyJmaAmedasToDom(obs, latest) {
         if (latest) lastAmedasObsTime = latest instanceof Date ? latest : new Date(latest);
@@ -6239,7 +6256,11 @@
     }
     function remeasureT3GuideLapPx_(trackEl) {
         t3GuidLapPx = measureT3GuideLapPx_(trackEl);
-        if (trackEl) applyGlobalScroll_(trackEl, t3GuidLapPx);
+        if (trackEl && s3 && s3.classList.contains('active')) {
+            applyScrollX_(trackEl, wrapScrollX_(globalScrollX_, t3GuidLapPx));
+        } else if (trackEl) {
+            applyScrollX_(trackEl, wrapScrollX_(globalScrollX_, t3GuidLapPx));
+        }
     }
     /** 環境省発表または ?heatalert= 指定時のみアラート指針を下帯に出す（フルデモの仮アラートは除く） */
     function isHeatAlertPublishedForGuide_() {
@@ -6624,17 +6645,42 @@
         globalScrollX_ = Math.round(globalScrollX_ / lapW) * lapW;
         return wrapScrollX_(globalScrollX_, lapW);
     }
+    /** 現在の言語表示開始位置からのスクロール量（px・左方向が正） */
+    function t3LangScrollDist_(anchorX) {
+        return (anchorX != null ? anchorX : 0) - globalScrollX_;
+    }
+    function beginT3LangCycle_(langIdx, tracks) {
+        const idx = langIdx != null ? langIdx : 0;
+        t3LangIdx_ = idx;
+        if (t3Flow_) {
+            t3Flow_.langIdx = idx;
+            t3Flow_.laps = 0;
+            t3Flow_.langAnchorX_ = globalScrollX_;
+        }
+        setT3Lang_(idx);
+        const x = wrapScrollX_(globalScrollX_, T3_UNIT_W);
+        if (tracks && tracks.length) applyT3TrackX_(tracks, x);
+        else {
+            document.querySelectorAll('#scene3 .t3-track').forEach(function (t) {
+                applyScrollX_(t, x);
+            });
+        }
+        return x;
+    }
     function applyT3TrackX_(tracks, x) {
-        const tx = scrollPx_(x);
+        const tx = typeof x === 'number' ? x : wrapScrollX_(globalScrollX_, T3_UNIT_W);
         tracks.forEach(function (t) { applyScrollX_(t, tx); });
         syncT3TopHaScroll_(tx);
     }
+    function applyScene3Scroll_(tracks, guidTrack) {
+        const tx = wrapScrollX_(globalScrollX_, T3_UNIT_W);
+        if (tracks && tracks.length) applyT3TrackX_(tracks, tx);
+        if (guidTrack && getT3GuideTierForDisplay_()) {
+            applyScrollX_(guidTrack, wrapScrollX_(globalScrollX_, t3GuidLapPx));
+        }
+    }
     function prepT3_(idx) {
-        setT3Lang_(idx || 0);
-        const x = wrapScrollX_(globalScrollX_, T3_UNIT_W);
-        document.querySelectorAll('#scene3 .t3-track').forEach(function (t) {
-            applyScrollX_(t, x);
-        });
+        beginT3LangCycle_(idx || 0, null);
     }
     function buildTicker() {
         syncScene3Display_();
@@ -6669,34 +6715,36 @@
         t3Flow_ = {
             x: wrapScrollX_(globalScrollX_, T3_UNIT_W),
             langIdx: 0,
-            laps: 0
+            laps: 0,
+            langAnchorX_: globalScrollX_
         };
         applyT3TrackX_(tracks, t3Flow_.x);
         function step() {
-            const prevX = t3Flow_.x;
             advanceGlobalScroll_(getScrollSpeedPx_());
             t3Flow_.x = wrapScrollX_(globalScrollX_, T3_UNIT_W);
-            if (detectScrollLapCrossed_(prevX, t3Flow_.x)) {
-                t3Flow_.laps += 1;
-                if (t3Flow_.laps >= T3_LAPS_BEFORE_SWITCH) {
-                    t3Flow_.laps = 0;
-                    t3Flow_.langIdx += 1;
-                    if (t3Flow_.langIdx >= t3Messages_.length) {
-                        if (demoOnlyLoop_('s3', playScene3)) return;
+            const langLapPx = T3_UNIT_W * T3_LAPS_BEFORE_SWITCH;
+            if (t3LangScrollDist_(t3Flow_.langAnchorX_) >= langLapPx) {
+                t3Flow_.langAnchorX_ = globalScrollX_;
+                t3Flow_.laps = 0;
+                t3Flow_.langIdx += 1;
+                if (t3Flow_.langIdx >= t3Messages_.length) {
+                    if (demoOnlyLoop_('s3', playScene3)) return;
+                    if (DEMO_PREVIEW === 's3') {
                         tickerAnimId = null;
                         t3Flow_ = null;
-                        stopLogoSpinInterval();
-                        gotoAfterScene3_();
+                        playScene3();
                         return;
                     }
-                    t3Flow_.x = snapT3ScrollToLap_(T3_UNIT_W);
-                    setT3Lang_(t3Flow_.langIdx);
+                    tickerAnimId = null;
+                    t3Flow_ = null;
+                    stopLogoSpinInterval();
+                    gotoAfterScene3_();
+                    return;
                 }
+                setT3Lang_(t3Flow_.langIdx);
+                t3LangIdx_ = t3Flow_.langIdx;
             }
-            applyT3TrackX_(tracks, t3Flow_.x);
-            if (guidTrack && getT3GuideTierForDisplay_()) {
-                applyGlobalScroll_(guidTrack, t3GuidLapPx);
-            }
+            applyScene3Scroll_(tracks, guidTrack);
             tickerAnimId = requestAnimationFrame(step);
         }
         tickerAnimId = requestAnimationFrame(step);
@@ -6773,6 +6821,9 @@
         applyPendingSignageBgAtScene_();
         compactScene2Panels();
         buildScene2MetaTrack(lastAmedasObsTime);
+        requestAnimationFrame(function () {
+            scene2MetaLapPx = measureScene2MetaLapPx_(s2MetaTrack);
+        });
         fitScene2BodyText();
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
         stepLogo90(420, true);
@@ -6785,16 +6836,13 @@
             gotoSceneAfterScene2_();
             return;
         }
-        let totalScrolled = 0;
-        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
-        applyGlobalScroll_(conveyor, scene2SetWidth);
-        conveyor.style.transition = 'none';
+        const anchorX = globalScrollX_;
+        if (conveyor) conveyor.style.transition = 'none';
+        applyScene2Scroll_();
         function animateScene2() {
             advanceGlobalScroll_(getScrollSpeedPx_());
-            totalScrolled += getScrollSpeedPx_();
-            applyGlobalScroll_(conveyor, scene2SetWidth);
-            applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
-            if (totalScrolled >= scene2ScrollTotal) {
+            applyScene2Scroll_();
+            if (anchorX - globalScrollX_ >= scene2ScrollTotal) {
                 scene2AnimId = null;
                 stopLogoSpinInterval();
                 if (demoOnlyLoop_('s2', playScene2)) return;
@@ -7045,13 +7093,11 @@
             return;
         }
         if (sceneKey === 's3') {
-            buildTicker();
-            const tracks = document.querySelectorAll('#scene3 .t3-track');
-            prepT3_(0);
-            applyT3TrackX_(tracks, 0);
             if (s3) { s3.style.display = 'flex'; s3.classList.add('active'); }
             if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = 'プレビュー · ' + SCENE_LABEL_BY_KEY.s3 + ' · ' + rainTag; }
             document.title = 'プレビュー ' + SCENE_LABEL_BY_KEY.s3 + '（' + rainTag + '）';
+            playScene3();
+            return;
         }
     }
 
