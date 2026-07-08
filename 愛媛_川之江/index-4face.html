@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- wbgt-cube-4face / 井原工業 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 同階層: assets/ihara_logo.png（時刻下の下帯） -->
 <!-- 会場: 四国中央市（川之江） -->
@@ -46,6 +46,7 @@
             --led-col-main-h: 100px;
             --led-foot-font: 15px;
             --led-foot-site-font: 15px;
+            --led-wbgt-msg-font: 18px;
         }
         body { margin: 0; padding: 0; background-color: #1a1a1a; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
         .demo-badge {
@@ -354,6 +355,7 @@
         .s1-wbgt-site-slot {
             display: flex; align-items: center; justify-content: center;
             padding: 0 2px; box-sizing: border-box;
+            overflow: hidden;
         }
         #scene1 .s1-wbgt-site-slot .s1-wbgt-banner {
             display: block; margin: 0 auto;
@@ -401,8 +403,18 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             max-width: 196px; flex-shrink: 1;
         }
-        .s1-wbgt-msg-slot .s1-wbgt-msg-compact {
-            padding: 0 4px; text-align: center;
+        #scene1 .s1-wbgt-msg-slot .s1-wbgt-msg-compact,
+        #scene1 .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact {
+            font-size: var(--led-wbgt-msg-font);
+            display: inline-block;
+            width: auto;
+            max-width: 244px;
+            vertical-align: middle;
+        }
+        .s1-wbgt-msg-slot {
+            overflow: hidden;
+            padding: 0 4px;
+            box-sizing: border-box;
         }
 
         .s2-panel, .s2-panel-data { width: 128px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-sizing: border-box; flex-shrink: 0; overflow: hidden; border: none; outline: none; background: transparent; box-shadow: none; }
@@ -4333,6 +4345,7 @@
     const SCENE1_WBGT_SETS = 3;
     const COMPANY_LINE_FONT_START_PX_ = 15;
     const COMPANY_LINE_FONT_MIN_PX_ = 9;
+    const S1_WBGT_MSG_FONT_START_PX_ = 18;
     /** 下帯なし（時刻のみ）のときの表示時間 */
     const SCENE1_CLOCK_HOLD_MS = 10000;
     const SCENE1_WBGT_HOLD_MS = SCENE1_CLOCK_HOLD_MS;
@@ -5978,11 +5991,15 @@
     }
     function sizeS1FootWbgtText_() {
         const maxW = FOOT_BAR_SLOT_W - 12;
-        document.querySelectorAll('#scene1 .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact').forEach(function (el) {
-            let fz = COMPANY_LINE_FONT_START_PX_;
+        document.querySelectorAll(
+            '#scene1 .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact, #scene1 .s1-wbgt-msg-slot .s1-wbgt-msg-compact'
+        ).forEach(function (el) {
+            el.style.width = 'auto';
+            el.style.maxWidth = maxW + 'px';
+            let fz = S1_WBGT_MSG_FONT_START_PX_;
             el.style.fontSize = fz + 'px';
             let guard = 24;
-            while (guard-- > 0 && fz > 8 && el.scrollWidth > maxW) {
+            while (guard-- > 0 && fz > 10 && el.scrollWidth > maxW) {
                 fz -= 1;
                 el.style.fontSize = fz + 'px';
             }
@@ -6051,10 +6068,7 @@
         return [...text].map(ch => `<span class="${chClass}">${escapeS1Html(ch)}</span>`).join('');
     }
     function buildS1WbgtMsgHtml(text) {
-        if (footBarUseCompact_(text)) {
-            return `<span class="s1-wbgt-msg-compact">${escapeS1Html(text)}</span>`;
-        }
-        return `<span class="s1-wbgt-msg">${buildEvenCharSpans(text, 's1-wbgt-ch')}</span>`;
+        return `<span class="s1-wbgt-msg-compact">${escapeS1Html(text)}</span>`;
     }
     function buildBarTextHtml(text) {
         return `<span class="bar-text">${buildEvenCharSpans(text, 'bar-ch')}</span>`;
