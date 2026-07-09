@@ -358,7 +358,8 @@
         }
         .s1-wbgt-msg, .fc-lv-msg {
             display: inline-flex; flex-direction: row; align-items: center;
-            flex-shrink: 0; font-family: "Noto Sans JP", sans-serif; line-height: 1.15;
+            flex-shrink: 0; flex-wrap: nowrap; white-space: nowrap;
+            font-family: "Noto Sans JP", sans-serif; line-height: var(--led-foot-bar-h);
         }
         .s1-wbgt-msg-compact, .fc-lv-msg-compact {
             display: block; width: 100%; max-width: 100%;
@@ -814,11 +815,15 @@
         .t3-l1, .t3-l2 {
             line-height: 1.08; font-weight: 900; white-space: nowrap;
             letter-spacing: 0.3px; text-align: center;
-            font-family: "Noto Sans JP", "Inter", sans-serif;
+            font-family: "Inter", sans-serif;
             color: #ebebeb; width: 100%; max-width: 248px;
             box-sizing: border-box;
             overflow: visible; flex-shrink: 0;
             height: auto; padding: 0;
+        }
+        #scene3.t3-lang-jp .t3-l1,
+        #scene3.t3-lang-jp .t3-l2 {
+            font-family: "Noto Sans JP", sans-serif;
         }
         /* --- 熱中症アラート（256×128モジュール×2。各256内で同じ文言が追随して流れる） --- */
         #sceneAlert.active { display: block; }
@@ -2473,11 +2478,11 @@
     let wbgtUnavailableTimerId_ = null;
 
     const multi = [
-        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"Aman: Minum air cukup", fil:"Halos ligtas: Uminom ng tubig", vn:"An toàn: Bổ sung nước" },
-        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"Waspada: Minum air aktif", fil:"Babala: Uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
-        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"Siaga: Istirahat rutin", fil:"Alerto: Magpahinga", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
-        { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
-        { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
+        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"【Aman】Minum air secukupnya", fil:"【Halos ligtas】Uminom ng tubig kung kailangan", vn:"An toàn: Bổ sung nước" },
+        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"【Waspada】Minum air secara aktif", fil:"【Babala】Aktibong uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
+        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"【Siaga】Istirahat secara berkala", fil:"【Alerto】Magpahinga nang regular", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
+        { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", id:"【Waspada Ekstrem】Hentikan pekerjaan berat", fil:"【Malubhang babala】Itigil ang mabigat na gawain", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
+        { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", id:"【Bahaya】Segera hentikan pekerjaan", fil:"【Panganib】Itigil agad ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
     ];
     const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
     const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
@@ -2488,8 +2493,8 @@
     const unknownMsg = {
         jp: "WBGTデータ取得不可",
         en: "WBGT data unavailable",
-        id: "WBGT: Tidak tersedia",
-        fil: "WBGT: Hindi makuha",
+        id: "【WBGT】Data tidak tersedia",
+        fil: "【WBGT】Hindi makuha ang datos",
         vn: "Không có dữ liệu WBGT"
     };
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
@@ -6208,8 +6213,30 @@
             el.style.display = 'block';
         });
     }
+    function sizeFcLvFootText_() {
+        const maxW = FOOT_BAR_LAP_PX - 12;
+        document.querySelectorAll('#scene4 .fc-lv-msg-compact').forEach(function (el) {
+            el.style.width = 'auto';
+            el.style.maxWidth = maxW + 'px';
+            el.style.lineHeight = 'var(--led-foot-bar-h)';
+            let fz = S1_WBGT_MSG_FONT_START_PX_;
+            el.style.fontSize = fz + 'px';
+            let guard = 24;
+            while (guard-- > 0 && fz > 10 && el.scrollWidth > maxW) {
+                fz -= 1;
+                el.style.fontSize = fz + 'px';
+            }
+        });
+    }
+    function scheduleFcLvFootTextSize_() {
+        afterFontsReady_(function () {
+            requestAnimationFrame(function () {
+                sizeFcLvFootText_();
+            });
+        });
+    }
     function footBarUseCompact_(text) {
-        return String(text || '').length > 18;
+        return String(text || '').length > 0;
     }
     function escapeS1Html(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -6280,6 +6307,7 @@
         let html = '';
         for (let i = 0; i < SCENE4_LV_SETS; i++) html += buildFcLvSetHtml(text);
         fcLvTrack.innerHTML = html;
+        scheduleFcLvFootTextSize_();
         const setEl = fcLvTrack.querySelector('.fc-lv-set');
         scene4FcLvLapPx = setEl ? Math.max(SCENE4_LV_LAP_PX, setEl.offsetWidth) : SCENE4_LV_LAP_PX;
         applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
@@ -6820,11 +6848,27 @@
     function t3LineHeightForLang_(langKey) {
         return langKey === 'jp' ? T3_LINE_LH_JP : T3_LINE_LH_LATIN;
     }
+    function getT3LangKey_(msgIdx) {
+        if (DEMO_T3_LANG_IDX >= 0 && DEMO_T3_LANG_IDX < T3_LANG_KEYS.length) {
+            return T3_LANG_KEYS[DEMO_T3_LANG_IDX];
+        }
+        return T3_LANG_KEYS[msgIdx] || 'jp';
+    }
+    function t3FontFamilyForLang_(langKey) {
+        return langKey === 'jp' ? '"Noto Sans JP", sans-serif' : '"Inter", sans-serif';
+    }
+    function applyT3LangClass_(langKey) {
+        if (!s3) return;
+        T3_LANG_KEYS.forEach(function (key) { s3.classList.remove('t3-lang-' + key); });
+        if (langKey) s3.classList.add('t3-lang-' + langKey);
+    }
     function applyT3LineStyle_(nodes, fontPx, langKey) {
         if (!nodes || !nodes.length) return;
         const lh = t3LineHeightForLang_(langKey);
+        const ff = t3FontFamilyForLang_(langKey);
         nodes.forEach(function (n) {
             n.style.lineHeight = String(lh);
+            n.style.fontFamily = ff;
             n.style.height = 'auto';
             n.style.minHeight = '0';
             n.style.maxHeight = 'none';
@@ -6936,7 +6980,7 @@
         const probe2 = slot.querySelector('.t3-l2');
         if (!probe1 || !probe2) return;
         const li = langIdx != null ? langIdx : t3LangIdx_;
-        const langKey = T3_LANG_KEYS[li];
+        const langKey = getT3LangKey_(li);
         const levelIdx = getS1WbgtLevelForDisplay_();
         const hasL1 = String(probe1.textContent || '').trim().length > 0;
         const setAll = function (f1, f2) {
@@ -7030,6 +7074,8 @@
         const msg = t3Messages_[idx];
         if (!msg) return false;
         t3LangIdx_ = idx;
+        const langKey = getT3LangKey_(idx);
+        applyT3LangClass_(langKey);
         document.querySelectorAll('#scene3 .t3-l1').forEach(function (n) {
             n.textContent = msg.l1;
             n.style.transform = '';
