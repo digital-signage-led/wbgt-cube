@@ -37,6 +37,47 @@
 })();
 
     </script>
+    <script>
+/** 起動直後の青フラッシュ防止: キャッシュ済み WBGT 色を CSS 適用前に反映 */
+(function () {
+    var KEY = 'cspi2026_signage_state_v1';
+    var MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+    var LV_BG = ['#308DD8', '#FFD92D', '#FFBE2D', '#FF7E00', '#D61914'];
+    var OFF_BG = '#484848';
+    function levelFromData(data) {
+        if (!data || data.wbgtOffSeason) return -1;
+        if (data.slots && data.slots[0]) {
+            var row = data.slots[0];
+            if (row.levelIdx != null && row.levelIdx >= 0 && row.levelIdx <= 4) return row.levelIdx | 0;
+            if (row.wbgt != null) {
+                var w = Number(row.wbgt);
+                if (w >= 31) return 4;
+                if (w >= 28) return 3;
+                if (w >= 25) return 2;
+                if (w >= 21) return 1;
+                if (w >= 0) return 0;
+            }
+        }
+        if (data.level != null && data.level >= 0 && data.level <= 4) return data.level | 0;
+        return -1;
+    }
+    try {
+        var q = new URLSearchParams(location.search);
+        var pt = q.get('moePoint') || '73151';
+        var raw = localStorage.getItem(KEY);
+        if (!raw) return;
+        var data = JSON.parse(raw);
+        if (!data || String(data.point) !== String(pt)) return;
+        if (Date.now() - (data.savedAt || 0) > MAX_AGE) return;
+        var bg = data.wbgtOffSeason ? OFF_BG : LV_BG[levelFromData(data)];
+        if (!bg) return;
+        var st = document.createElement('style');
+        st.id = 'signage-boot-bg';
+        st.textContent = ':root{--signage-area-bg:' + bg + '}.content-area{background:' + bg + '!important}';
+        document.head.appendChild(st);
+    } catch (_) {}
+})();
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap');
         :root {
@@ -116,7 +157,7 @@
         }
         /* 黒背景PNG: 上バー色パネルに馴染ませる（マークのシアンはそのまま） */
         .logo-panel .logo-img { mix-blend-mode: screen; }
-        .content-area { width: 512px; height: 128px; position: relative; overflow: hidden; flex: 0 0 512px; flex-shrink: 0; background: #308DD8; }
+        .content-area { width: 512px; height: 128px; position: relative; overflow: hidden; flex: 0 0 512px; flex-shrink: 0; background: var(--signage-area-bg, #2a2a2a); }
         .content-area > .scene-strip-bg { z-index: 0; }
         .content-area > .scene { z-index: 1; will-change: transform; }
         .scene {
@@ -1962,7 +2003,7 @@
         const colors = colorsForDisplay(levelIdx, displayMode);
         document.querySelectorAll('.content-area .col-bg-layer').forEach(function (layer) {
             const host = layer.parentElement;
-            if (host && host.closest('#scene5')) return;
+            if (host && (host.closest('#scene5') || host.classList.contains('d5-panel'))) return;
             if (host && host.classList.contains('t3-unit')) {
                 applyColorsToT3UnitLayer(layer, colors);
                 return;
@@ -1983,31 +2024,56 @@
         document.querySelectorAll('#scene1 .panel').forEach(panel => applyStrip(panel, levelIdx, displayMode));
     }
 
-    function refreshForecast(slots, displayMode) {
+    function levelIdxFromWbgt(w) {
+        const n = Number(w);
+        if (!Number.isFinite(n)) return 0;
+        if (n >= 31) return 4;
+        if (n >= 28) return 3;
+        if (n >= 25) return 2;
+        if (n >= 21) return 1;
+        return 0;
+    }
+    function levelIdxFromMoeSlot(row) {
+        if (!row || row.wbgt == null) return -1;
+        if (Number.isInteger(row.levelIdx) && row.levelIdx >= 0 && row.levelIdx <= 4) return row.levelIdx;
+        return levelIdxFromWbgt(row.wbgt);
+    }
+
+    function refreshForecast(slots, displayMode, bgLevelIdx) {
         const mode = displayMode || 'normal';
-        let levelIdx = -1;
-        if (mode === 'normal') {
-            const row = slots && slots[0];
-            levelIdx = row && row.wbgt != null
-                ? (Number.isInteger(row.levelIdx) ? row.levelIdx : 0)
-                : 0;
+        let levelIdx = (bgLevelIdx != null && bgLevelIdx >= 0) ? bgLevelIdx : -1;
+        if (levelIdx < 0 && mode === 'normal' && slots && slots[0]) {
+            levelIdx = levelIdxFromMoeSlot(slots[0]);
         }
         document.querySelectorAll('#scene4 .fc-track .fc-panel').forEach(function (panel) {
             applyStrip(panel, levelIdx, mode);
         });
     }
 
+    /** 4日天気: 全列とも環境省WBGT実測（現在値）の段階色で統一 */
     function refreshScene5(levelIdx, displayMode) {
-        const dark = isDarkTextForDisplay(levelIdx, displayMode);
-        const forecastLv = dark ? levelIdx : 0;
-        const forecastMode = dark ? displayMode : 'normal';
-        document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(panel => {
-            applyStrip(panel, forecastLv, forecastMode);
+        const mode = displayMode || 'normal';
+        let lv = levelIdx;
+        let paintMode = mode;
+        if (paintMode === 'normal' && (lv == null || lv < 0)) {
+            paintMode = 'unavailable';
+            lv = -1;
+        }
+        const colors = colorsForDisplay(lv, paintMode);
+        const dark = isDarkTextForDisplay(lv, paintMode);
+        document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
+            ensureBgLayer(panel, KIND.STRIP);
+            const layer = panel.querySelector('.col-bg-layer');
+            if (layer) {
+                const top = layer.querySelector('.col-bg-top');
+                const body = layer.querySelector('.col-bg-body');
+                if (top) top.style.backgroundColor = colors.barColor;
+                if (body) body.style.backgroundColor = colors.bgColor;
+            }
             panel.classList.toggle('col-bg-dark-text', dark);
-        });
-        document.querySelectorAll('#scene5 .d5-panel.d5-today-focus').forEach(panel => {
-            applyStrip(panel, levelIdx, displayMode);
-            panel.classList.toggle('col-bg-dark-text', dark);
+            panel.classList.toggle('wbgt-off-season', paintMode === 'offseason');
+            panel.classList.toggle('wbgt-unavailable', paintMode === 'unavailable');
+            panel.classList.remove('col-bg-unknown');
         });
     }
 
@@ -2022,6 +2088,8 @@
         const content = document.querySelector('.content-area');
         if (!content) return;
         ensureSceneStripBg(content);
+        const colors = colorsForDisplay(levelIdx, displayMode);
+        content.style.setProperty('--signage-area-bg', colors.bgColor);
         content.classList.toggle('col-bg-dark-text', isDarkTextForDisplay(levelIdx, displayMode));
         applySceneStripBg(content, levelIdx, displayMode);
     }
@@ -2076,6 +2144,7 @@
         colorsForLevel,
         colorsForDisplay,
         isDarkTextLevel,
+        levelIdxFromMoeSlot,
         initHosts,
         initSignageLogo_,
         refreshAll,
@@ -2490,6 +2559,10 @@
             currentWbgtLevel = row.levelIdx;
             return;
         }
+        if (typeof SignageBg !== 'undefined' && SignageBg.levelIdxFromMoeSlot) {
+            const lv = SignageBg.levelIdxFromMoeSlot(row);
+            if (lv >= 0) { currentWbgtLevel = lv; return; }
+        }
         currentWbgtLevel = wbgtLevel(row.wbgt);
     }
     function getSignageDisplayMode_() {
@@ -2497,19 +2570,37 @@
         if (wbgtUnavailable) return 'unavailable';
         return 'normal';
     }
-    /** 背景色用: unavailable/offseason 以外は getS1WbgtLevelForDisplay_ を使用 */
-    function levelFromLastGoodWbgtSlots_() {
-        if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) return null;
-        const row = lastGoodWbgtSlots_[0];
+    /** 背景色用: 環境省WBGTスロット0（現在の実測値）の段階 */
+    function moeWbgtBgLevelFromSlots_(slots) {
+        if (!slots || !hasFull4Slots(slots)) return null;
+        if (typeof SignageBg !== 'undefined' && SignageBg.levelIdxFromMoeSlot) {
+            const lv = SignageBg.levelIdxFromMoeSlot(slots[0]);
+            return lv >= 0 ? lv : null;
+        }
+        const row = slots[0];
         if (!row || row.wbgt == null) return null;
-        return Number.isInteger(row.levelIdx) ? row.levelIdx : wbgtLevel(row.wbgt);
+        if (Number.isInteger(row.levelIdx) && row.levelIdx >= 0 && row.levelIdx <= 4) return row.levelIdx;
+        return wbgtLevel(row.wbgt);
+    }
+    function levelFromLastGoodWbgtSlots_() {
+        return moeWbgtBgLevelFromSlots_(lastGoodWbgtSlots_);
     }
     function getSignageBgLevel_() {
         if (getSignageDisplayMode_() !== 'normal') return -1;
+        const fromMoe = moeWbgtBgLevelFromSlots_(lastGoodWbgtSlots_ || lastWbgtSlots);
+        if (fromMoe != null) return fromMoe;
         const lv = getS1WbgtLevelForDisplay_();
         if (lv >= 0) return lv;
-        const stable = levelFromLastGoodWbgtSlots_();
-        return stable != null ? stable : -1;
+        return -1;
+    }
+    /** 全シーン共通: 環境省WBGT実測（スロット0）を背景色の基準にする */
+    function getMoeWbgtBgPaint_() {
+        const mode = getSignageDisplayMode_();
+        if (mode === 'offseason') return { mode: 'offseason', lv: -1 };
+        if (mode === 'unavailable') return { mode: 'unavailable', lv: -1 };
+        const fromMoe = moeWbgtBgLevelFromSlots_(lastGoodWbgtSlots_ || lastWbgtSlots);
+        if (fromMoe != null) return { mode: 'normal', lv: fromMoe };
+        return resolveSignageBgPaint_(mode, getSignageBgLevel_());
     }
     function resolveSignageBgPaint_(mode, lv) {
         if (mode === 'normal' && lv < 0) {
@@ -2518,7 +2609,8 @@
             if (lastSignageBgLv_ != null && lastSignageBgLv_ >= 0 && lastSignageBgMode_ === 'normal') {
                 return { mode: 'normal', lv: lastSignageBgLv_ };
             }
-            if (!wbgtOffSeason) return { mode: 'normal', lv: 0 };
+            if (currentWbgtLevel >= 0) return { mode: 'normal', lv: currentWbgtLevel };
+            if (!wbgtOffSeason) return { mode: 'unavailable', lv: -1 };
         }
         return { mode: mode, lv: lv };
     }
@@ -2619,9 +2711,7 @@
     }
     function refreshSignageBg() {
         if (typeof SignageBg === 'undefined') return;
-        const rawMode = getSignageDisplayMode_();
-        const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
-        const paint = resolveSignageBgPaint_(rawMode, rawLv);
+        const paint = getMoeWbgtBgPaint_();
         const mode = paint.mode;
         const lv = paint.lv;
         SignageBg.refreshAll(lv, mode);
@@ -2629,30 +2719,38 @@
         if (mode === 'offseason') {
             SignageBg.refreshScene1(lv, mode);
             if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
+            syncScene5FromMoeWbgt_(true);
+            applyD5TodayFrame_();
+            lastSignageBgLv_ = lv;
+            lastSignageBgMode_ = mode;
+            pendingSignageBgRefresh_ = false;
             return;
         }
         if (mode === 'unavailable') {
             SignageBg.refreshScene1(-1, mode);
             if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(-1, mode);
+            syncScene5FromMoeWbgt_(true);
+            applyD5TodayFrame_();
+            lastSignageBgLv_ = lv;
+            lastSignageBgMode_ = mode;
+            pendingSignageBgRefresh_ = false;
             return;
         }
         SignageBg.refreshScene1(lv, mode);
         SignageBg.refreshScene2(lv, mode);
-        applyD5ForecastTextColors_();
-        applyD5TodayFrame_();
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null));
-        if (slots) SignageBg.refreshForecast(slots, mode);
+        if (slots) SignageBg.refreshForecast(slots, mode, lv);
         if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
+        syncScene5FromMoeWbgt_(true);
+        applyD5TodayFrame_();
         lastSignageBgLv_ = lv;
         lastSignageBgMode_ = mode;
         pendingSignageBgRefresh_ = false;
     }
     function refreshSignageBgIfChanged_(force) {
-        const rawMode = getSignageDisplayMode_();
-        const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
-        const paint = resolveSignageBgPaint_(rawMode, rawLv);
+        const paint = getMoeWbgtBgPaint_();
         const mode = paint.mode;
         const lv = paint.lv;
         if (!force && lv === lastSignageBgLv_ && mode === lastSignageBgMode_) return;
@@ -4449,6 +4547,13 @@
         if (!el || !lapPx) return;
         applyScrollX_(el, wrapScrollX_(globalScrollX_, lapPx));
     }
+    /** 列境界（128px）にスクロール位置を揃える（シーン切替時の隙間・半端表示を防ぐ） */
+    function alignGlobalScrollToPanel_(panelPx, lapPx) {
+        if (!panelPx || !lapPx) return;
+        globalScrollX_ = wrapScrollX_(globalScrollX_, lapPx);
+        const snapped = Math.round(globalScrollX_ / panelPx) * panelPx;
+        globalScrollX_ = wrapScrollX_(snapped, lapPx);
+    }
     function getS1FootLapPx_() {
         if (!s1WbgtTrack) return SCENE1_WBGT_LAP_PX;
         const setEl = s1WbgtTrack.querySelector('.s1-wbgt-set');
@@ -5520,24 +5625,31 @@
         panel.appendChild(frame);
     }
     function applyD5TodayFrame_() {
-        const mode = getSignageDisplayMode_();
-        const lv = mode === 'normal' ? getSignageBgLevel_() : -1;
+        const paint = getMoeWbgtBgPaint_();
+        const lv = paint.mode === 'normal' ? paint.lv : -1;
         const white = lv >= 0 && isD5TodayFrameWhite_(lv);
         document.querySelectorAll('#scene5 .d5-panel.d5-today-focus').forEach(function (panel) {
             ensureD5TodayFrame_(panel);
             panel.classList.toggle('d5-today-frame-white', white);
         });
     }
-    /** シーン5: 背景色と文字色クラスを同期（予報更新単体でも背景ずれを防ぐ） */
-    function applyD5ForecastTextColors_() {
+    /** シーン5: 環境省WBGT実測段階で4列すべて同色（repaint後に最終同期） */
+    function syncScene5FromMoeWbgt_(rebuildLayers) {
         if (typeof SignageBg === 'undefined' || !SignageBg.refreshScene5) return;
-        const rawMode = getSignageDisplayMode_();
-        const rawLv = rawMode === 'normal' ? getSignageBgLevel_() : -1;
-        const paint = resolveSignageBgPaint_(rawMode, rawLv);
+        const paint = getMoeWbgtBgPaint_();
+        if (rebuildLayers) {
+            document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
+                panel.querySelectorAll('.col-bg-layer').forEach(function (el) { el.remove(); });
+                panel.classList.remove('col-bg-host', 'col-bg-dark-text', 'col-bg-unknown', 'wbgt-off-season', 'wbgt-unavailable');
+            });
+        }
         SignageBg.refreshScene5(paint.lv, paint.mode);
         document.querySelectorAll('#scene5 .s2-bar-label, #scene5 .d5-sep, #scene5 .d5-temp, #scene5 .s2-unit').forEach(function (n) {
             n.style.removeProperty('color');
         });
+    }
+    function applyD5ForecastTextColors_() {
+        syncScene5FromMoeWbgt_(true);
     }
     function compactScene5Panels() {
         if (!d5Conveyor) return;
@@ -5624,8 +5736,6 @@
             document.querySelectorAll(`.d5-day-${day} .d5-temp`).forEach(el => { el.innerText = tempStr; });
             document.querySelectorAll(`.d5-day-${day} .d5-weather-use`).forEach(el => el.setAttribute('href', icon));
         }
-        applyD5TodayFrame_();
-        applyD5ForecastTextColors_();
         fitD5PanelText_();
     }
     function formatScene2ObsClock_(date) {
@@ -7188,11 +7298,13 @@
         if (!s5 || !d5Conveyor) { gotoSceneAfterScene5_(); return; }
         if (scene5AnimId) cancelAnimationFrame(scene5AnimId);
         applyDisplayRefreshAtSceneEntry_();
-        compactScene5Panels();
-        fitD5PanelText_();
-        applyD5TodayFrame_();
-        applyD5ForecastTextColors_();
         applyPendingSignageBgAtScene_();
+        refreshSignageBgIfChanged_(true);
+        compactScene5Panels();
+        alignGlobalScrollToPanel_(128, scene5SetWidth);
+        syncScene5FromMoeWbgt_(true);
+        applyD5TodayFrame_();
+        fitD5PanelText_();
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
             scheduleDemoStep_(gotoSceneAfterScene5_);
