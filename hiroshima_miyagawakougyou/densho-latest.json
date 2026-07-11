@@ -7,12 +7,12 @@
       "data_intr_time": 600,
       "data": [
         {
-          "date": "20260711230412",
+          "date": "20260712000412",
           "power_voltage": "12.0",
           "sensu15xx": {
-            "temp": 24.1,
-            "cumtemp": 2350.9,
-            "humi": 90.0,
+            "temp": 23.7,
+            "cumtemp": 2378.1,
+            "humi": 89.0,
             "uv": 0,
             "uvi": 0,
             "illumi": 0.0,
@@ -27,8 +27,8 @@
             "wbgt": 23,
             "wbgt_str": "注意"
           },
-          "atmos": 999,
-          "sea_level_pressure": 1015
+          "atmos": 998,
+          "sea_level_pressure": 1014
         }
       ]
     }
