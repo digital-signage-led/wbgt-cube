@@ -40,12 +40,18 @@
     <script>
 /** 起動直後の青フラッシュ防止: キャッシュ済み WBGT 色を CSS 適用前に反映 */
 (function () {
-    var KEY = 'cspi2026_signage_state_v1';
+    /* 現場固有キー（旧 CSPI 共通キーの提供期間外キャッシュで灰表示になるのを防ぐ） */
+    var KEY = 'okumura_itami_signage_state_v1';
+    var LEGACY_KEY = 'cspi2026_signage_state_v1';
     var MAX_AGE = 7 * 24 * 60 * 60 * 1000;
     var LV_BG = ['#308DD8', '#FFD92D', '#FFBE2D', '#FF7E00', '#D61914'];
-    var OFF_BG = '#484848';
+    function jstMonth_() {
+        try {
+            return Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tokyo', month: 'numeric' }).format(new Date()));
+        } catch (_) { return new Date().getMonth() + 1; }
+    }
     function levelFromData(data) {
-        if (!data || data.wbgtOffSeason) return -1;
+        if (!data) return -1;
         if (data.slots && data.slots[0]) {
             var row = data.slots[0];
             if (row.levelIdx != null && row.levelIdx >= 0 && row.levelIdx <= 4) return row.levelIdx | 0;
@@ -64,12 +70,17 @@
     try {
         var q = new URLSearchParams(location.search);
         var pt = q.get('moePoint') || '62078';
-        var raw = localStorage.getItem(KEY);
+        var raw = localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY);
         if (!raw) return;
         var data = JSON.parse(raw);
         if (!data || String(data.point) !== String(pt)) return;
         if (Date.now() - (data.savedAt || 0) > MAX_AGE) return;
-        var bg = data.wbgtOffSeason ? OFF_BG : LV_BG[levelFromData(data)];
+        /* 4〜10月はキャッシュの提供期間外を無視（灰表示の誤作動防止） */
+        var mo = jstMonth_();
+        if (data.wbgtOffSeason && mo >= 4 && mo <= 10) data.wbgtOffSeason = false;
+        if (data.wbgtOffSeason) return;
+        var lv = levelFromData(data);
+        var bg = lv >= 0 ? LV_BG[lv] : null;
         if (!bg) return;
         var st = document.createElement('style');
         st.id = 'signage-boot-bg';
@@ -2469,7 +2480,8 @@
     let pendingSignageBgMode_ = '';
     let pendingForecastSlotsRefresh_ = false;
     let lastAmedasSnapshot_ = null;
-    const SIGNAGE_STATE_CACHE_KEY = 'cspi2026_signage_state_v1';
+    const SIGNAGE_STATE_CACHE_KEY = 'okumura_itami_signage_state_v1';
+    const SIGNAGE_STATE_CACHE_LEGACY_KEY = 'cspi2026_signage_state_v1';
     const SIGNAGE_STATE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
     const MOE_GAS_FETCH_TIMEOUT_MS = 12000;
     const MOE_JSONP_TIMEOUT_MS = 10000;
@@ -2833,14 +2845,32 @@
             }));
         } catch (_) {}
     }
+    function jstMonthNow_() {
+        try {
+            return Number(new Intl.DateTimeFormat('en-US', { timeZone: CLOCK_TZ, month: 'numeric' }).format(new Date()));
+        } catch (_) {
+            return new Date().getMonth() + 1;
+        }
+    }
+    /** 環境省WBGTの提供期（概ね4〜10月）。この期間の「提供期間外」キャッシュは破棄する */
+    function isLikelyWbgtInSeasonMonth_() {
+        const mo = jstMonthNow_();
+        return mo >= 4 && mo <= 10;
+    }
     function restoreSignageStateCache_() {
         if (DEMO_SIGNAGE_ACTIVE) return false;
         try {
-            const raw = localStorage.getItem(SIGNAGE_STATE_CACHE_KEY);
+            const raw = localStorage.getItem(SIGNAGE_STATE_CACHE_KEY)
+                || localStorage.getItem(SIGNAGE_STATE_CACHE_LEGACY_KEY);
             if (!raw) return false;
             const data = JSON.parse(raw);
             if (!data || String(data.point) !== String(MOE_WBGT_POINT)) return false;
             if (Date.now() - (data.savedAt || 0) > SIGNAGE_STATE_CACHE_MAX_AGE_MS) return false;
+            /* 季節内に残った提供期間外フラグは無視（サイネージが灰色のままになる主因） */
+            if (data.wbgtOffSeason && isLikelyWbgtInSeasonMonth_()) {
+                data.wbgtOffSeason = false;
+                console.warn('[WBGT] 季節内のため提供期間外キャッシュを無視');
+            }
             if (data.wbgtOffSeason) {
                 wbgtOffSeason = true;
                 wbgtUnavailable = false;
@@ -2858,8 +2888,10 @@
                 currentWbgtLevel = data.level;
             }
             if (data.amedas) applyAmedasSnapshot_(data.amedas);
-            return !!(data.slots || data.wbgtOffSeason || Number.isInteger(data.level));
-        } catch (_) { return false; }
+            return !!(data.slots || Number.isInteger(data.level));
+        } catch (_) {
+            return false;
+        }
     }
 
     const s1 = document.getElementById('scene1');
@@ -5194,6 +5226,7 @@
     function runBootSplashEarly_() {
         if (bootSplashPainted_) return;
         bootSplashPainted_ = true;
+        try { localStorage.removeItem(SIGNAGE_STATE_CACHE_LEGACY_KEY); } catch (_) {}
         restoreSignageStateCache_();
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
         applySiteLocationLabels_();
@@ -5366,6 +5399,14 @@
             const json = parseMoePayloadFromText(await res.text());
             if (!json) throw new Error('GAS JSON parse failed');
             return json;
+        }
+        /* LEDサイネージは CORS/リダイレクトで fetch が落ちやすい → JSONP を先に試す */
+        if (NATIVE_640) {
+            try {
+                return await fetchWithTimeout_(fetchMoeViaJsonp(url), MOE_JSONP_TIMEOUT_MS, 'GAS-JSONP');
+            } catch (jsonpErr) {
+                console.warn('[環境省] JSONP失敗、fetchを試行:', jsonpErr.message || jsonpErr);
+            }
         }
         try {
             return await fetchWithTimeout_(fetchOnce_(), MOE_GAS_FETCH_TIMEOUT_MS, 'GAS');
