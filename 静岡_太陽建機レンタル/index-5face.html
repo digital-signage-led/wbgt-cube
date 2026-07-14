@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- wbgt-cube-taiyo-5face / 太陽建機レンタル WBGT サイネージ（本番 5面 640×128・ロゴ列128） -->
 <!-- 同階層: assets/taiyo_mark.png（右端マーク） / assets/taiyo_corp.png（英字） / assets/taiyo_logo.png（下帯） -->
 <!-- 会場: 〒422-8507 静岡市駿河区大坪町2－26（太陽建機レンタル本社） -->
@@ -99,7 +99,12 @@
             position: absolute; top: 0; left: 0;
             margin: 0; padding: 0;
         }
-        .canvas { width: 640px; height: 128px; position: relative; overflow: hidden; display: flex; flex-direction: row; flex-wrap: nowrap; gap: 0; transform-origin: top left; }
+        .canvas {
+            width: 640px; height: 128px; position: relative; overflow: hidden;
+            display: flex; flex-direction: row; flex-wrap: nowrap; align-items: stretch;
+            gap: 0; margin: 0; padding: 0; border: 0;
+            box-sizing: border-box; transform-origin: top left;
+        }
         @media screen and (min-width: 641px) {
             .canvas { transform: scale(calc(100vw / 640)); }
         }
@@ -127,7 +132,7 @@
         .logo-panel {
             width: 128px; height: 128px; display: flex; align-items: center; justify-content: center;
             flex: 0 0 128px; flex-shrink: 0; overflow: hidden; position: relative;
-            background: #FECD58;
+            background: #FECD58; margin: 0; padding: 0; border: 0; box-sizing: border-box;
         }
         .logo-rotator {
             width: 128px; height: 128px; flex-shrink: 0; position: relative; z-index: 1;
@@ -139,12 +144,12 @@
            mark幅 = 英字幅 / マーク下ギャップ ≈ mark高さ×0.116
            英字は taiyo_corp.png（TAIYO:KENKI≒2.61・字間は画像固定） */
         .logo-stack {
-            --logo-mark-w: 88px;
+            --logo-mark-w: 80px;
             --logo-mark-h: calc(var(--logo-mark-w) * 125 / 145);
             --logo-gap: calc(var(--logo-mark-h) * 0.1163);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: var(--logo-gap); width: 118px; max-height: 124px; box-sizing: border-box;
-            padding: 0;
+            gap: var(--logo-gap); width: 112px; max-width: 112px; max-height: 120px; box-sizing: border-box;
+            padding: 0; margin: 0; overflow: hidden;
         }
         .logo-img {
             display: block; width: var(--logo-mark-w); max-width: var(--logo-mark-w);
@@ -159,7 +164,11 @@
             flex: 0 0 auto;
         }
         .logo-wordmark { display: none !important; }
-        .content-area { width: 512px; height: 128px; position: relative; overflow: hidden; flex: 0 0 512px; flex-shrink: 0; background: #308DD8; }
+        .content-area {
+            width: 512px; height: 128px; position: relative; overflow: hidden;
+            flex: 0 0 512px; flex-shrink: 0; background: #308DD8;
+            margin: 0; padding: 0; border: 0; box-sizing: border-box;
+        }
         .content-area > .scene-strip-bg { z-index: 0; }
         .content-area > .scene { z-index: 1; will-change: transform; }
         .scene {
@@ -199,9 +208,9 @@
         }
         .col-bg-wbgt-foot { height: 26px; flex-shrink: 0; background: var(--led-foot-bar-bg); }
         .scene-strip-bg {
-            position: absolute; left: 0; top: 0; width: 512px; height: 128px;
+            position: absolute; left: 0; top: 0; width: 100%; height: 128px;
             z-index: 0; pointer-events: none; display: flex; flex-direction: column;
-            border: none; outline: none;
+            margin: 0; padding: 0; border: none; outline: none; box-sizing: border-box;
         }
         .scene-strip-bg .col-bg-top { width: 100%; height: 32px; flex-shrink: 0; border: none; }
         .scene-strip-bg .col-bg-body { width: 100%; height: var(--led-col-body-h); flex-shrink: 0; border: none; }
@@ -253,9 +262,14 @@
         .col-bg-host.wbgt-off-season .s1-bar-label,
         .col-bg-host.wbgt-off-season .panel-clock .time-val { color: #ebebeb; }
 
-        .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; flex-shrink: 0; gap: 4px; border: none; outline: none; background: transparent; }
+        .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; flex-shrink: 0; gap: 0; border: none; outline: none; background: transparent; margin: 0; padding: 0; }
         .panel-clock { padding: 0; gap: 0; justify-content: flex-start; overflow: hidden; }
-        .s1-top-bar { width: 100%; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; }
+        /* シーン1時計列: 上32+本体64=96（下帯32は .s1-wbgt-bar）。panel 高128だと下帯と重なってズレる */
+        #scene1 .panel-clock {
+            width: 128px; height: var(--led-col-main-h); max-height: var(--led-col-main-h);
+            flex: 0 0 128px;
+        }
+        .s1-top-bar { width: 100%; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; margin: 0; padding: 0; }
         .s1-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.42px; }
         #scene1 .panel-clock .s1-bar-label {
             font-size: 20px;
@@ -266,9 +280,11 @@
             white-space: nowrap;
             text-overflow: ellipsis;
             padding: 0 4px;
+            margin: 0;
             box-sizing: border-box;
+            text-align: center;
         }
-        .s1-body { width: 100%; height: var(--led-col-body-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; }
+        .s1-body { width: 100%; height: var(--led-col-body-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; margin: 0; padding: 0; }
         .s1-foot { width: 100%; height: var(--led-foot-bar-h); flex-shrink: 0; box-sizing: border-box; }
         .panel-clock .time-val,
         .clock-hm {
@@ -286,6 +302,8 @@
             line-height: 1;
             font-variant-numeric: tabular-nums;
             font-family: "Inter", sans-serif;
+            margin: 0; padding: 0;
+            box-sizing: border-box;
         }
         .clock-hm .clock-h,
         .clock-hm .clock-m {
@@ -325,12 +343,13 @@
         .fc-track .fc-panel {
             width: 128px; height: var(--led-col-main-h); max-height: var(--led-col-main-h);
         }
-        .scene1-state { display: none; width: 512px; height: var(--led-col-main-h); flex-direction: row; flex-shrink: 0; }
+        .scene1-state { display: none; width: 512px; height: var(--led-col-main-h); flex-direction: row; flex-shrink: 0; margin: 0; padding: 0; gap: 0; overflow: hidden; box-sizing: border-box; }
         .scene1-state.active { display: flex; }
         .panel-clock .s1-foot { display: none; }
         .s1-wbgt-bar, .fc-lv-bar, .s2-meta-bar {
-            position: absolute; left: 0; bottom: 0; width: 512px; height: var(--led-foot-bar-h);
+            position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: var(--led-foot-bar-h);
             background: var(--led-foot-bar-bg); overflow: hidden; z-index: 12; box-sizing: border-box;
+            margin: 0; padding: 0; border: 0;
         }
         #scene1.active .s1-wbgt-bar { display: block; }
         .s1-wbgt-track, .fc-lv-track, .s2-meta-track {
@@ -4430,9 +4449,25 @@
         logoRotator.style.transition = `transform ${ms}ms ease-in-out`;
         logoRotator.style.transform = `rotate(${logoRotDeg}deg)`;
     }
-    /** 右端マークは常に正立（横長ロゴは時刻下の下帯のみ） */
+    /** 小数°のずれを防ぎ、常に 0/90/180/270° に揃える */
+    function snapLogoRotationQuarter_() {
+        if (!logoRotator) return;
+        const norm = ((logoRotDeg % 360) + 360) % 360;
+        let snapped = Math.round(norm / 90) * 90;
+        if (snapped >= 360) snapped = 0;
+        logoRotDeg = snapped;
+        logoRotator.style.transition = 'none';
+        logoRotator.style.transform = 'rotate(' + snapped + 'deg)';
+    }
+    /** シーン切替時: 高速スピン付きで +90°（見た目は直角回転） */
     function stepLogo90(transitionMs, withFastSpin) {
-        resetLogoRotation();
+        if (!logoRotator) return;
+        const spinDelta = withFastSpin === false ? 90 : 450;
+        logoRotDeg += spinDelta;
+        const ms = transitionMs ?? LOGO_ROT_STEP_MS;
+        logoRotator.style.transition = 'transform ' + ms + 'ms ease-in-out';
+        logoRotator.style.transform = 'rotate(' + logoRotDeg + 'deg)';
+        setTimeout(snapLogoRotationQuarter_, ms + 40);
     }
     function resetLogoRotation() {
         logoRotDeg = 0;
@@ -4441,7 +4476,7 @@
         logoRotator.style.transform = 'rotate(0deg)';
     }
     function beginLogoSceneScroll(panelWidthPx) {
-        // スクロール追従回転は行わない
+        // スクロール追従回転は行わない（シーン切替の stepLogo90 のみ）
     }
     /** コンテンツが1パネル分スクロールするたびに90° */
     function tickLogoScrollSync(totalScrolledPx, panelWidthPx) {
@@ -4761,38 +4796,16 @@
         return false;
     }
     function fitS1DateFontSize_() {
-        const probe = document.querySelector('#scene1 .panel-clock .s1-bar-label');
-        if (!probe) return;
-        const maxW = 120;
-        const setAll = function (fz) {
-            document.querySelectorAll('#scene1 .panel-clock .s1-bar-label').forEach(function (el) {
-                el.style.fontSize = fz + 'px';
-            });
-        };
-        let fz = 20;
-        setAll(fz);
-        let guard = 40;
-        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 13) {
-            fz -= 1;
-            setAll(fz);
-        }
+        /* 日付は固定20px（縮小しない） */
+        document.querySelectorAll('#scene1 .panel-clock .s1-bar-label').forEach(function (el) {
+            el.style.fontSize = '';
+        });
     }
     function fitClockHmFontSize_() {
-        const probe = document.querySelector('#scene1 .panel-clock .clock-hm');
-        if (!probe) return;
-        const maxW = 120;
-        const setAll = function (fz) {
-            document.querySelectorAll('#scene1 .panel-clock .time-val').forEach(function (el) {
-                el.style.fontSize = fz + 'px';
-            });
-        };
-        let fz = 42;
-        setAll(fz);
-        let guard = 40;
-        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 28) {
-            fz -= 1;
-            setAll(fz);
-        }
+        /* 時刻は固定42px（縮小しない） */
+        document.querySelectorAll('#scene1 .panel-clock .time-val, #scene1 .panel-clock .clock-hm').forEach(function (el) {
+            el.style.fontSize = '';
+        });
     }
     function ensureClockHmStructure_(el) {
         if (el.querySelector('.clock-h') && !el.querySelector('.clock-colon-wrap')) return;
