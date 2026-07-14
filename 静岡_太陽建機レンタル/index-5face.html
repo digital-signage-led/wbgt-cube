@@ -3,7 +3,7 @@
 <!-- 同階層: assets/taiyo_mark.png（右端マーク） / assets/taiyo_corp.png（英字） / assets/taiyo_logo.png（下帯） -->
 <!-- 会場: 〒422-8507 静岡市駿河区大坪町2－26（太陽建機レンタル本社） -->
 <!-- WBGT・AMeDAS 50331（静岡・気象庁/環境省） -->
-<!-- サイネージ: 640×128 固定出力（既定=native640）。PC確認のみ ?preview=1 -->
+<!-- サイネージ: 640×128 を縦横同倍率で表示（歪み防止）。画素確認のみ ?native640=1。ロゴ補正 ?logoPitch= -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -27,12 +27,13 @@
     })();
     </script>
     <script>
-/** サイネージ本番: 640×128 ネイティブ（512+128・拡大なし・原点0,0）。PC確認のみ ?preview=1 */
+/** サイネージ本番: 640×128 を窓に縦横同じ倍率で合わせる（歪ませない）。
+ *  画素確認のみ ?native640=1。大きく見るだけ ?preview=1（同等の等倍スケール） */
 (function () {
     var q = new URLSearchParams(location.search);
-    var forceNative = (q.get('preview') !== '1' && q.get('native640') !== '0') || q.get('native640') === '1';
+    var forceNative = q.get('native640') === '1' || q.get('embed') === '1';
     if (forceNative) {
-        if (!q.has('native640')) q.set('native640', '1');
+        if (!q.has('native640') && q.get('embed') === '1') q.set('native640', '1');
         var qs = q.toString();
         if (qs && location.search !== '?' + qs) {
             history.replaceState(null, '', location.pathname + '?' + qs);
@@ -103,7 +104,8 @@
         }
         .canvas {
             width: 640px; height: 128px; position: relative; overflow: hidden;
-            display: flex; flex-direction: row; flex-wrap: nowrap; align-items: stretch;
+            display: grid; grid-template-columns: 512px 128px; grid-template-rows: 128px;
+            align-items: stretch; justify-items: stretch;
             gap: 0; margin: 0; padding: 0; border: 0;
             box-sizing: border-box; transform-origin: top left;
         }
@@ -121,43 +123,59 @@
         }
         /* 4面（512×128）: ロゴ列なし */
         body.layout-512 .logo-panel { display: none !important; }
-        body.layout-512 .canvas { width: 512px !important; }
+        body.layout-512 .canvas {
+            width: 512px !important;
+            grid-template-columns: 512px;
+        }
         body.layout-512.browser-preview .canvas {
             transform: scale(min(calc(100vw / 512), calc(100vh / 128))) !important;
         }
         body.layout-512.native-640 .canvas { transform: none !important; }
-        /* 右端 128×128: メールロゴ同様（上に大きくマーク、下に社名） */
+        /* 右端 128×128: 正方形を固定（プレイヤー引き伸ばしで歪みやすい丸ロゴ対策） */
         .logo-panel {
             width: 128px; height: 128px; display: flex; align-items: center; justify-content: center;
             flex: 0 0 128px; flex-shrink: 0; overflow: hidden; position: relative;
             background: #FECD58; margin: 0; padding: 0; border: 0; box-sizing: border-box;
+            aspect-ratio: 1 / 1;
+        }
+        .logo-aspect-fix {
+            width: 128px; height: 128px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            transform-origin: center center;
+            will-change: transform;
         }
         .logo-rotator {
             width: 128px; height: 128px; flex-shrink: 0; position: relative; z-index: 1;
             display: flex; align-items: center; justify-content: center;
             transform-origin: center center;
             transition: transform 0.6s ease-in-out;
+            aspect-ratio: 1 / 1;
         }
-        /* 右端 128×128: 公式縦組（Google画像参照）
-           mark幅 = 英字幅 / マーク下ギャップ ≈ mark高さ×0.116
-           英字は taiyo_corp.png（TAIYO:KENKI≒2.61・字間は画像固定） */
+        /* 右端 128×128: 公式縦組
+           マーク幅＝英字幅 / マーク下ギャップ＝マーク高さ×0.1163（参照ロゴと同一） */
         .logo-stack {
             --logo-mark-w: 80px;
             --logo-mark-h: calc(var(--logo-mark-w) * 125 / 145);
+            --logo-corp-h: calc(var(--logo-mark-w) * 121 / 328);
             --logo-gap: calc(var(--logo-mark-h) * 0.1163);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: var(--logo-gap); width: 112px; max-width: 112px; max-height: 120px; box-sizing: border-box;
-            padding: 0; margin: 0; overflow: hidden;
+            gap: var(--logo-gap);
+            width: 112px; max-width: 112px; max-height: 120px;
+            box-sizing: border-box; padding: 0; margin: 0; overflow: hidden;
         }
         .logo-img {
-            display: block; width: var(--logo-mark-w); max-width: var(--logo-mark-w);
-            height: auto; max-height: none;
+            display: block;
+            width: var(--logo-mark-w); height: var(--logo-mark-h);
+            max-width: var(--logo-mark-w); max-height: var(--logo-mark-h);
             object-fit: contain; object-position: center center; margin: 0;
             flex: 0 0 auto;
+            image-rendering: auto;
         }
         .logo-corp-img {
-            display: block; width: var(--logo-mark-w); max-width: var(--logo-mark-w);
-            height: auto; margin: 0; padding: 0; border: 0;
+            display: block;
+            width: var(--logo-mark-w); height: var(--logo-corp-h);
+            max-width: var(--logo-mark-w); max-height: var(--logo-corp-h);
+            margin: 0; padding: 0; border: 0;
             object-fit: contain; object-position: center center;
             flex: 0 0 auto;
         }
@@ -176,6 +194,12 @@
         }
         .scene.active { display: flex; }
         #scene3.active { display: flex; flex-direction: column; }
+        /* シーン3: 上32 + 本体72 + 下帯24（中央文言を大きく） */
+        #scene3 {
+            --led-col-body-h: 72px;
+            --led-foot-bar-h: 24px;
+            --led-col-main-h: 104px;
+        }
         #scene4.active { display: block; }
         #scene5.active { display: block; }
 
@@ -717,7 +741,7 @@
         }
         #scene5 .d5-body .s2-val { flex-shrink: 0; }
         #scene5 .d5-body .s2-num { font-size: 52px; line-height: 1; }
-        #scene5 .d5-body .s2-unit { font-size: 24px; line-height: 1; }
+        #scene5 .d5-body .s2-unit { font-size: 18px; line-height: 1; }
         /* 今日のみ 128×128 枠で強調 — 実DOM（LEDサイネージで ::after が欠ける対策） */
         #scene5 .d5-panel.d5-today-focus {
             position: relative;
@@ -838,8 +862,8 @@
         #scene3 .t3-guid-bar .s2-meta-msg-scroll {
             display: inline-flex; align-items: center;
             height: var(--led-foot-bar-h); max-height: var(--led-foot-bar-h);
-            line-height: 1.12; overflow: hidden; box-sizing: border-box;
-            font-size: 15px; padding: 0 4px;
+            line-height: 1.1; overflow: hidden; box-sizing: border-box;
+            font-size: 14px; padding: 0 4px;
         }
         #scene3 .t3-guid-bar .s2-meta-set-flow {
             min-width: 0; width: auto;
@@ -862,13 +886,13 @@
         .t3-slot {
             width: 256px; height: 100%; max-height: 100%; flex-shrink: 0; box-sizing: border-box;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 2px; padding: 0 4px; overflow: hidden;
+            gap: 0; padding: 0 2px; overflow: hidden;
         }
         .t3-l1, .t3-l2 {
-            line-height: 1.08; font-weight: 900; white-space: nowrap;
-            letter-spacing: 0.3px; text-align: center;
+            line-height: 1; font-weight: 900; white-space: nowrap;
+            letter-spacing: 0.2px; text-align: center;
             font-family: "Noto Sans JP", "Inter", sans-serif;
-            color: #ebebeb; width: 100%; max-width: 248px;
+            color: #ebebeb; width: 100%; max-width: 252px;
             box-sizing: border-box;
             overflow: visible; flex-shrink: 0;
             height: auto; padding: 0;
@@ -1894,10 +1918,12 @@
     </div>
     </div>
     <div class="logo-panel">
-        <div class="logo-rotator" id="logo-rotator">
-            <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="./assets/taiyo_mark.png" alt="" decoding="sync" fetchpriority="high">
-                <img class="logo-corp-img" id="signage-logo-corp" src="./assets/taiyo_corp.png" alt="TAIYO KENKI RENTAL" decoding="sync" fetchpriority="high">
+        <div class="logo-aspect-fix" id="logo-aspect-fix">
+            <div class="logo-rotator" id="logo-rotator">
+                <div class="logo-stack">
+                    <img class="logo-img" id="signage-logo" src="./assets/taiyo_mark.png" alt="" width="145" height="125" decoding="sync" fetchpriority="high">
+                    <img class="logo-corp-img" id="signage-logo-corp" src="./assets/taiyo_corp.png" alt="TAIYO KENKI RENTAL" width="328" height="121" decoding="sync" fetchpriority="high">
+                </div>
             </div>
         </div>
     </div>
@@ -2241,9 +2267,8 @@
     };
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
-    /* 640×128 ネイティブ: embed / native640=1 / 既定（?preview=1 のときのみ拡大確認） */
-    const NATIVE_640 = query.get('preview') !== '1' && query.get('native640') !== '0'
-        || query.get('native640') === '1' || DEMO_EMBED;
+    /* 640×128: native640=1 / embed のみ画素固定。本番は縦横同倍率スケール */
+    const NATIVE_640 = query.get('native640') === '1' || DEMO_EMBED;
     if (NATIVE_640) {
         document.documentElement.classList.add('native-640');
         document.documentElement.classList.remove('browser-preview');
@@ -2259,13 +2284,13 @@
         return !DEMO_EMBED && !NATIVE_640;
     }
     const T3_LANG_KEYS = ['jp', 'en', 'id', 'fil', 'vn'];
-    /** シーン3 多言語: 5段階 × 言語別 目標比率（1段目 / 2段目 px・256×68 内で最大化） */
+    /** シーン3 多言語: 5段階 × 言語別 目標（1段目 / 2段目 px・帯いっぱいに拡大） */
     const T3_LANG_FONT_SIZES = [
-        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [48, 28], fil: [34, 20] }, /* ほぼ安全 */
-        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [38, 22], fil: [36, 21] }, /* 注意 */
-        { jp: [48, 28], en: [48, 28], id: [38, 22], vn: [48, 28], fil: [38, 22] }, /* 警戒 */
-        { jp: [48, 28], en: [36, 21], id: [32, 19], vn: [28, 16], fil: [32, 19] }, /* 厳重警戒 */
-        { jp: [48, 28], en: [42, 24], id: [36, 21], vn: [47, 27], fil: [44, 25] }  /* 危険 */
+        { jp: [56, 34], en: [56, 34], id: [40, 24], vn: [56, 34], fil: [38, 23] }, /* ほぼ安全 */
+        { jp: [56, 34], en: [56, 34], id: [40, 24], vn: [42, 26], fil: [40, 24] }, /* 注意 */
+        { jp: [56, 34], en: [56, 34], id: [42, 26], vn: [56, 34], fil: [42, 26] }, /* 警戒 */
+        { jp: [54, 32], en: [40, 24], id: [36, 22], vn: [32, 20], fil: [36, 22] }, /* 厳重警戒 */
+        { jp: [56, 34], en: [46, 28], id: [40, 24], vn: [52, 32], fil: [48, 29] }  /* 危険 */
     ];
     let t3LangIdx_ = 0;
     function getT3LangFontSize_(levelIdx, langKey) {
@@ -4438,6 +4463,53 @@
     }
     let logoRotDeg = 0;
     const LOGO_ROT_STEP_MS = 420;
+    const logoAspectFix = document.getElementById('logo-aspect-fix');
+    /** サイネージ実機の非等倍引き伸ばし補正。?logoPitch=1 無効 / 未指定は自動 / 数値で手動 */
+    let logoPitchY_ = 1;
+
+    function readLogoPitchParam_() {
+        const raw = query.get('logoPitch') || query.get('logopitch');
+        if (raw == null || raw === '') return null;
+        const n = Number(raw);
+        return Number.isFinite(n) && n > 0.2 && n < 3 ? n : null;
+    }
+    function measureLogoFaceRatio_() {
+        const panel = document.querySelector('.logo-panel');
+        if (!panel) return 1;
+        const r = panel.getBoundingClientRect();
+        if (!(r.height > 1) || !(r.width > 1)) return 1;
+        return r.width / r.height;
+    }
+    function computeLogoPitchY_() {
+        const forced = readLogoPitchParam_();
+        if (forced != null) return forced;
+        /* 描画後にロゴ列 getBoundingClientRect が非正方形なら、プレイヤー等倍でない引き伸ばしを逆補正 */
+        const face = measureLogoFaceRatio_();
+        if (!Number.isFinite(face) || Math.abs(face - 1) < 0.015) return 1;
+        return 1 / face;
+    }
+    function applyLogoAspectFix_() {
+        logoPitchY_ = computeLogoPitchY_();
+        if (!logoAspectFix) return;
+        /* ロゴ列の見た目を常に正方形に近づける（回転と独立） */
+        if (Math.abs(logoPitchY_ - 1) < 0.005) {
+            logoAspectFix.style.transform = '';
+            return;
+        }
+        logoAspectFix.style.transform = 'scale(1, ' + logoPitchY_.toFixed(4) + ')';
+    }
+    function applyCanvasUniformFit_() {
+        if (NATIVE_640) return;
+        const canvas = document.querySelector('.canvas');
+        if (!canvas) return;
+        const vw = window.innerWidth || 640;
+        const vh = window.innerHeight || 128;
+        const s = Math.min(vw / 640, vh / 128);
+        canvas.style.transformOrigin = 'top left';
+        canvas.style.transform = 'scale(' + s + ')';
+        /* ロゴ列の実測補正はスケール後 */
+        applyLogoAspectFix_();
+    }
 
     function stopLogoSpinInterval() {
         settleLogoRotation_(LOGO_ROT_STEP_MS);
@@ -4451,6 +4523,7 @@
         const ms = transitionMs ?? LOGO_ROT_STEP_MS;
         logoRotator.style.transition = `transform ${ms}ms ease-in-out`;
         logoRotator.style.transform = `rotate(${logoRotDeg}deg)`;
+        applyLogoAspectFix_();
     }
     /** 小数°のずれを防ぎ、常に 0/90/180/270° に揃える */
     function snapLogoRotationQuarter_() {
@@ -4461,6 +4534,7 @@
         logoRotDeg = snapped;
         logoRotator.style.transition = 'none';
         logoRotator.style.transform = 'rotate(' + snapped + 'deg)';
+        applyLogoAspectFix_();
     }
     /** シーン切替時: 高速スピン付きで +90°（見た目は直角回転） */
     function stepLogo90(transitionMs, withFastSpin) {
@@ -4477,6 +4551,7 @@
         if (!logoRotator) return;
         logoRotator.style.transition = 'none';
         logoRotator.style.transform = 'rotate(0deg)';
+        applyLogoAspectFix_();
     }
     function beginLogoSceneScroll(panelWidthPx) {
         // スクロール追従回転は行わない（シーン切替の stepLogo90 のみ）
@@ -4534,12 +4609,12 @@
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
     const T3_UNIT_W = 256;
-    const T3_USABLE_W = T3_UNIT_W - 8;
-    const T3_SLOT_GAP = 2;
-    const T3_BODY_VERT_PAD = 2;
-    const T3_LINE_LH_JP = 1.04;
-    const T3_LINE_LH_LATIN = 1.10;
-    const T3_L1_MAX = 56;       /* l1 上限（l1 > l2、l2 は T3_L2_RATIO 倍） */
+    const T3_USABLE_W = T3_UNIT_W - 4;
+    const T3_SLOT_GAP = 0;
+    const T3_BODY_VERT_PAD = 0;
+    const T3_LINE_LH_JP = 1.0;
+    const T3_LINE_LH_LATIN = 1.05;
+    const T3_L1_MAX = 60;       /* l1 上限（l1 > l2、l2 は T3_L2_RATIO 倍） */
     const T3_L2_RATIO = 0.82;
     const T3_LINE_H = 1.02;
     const T3_SCROLL_PX = 0.8;
@@ -5726,7 +5801,7 @@
             let iconSz = 58;
             let sepSz = 38;
             let numSz = 52;
-            let unitSz = 24;
+            let unitSz = 18;
             const apply = function () {
                 if (icon) { icon.style.width = iconSz + 'px'; icon.style.height = iconSz + 'px'; }
                 if (sep) sep.style.fontSize = sepSz + 'px';
@@ -5744,7 +5819,6 @@
                 if (numSz < 56) numSz += 1;
                 else if (iconSz < 62) iconSz += 1;
                 else if (sepSz < 42) sepSz += 1;
-                else if (unitSz < 26) unitSz += 1;
                 else break;
                 apply();
                 if (overflows()) {
@@ -5758,7 +5832,7 @@
                 if (numSz > 30) { numSz -= 1; apply(); continue; }
                 if (iconSz > 38) { iconSz -= 2; apply(); continue; }
                 if (sepSz > 26) { sepSz -= 1; apply(); continue; }
-                if (unitSz > 16) { unitSz -= 1; apply(); continue; }
+                if (unitSz > 14) { unitSz -= 1; apply(); continue; }
                 break;
             }
         });
@@ -6801,10 +6875,9 @@
         const cs = window.getComputedStyle(node);
         const fs = parseFloat(cs.fontSize) || 0;
         let lhPx = parseFloat(cs.lineHeight);
-        if (!Number.isFinite(lhPx)) lhPx = fs * 1.1;
-        const bleed = fs > 0 ? Math.ceil(fs * 0.10) : 0;
-        const rect = node.getBoundingClientRect();
-        return Math.ceil(Math.max(lhPx, node.offsetHeight, node.scrollHeight, rect.height)) + bleed;
+        if (!Number.isFinite(lhPx)) lhPx = fs;
+        /* line-height 基準のみ（scrollHeight/bleed で過大判定して余白が残るのを防ぐ） */
+        return Math.ceil(Math.max(lhPx, fs));
     }
     function t3LineBoxH_(node) {
         return t3LineInkH_(node);
@@ -6812,7 +6885,7 @@
     function t3SlotClipsHoriz_(slot) {
         if (!slot) return false;
         const slotR = slot.getBoundingClientRect();
-        const pad = 1;
+        const pad = 0;
         let clips = false;
         slot.querySelectorAll('.t3-l1, .t3-l2').forEach(function (n) {
             if (!String(n.textContent || '').trim()) return;
@@ -6828,12 +6901,13 @@
         const box = slot || bodyEl;
         if (!box) return false;
         const boxR = box.getBoundingClientRect();
-        const pad = 1;
+        /* 太字グリフのはみ出しを数px許容（帯の余白を残さない） */
+        const tol = 2;
         let clips = false;
         (slot || box).querySelectorAll('.t3-l1, .t3-l2').forEach(function (n) {
             if (!String(n.textContent || '').trim()) return;
             const r = n.getBoundingClientRect();
-            if (r.top < boxR.top + pad || r.bottom > boxR.bottom - pad) clips = true;
+            if (r.top < boxR.top - tol || r.bottom > boxR.bottom + tol) clips = true;
         });
         return clips;
     }
@@ -6982,7 +7056,12 @@
         const gap = T3_SLOT_GAP;
         const ratio = t3RatioFromFixed_(fixed, hasL1);
         const seeded = t3SeedFonts_(fixed, hasL1, langKey, usableH, gap);
-        t3FinalizeTextFit_(seeded.f1, seeded.f2, hasL1, langKey, ratio);
+        /* 目標サイズを下限に、帯いっぱいに拡大（はみ出したら finalize 側で縮小） */
+        const f1 = hasL1 ? Math.min(T3_L1_MAX, Math.max(seeded.f1, fixed.l1)) : 0;
+        const f2 = hasL1
+            ? Math.max(seeded.f2, fixed.l2)
+            : Math.max(seeded.f2, fixed.l2 || seeded.f2);
+        t3FinalizeTextFit_(f1, f2, hasL1, langKey, ratio);
     }
     function sizeT3Text_(langIdx) {
         const slot = document.querySelector('#scene3 .t3-slot');
@@ -7533,6 +7612,12 @@
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
         applySiteLocationLabels_();
         paintBootSplash_();
+        applyLogoAspectFix_();
+        applyCanvasUniformFit_();
+        window.addEventListener('resize', function () {
+            applyCanvasUniformFit_();
+            applyLogoAspectFix_();
+        });
         const logoEl = document.getElementById('signage-logo');
         const logoCorpEl = document.getElementById('signage-logo-corp');
         const logoCfg = window.SIGNAGE_CONFIG;
