@@ -1,0 +1,13 @@
+{
+  "name": "shizuoka-taiyo-kenki-rental",
+  "version": "1.0.0",
+  "description": "太陽建機レンタル 静岡本社 WBGT サイネージ（5面 640×128）",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "commonjs"
+}
