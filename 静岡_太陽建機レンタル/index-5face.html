@@ -1,6 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- wbgt-cube-taiyo-5face / 太陽建機レンタル WBGT サイネージ（本番 5面 640×128・ロゴ列128） -->
-<!-- 同階層: assets/taiyo_mark.png（右端マーク） / assets/taiyo_corp.png（英字） / assets/taiyo_logo.png（下帯） -->
+<!-- 同階層: assets/taiyo_stack.png（右端・公式縦組焼付け） / assets/taiyo_logo.png（下帯） -->
 <!-- 会場: 〒422-8507 静岡市駿河区大坪町2－26（太陽建機レンタル本社） -->
 <!-- WBGT・AMeDAS 50331（静岡・気象庁/環境省） -->
 <!-- サイネージ: 640×128 を縦横同倍率で表示（歪み防止）。画素確認のみ ?native640=1。ロゴ補正 ?logoPitch= -->
@@ -13,13 +13,12 @@
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
     <title>WBGT Signage 5面 - 太陽建機レンタル</title>
-    <link rel="preload" as="image" href="./assets/taiyo_mark.png">
-    <link rel="preload" as="image" href="./assets/taiyo_corp.png">
+    <link rel="preload" as="image" href="./assets/taiyo_stack.png">
     <link rel="preload" as="image" href="./assets/taiyo_logo.png">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
     (function () {
-        ['./assets/taiyo_mark.png', './assets/taiyo_corp.png', './assets/taiyo_logo.png'].forEach(function (u) {
+        ['./assets/taiyo_stack.png', './assets/taiyo_logo.png'].forEach(function (u) {
             var img = new Image();
             img.decoding = 'sync';
             img.src = u;
@@ -151,34 +150,20 @@
             transition: transform 0.6s ease-in-out;
             aspect-ratio: 1 / 1;
         }
-        /* 右端 128×128: 公式縦組
-           マーク幅＝英字幅 / マーク下ギャップ＝マーク高さ×0.1163（参照ロゴと同一） */
+        /* 右端 128×128: 公式縦組を1枚画像に焼付け（隙間=マーク高×0.1163・端末のCSS gap崩れ防止） */
         .logo-stack {
-            --logo-mark-w: 80px;
-            --logo-mark-h: calc(var(--logo-mark-w) * 125 / 145);
-            --logo-corp-h: calc(var(--logo-mark-w) * 121 / 328);
-            --logo-gap: calc(var(--logo-mark-h) * 0.1163);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: var(--logo-gap);
             width: 112px; max-width: 112px; max-height: 120px;
             box-sizing: border-box; padding: 0; margin: 0; overflow: hidden;
         }
         .logo-img {
             display: block;
-            width: var(--logo-mark-w); height: var(--logo-mark-h);
-            max-width: var(--logo-mark-w); max-height: var(--logo-mark-h);
+            width: 104px; height: auto; max-width: 104px; max-height: 118px;
             object-fit: contain; object-position: center center; margin: 0;
             flex: 0 0 auto;
             image-rendering: auto;
         }
-        .logo-corp-img {
-            display: block;
-            width: var(--logo-mark-w); height: var(--logo-corp-h);
-            max-width: var(--logo-mark-w); max-height: var(--logo-corp-h);
-            margin: 0; padding: 0; border: 0;
-            object-fit: contain; object-position: center center;
-            flex: 0 0 auto;
-        }
+        .logo-corp-img { display: none !important; }
         .logo-wordmark { display: none !important; }
         .content-area {
             width: 512px; height: 128px; position: relative; overflow: hidden;
@@ -1703,10 +1688,10 @@
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/taiyo_mark.png',
+    logoSrc: './assets/taiyo_stack.png',
     logoAlt: '太陽建機レンタル',
     logoPanelBg: '',
-    logoCorpSrc: './assets/taiyo_corp.png',
+    logoCorpSrc: '',
     footLogoSrc: './assets/taiyo_mark.png',
     footBannerSrc: './assets/taiyo_logo.png'
   };
@@ -1920,10 +1905,10 @@
     <div class="logo-panel">
         <div class="logo-aspect-fix" id="logo-aspect-fix">
             <div class="logo-rotator" id="logo-rotator">
-                <div class="logo-stack">
-                    <img class="logo-img" id="signage-logo" src="./assets/taiyo_mark.png" alt="" width="145" height="125" decoding="sync" fetchpriority="high">
-                    <img class="logo-corp-img" id="signage-logo-corp" src="./assets/taiyo_corp.png" alt="TAIYO KENKI RENTAL" width="328" height="121" decoding="sync" fetchpriority="high">
-                </div>
+            <div class="logo-stack">
+                <img class="logo-img" id="signage-logo" src="./assets/taiyo_stack.png" alt="TAIYO KENKI RENTAL" width="145" height="193" decoding="sync" fetchpriority="high">
+                <img class="logo-corp-img" id="signage-logo-corp" src="./assets/taiyo_corp.png" alt="" width="328" height="121" decoding="sync" hidden>
+            </div>
             </div>
         </div>
     </div>
@@ -2160,8 +2145,13 @@
             if (cfg.logoSrc && img.getAttribute('src') !== cfg.logoSrc) img.src = cfg.logoSrc;
             if (cfg.logoAlt) img.alt = cfg.logoAlt;
         }
-        if (corp && cfg.logoCorpSrc && corp.getAttribute('src') !== cfg.logoCorpSrc) {
-            corp.src = cfg.logoCorpSrc;
+        if (corp) {
+            if (cfg.logoCorpSrc) {
+                corp.hidden = false;
+                if (corp.getAttribute('src') !== cfg.logoCorpSrc) corp.src = cfg.logoCorpSrc;
+            } else {
+                corp.hidden = true;
+            }
         }
     }
     function refreshLogoPanel(levelIdx, displayMode) {
@@ -7625,8 +7615,13 @@
             if (logoEl.getAttribute('src') !== logoCfg.logoSrc) logoEl.src = logoCfg.logoSrc;
             logoEl.alt = logoCfg.logoAlt || '';
         }
-        if (logoCorpEl && logoCfg && logoCfg.logoCorpSrc) {
-            if (logoCorpEl.getAttribute('src') !== logoCfg.logoCorpSrc) logoCorpEl.src = logoCfg.logoCorpSrc;
+        if (logoCorpEl) {
+            if (logoCfg && logoCfg.logoCorpSrc) {
+                logoCorpEl.hidden = false;
+                if (logoCorpEl.getAttribute('src') !== logoCfg.logoCorpSrc) logoCorpEl.src = logoCfg.logoCorpSrc;
+            } else {
+                logoCorpEl.hidden = true;
+            }
         }
         if (DEMO_ALERT_ONLY && !NO_HEAT_ALERT) {
             bootDisplayHold_ = false;
