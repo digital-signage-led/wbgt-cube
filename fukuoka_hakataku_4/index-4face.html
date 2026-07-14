@@ -2434,12 +2434,13 @@
         const fmt = new Intl.DateTimeFormat('en-CA', {
             timeZone: CLOCK_TZ,
             year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false, hourCycle: 'h23'
         });
         const p = Object.fromEntries(fmt.formatToParts(new Date(ms)).map(x => [x.type, x.value]));
         return {
             year: Number(p.year), month: Number(p.month), day: Number(p.day),
-            hour: Number(p.hour), minute: Number(p.minute), second: Number(p.second)
+            hour: Number(p.hour) % 24, minute: Number(p.minute), second: Number(p.second)
         };
     }
     function jstMsFromParts(y, mo, d, h, mi, s) {
@@ -2550,7 +2551,8 @@
         const mode = paint.mode;
         const lv = paint.lv;
         if (!force && lv === lastSignageBgLv_ && mode === lastSignageBgMode_) return;
-        if (shouldDeferDisplayRefresh_()) {
+        /* force は起動・WBGT取得成功時など、シーン再生中でも背景色をすぐ塗る */
+        if (!force && shouldDeferDisplayRefresh_()) {
             pendingSignageBgRefresh_ = true;
             pendingSignageBgLv_ = lv;
             pendingSignageBgMode_ = mode;
@@ -4393,10 +4395,10 @@
 
     const timeSync = { baseUtcMs: null, clientAtSync: 0, source: '' };
     const CLOCK_TZ = 'Asia/Tokyo';
-    /** 表示は時:分のみ。内部時刻はこの間隔で NICT 等と再同期（Wi-Fi 前提） */
+    /** 表示は日本標準時（Asia/Tokyo）。内部時刻はこの間隔でネット再同期（Wi-Fi 前提） */
     const CLOCK_SYNC_INTERVAL_MS = 60000;
     const clockHmFormatter = new Intl.DateTimeFormat('en-GB', {
-        timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hour12: false
+        timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23'
     });
     const clockDateFormatter = new Intl.DateTimeFormat('ja-JP', {
         timeZone: CLOCK_TZ, month: 'long', day: 'numeric', weekday: 'short'
@@ -4416,21 +4418,50 @@
         if (!Number.isFinite(serverUtcMs)) return NaN;
         return serverUtcMs + (t1 - t0) / 2;
     }
+    function pad2Clock_(n) {
+        return String(n == null ? 0 : n).padStart(2, '0');
+    }
     function utcMsFromOpenMeteoTime(iso) {
         let s = String(iso || '').trim();
         if (!s) return NaN;
         if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += '+09:00';
         return Date.parse(s);
     }
+    /** timeapi.io Asia/Tokyo 応答を UTC ms に変換（オフセット無し日時は必ず +09:00 として扱う） */
     function parseTimeApiIoJson(json) {
         if (!json || typeof json !== 'object') return NaN;
+        if (json.year != null && json.month != null && json.day != null && json.hour != null) {
+            const iso = `${json.year}-${pad2Clock_(json.month)}-${pad2Clock_(json.day)}T` +
+                `${pad2Clock_(json.hour)}:${pad2Clock_(json.minute)}:${pad2Clock_(json.seconds)}` +
+                `.${String(json.milliSeconds || 0).padStart(3, '0')}+09:00`;
+            const ms = Date.parse(iso);
+            if (Number.isFinite(ms)) return ms;
+        }
         if (json.dateTime) {
             const s = String(json.dateTime).trim();
             if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
             return Date.parse(s.replace(/\.\d+$/, '') + '+09:00');
         }
-        if (json.year == null) return NaN;
-        return Date.UTC(json.year, json.month - 1, json.day, json.hour - 9, json.minute, json.seconds, json.milliSeconds || 0);
+        return NaN;
+    }
+    async function fetchUtcMsFromCloudflare() {
+        const urls = ['https://www.cloudflare.com/cdn-cgi/trace', 'https://one.one.one.one/cdn-cgi/trace'];
+        for (let i = 0; i < urls.length; i++) {
+            const t0 = performance.now();
+            const res = await fetch(urls[i], { cache: 'no-store' });
+            const t1 = performance.now();
+            if (!res.ok) continue;
+            const text = await res.text();
+            const m = text.match(/(?:^|\n)ts=([0-9]+(?:\.[0-9]+)?)/);
+            let serverUtcMs = NaN;
+            if (m) serverUtcMs = Math.round(parseFloat(m[1]) * 1000);
+            if (!Number.isFinite(serverUtcMs)) {
+                const dateHdr = res.headers.get('Date');
+                if (dateHdr) serverUtcMs = Date.parse(dateHdr);
+            }
+            if (Number.isFinite(serverUtcMs)) return utcMsWithRtt(serverUtcMs, t0, t1);
+        }
+        throw new Error('Cloudflare time unavailable');
     }
     async function fetchUtcMsFromTimeApiIo() {
         const t0 = performance.now();
@@ -4484,11 +4515,12 @@
         if (!Number.isFinite(serverUtcMs)) throw new Error('jma-latest parse');
         return utcMsWithRtt(serverUtcMs, t0, t1);
     }
-    /** JMA latest_time は観測時刻（10分単位）のため時計同期には使わない */
+    /** NICT HTTP時刻配信は停止方向のため Cloudflare を優先。表示は常に Asia/Tokyo */
     const TIME_SYNC_CHAIN = [
-        { name: 'NICT', fetch: fetchUtcMsFromNict },
+        { name: 'Cloudflare', fetch: fetchUtcMsFromCloudflare },
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo },
-        { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi }
+        { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi },
+        { name: 'NICT', fetch: fetchUtcMsFromNict }
     ];
     function fetchWithTimeout_(promise, ms, label) {
         return Promise.race([
@@ -4505,7 +4537,7 @@
                 if (Number.isFinite(utcMs)) { applySyncedUtcMs(utcMs, src.name); return true; }
             } catch (e) { console.warn('Time sync [' + src.name + ']:', e.message || e); }
         }
-        console.warn('Time sync: 全ソース失敗。PC時計を暫定利用します。');
+        console.warn('Time sync: 全ソース失敗。PC時計を暫定利用（表示は Asia/Tokyo）します。');
         return false;
     }
     function fitS1DateFontSize_() {
@@ -4550,13 +4582,11 @@
         let ms = getSyncedUtcMs();
         if (ms == null) { applySyncedUtcMs(Date.now(), 'local-fallback'); ms = getSyncedUtcMs(); }
         const now = new Date(Math.floor(ms));
+        /* 表示時刻・日付は必ず日本標準時（Asia/Tokyo） */
+        const jp = jstPartsFromMs(ms);
         const d = clockDateFormatter.format(now);
-        let h = '';
-        let m = '';
-        clockHmFormatter.formatToParts(now).forEach(function (p) {
-            if (p.type === 'hour') h = p.value;
-            if (p.type === 'minute') m = p.value;
-        });
+        const h = pad2Clock_(jp.hour);
+        const m = pad2Clock_(jp.minute);
         document.querySelectorAll('.clock-hm').forEach(function (el) {
             ensureClockHmStructure_(el);
             el.querySelector('.clock-h').textContent = h;
@@ -4879,7 +4909,7 @@
         syncWbgtLevelFromSlots(slots);
         updateForecastSlots(slots);
         queueOrRefreshS1FootBar_();
-        refreshSignageBgIfChanged_();
+        refreshSignageBgIfChanged_(true);
         return true;
     }
     function applyWbgtSlotsToDom(wbgtSlots) {
@@ -4894,7 +4924,7 @@
             syncWbgtLevelFromSlots(wbgtSlots);
             updateForecastSlots(wbgtSlots);
             queueOrRefreshS1FootBar_();
-            refreshSignageBgIfChanged_();
+            refreshSignageBgIfChanged_(true);
             queueDisplayRefresh_();
             return true;
         }
@@ -4908,7 +4938,7 @@
             syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
             updateForecastSlots(lastGoodWbgtSlots_);
             queueOrRefreshS1FootBar_();
-            refreshSignageBgIfChanged_();
+            refreshSignageBgIfChanged_(true);
             queueDisplayRefresh_();
         }
         return false;
@@ -4962,6 +4992,14 @@
         if (!pendingDisplayRefresh && !force) return;
         if (!force && shouldDeferDisplayRefresh_()) return;
         pendingDisplayRefresh = false;
+        if (pendingSignageBgRefresh_) {
+            lastSignageBgLv_ = pendingSignageBgLv_;
+            lastSignageBgMode_ = pendingSignageBgMode_;
+            pendingSignageBgRefresh_ = false;
+            refreshSignageBg();
+        } else {
+            refreshSignageBgIfChanged_(true);
+        }
         refreshS1WbgtFootBar_(false);
         if (lastAmedasObsTime) buildScene2MetaTrack(lastAmedasObsTime);
         buildTicker();
@@ -5422,12 +5460,13 @@
         const d = date instanceof Date ? date : new Date(date);
         const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
             timeZone: CLOCK_TZ, month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false
+            hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23'
         }).formatToParts(d).map(x => [x.type, x.value]));
+        const hour = Number(p.hour) % 24;
         return {
             date: `${Number(p.month)}/${Number(p.day)}`,
-            time: `${p.hour}:${p.minute}`,
-            stamp: `${Number(p.month)}/${Number(p.day)} ${p.hour}:${p.minute}`
+            time: `${pad2Clock_(hour)}:${p.minute}`,
+            stamp: `${Number(p.month)}/${Number(p.day)} ${pad2Clock_(hour)}:${p.minute}`
         };
     }
     const SCENE2_META_LABELS = {
@@ -7132,6 +7171,10 @@
             applySyncedUtcMs(Date.now(), 'demo-local');
             updateClock();
             startClockTicker();
+            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+            setInterval(function () {
+                syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+            }, CLOCK_SYNC_INTERVAL_MS);
             applyDemoWeatherStatic();
             if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') {
                 startPreviewDemo_(DEMO_PREVIEW);
