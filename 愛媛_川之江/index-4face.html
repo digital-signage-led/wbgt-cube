@@ -2478,11 +2478,11 @@
     let wbgtUnavailableTimerId_ = null;
 
     const multi = [
-        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"【Aman】Minum air secukupnya", fil:"【Halos ligtas】Uminom ng tubig kung kailangan", vn:"An toàn: Bổ sung nước" },
-        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"【Waspada】Minum air secara aktif", fil:"【Babala】Aktibong uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
-        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"【Siaga】Istirahat secara berkala", fil:"【Alerto】Magpahinga nang regular", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
-        { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", id:"【Waspada Ekstrem】Hentikan pekerjaan berat", fil:"【Malubhang babala】Itigil ang mabigat na gawain", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
-        { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", id:"【Bahaya】Segera hentikan pekerjaan", fil:"【Panganib】Itigil agad ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
+        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"Aman: Minum air cukup", fil:"Halos ligtas: Uminom ng tubig", vn:"An toàn: Bổ sung nước" },
+        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"Waspada: Minum air aktif", fil:"Babala: Uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
+        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"Siaga: Istirahat rutin", fil:"Alerto: Magpahinga", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
+        { jp:"【厳重警戒】こまめに休憩・体調確認", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
+        { jp:"【危険】休憩・水分塩分補給を徹底", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
     ];
     const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
     const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
@@ -2500,13 +2500,13 @@
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
     const T3_WBGT_GUIDE_TIERS = [
-        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '過去に例のない危険な暑さとなり、重大な健康上の被害が生じる恐れがある。' },
-        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '熱中症による健康上の被害が生じる恐れがある。' },
-        { range: '31以上', color: '赤', title: '危険', guide: '安静時でも熱中症になる危険性が大きい。外出はなるべく避け、運動や作業は原則中止する。' },
-        { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '外出時は炎天下を避け、室内でも室温の上昇に注意する。10～20分おきに水分や塩分を補給し、激しい運動や作業は避ける。' },
-        { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給を行う。激しい運動や作業をする場合には、30分おきくらいに休憩を入れる。' },
-        { range: '21～25未満', color: '水色', title: '注意', guide: '激しい運動や重労働をする場合には、十分注意する。熱中症の兆候に注意し、積極的に水分や塩分を補給する。' },
-        { range: '21未満', color: '青', title: 'ほぼ安全', guide: '熱中症の危険性は少ないが、水分や塩分の補給は必要。' }
+        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '記録的な暑さです。無理をせず、涼しい場所での休憩と水分・塩分補給を最優先にしてください。' },
+        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '危険な暑さです。こまめな休憩と水分・塩分補給を徹底し、体調の変化に注意してください。' },
+        { range: '31以上', color: '赤', title: '危険', guide: '熱中症の危険性が非常に高い状態です。休憩の間隔を短くし、水分・塩分補給と体調確認を徹底してください。' },
+        { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '炎天下を避け、10～20分おきに水分や塩分を補給してください。負荷の高い作業は控えめにしましょう。' },
+        { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給してください。負荷の高い作業では30分おきに休憩を入れましょう。' },
+        { range: '21～25未満', color: '水色', title: '注意', guide: '熱中症の兆候に注意し、こまめに水分や塩分を補給してください。' },
+        { range: '21未満', color: '青', title: 'ほぼ安全', guide: '熱中症の危険性は低い状態です。引き続き水分や塩分の補給を心掛けましょう。' }
     ];
     /* levelIdx 0〜4 → T3_WBGT_GUIDE_TIERS のインデックス（31以上〜21未満） */
     const T3_GUIDE_TIER_BY_LEVEL = [6, 5, 4, 3, 2];
