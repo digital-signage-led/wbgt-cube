@@ -2636,7 +2636,8 @@
         const fmt = new Intl.DateTimeFormat('en-CA', {
             timeZone: CLOCK_TZ,
             year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false, hourCycle: 'h23'
         });
         const p = Object.fromEntries(fmt.formatToParts(new Date(ms)).map(x => [x.type, x.value]));
         return {
@@ -4602,16 +4603,12 @@
     let scene2AnimId = null;
     let clockIntervalId = null;
     let clockBackupIntervalId = null;
-    let clockTickWallMs_ = 0;
 
     const timeSync = { baseUtcMs: null, clientAtSync: 0, source: '' };
-    /** 表示は時:分のみ。内部時刻はこの間隔で NICT 等と再同期（Wi-Fi 前提） */
+    /** 表示は日本標準時（Asia/Tokyo）。内部時刻はこの間隔でネット再同期 */
     const CLOCK_SYNC_INTERVAL_MS = 60000;
-    const clockHmFormatter = new Intl.DateTimeFormat('ja-JP', {
-        timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hour12: false
-    });
-    const clockSecFormatter = new Intl.DateTimeFormat('ja-JP', {
-        timeZone: CLOCK_TZ, second: 'numeric'
+    const clockHmFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23'
     });
     const clockDateFormatter = new Intl.DateTimeFormat('ja-JP', {
         timeZone: CLOCK_TZ, month: 'long', day: 'numeric', weekday: 'short'
@@ -4622,14 +4619,18 @@
         return timeSync.baseUtcMs + (Date.now() - timeSync.clientAtSync);
     }
     function applySyncedUtcMs(utcMs, source) {
-        if (!Number.isFinite(utcMs)) return;
+        if (!Number.isFinite(utcMs)) return false;
         timeSync.baseUtcMs = utcMs;
         timeSync.clientAtSync = Date.now();
         if (source) timeSync.source = source;
+        return true;
     }
     function utcMsWithRtt(serverUtcMs, t0, t1) {
         if (!Number.isFinite(serverUtcMs)) return NaN;
         return serverUtcMs + (t1 - t0) / 2;
+    }
+    function pad2Clock_(n) {
+        return String(n == null ? 0 : n).padStart(2, '0');
     }
     function utcMsFromOpenMeteoTime(iso) {
         let s = String(iso || '').trim();
@@ -4637,15 +4638,41 @@
         if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += '+09:00';
         return Date.parse(s);
     }
+    /** timeapi.io Asia/Tokyo 応答を UTC ms に変換（オフセット無し日時は必ず +09:00） */
     function parseTimeApiIoJson(json) {
         if (!json || typeof json !== 'object') return NaN;
+        if (json.year != null && json.month != null && json.day != null && json.hour != null) {
+            const iso = `${json.year}-${pad2Clock_(json.month)}-${pad2Clock_(json.day)}T` +
+                `${pad2Clock_(json.hour)}:${pad2Clock_(json.minute)}:${pad2Clock_(json.seconds)}` +
+                `.${String(json.milliSeconds || 0).padStart(3, '0')}+09:00`;
+            const ms = Date.parse(iso);
+            if (Number.isFinite(ms)) return ms;
+        }
         if (json.dateTime) {
             const s = String(json.dateTime).trim();
             if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
             return Date.parse(s.replace(/\.\d+$/, '') + '+09:00');
         }
-        if (json.year == null) return NaN;
-        return Date.UTC(json.year, json.month - 1, json.day, json.hour - 9, json.minute, json.seconds, json.milliSeconds || 0);
+        return NaN;
+    }
+    async function fetchUtcMsFromCloudflare() {
+        const urls = ['https://www.cloudflare.com/cdn-cgi/trace', 'https://one.one.one.one/cdn-cgi/trace'];
+        for (let i = 0; i < urls.length; i++) {
+            const t0 = performance.now();
+            const res = await fetch(urls[i], { cache: 'no-store' });
+            const t1 = performance.now();
+            if (!res.ok) continue;
+            const text = await res.text();
+            const m = text.match(/(?:^|[\r\n])ts=([0-9]+(?:\.[0-9]+)?)/m);
+            let serverUtcMs = NaN;
+            if (m) serverUtcMs = Math.round(parseFloat(m[1]) * 1000);
+            if (!Number.isFinite(serverUtcMs)) {
+                const dateHdr = res.headers.get('Date');
+                if (dateHdr) serverUtcMs = Date.parse(dateHdr);
+            }
+            if (Number.isFinite(serverUtcMs)) return utcMsWithRtt(serverUtcMs, t0, t1);
+        }
+        throw new Error('Cloudflare time unavailable');
     }
     async function fetchUtcMsFromTimeApiIo() {
         const t0 = performance.now();
@@ -4687,24 +4714,12 @@
         }
         throw new Error('NICT unavailable');
     }
-    async function fetchUtcMsFromJmaLatest() {
-        const t0 = performance.now();
-        const res = await fetch(JMA_LATEST_TIME_URL, JMA_FETCH_HEADERS);
-        const t1 = performance.now();
-        if (!res.ok) throw new Error('jma-latest HTTP ' + res.status);
-        const text = (await res.text()).trim();
-        let serverUtcMs = NaN;
-        if (text.endsWith('+09:00')) serverUtcMs = Date.parse(text);
-        else serverUtcMs = Date.parse(text.replace(/\.\d+$/, '') + '+09:00');
-        if (!Number.isFinite(serverUtcMs)) throw new Error('jma-latest parse');
-        return utcMsWithRtt(serverUtcMs, t0, t1);
-    }
-    /** JMA latest_time は10分単位だが、日本向け最終フォールバックとして利用 */
+    /** NICT HTTP JSON は廃止傾向のため先頭にしない。表示は常に Asia/Tokyo */
     const TIME_SYNC_CHAIN = [
-        { name: 'NICT', fetch: fetchUtcMsFromNict },
+        { name: 'Cloudflare', fetch: fetchUtcMsFromCloudflare },
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo },
         { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi },
-        { name: 'jma-latest', fetch: fetchUtcMsFromJmaLatest }
+        { name: 'NICT', fetch: fetchUtcMsFromNict }
     ];
     function fetchWithTimeout_(promise, ms, label) {
         return Promise.race([
@@ -4721,7 +4736,7 @@
                 if (Number.isFinite(utcMs)) { applySyncedUtcMs(utcMs, src.name); return true; }
             } catch (e) { console.warn('Time sync [' + src.name + ']:', e.message || e); }
         }
-        console.warn('Time sync: 全ソース失敗。PC時計を暫定利用します。');
+        console.warn('Time sync: 全ソース失敗。PC時計を暫定利用（表示は Asia/Tokyo）します。');
         return false;
     }
     function fitS1DateFontSize_() {
@@ -4766,13 +4781,11 @@
         let ms = getSyncedUtcMs();
         if (ms == null) { applySyncedUtcMs(Date.now(), 'local-fallback'); ms = getSyncedUtcMs(); }
         const now = new Date(Math.floor(ms));
+        /* 表示時刻・日付は必ず日本標準時（Asia/Tokyo） */
+        const jp = jstPartsFromMs(ms);
         const d = clockDateFormatter.format(now);
-        let h = '';
-        let m = '';
-        clockHmFormatter.formatToParts(now).forEach(function (p) {
-            if (p.type === 'hour') h = p.value;
-            if (p.type === 'minute') m = p.value;
-        });
+        const h = pad2Clock_(jp.hour);
+        const m = pad2Clock_(jp.minute);
         document.querySelectorAll('.clock-hm').forEach(function (el) {
             ensureClockHmStructure_(el);
             el.querySelector('.clock-h').textContent = h;
@@ -4784,15 +4797,7 @@
     }
     function startClockTicker() {
         if (clockIntervalId != null) { clearTimeout(clockIntervalId); clockIntervalId = null; }
-        clockTickWallMs_ = Date.now();
         function tick() {
-            const wallNow = Date.now();
-            if (wallNow - clockTickWallMs_ > 5000) {
-                if (timeSync.baseUtcMs != null) {
-                    applySyncedUtcMs(timeSync.baseUtcMs + (wallNow - clockTickWallMs_), timeSync.source);
-                }
-            }
-            clockTickWallMs_ = wallNow;
             try { updateClock(); } catch (err) { console.warn('Clock tick:', err); }
             const ms = getSyncedUtcMs();
             const base = ms != null ? ms : Date.now();
@@ -4818,7 +4823,9 @@
         const ms = getSyncedUtcMs();
         if (ms == null) return '';
         try {
-            const parts = new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ, hour: '2-digit', hour12: false }).formatToParts(new Date(ms));
+            const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone: CLOCK_TZ, hour: '2-digit', hour12: false, hourCycle: 'h23'
+            }).formatToParts(new Date(ms));
             const hp = parts.find(p => p.type === 'hour');
             return hp ? (Number(hp.value) + '時') : '';
         } catch (e) { return ''; }
@@ -6333,18 +6340,27 @@
             el.style.display = visible ? 'block' : 'none';
         });
     }
+    function pinS1FootScroll_() {
+        if (!s1WbgtTrack) return;
+        const lap = getS1FootLapPx_();
+        globalScrollX_ = wrapScrollX_(0, lap);
+        applyScrollX_(s1WbgtTrack, 0);
+    }
     function refreshS1WbgtFootBar_(resetTransform) {
         if (!s1WbgtTrack) return;
         const text = getS1WbgtMessageJp();
         const showBar = hasS1WbgtFootMessage_();
+        const scene1Active = !!(s1 && s1.classList.contains('active'));
         if (s1FootBannerReady_()) {
             if (text !== lastS1FootMsg_) updateS1FootMsgSlots_(text);
-            applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
+            if (scene1Active) pinS1FootScroll_();
+            else applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
             setS1FootBarVisible_(showBar);
             return;
         }
         if (text === lastS1FootMsg_ && s1WbgtTrack.querySelector('.s1-wbgt-set')) {
-            applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
+            if (scene1Active) pinS1FootScroll_();
+            else applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
             setS1FootBarVisible_(showBar);
             return;
         }
@@ -6352,7 +6368,8 @@
         let html = '';
         for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
         s1WbgtTrack.innerHTML = html;
-        applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
+        if (scene1Active) pinS1FootScroll_();
+        else applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
         sizeS1FootCompanyText_();
         scheduleS1FootWbgtTextSize_();
         setS1FootBarVisible_(showBar);
@@ -7192,38 +7209,13 @@
         }
         if (s1WbgtTrack && showWbgtFoot) {
             if (!s1WbgtTrack.children.length) refreshS1WbgtFootBar_(true);
-            const s1FootLap = getS1FootLapPx_();
-            s1Flow_ = {
-                startX: wrapScrollX_(globalScrollX_, s1FootLap),
-                x: wrapScrollX_(globalScrollX_, s1FootLap),
-                laps: 0,
-                moved: false
-            };
-            applyGlobalScroll_(s1WbgtTrack, s1FootLap);
-            function animateS1WbgtRtl() {
+            pinS1FootScroll_();
+            s1Flow_ = null;
+            scene1HoldTimerId = setTimeout(function () {
+                scene1HoldTimerId = null;
                 if (advanceToken !== scene1AdvanceToken + 1) return;
-                const prevX = s1Flow_.x;
-                advanceGlobalScroll_(getScrollSpeedPx_());
-                s1Flow_.x = wrapScrollX_(globalScrollX_, s1FootLap);
-                if (!s1Flow_.moved && Math.abs(s1Flow_.x - s1Flow_.startX) > 0.5) {
-                    s1Flow_.moved = true;
-                }
-                applyGlobalScroll_(s1WbgtTrack, s1FootLap);
-                if (s1Flow_.moved && detectScrollLapCrossed_(prevX, s1Flow_.x)) {
-                    s1Flow_.laps += 1;
-                    if (s1Flow_.laps >= SCENE1_ADVANCE_LAPS) {
-                        scene1AnimId = null;
-                        s1Flow_ = null;
-                        finishScene1();
-                        return;
-                    }
-                }
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
-            }
-            runSceneScrollAfterHold_(function () {
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
-            });
+                finishScene1();
+            }, SCENE1_WBGT_HOLD_MS);
         } else {
             s1Flow_ = null;
             scene1HoldTimerId = setTimeout(function () {
@@ -7568,10 +7560,14 @@
         }
         if (DEMO_SIGNAGE_ACTIVE) {
             bootDisplayHold_ = false;
-            await syncTimeFromNetwork().catch(function () {});
             if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'demo-local');
             updateClock();
             startClockTicker();
+            await syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+            if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'demo-local');
+            setInterval(function () {
+                syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+            }, CLOCK_SYNC_INTERVAL_MS);
             applyDemoWeatherStatic();
             if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') {
                 startPreviewDemo_(DEMO_PREVIEW);
