@@ -3,9 +3,11 @@
 <!-- 同階層: assets/taiyo_mark.png（右端マーク） / assets/taiyo_corp.png（英字） / assets/taiyo_logo.png（下帯） -->
 <!-- 会場: 〒422-8507 静岡市駿河区大坪町2－26（太陽建機レンタル本社） -->
 <!-- WBGT・AMeDAS 50331（静岡・気象庁/環境省） -->
+<!-- サイネージ: 640×128 固定出力（既定=native640）。PC確認のみ ?preview=1 -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=640, height=128, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -25,13 +27,10 @@
     })();
     </script>
     <script>
-/** 5面 640×128 本番用（512 コンテンツ + 128 ロゴ列・native640）。localhost は PC 確認用に拡大表示 */
+/** サイネージ本番: 640×128 ネイティブ（512+128・拡大なし・原点0,0）。PC確認のみ ?preview=1 */
 (function () {
     var q = new URLSearchParams(location.search);
-    var localDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    var forceNative = localDev
-        ? q.get('native640') === '1'
-        : q.get('native640') !== '0';
+    var forceNative = (q.get('preview') !== '1' && q.get('native640') !== '0') || q.get('native640') === '1';
     if (forceNative) {
         if (!q.has('native640')) q.set('native640', '1');
         var qs = q.toString();
@@ -72,6 +71,8 @@
             --led-col-main-h: 96px;
             --led-foot-font: 18px;
             --led-foot-site-font: 17px;
+            --led-canvas-w: 640px;
+            --led-canvas-h: 128px;
         }
         body { margin: 0; padding: 0; background-color: #1a1a1a; overflow: hidden; font-family: "Inter", "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif; }
         .demo-badge {
@@ -90,7 +91,7 @@
             overflow: hidden !important;
             background: #000;
         }
-        /* ?native640=1 / ?embed=1 — 640×128 ネイティブ（拡大なし・原点0,0） */
+        /* ?native640=1 — 640×128 ネイティブ（拡大なし・原点0,0・縦横比固定） */
         body.native-640 {
             display: block;
         }
@@ -98,6 +99,7 @@
             transform: none !important;
             position: absolute; top: 0; left: 0;
             margin: 0; padding: 0;
+            width: 640px !important; height: 128px !important;
         }
         .canvas {
             width: 640px; height: 128px; position: relative; overflow: hidden;
@@ -105,11 +107,7 @@
             gap: 0; margin: 0; padding: 0; border: 0;
             box-sizing: border-box; transform-origin: top left;
         }
-        @media screen and (min-width: 641px) {
-            .canvas { transform: scale(calc(100vw / 640)); }
-        }
-        body.native-640 .canvas { transform: none !important; }
-        /* localhost / 127.0.0.1 確認用: ビューポートに合わせて拡大（native640 無効時） */
+        /* PC確認 (?preview=1): 縦横同じ倍率で拡大（歪ませない） */
         body.browser-preview {
             min-height: 100vh;
             display: flex;
@@ -124,8 +122,8 @@
         /* 4面（512×128）: ロゴ列なし */
         body.layout-512 .logo-panel { display: none !important; }
         body.layout-512 .canvas { width: 512px !important; }
-        @media screen and (min-width: 513px) {
-            body.layout-512 .canvas { transform: scale(calc(100vw / 512)); }
+        body.layout-512.browser-preview .canvas {
+            transform: scale(min(calc(100vw / 512), calc(100vh / 128))) !important;
         }
         body.layout-512.native-640 .canvas { transform: none !important; }
         /* 右端 128×128: メールロゴ同様（上に大きくマーク、下に社名） */
@@ -2243,14 +2241,19 @@
     };
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
-    /* 640×128 ネイティブ: embed / native640=1 / フルデモ順送り */
-    const NATIVE_640 = query.get('native640') === '1' || DEMO_EMBED
-        || (DEMO_SIGNAGE && !DEMO_ONLY && query.get('native640') !== '0');
+    /* 640×128 ネイティブ: embed / native640=1 / 既定（?preview=1 のときのみ拡大確認） */
+    const NATIVE_640 = query.get('preview') !== '1' && query.get('native640') !== '0'
+        || query.get('native640') === '1' || DEMO_EMBED;
     if (NATIVE_640) {
         document.documentElement.classList.add('native-640');
         document.documentElement.classList.remove('browser-preview');
         document.body.classList.add('native-640');
         document.body.classList.remove('browser-preview');
+    } else {
+        document.documentElement.classList.add('browser-preview');
+        document.documentElement.classList.remove('native-640');
+        document.body.classList.add('browser-preview');
+        document.body.classList.remove('native-640');
     }
     function shouldShowDemoBadge_() {
         return !DEMO_EMBED && !NATIVE_640;
