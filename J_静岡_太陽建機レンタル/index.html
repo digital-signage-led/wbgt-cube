@@ -1790,7 +1790,7 @@
             transform: translate3d(0, 0, 0);
             will-change: transform;
             backface-visibility: hidden;
-            contain: layout style;
+            /* contain は一部サイネージWebViewで幅計測・transformが止まるため付けない */
         }
         #scene4 .s4-flow-set {
             display: flex; flex-direction: row; align-items: center;
@@ -6986,20 +6986,34 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
     let s4FlowRaf_ = 0;
     let s4FlowX_ = 0;
     let s4FlowLastTs_ = 0;
+    let s4FlowTickWallMs_ = 0; /* rAF停止検知（サイネージWebView対策） */
     let s4FlowSetW_ = 0; /* display:none 中に幅0へ落ちないよう最後の有効幅を保持 */
+    let s4FlowWatchId_ = 0;
     const S4_FLOW_SPEED_PX = WBGT_TELOP_SPEED_PX; /* 顔・文言・天気切替と同速 */
 
-    function ensureS4FlowScroll_() {
+    function stopS4FlowScroll_() {
+        if (s4FlowRaf_) { cancelAnimationFrame(s4FlowRaf_); s4FlowRaf_ = 0; }
+        if (s4FlowWatchId_) { clearInterval(s4FlowWatchId_); s4FlowWatchId_ = 0; }
+        s4FlowLastTs_ = 0;
+        s4FlowTickWallMs_ = 0;
+        const track = document.querySelector('#scene4 .s4-flow-track');
+        if (track) delete track.dataset.flowReady;
+    }
+    function ensureS4FlowScroll_(forceRestart) {
         const track = document.querySelector('#scene4 .s4-flow-track');
         const set = track && track.querySelector('.s4-flow-set');
         if (!track || !set) return;
-        /* 既にループ中なら位置リセットせず継続。停止していたら再開のみ */
-        if (track.dataset.flowReady === '1' && s4FlowRaf_) return;
+        /* 起動マスク中は rAF が止まったままになる端末がある → 解除後に開始 */
+        if (document.documentElement.classList.contains('booting')) return;
+        /* 既に健全に動いていれば継続（force 時は再起動） */
+        const alive = s4FlowRaf_ && s4FlowTickWallMs_ && (Date.now() - s4FlowTickWallMs_ < 900);
+        if (!forceRestart && track.dataset.flowReady === '1' && alive) return;
         track.dataset.flowReady = '1';
         s4FlowLastTs_ = 0;
         if (s4FlowRaf_) cancelAnimationFrame(s4FlowRaf_);
         function frame(ts) {
             if (!track.isConnected) { s4FlowRaf_ = 0; return; }
+            s4FlowTickWallMs_ = Date.now();
             if (!s4FlowLastTs_) s4FlowLastTs_ = ts;
             var dt = (ts - s4FlowLastTs_) / 1000;
             s4FlowLastTs_ = ts;
@@ -7017,6 +7031,16 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
             s4FlowRaf_ = requestAnimationFrame(frame);
         }
         s4FlowRaf_ = requestAnimationFrame(frame);
+        /* rAFが間欠停止するサイネージ向けの見張り（止まっていたら強制再開） */
+        if (!s4FlowWatchId_) {
+            s4FlowWatchId_ = setInterval(function () {
+                if (document.documentElement.classList.contains('booting')) return;
+                if (document.visibilityState === 'hidden') return;
+                if (!s4FlowTickWallMs_ || (Date.now() - s4FlowTickWallMs_ > 1200)) {
+                    ensureS4FlowScroll_(true);
+                }
+            }, 1000);
+        }
     }
 
     /** 未取得時は注意(黄)にもほぼ安全(青)にも落とさない（キャッシュ／実測のみ） */
@@ -7406,6 +7430,12 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
     function endBootReveal_() {
         bootDisplayHold_ = false;
         try { document.documentElement.classList.remove('booting'); } catch (eBoot) {}
+        /* hidden 中に開始した rAF が止まった端末向け：解除直後に流しを強制再開 */
+        try {
+            requestAnimationFrame(function () {
+                ensureS4FlowScroll_(true);
+            });
+        } catch (eFlowBoot) {}
     }
     /** 起動直後: WBGTを先に描画（まだ booting で非表示のまま） */
     function paintBootSplash_() {
@@ -9458,6 +9488,7 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
         compactScene4Panels();
         applyPendingSignageBgAtScene_();
         try { renderS4Dashboard_(); } catch (e) {}
+        try { ensureS4FlowScroll_(true); } catch (eFlow) {}
         fitFcBarLabelFontSize_();
         fitFcWbgtFontSize();
         if (fcLvTrack) applyScrollX_(fcLvTrack, 0);
