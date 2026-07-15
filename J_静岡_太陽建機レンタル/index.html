@@ -16,6 +16,19 @@
     <link rel="preload" as="image" href="./assets/greencross_foot_name.svg">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
+    /* 初回ペイント前に起動フラグ（仮のほぼ安全／天気残像を出さない） */
+    document.documentElement.classList.add('booting');
+    </script>
+    <style id="boot-hide">
+    /* CSS本体より先に隠す（FOUCでほぼ安全が映り込むのを防ぐ） */
+    html.booting .content-area,
+    html.booting #weather-panel {
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+    </style>
+    <script>
     (function () {
         ['./assets/greencross_logo.png', './assets/greencross_foot_name.svg'].forEach(function (u) {
             var img = new Image();
@@ -1782,13 +1795,15 @@
         #scene4 .s4-flow-set {
             display: flex; flex-direction: row; align-items: center;
             flex-shrink: 0; height: 100%;
-            gap: 18px;
-            padding-right: 18px; /* セット境界も文字↔顔と同じ間隔 */
+            /* 顔イラスト ↔ レベル文言（厳重警戒など）の余白 */
+            gap: 32px;
+            padding-right: 32px; /* セット境界も同じ間隔 */
             box-sizing: content-box;
         }
         #scene4 .s4-flow-text {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             gap: 2px; flex-shrink: 0;
+            padding: 0 4px;
         }
         #scene4 .s4-flow .s4-name { font-size: 30px; }
         #scene4 .s4-flow .s4-msg { font-size: 13px; max-width: none; overflow: visible; }
@@ -1921,7 +1936,7 @@
             width: 52px; height: 52px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
         }
-        #scene4 .s4-flow .s4-mascot { width: 52px; height: 52px; }
+        #scene4 .s4-flow .s4-mascot { width: 52px; height: 52px; margin: 0 4px; }
         #scene4 .s4-mascot img {
             width: 50px; height: 50px; border-radius: 50%;
             object-fit: contain; display: block;
@@ -2094,6 +2109,36 @@
 .content-area.weather-on > .scene,
 .content-area.weather-on > .scene-strip-bg { visibility: hidden; }
 
+/* 起動・再読込中はコンテンツ全体を消す（仮のほぼ安全が映り込むのを防ぐ） */
+html.booting .content-area,
+html.booting #weather-panel,
+#weather-panel:not(.is-on) {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+html.booting #weather-panel,
+#weather-panel:not(.is-on) {
+  display: none !important;
+}
+#weather-panel:not(.is-on) .layout,
+#weather-panel:not(.is-on) .wide-card,
+#weather-panel:not(.is-on) .flow-a,
+#weather-panel:not(.is-on) .flow-b,
+#weather-panel:not(.is-on) .side-pane {
+  transition: none !important;
+  animation: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+html.wx-no-anim #weather-panel .layout,
+html.wx-no-anim #weather-panel .wide-card,
+html.wx-no-anim #weather-panel .flow-a,
+html.wx-no-anim #weather-panel .flow-b,
+html.wx-no-anim #weather-panel .side-pane {
+  transition: none !important;
+}
+
 #weather-panel {
   --font: "Roboto", "Noto Sans JP", sans-serif;
   /* カード面デフォルト（天気クラスで上書き・白禁止） */
@@ -2117,7 +2162,10 @@
   --wx-side: 112px;
   --wx-face: 128px;
   --wx-mid: 384px;
-  --wx-top-h: 96px;
+  --wx-front-inset: 4px; /* 正面384内の左右余白（キチキチ防止） */
+  /* 上段・下段カード高さ揃え: 8 + 84 + 8 + 84 + 8 = 192 */
+  --wx-top-h: 84px;
+  --wx-bot-h: 84px;
 }
 #weather-panel, #weather-panel * { box-sizing: border-box; }
 /* 天気パネル（index 内オーバーレイ・640×192） */
@@ -2127,8 +2175,14 @@
   font-family: var(--font); color: var(--on);
   display: none; z-index: 40;
   background: var(--wbgt-bg, #308ED8);
+  /* 非表示時に合成レイヤーを残さない */
+  contain: strict;
 }
-#weather-panel.is-on { display: block; }
+#weather-panel.is-on {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+}
 /* wx-embed: unused (same page) */
 #weather-stage {
   width: 640px; height: 192px; overflow: hidden; position: absolute;
@@ -2221,13 +2275,20 @@
     visibility 0s;
 }
 
-/* ===== 配置A：上段ロング / 下段 左右+正面（隙間はすべて 8px＝面分割準拠） ===== */
+/* 配置Bは使わない（単一配置＋スロットル式のみ） */
+#layoutClassic {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* ===== 単一配置：上段ロング / 下段 左右+正面（隙間 8px） ===== */
 #topBand {
   position: absolute;
   left: var(--wx-gap);
-  top: calc(var(--wx-gap) + var(--wx-top-h) + var(--wx-gap)); /* 8+96+8=112 */
+  top: calc(var(--wx-gap) + var(--wx-top-h) + var(--wx-gap)); /* 8+84+8=100 */
   width: calc(640px - var(--wx-gap) * 2); /* 624 */
-  height: calc(192px - var(--wx-gap) - var(--wx-top-h) - var(--wx-gap) - var(--wx-gap)); /* 72 */
+  height: var(--wx-bot-h); /* 上段と同高 84px */
   display: grid;
   /* 112 + 8 + 384 + 8 + 112 = 624 */
   grid-template-columns: var(--wx-side) var(--wx-mid) var(--wx-side);
@@ -2255,6 +2316,12 @@
 }
 .face-a.front .card-front {
   width: 100%; height: 100%; background: transparent; border: none; box-shadow: none;
+}
+/* 正面384px列：カード左右に 4px ずつ余白 */
+#topBand > .face-a.front {
+  padding: 0 var(--wx-front-inset);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .side-stack { position: relative; width: 100%; height: 100%; }
@@ -2309,22 +2376,44 @@
 #frontFlowA {
   position: relative; width: 100%; height: 100%; overflow: hidden;
 }
+/* 正面カード：拡大フェードではなくカードごと縦にスライド */
 .flow-a {
   position: absolute; left: 0; right: 0; top: 0; height: 100%;
   background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
   box-shadow: var(--shadow); overflow: hidden; padding: 3px 6px 4px;
   display: flex; flex-direction: column; min-height: 0;
   opacity: 0;
-  transform: scale(0.86);
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
   transform-origin: center center;
-  transition: opacity .55s ease, transform .55s cubic-bezier(.33, 0, .2, 1);
+  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .35s ease;
   backface-visibility: hidden;
+  will-change: transform;
   z-index: 1;
+  pointer-events: none;
 }
-.flow-a.is-on { opacity: 1; transform: scale(1); z-index: 3; }
-.flow-a.is-exit { opacity: 0; transform: scale(0.86); z-index: 2; }
-.flow-a.is-wait { opacity: 0; transform: scale(0.86); z-index: 0; pointer-events: none; }
-.flow-a.is-enter { opacity: 0; transform: scale(0.86); z-index: 4; pointer-events: none; }
+.flow-a.is-on {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  z-index: 3;
+  pointer-events: auto;
+}
+.flow-a.is-enter {
+  opacity: 1;
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
+  z-index: 4;
+  transition: none;
+}
+.flow-a.is-exit {
+  opacity: 1;
+  transform: translate3d(0, calc(100% + var(--wx-gap)), 0);
+  z-index: 2;
+}
+.flow-a.is-wait {
+  opacity: 0;
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
+  z-index: 0;
+  pointer-events: none;
+}
 
 .slot-title {
   font-size: 10px; font-weight: 500; color: var(--muted);
@@ -2447,7 +2536,7 @@
 
 /*
   配置A：1段目＝長いカード（上）、2段目＝左右+正面（下）。
-  レールは上段96pxのみ（下段を覆って見切れさせない）。外周・段間 8px。
+  上下カード高さはどちらも 84px（太さを揃える）。外周・段間 8px。
 */
 #wideRail {
   position: absolute;
@@ -2479,18 +2568,17 @@
   pointer-events: auto;
   z-index: 3;
 }
-/* 上外から入場 */
-.wide-card.is-enter {
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
-  opacity: 0;
-  z-index: 4;
-  transition: none;
-}
-/* 下へ退場（レール外へ・下段は覆わない） */
+/* 広幅カードも不透明のまま物理スライド（退場中に薄く重なって残像にならない） */
 .wide-card.is-exit {
   transform: translate3d(0, calc(100% + var(--wx-gap)), 0);
-  opacity: 0;
+  opacity: 1;
   z-index: 2;
+}
+.wide-card.is-enter {
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
+  opacity: 1;
+  z-index: 4;
+  transition: none;
 }
 .wide-card.is-wait {
   transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
@@ -2563,7 +2651,10 @@
   border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
   overflow: hidden; position: relative;
 }
-.face-b.front { padding: 0; }
+.face-b.front {
+  padding: 0 var(--wx-front-inset);
+  box-sizing: border-box;
+}
 #frontFlowB {
   position: relative; width: 100%; height: 100%; overflow: hidden;
 }
@@ -2574,17 +2665,18 @@
   box-shadow: var(--shadow); overflow: hidden; padding: 5px 8px 6px;
   display: flex; flex-direction: column; min-height: 0;
   opacity: 0;
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0) scale(0.9);
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
   transform-origin: center center;
-  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .5s ease;
+  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .35s ease;
   backface-visibility: hidden;
+  will-change: transform;
   z-index: 1;
 }
-.flow-b.is-top { transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 3; }
-.flow-b.is-bottom { transform: translate3d(0, calc(100% + var(--wx-gap)), 0) scale(1); opacity: 1; z-index: 2; }
-.flow-b.is-enter { transform: translate3d(0, calc(-100% - var(--wx-gap)), 0) scale(0.9); opacity: 0; z-index: 4; }
-.flow-b.is-exit { transform: translate3d(0, calc(200% + var(--wx-gap) * 2), 0) scale(0.9); opacity: 0; z-index: 1; }
-.flow-b.is-wait { transform: translate3d(0, calc(-100% - var(--wx-gap)), 0) scale(0.9); opacity: 0; z-index: 0; pointer-events: none; }
+.flow-b.is-top { transform: translate3d(0, 0, 0); opacity: 1; z-index: 3; }
+.flow-b.is-bottom { transform: translate3d(0, calc(100% + var(--wx-gap)), 0); opacity: 1; z-index: 2; }
+.flow-b.is-enter { transform: translate3d(0, calc(-100% - var(--wx-gap)), 0); opacity: 1; z-index: 4; transition: none; }
+.flow-b.is-exit { transform: translate3d(0, calc(200% + var(--wx-gap) * 2), 0); opacity: 1; z-index: 1; }
+.flow-b.is-wait { transform: translate3d(0, calc(-100% - var(--wx-gap)), 0); opacity: 0; z-index: 0; pointer-events: none; }
 .face-b .side-lbl { font-size: 14px; margin-bottom: 10px; }
 .face-b .side-val { font-size: 40px; }
 .face-b .side-val.sm { font-size: 36px; }
@@ -2597,19 +2689,23 @@
 .flow-b .now-icon { width: 64px; height: 64px; }
 .flow-b .now-icon svg { width: 48px; height: 48px; }
 
-/* 640接続時：カード内テロップ流水 */
-#weather-stage.is-640 .marquee-clip {
-  overflow: hidden; width: 100%;
-  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+/* カード本体の物理スライドを主にする。文字テロップは残像の原因になるため停止 */
+#weather-stage.is-640 .marquee-track,
+#wideRail .marquee-track {
+  animation: none !important;
+  transform: none !important;
 }
-#weather-stage.is-640 .marquee-track {
-  display: inline-flex; gap: 28px; white-space: nowrap;
-  animation: marqueeX 26s linear infinite;
-  will-change: transform;
+#weather-stage.is-640 .marquee-clip,
+#wideRail .marquee-clip {
+  mask-image: none;
 }
-#weather-stage.is-640 .marquee-track .metric { flex: 0 0 auto; min-width: 88px; }
-#weather-stage.is-640 .wx-sub.marquee-clip .marquee-track {
-  display: inline-block; animation-duration: 20s;
+#weather-stage.is-640 .wx-sub.marquee-clip .marquee-track,
+.wx-sub.marquee-clip .marquee-track {
+  display: block !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 /* 下段ロング（風・降水・現在の気象）は常に文字を流す */
@@ -2650,10 +2746,10 @@
   width: max-content !important;
   max-width: none !important;
   padding: 0 20px 1px;
-  animation: marqueeX 28s linear infinite !important;
-  will-change: transform;
+  animation: none !important;
+  will-change: auto;
   justify-content: flex-start !important;
-  transform: translateX(0);
+  transform: none !important;
 }
 #wideRail .marquee-track .metric {
   flex: 0 0 auto !important;
@@ -3640,8 +3736,16 @@
         if (panel) {
             panel.classList.remove('is-on');
             panel.setAttribute('aria-hidden', 'true');
+            panel.style.display = 'none';
+            panel.style.visibility = 'hidden';
+            panel.style.opacity = '0';
         }
         try { if (window.WbgtWeather) window.WbgtWeather.stop(); } catch (e) {}
+        /* シーン側の visibility/opacity を復帰（weather-on の名残を消す） */
+        document.querySelectorAll('.content-area > .scene, .content-area > .scene-strip-bg').forEach(function (el) {
+            el.style.visibility = '';
+            el.style.opacity = '';
+        });
     }
     function ensureWbgtSceneVisible_() {
         hideWeatherOverlay_();
@@ -3695,6 +3799,9 @@
         const bgHex = ['#308ED8', '#FFD92E', '#FFBE2C', '#FF7E00', '#D61914'][lv] || '#FF7E00';
         panel.style.background = bgHex;
         panel.style.setProperty('--wbgt-bg', bgHex);
+        panel.style.display = 'block';
+        panel.style.visibility = 'visible';
+        panel.style.opacity = '1';
         area.classList.add('weather-on');
         panel.classList.add('is-on');
         panel.setAttribute('aria-hidden', 'false');
@@ -4129,6 +4236,8 @@
             if (lastSignageBgLv_ != null && lastSignageBgLv_ >= 0 && lastSignageBgMode_ === 'normal') {
                 return { mode: 'normal', lv: lastSignageBgLv_ };
             }
+            /* 起動中・未確定時は仮のほぼ安全(青)に落とさない */
+            if (bootDisplayHold_) return { mode: 'normal', lv: -1 };
             if (!wbgtOffSeason) return { mode: 'normal', lv: 0 };
         }
         return { mode: mode, lv: lv };
@@ -6572,7 +6681,7 @@
         s4FlowRaf_ = requestAnimationFrame(frame);
     }
 
-    /** 未取得時は注意(黄)に落とさない。キャッシュ→ほぼ安全(青) */
+    /** 未取得時は注意(黄)にもほぼ安全(青)にも落とさない（キャッシュ／実測のみ） */
     function resolveS4DashLevel_() {
         if (wbgtUnavailable || wbgtOffSeason) return -1;
         if (currentWbgtLevel >= 0 && currentWbgtLevel <= 4) return currentWbgtLevel;
@@ -6580,13 +6689,17 @@
         if (fromSlots >= 0) return fromSlots;
         const stable = levelFromLastGoodWbgtSlots_();
         if (stable != null) return stable;
-        return 0;
+        return -1;
     }
     function renderS4Dashboard_() {
         const s4 = document.getElementById('scene4');
         if (!s4) return;
         let lv = resolveS4DashLevel_();
-        if (lv < 0) lv = 0;
+        /* レベル未確定の初回は仮のほぼ安全を描かない */
+        if (lv < 0) {
+            if (bootDisplayHold_) return;
+            lv = 0;
+        }
         const dark = !wbgtUnavailable && !wbgtOffSeason && (lv === 1 || lv === 2);
         s4.classList.toggle('s4-txt-dark', dark);
         s4.classList.toggle('s4-txt-light', !dark);
@@ -6951,15 +7064,31 @@
         buildFcLvTrack(false);
         setS1FootBarVisible_(hasS1WbgtFootMessage_());
     }
-    /** 起動直後: WBGTを先に描画（時刻シーンは使わない） */
+    /** 起動マスク解除（実測／キャッシュ描画のあと） */
+    function endBootReveal_() {
+        bootDisplayHold_ = false;
+        try { document.documentElement.classList.remove('booting'); } catch (eBoot) {}
+    }
+    /** 起動直後: WBGTを先に描画（まだ booting で非表示のまま） */
     function paintBootSplash_() {
         if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'boot-local');
         updateClock();
         ensureWbgtSceneVisible_();
+        /* 流し文字の transform 残像を消す */
+        try {
+            s4FlowX_ = 0;
+            const track = document.querySelector('#scene4 .s4-flow-track');
+            if (track) track.style.transform = 'translate3d(0,0,0)';
+        } catch (eFlow) {}
         syncWbgtSlotsToDomIfReady_();
-        if (typeof SignageBg !== 'undefined') refreshSignageBg();
-        if (typeof renderS4Dashboard_ === 'function') {
-            try { renderS4Dashboard_(); } catch (e) {}
+        /* レベル未確定のときは仮のほぼ安全(青)を描かない */
+        const hasLv = (currentWbgtLevel >= 0 && currentWbgtLevel <= 4)
+            || (typeof levelFromLastGoodWbgtSlots_ === 'function' && levelFromLastGoodWbgtSlots_() != null);
+        if (hasLv) {
+            if (typeof SignageBg !== 'undefined') refreshSignageBg();
+            if (typeof renderS4Dashboard_ === 'function') {
+                try { renderS4Dashboard_(); } catch (e) {}
+            }
         }
     }
     function queueDisplayRefresh_() {
@@ -9232,11 +9361,14 @@
     }
 
     window.onload = async function() {
+        try { document.documentElement.classList.add('booting'); } catch (eBoot) {}
         bootDisplayHold_ = true;
+        hideWeatherOverlay_();
         restoreSignageStateCache_();
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
         applySiteLocationLabels_();
         paintBootSplash_();
+        /* booting は取得完了（flush）まで外さない — 仮のほぼ安全を見せない */
         const logoEl = document.getElementById('signage-logo');
         const logoCfg = window.SIGNAGE_CONFIG;
         if (logoEl && logoCfg && logoCfg.logoSrc) {
@@ -9244,22 +9376,22 @@
             logoEl.alt = logoCfg.logoAlt || '';
         }
         if (DEMO_ALERT_ONLY && !NO_HEAT_ALERT) {
-            bootDisplayHold_ = false;
+            endBootReveal_();
             setTimeout(startAlertOnlyDemo_, 300);
             return;
         }
         if (DEMO_RAINWARN_ONLY) {
-            bootDisplayHold_ = false;
+            endBootReveal_();
             setTimeout(startRainWarnOnlyDemo_, 300);
             return;
         }
         if (DEMO_SIGNAGE_ACTIVE) {
-            bootDisplayHold_ = false;
             applySyncedUtcMs(Date.now(), 'boot-local');
             updateClock();
             startClockTicker();
             startNetworkClockSync_();
             applyDemoWeatherStatic();
+            endBootReveal_();
             document.addEventListener('visibilitychange', function () {
                 if (document.visibilityState === 'visible') {
                     syncTimeFromNetwork().then(function () {
@@ -9304,7 +9436,6 @@
             playScene4();
         } catch (err) {
             console.error('Init:', err);
-            bootDisplayHold_ = false;
             if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'local-fallback');
             updateClock();
             refreshSignageBgIfChanged_(true);
@@ -9317,7 +9448,7 @@
             scheduleDataRefresh();
             playScene4();
         } finally {
-            bootDisplayHold_ = false;
+            endBootReveal_();
         }
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
@@ -9359,27 +9490,19 @@ const CLOCK_TZ = "Asia/Tokyo";
 const AMEDAS_POINT_SUPPLEMENT_KEYS = ["pressure", "normalPressure", "maxTemp", "minTemp", "gust"];
 const CHART_LINE = "#4285F4";
 const DOT = 5;
-const SLOT_MS = 3200; /* スロットル：1カードずつ順番切替 */
+const SLOT_MS = 3200; /* スロットル：1スロットずつカード本体を物理スライド */
 const HOURLY_COUNT = 6;
 const FONT = '"Roboto", "Noto Sans JP", sans-serif';
 const CARD_COUNT = 4;
 const CHART_CARD = 3;
 const WIDE_COUNT = 4;
-const SIDE_COUNT_A = 4; /* 短いサイド：1項目×4 */
-const SIDE_COUNT_B = 2; /* 縦長サイド：2項目×2 */
+const SIDE_COUNT_A = 4; /* 左右サイド：1項目×4 */
 
 let hourlySeries = [];
 let leftIndex = 0, rightIndex = 0;
-let leftIndexB = 0, rightIndexB = 0;
-let layoutMode = "span"; /* span | classic */
-let layoutAnimating = false;
 let frontA = 0, frontAAnim = false;
-let topB = 0, bottomB = 1, frontBAnim = false;
 let wideTop = 0, wideAnim = false;
-let wideShown = 0; /* span で流した枚数 */
-let classicSteps = 0; /* classic で進めた回数 */
-let slotPhase = 0; /* スロットル式の現在スロット */
-const LAYOUT_MS = 560;
+let slotPhase = 0; /* 0=上段ワイド → 1=左 → 2=正面 → 3=右 */
 
 function windDir(deg) {
   if (deg == null || isNaN(deg)) return "--";
@@ -10063,7 +10186,7 @@ function fillUI(w, todayHi, todayLo) {
   setAll(".js-pressure", nu(w.pressure, "hPa"), true);
   setAll(".js-hero-temp", nu(w.temp, "℃"), true);
   setAll(".js-hero-desc", w.desc || "--");
-  setAll(".js-hero-sub", sub + "　　" + sub, true);
+  setAll(".js-hero-sub", sub, true);
   document.querySelectorAll(".js-hero-icon").forEach(function(el) {
     el.innerHTML = weatherSvg(iconType(w.icon));
   });
@@ -10198,58 +10321,15 @@ function weatherSetLevel_(lv) {
 }
 
 
-function switchLayout(mode) {
-  if (layoutAnimating || mode === layoutMode) return;
-  layoutAnimating = true;
-
-  var from = document.getElementById(layoutMode === "span" ? "layoutSpan" : "layoutClassic");
-  var to = document.getElementById(mode === "span" ? "layoutSpan" : "layoutClassic");
-
-  /* カードのみフェード切替（背景はそのまま） */
-  from.classList.remove("is-active", "is-entering");
-  from.classList.add("is-leaving");
-
-  requestAnimationFrame(function() {
-    to.classList.remove("is-leaving");
-    to.classList.add("is-entering");
-    requestAnimationFrame(function() {
-      to.classList.add("is-active");
-    });
-  });
-
-  layoutMode = mode;
-
-  slotPhase = 0;
-  if (mode === "classic") {
-    classicSteps = 0;
-  } else {
-    wideShown = 0;
-    wideTop = 0;
-    wideAnim = false;
-    document.querySelectorAll("#wideRail .wide-card").forEach(function(el, i) {
-      clearWide(el);
-      el.classList.add(i === 0 ? "is-top" : "is-wait");
-    });
-  }
-
-  setTimeout(function() {
-    from.classList.remove("is-leaving");
-    to.classList.remove("is-entering");
-    layoutAnimating = false;
-    /* 切替完了後にグラフ描画（アニメ中の負荷を避ける） */
-    drawChart(mode === "classic" ? "chartB" : "chartA");
-  }, LAYOUT_MS);
-}
-
 function cardA(i) { return document.querySelector('.flow-a[data-a="' + i + '"]'); }
-function cardB(i) { return document.querySelector('.flow-b[data-b="' + i + '"]'); }
 
 function frontStepA() {
-  if (layoutMode !== "span" || frontAAnim || layoutAnimating) return;
+  if (frontAAnim) return;
   frontAAnim = true;
   var next = (frontA + 1) % CARD_COUNT;
   var cur = cardA(frontA), nxt = cardA(next);
-  /* 縮んだ状態で入れてから、伸びて表示 */
+  if (!cur || !nxt) { frontAAnim = false; return; }
+  /* スロットル：カード本体が上から入り、現カードは下へ滑って退場 */
   nxt.classList.remove("is-on", "is-exit", "is-wait");
   nxt.classList.add("is-enter");
   requestAnimationFrame(function() {
@@ -10266,38 +10346,7 @@ function frontStepA() {
     frontA = next;
     frontAAnim = false;
     if (next === CHART_CARD) drawChart("chartA");
-  }, 560);
-}
-
-function clearB(el) {
-  el.classList.remove("is-top", "is-bottom", "is-enter", "is-exit", "is-wait");
-}
-
-function frontStepB() {
-  if (layoutMode !== "classic" || frontBAnim || layoutAnimating) return;
-  frontBAnim = true;
-  var enterIdx = (bottomB + 1) % CARD_COUNT;
-  var elTop = cardB(topB), elBot = cardB(bottomB), elEnter = cardB(enterIdx);
-  requestAnimationFrame(function() {
-    clearB(elEnter); elEnter.classList.add("is-enter");
-    requestAnimationFrame(function() {
-      clearB(elEnter); elEnter.classList.add("is-top");
-      clearB(elTop); elTop.classList.add("is-bottom");
-      clearB(elBot); elBot.classList.add("is-exit");
-    });
-  });
-  setTimeout(function() {
-    clearB(elBot); elBot.classList.add("is-wait");
-    bottomB = topB;
-    topB = enterIdx;
-    frontBAnim = false;
-    if (enterIdx === CHART_CARD || topB === CHART_CARD) drawChart("chartB");
-    classicSteps += 1;
-    /* 切替タイミングは WEATHER_HOLD_MS（8秒）側で制御 */
-    if (classicSteps >= CARD_COUNT) {
-      switchLayout("span");
-    }
-  }, 560);
+  }, 620);
 }
 
 function wideCard(i) { return document.querySelector('.wide-card[data-wide="' + i + '"]'); }
@@ -10306,11 +10355,12 @@ function clearWide(el) {
 }
 
 function wideStep() {
-  if (layoutMode !== "span" || layoutAnimating || wideAnim) return;
+  if (wideAnim) return;
   wideAnim = true;
   var enterIdx = (wideTop + 1) % WIDE_COUNT;
   var elTop = wideCard(wideTop), elEnter = wideCard(enterIdx);
-  /* スロットル：上から降りて1段目へ。旧1段目は2段目側へ下降 */
+  if (!elTop || !elEnter) { wideAnim = false; return; }
+  /* スロットル：上段スロットでカード本体が縦スライド */
   requestAnimationFrame(function() {
     clearWide(elEnter); elEnter.classList.add("is-enter");
     requestAnimationFrame(function() {
@@ -10322,11 +10372,7 @@ function wideStep() {
     clearWide(elTop); elTop.classList.add("is-wait");
     wideTop = enterIdx;
     wideAnim = false;
-    wideShown += 1;
-    if (wideShown >= WIDE_COUNT) {
-      setTimeout(function() { switchLayout("classic"); }, 100);
-    }
-  }, 560);
+  }, 620);
 }
 
 function updateClock() {
@@ -10347,7 +10393,7 @@ async function refresh() {
     fillUI(w, fc.todayHi, fc.todayLo);
     renderWeekly(fc.days);
     renderHourly(hourlySeries);
-    drawChart(layoutMode === "classic" ? "chartB" : "chartA");
+    drawChart("chartA");
   } catch (e) {
     console.error(e);
     setAll(".js-hero-desc", "通信エラー");
@@ -10363,34 +10409,21 @@ document.head.appendChild(styleExtra);
 function stepLeft() {
   leftIndex = (leftIndex + 1) % SIDE_COUNT_A;
   setSide("leftA", leftIndex);
-  leftIndexB = (leftIndexB + 1) % SIDE_COUNT_B;
-  setSide("leftB", leftIndexB);
 }
 function stepRight() {
   rightIndex = (rightIndex + 1) % SIDE_COUNT_A;
   setSide("rightA", rightIndex);
-  rightIndexB = (rightIndexB + 1) % SIDE_COUNT_B;
-  setSide("rightB", rightIndexB);
 }
 
-/** 各カードごとにスロットル式（長いカードは2段目→1段目） */
+/** 単一配置：スロットル式でカード本体を物理スライド（上段→左→正面→右） */
 function slotTick() {
-  if (layoutAnimating || frontAAnim || frontBAnim || wideAnim) return;
-  if (layoutMode === "span") {
-    /* 長いカード(2→1段) → 左 → 正面 → 右 */
-    var p = slotPhase % 4;
-    if (p === 0) wideStep();
-    else if (p === 1) stepLeft();
-    else if (p === 2) frontStepA();
-    else stepRight();
-    slotPhase += 1;
-  } else {
-    var q = slotPhase % 3;
-    if (q === 0) stepLeft();
-    else if (q === 1) frontStepB();
-    else stepRight();
-    slotPhase += 1;
-  }
+  if (frontAAnim || wideAnim) return;
+  var p = slotPhase % 4;
+  if (p === 0) wideStep();
+  else if (p === 1) stepLeft();
+  else if (p === 2) frontStepA();
+  else stepRight();
+  slotPhase += 1;
 }
 
 window.WbgtWeather = {
@@ -10398,10 +10431,23 @@ window.WbgtWeather = {
     opts = opts || {};
     clearWeatherLocalTimers_();
     weatherRunning_ = true;
+    document.documentElement.classList.add("wx-no-anim");
+    /* 切替アニメの途中状態を破棄（残像の原因） */
+    document.querySelectorAll("#weather-panel .layout").forEach(function (el) {
+      el.classList.remove("is-leaving", "is-entering");
+      if (el.id === "layoutSpan") el.classList.add("is-active");
+      else el.classList.remove("is-active");
+    });
+    frontAAnim = false;
+    wideAnim = false;
+    slotPhase = 0;
     if (opts.level != null) weatherSetLevel_(opts.level);
     apply640Mode();
     updateClock();
     refresh();
+    requestAnimationFrame(function () {
+      document.documentElement.classList.remove("wx-no-anim");
+    });
     weatherTimers_.push(setInterval(slotTick, SLOT_MS));
     weatherTimers_.push(setInterval(updateClock, 1000));
     weatherTimers_.push(setInterval(refresh, 10 * 60 * 1000));
@@ -10409,11 +10455,39 @@ window.WbgtWeather = {
   stop: function () {
     weatherRunning_ = false;
     clearWeatherLocalTimers_();
+    document.documentElement.classList.add("wx-no-anim");
+    document.querySelectorAll("#weather-panel .layout").forEach(function (el) {
+      el.classList.remove("is-leaving", "is-entering", "is-active");
+    });
+    var span = document.getElementById("layoutSpan");
+    if (span) span.classList.add("is-active");
+    frontAAnim = false;
+    wideAnim = false;
   },
   setLevel: weatherSetLevel_
 };
 window.addEventListener("resize", function () {
   if (weatherRunning_) apply640Mode();
+});
+window.addEventListener("pageshow", function (ev) {
+  /* BFCache 復帰時も天気残像を消す */
+  if (ev && ev.persisted) {
+    try {
+      document.documentElement.classList.add("booting");
+      weatherRunning_ = false;
+      clearWeatherLocalTimers_();
+      var panel = document.getElementById("weather-panel");
+      var area = document.querySelector(".content-area");
+      if (area) area.classList.remove("weather-on");
+      if (panel) {
+        panel.classList.remove("is-on");
+        panel.style.display = "none";
+        panel.style.visibility = "hidden";
+        panel.style.opacity = "0";
+      }
+      document.documentElement.classList.remove("booting");
+    } catch (e) {}
+  }
 });
 })();
 </script>
