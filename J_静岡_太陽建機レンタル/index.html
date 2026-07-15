@@ -1850,12 +1850,23 @@
         #scene4 .s4-face .col-bg-foot { display: none; }
         #scene4 .s4-face > :not(.col-bg-layer) { position: relative; z-index: 1; }
         #scene4 .s4-body-front {
-            padding: 3px 8px var(--front-bottom-pad, 8px); align-items: stretch;
+            /* 正面384内：カード列の左右に 4px ずつ（実効幅 376） */
+            padding: 3px 4px var(--front-bottom-pad, 8px); align-items: stretch;
             gap: 3px; justify-content: flex-start;
             --front-cards-h: 36px;
             --front-legend-h: 36px;
             --front-stack-gap: 3px;
             --front-bottom-pad: 8px;
+        }
+        #scene4 .s4-face-front .s4-bottom-stack {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        #scene4 .s4-face-front .s4-cards {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
         #scene4 .s4-bottom-stack {
             display: flex; flex-direction: column;
@@ -2109,6 +2120,22 @@
 .content-area.weather-on > .scene,
 .content-area.weather-on > .scene-strip-bg { visibility: hidden; }
 
+/* WBGT↔天気：右から左へスライドイン */
+#weather-panel,
+#scene4 {
+  transition: transform .55s cubic-bezier(.33, 0, .2, 1);
+}
+#weather-panel.is-enter-rtl,
+#scene4.is-enter-rtl {
+  transform: translate3d(640px, 0, 0);
+  transition: none !important;
+}
+#scene4.is-swap-front {
+  z-index: 45 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 /* 起動・再読込中はコンテンツ全体を消す（仮のほぼ安全が映り込むのを防ぐ） */
 html.booting .content-area,
 html.booting #weather-panel,
@@ -2122,6 +2149,7 @@ html.booting #weather-panel,
   display: none !important;
 }
 #weather-panel:not(.is-on) .layout,
+#weather-panel:not(.is-on) .wx-phys,
 #weather-panel:not(.is-on) .wide-card,
 #weather-panel:not(.is-on) .flow-a,
 #weather-panel:not(.is-on) .flow-b,
@@ -2132,20 +2160,24 @@ html.booting #weather-panel,
   visibility: hidden !important;
 }
 html.wx-no-anim #weather-panel .layout,
+html.wx-no-anim #weather-panel .wx-phys,
 html.wx-no-anim #weather-panel .wide-card,
 html.wx-no-anim #weather-panel .flow-a,
 html.wx-no-anim #weather-panel .flow-b,
 html.wx-no-anim #weather-panel .side-pane {
   transition: none !important;
 }
+html.wx-no-anim #weather-panel #wxBoard .wx-phys {
+  transform: none !important;
+}
 
 #weather-panel {
   --font: "Roboto", "Noto Sans JP", sans-serif;
-  /* カード面デフォルト（天気クラスで上書き・白禁止） */
-  --surface: #E8E2D4;
+  /* カード面：白すぎない淡色（純白不可） */
+  --surface: #EBE8E1;
   --on: #202124;
   --muted: #5f6368;
-  --line: #c8c0b0;
+  --line: #cdc8be;
   /* 影は隙間を視覚的に潰すためサイネージでは使わない */
   --shadow: none;
   --accent: #7A6E5C;
@@ -2175,6 +2207,7 @@ html.wx-no-anim #weather-panel .side-pane {
   font-family: var(--font); color: var(--on);
   display: none; z-index: 40;
   background: var(--wbgt-bg, #308ED8);
+  transform: translate3d(0, 0, 0);
   /* 非表示時に合成レイヤーを残さない */
   contain: strict;
 }
@@ -2197,33 +2230,33 @@ html.wx-no-anim #weather-panel .side-pane {
 .lv-alert { --wbgt-bg:#FF7E00; --bg0:#FF7E00; --bg1:#FF7E00; }
 .lv-extreme { --wbgt-bg:#D61914; --bg0:#D61914; --bg1:#D61914; }
 
-/* 天気：カード薄色（指定シーン色の淡色面＋アクセント＝指定16進） */
+/* 天気：カード薄色（白すぎない・純白NG） */
 .wx-clear {
-  --surface:#C5D9F8; --line:#9Abbf0;
+  --surface:#E4ECF6; --line:#b8c8dc;
   --accent:#4285F4; --on-accent:#E8F0FE;
 }
 .wx-partly {
-  --surface:#F5E8B0; --line:#e8d070;
+  --surface:#F0EAD5; --line:#d8cfb0;
   --accent:#FBBC04; --on-accent:#202124;
 }
 .wx-cloudy {
-  --surface:#F5D4A8; --line:#e8b870;
+  --surface:#EFE6D8; --line:#d4c8b4;
   --accent:#F29900; --on-accent:#202124;
 }
 .wx-rain {
-  --surface:#D0D4E8; --line:#a8b0d0;
+  --surface:#E4E6EF; --line:#bcc0d0;
   --accent:#5C6BC0; --on-accent:#E8ECF4;
 }
 .wx-thunder {
-  --surface:#F0C8C4; --line:#e09890;
+  --surface:#EFE4E2; --line:#d8c0bc;
   --accent:#EA4335; --on-accent:#FCE8E6;
 }
 .wx-snow {
-  --surface:#D0D8E8; --line:#a8b8d0;
+  --surface:#E4E8F0; --line:#bcc4d0;
   --accent:#5C6BC0; --on-accent:#E8ECF4;
 }
 .wx-night {
-  --surface:#C8D0E8; --line:#98a8d0;
+  --surface:#E2E5EF; --line:#b8c0d0;
   --accent:#5C6BC0; --on-accent:#E8ECF4;
 }
 
@@ -2281,6 +2314,176 @@ html.wx-no-anim #weather-panel .side-pane {
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
+/* ===== 物理スロットル：4カードがスケッチ順に配置変更 =====
+   1: 左右縦＋中央上下   2: 上ワイド＋下3枚
+   3: 上下ワイド2枚      4: 上3枚＋下ワイド  →1へ
+*/
+#wxBoard {
+  position: absolute;
+  inset: 0;
+  width: 640px;
+  height: 192px;
+  overflow: hidden;
+}
+.wx-phys {
+  position: absolute;
+  box-sizing: border-box;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 4px 6px;
+  opacity: 1;
+  z-index: 2;
+  transform: translate3d(0, 0, 0);
+  /* 1枚ずつ：上から入場・下へ退場 */
+  transition: transform .5s cubic-bezier(.33, 0, .2, 1), opacity .35s ease;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.wx-phys.is-exit-down {
+  transform: translate3d(0, 210px, 0);
+  z-index: 1;
+}
+.wx-phys.is-enter-top {
+  transform: translate3d(0, -210px, 0);
+  transition: none;
+  z-index: 4;
+}
+.wx-phys .slot-title { flex-shrink: 0; }
+.wx-phys .wx-body {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+.wx-phys .wx-side-pack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  gap: 4px;
+}
+.wx-phys .wx-side-pack .side-lbl { margin-bottom: 0; font-size: 12px; font-weight: 700; }
+.wx-phys .wx-side-pack .side-val { font-size: 30px; }
+.wx-extra {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+}
+#wxBoard[data-lay="1"] .wx-a .wx-extra,
+#wxBoard[data-lay="1"] .wx-d .wx-extra { display: flex; }
+.wx-phys .pill {
+  width: 90%;
+  margin: 0 auto;
+  font-size: 14px;
+  padding: 8px 6px;
+}
+.wx-phys .now-body { padding-left: 0; gap: 8px; }
+.wx-phys .now-icon { width: 40px; height: 40px; }
+.wx-phys .now-icon svg { width: 30px; height: 30px; }
+.wx-phys .wx-temp { font-size: 26px; }
+.wx-phys .wx-desc { font-size: 14px; }
+.wx-phys .wx-sub { font-size: 11px; }
+.wx-c-metrics, .wx-c-weekly {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+.wx-c-metrics .wline-flat {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 4px;
+  padding: 0 4px;
+  min-height: 0;
+}
+.wx-c-metrics .metric {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+.wx-c-metrics .m-l {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.1;
+}
+.wx-c-metrics .m-v {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wx-c-weekly .weekly { height: 100%; }
+#wxBoard[data-lay="1"] .wx-c-weekly,
+#wxBoard[data-lay="3"] .wx-c-metrics,
+#wxBoard[data-lay="2"] .wx-c-metrics,
+#wxBoard[data-lay="4"] .wx-c-metrics {
+  display: flex;
+}
+#wxBoard[data-lay="1"] .wx-c-metrics,
+#wxBoard[data-lay="2"] .wx-c-weekly,
+#wxBoard[data-lay="3"] .wx-c-weekly,
+#wxBoard[data-lay="4"] .wx-c-weekly {
+  display: none;
+}
+
+/* --- layout 1: 左右縦 + 中央上下（正面384内は左右4px） --- */
+#wxBoard[data-lay="1"] .wx-a { left: 8px; top: 8px; width: 112px; height: 176px; }
+#wxBoard[data-lay="1"] .wx-b { left: 132px; top: 8px; width: 376px; height: 84px; }
+#wxBoard[data-lay="1"] .wx-c { left: 132px; top: 100px; width: 376px; height: 84px; }
+#wxBoard[data-lay="1"] .wx-d { left: 520px; top: 8px; width: 112px; height: 176px; }
+#wxBoard[data-lay="1"] .wx-a,
+#wxBoard[data-lay="1"] .wx-d { opacity: 1; }
+
+/* --- layout 2: 上ワイド + 下3枚 --- */
+#wxBoard[data-lay="2"] .wx-c { left: 8px; top: 8px; width: 624px; height: 84px; }
+#wxBoard[data-lay="2"] .wx-a { left: 8px; top: 100px; width: 112px; height: 84px; }
+#wxBoard[data-lay="2"] .wx-b { left: 132px; top: 100px; width: 376px; height: 84px; }
+#wxBoard[data-lay="2"] .wx-d { left: 520px; top: 100px; width: 112px; height: 84px; }
+#wxBoard[data-lay="2"] .wx-a,
+#wxBoard[data-lay="2"] .wx-d { opacity: 1; }
+
+/* --- layout 3: 上下ワイド2枚（左右は退避） --- */
+#wxBoard[data-lay="3"] .wx-b { left: 8px; top: 8px; width: 624px; height: 84px; }
+#wxBoard[data-lay="3"] .wx-c { left: 8px; top: 100px; width: 624px; height: 84px; }
+#wxBoard[data-lay="3"] .wx-a { left: -128px; top: 8px; width: 112px; height: 176px; opacity: 0; }
+#wxBoard[data-lay="3"] .wx-d { left: 656px; top: 8px; width: 112px; height: 176px; opacity: 0; }
+
+/* --- layout 4: 上3枚 + 下ワイド --- */
+#wxBoard[data-lay="4"] .wx-a { left: 8px; top: 8px; width: 112px; height: 84px; }
+#wxBoard[data-lay="4"] .wx-b { left: 132px; top: 8px; width: 376px; height: 84px; }
+#wxBoard[data-lay="4"] .wx-d { left: 520px; top: 8px; width: 112px; height: 84px; }
+#wxBoard[data-lay="4"] .wx-c { left: 8px; top: 100px; width: 624px; height: 84px; }
+#wxBoard[data-lay="4"] .wx-a,
+#wxBoard[data-lay="4"] .wx-d { opacity: 1; }
+
+#wxBoard[data-lay="1"] .wx-a .side-val,
+#wxBoard[data-lay="1"] .wx-d .side-val { font-size: 34px; }
+#wxBoard[data-lay="3"] .wx-b .wx-temp { font-size: 30px; }
+#wxBoard[data-lay="3"] .wx-b .now-icon { width: 48px; height: 48px; }
+#wxBoard[data-lay="3"] .wx-b .now-icon svg { width: 36px; height: 36px; }
 
 /* ===== 単一配置：上段ロング / 下段 左右+正面（隙間 8px） ===== */
 #topBand {
@@ -3142,145 +3345,71 @@ html.wx-no-anim #weather-panel .side-pane {
     <div id="weather-panel" class="lv-safe wx-cloudy" aria-hidden="true">
 <div id="weather-stage" class="lv-safe wx-cloudy">
 
-  <!-- A: 下段ロングで流す配置 -->
+  <!-- 物理スロットル：4カードが配置1→2→3→4→1で移動 -->
   <div id="layoutSpan" class="layout is-active">
-    <div id="topBand">
-      <section class="face-a">
-        <div class="card-a">
-          <div class="side-stack" data-side-stack="leftA">
-            <div class="side-pane on">
-              <div class="side-lbl">時刻</div>
-              <div class="side-val js-clock">--:--</div>
-            </div>
-            <div class="side-pane">
-              <div class="side-lbl">気温</div>
-              <div class="side-val js-temp">--<span class="unit">℃</span></div>
-            </div>
-            <div class="side-pane">
-              <div class="side-lbl">気圧</div>
-              <div class="side-val js-pressure">----<span class="unit">hPa</span></div>
-            </div>
-            <div class="side-pane">
+    <div id="wxBoard" data-lay="1">
+      <article class="wx-phys wx-a">
+        <div class="wx-body">
+          <div class="wx-side-pack">
+            <div class="side-lbl">時刻</div>
+            <div class="side-val js-clock">--:--</div>
+            <div class="wx-extra">
               <div class="side-lbl">湿度</div>
               <div class="side-val js-hum">--<span class="unit">%</span></div>
             </div>
           </div>
         </div>
-      </section>
-      <section class="face-a front">
-        <div class="card-front">
-          <div id="frontFlowA">
-            <article class="flow-a is-on" data-a="0">
-              <div class="slot-title">現在の天気</div>
-              <div class="now-body">
-                <div class="now-icon js-hero-icon"></div>
-                <div style="min-width:0">
-                  <div class="wx-row">
-                    <div class="wx-temp js-hero-temp">--<span class="unit">℃</span></div>
-                    <div class="wx-desc js-hero-desc">--</div>
-                  </div>
-                  <div class="wx-sub marquee-clip"><span class="marquee-track js-hero-sub">--</span></div>
-                </div>
+      </article>
+      <article class="wx-phys wx-b">
+        <div class="slot-title">現在の天気</div>
+        <div class="wx-body">
+          <div class="now-body">
+            <div class="now-icon js-hero-icon"></div>
+            <div style="min-width:0">
+              <div class="wx-row">
+                <div class="wx-temp js-hero-temp">--<span class="unit">℃</span></div>
+                <div class="wx-desc js-hero-desc">--</div>
               </div>
-            </article>
-            <article class="flow-a is-wait" data-a="1">
-              <div class="slot-title">週間天気</div>
-              <div class="flow-body"><div class="weekly js-weekly"></div></div>
-            </article>
-            <article class="flow-a is-wait" data-a="2">
-              <div class="slot-title">1時間ごとの天気</div>
-              <div class="flow-body"><div class="hourly js-hourly"></div></div>
-            </article>
-            <article class="flow-a is-wait" data-a="3">
-              <div class="slot-title">気温の推移</div>
-              <div class="flow-body"><canvas class="hourly-chart" id="chartA"></canvas></div>
-            </article>
+              <div class="wx-sub marquee-clip"><span class="marquee-track js-hero-sub">--</span></div>
+            </div>
           </div>
         </div>
-      </section>
-      <section class="face-a">
-        <div class="card-a">
-          <div class="side-stack" data-side-stack="rightA">
-            <div class="side-pane on">
-              <div class="side-lbl">天気</div>
-              <div class="pill js-side-weather">--</div>
-            </div>
-            <div class="side-pane">
+      </article>
+      <article class="wx-phys wx-c">
+        <div class="wx-c-metrics">
+          <div class="wide-title-row" style="padding:0 4px 2px">
+            <span class="wide-title-chip" style="font-size:11px;font-weight:700;color:var(--muted)">風・降水・気圧</span>
+          </div>
+          <div class="wline-flat">
+            <div class="metric"><div class="m-l">気圧</div><div class="m-v" data-k="press">--</div></div>
+            <div class="metric"><div class="m-l">最高</div><div class="m-v" data-k="max">--</div></div>
+            <div class="metric"><div class="m-l">最低</div><div class="m-v" data-k="min">--</div></div>
+            <div class="metric"><div class="m-l">風向</div><div class="m-v" data-k="windDir">--</div></div>
+            <div class="metric"><div class="m-l">風速</div><div class="m-v" data-k="windSpd">--</div></div>
+          </div>
+        </div>
+        <div class="wx-c-weekly">
+          <div class="slot-title">週間天気</div>
+          <div class="flow-body" style="flex:1;min-height:0"><div class="weekly js-weekly"></div></div>
+        </div>
+      </article>
+      <article class="wx-phys wx-d">
+        <div class="wx-body">
+          <div class="wx-side-pack">
+            <div class="side-lbl">天気</div>
+            <div class="pill js-side-weather">--</div>
+            <div class="wx-extra">
               <div class="side-lbl">気温</div>
               <div class="side-val sm js-side-temp">--<span class="unit">℃</span></div>
             </div>
-            <div class="side-pane">
-              <div class="side-lbl">風向</div>
-              <div class="side-val sm js-wind-dir">--</div>
-            </div>
-            <div class="side-pane">
-              <div class="side-lbl">風速</div>
-              <div class="side-val sm js-wind-spd">--</div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <div id="wideRail">
-      <article class="wide-card is-top" data-wide="0">
-        <div class="wide-title-row">
-          <span class="wide-title-chip">風・降水・気圧</span>
-        </div>
-        <div class="marquee-clip wide-metrics-marquee">
-          <div class="marquee-track wline-flat" data-marquee="wide">
-            <div class="metric"><div class="m-l">風向</div><div class="m-v" data-k="windDir">--</div></div>
-            <div class="metric"><div class="m-l">風速</div><div class="m-v" data-k="windSpd">--</div></div>
-            <div class="metric"><div class="m-l">瞬間最大</div><div class="m-v" data-k="gust">--</div></div>
-            <div class="metric"><div class="m-l">降水量</div><div class="m-v" data-k="rain">--</div></div>
-          </div>
-        </div>
-      </article>
-      <article class="wide-card is-wait" data-wide="1">
-        <div class="wide-title-row">
-          <span class="wide-title-chip">風・降水・気圧</span>
-        </div>
-        <div class="marquee-clip wide-metrics-marquee">
-          <div class="marquee-track wline-flat" data-marquee="wide">
-            <div class="metric"><div class="m-l">気圧</div><div class="m-v" data-k="press">--</div></div>
-            <div class="metric"><div class="m-l">最高</div><div class="m-v" data-k="max">--</div></div>
-            <div class="metric"><div class="m-l">最低</div><div class="m-v" data-k="min">--</div></div>
-            <div class="metric"><div class="m-l">日付</div><div class="m-v" data-k="date">--</div></div>
-          </div>
-        </div>
-      </article>
-      <article class="wide-card is-wait" data-wide="2">
-        <div class="wide-title-row">
-          <span class="wide-title-chip">現在の気象</span>
-        </div>
-        <div class="marquee-clip wide-metrics-marquee">
-          <div class="marquee-track wline-flat" data-marquee="wide">
-            <div class="metric"><div class="m-l">天気</div><div class="m-v" data-k="desc">--</div></div>
-            <div class="metric"><div class="m-l">気温</div><div class="m-v" data-k="temp">--</div></div>
-            <div class="metric"><div class="m-l">体感</div><div class="m-v" data-k="feels">--</div></div>
-            <div class="metric"><div class="m-l">湿度</div><div class="m-v" data-k="hum">--</div></div>
-          </div>
-        </div>
-      </article>
-      <article class="wide-card is-wait" data-wide="3">
-        <div class="wide-title-row">
-          <span class="wide-title-chip">現在の気象</span>
-        </div>
-        <div class="marquee-clip wide-metrics-marquee">
-          <div class="marquee-track wline-flat" data-marquee="wide">
-            <div class="metric"><div class="m-l">気圧</div><div class="m-v" data-k="press">--</div></div>
-            <div class="metric"><div class="m-l">最高</div><div class="m-v" data-k="max">--</div></div>
-            <div class="metric"><div class="m-l">最低</div><div class="m-v" data-k="min">--</div></div>
-            <div class="metric"><div class="m-l">風向</div><div class="m-v" data-k="windDir">--</div></div>
-            <div class="metric"><div class="m-l">風速</div><div class="m-v" data-k="windSpd">--</div></div>
           </div>
         </div>
       </article>
     </div>
   </div>
 
-  <!-- B: 以前の配置（上下カスケード） -->
-  <div id="layoutClassic" class="layout">
+  <!-- B: 以前の配置（非表示） -->
+  <div id="layoutClassic" class="layout" hidden>
     <div id="facesB">
       <section class="face-b">
         <div class="card-b">
@@ -3701,9 +3830,11 @@ html.wx-no-anim #weather-panel .side-pane {
     /** WBGTの次に販売機天気（販売機天気パネル）を流す（only=s4 / s1s4） */
     const PLAY_WEATHER_AFTER_S4 = query.get('nowx') !== '1';
     const WEATHER_HOLD_MS = 8000;
+    const SCENE_SWAP_MS = 560; /* WBGT↔天気の右→左スライド */
     let weatherShowing_ = false;
     let weatherReturnTimerId_ = null;
     let weatherSafetyTimerId_ = null;
+    let weatherSwapTimerId_ = null;
     /** 天気背景用の実測レベル。未確定なら -1（青=安全の仮決めはしない） */
     function resolveWbgtLevelForWeather_() {
         if (currentWbgtLevel >= 0 && currentWbgtLevel <= 4) return currentWbgtLevel;
@@ -3726,6 +3857,19 @@ html.wx-no-anim #weather-panel .side-pane {
     function clearWeatherTimers_() {
         if (weatherReturnTimerId_ != null) { clearTimeout(weatherReturnTimerId_); weatherReturnTimerId_ = null; }
         if (weatherSafetyTimerId_ != null) { clearTimeout(weatherSafetyTimerId_); weatherSafetyTimerId_ = null; }
+        if (weatherSwapTimerId_ != null) { clearTimeout(weatherSwapTimerId_); weatherSwapTimerId_ = null; }
+    }
+    function clearSceneSwapClasses_() {
+        const panel = document.getElementById('weather-panel');
+        if (panel) {
+            panel.classList.remove('is-enter-rtl');
+            panel.style.transform = '';
+        }
+        if (s4) {
+            s4.classList.remove('is-enter-rtl', 'is-swap-front');
+            s4.style.transform = '';
+            s4.style.zIndex = '';
+        }
     }
     function hideWeatherOverlay_() {
         const panel = document.getElementById('weather-panel');
@@ -3733,6 +3877,7 @@ html.wx-no-anim #weather-panel .side-pane {
         clearWeatherTimers_();
         weatherShowing_ = false;
         if (area) area.classList.remove('weather-on');
+        clearSceneSwapClasses_();
         if (panel) {
             panel.classList.remove('is-on');
             panel.setAttribute('aria-hidden', 'true');
@@ -3756,6 +3901,8 @@ html.wx-no-anim #weather-panel .side-pane {
             s4.style.visibility = '';
             s4.style.opacity = '';
             s4.style.zIndex = '';
+            s4.style.transform = '';
+            s4.classList.remove('is-enter-rtl', 'is-swap-front');
         }
         const area = document.querySelector('.content-area');
         if (area) area.classList.remove('weather-on');
@@ -3765,10 +3912,43 @@ html.wx-no-anim #weather-panel .side-pane {
             ensureWbgtSceneVisible_();
             return;
         }
-        hideWeatherOverlay_();
-        ensureWbgtSceneVisible_();
-        clearScene4Timers();
-        playScene4();
+        clearWeatherTimers_();
+        weatherShowing_ = false;
+        const panel = document.getElementById('weather-panel');
+        const area = document.querySelector('.content-area');
+        /* 天気の上に WBGT を右から被せる */
+        if (area) area.classList.remove('weather-on');
+        if (s1) hideSceneEl(s1);
+        if (s4) {
+            s4.style.display = sceneDisplayMode(s4);
+            s4.classList.add('active', 'is-swap-front', 'is-enter-rtl');
+            s4.style.visibility = 'visible';
+            s4.style.opacity = '1';
+        }
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                if (s4) s4.classList.remove('is-enter-rtl');
+            });
+        });
+        weatherSwapTimerId_ = setTimeout(function () {
+            weatherSwapTimerId_ = null;
+            if (panel) {
+                panel.classList.remove('is-on', 'is-enter-rtl');
+                panel.setAttribute('aria-hidden', 'true');
+                panel.style.display = 'none';
+                panel.style.visibility = 'hidden';
+                panel.style.opacity = '0';
+                panel.style.transform = '';
+            }
+            try { if (window.WbgtWeather) window.WbgtWeather.stop(); } catch (e) {}
+            if (s4) {
+                s4.classList.remove('is-swap-front');
+                s4.style.zIndex = '';
+                s4.style.transform = '';
+            }
+            clearScene4Timers();
+            playScene4();
+        }, SCENE_SWAP_MS);
     }
     function goWeatherAfterWbgt_() {
         const lv = resolveWbgtLevelForWeather_();
@@ -3802,12 +3982,21 @@ html.wx-no-anim #weather-panel .side-pane {
         panel.style.display = 'block';
         panel.style.visibility = 'visible';
         panel.style.opacity = '1';
-        area.classList.add('weather-on');
-        panel.classList.add('is-on');
+        /* WBGTの上に天気を右から被せる（直後は weather-on にしない） */
+        panel.classList.add('is-on', 'is-enter-rtl');
         panel.setAttribute('aria-hidden', 'false');
         try {
             if (window.WbgtWeather) window.WbgtWeather.start({ level: lv });
         } catch (e2) { console.error(e2); }
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                panel.classList.remove('is-enter-rtl');
+            });
+        });
+        weatherSwapTimerId_ = setTimeout(function () {
+            weatherSwapTimerId_ = null;
+            area.classList.add('weather-on');
+        }, SCENE_SWAP_MS);
         weatherReturnTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS);
         weatherSafetyTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS + 3000);
     }
@@ -9490,19 +9679,24 @@ const CLOCK_TZ = "Asia/Tokyo";
 const AMEDAS_POINT_SUPPLEMENT_KEYS = ["pressure", "normalPressure", "maxTemp", "minTemp", "gust"];
 const CHART_LINE = "#4285F4";
 const DOT = 5;
-const SLOT_MS = 3200; /* スロットル：1スロットずつカード本体を物理スライド */
+const SLOT_MS = 3000; /* 配置保持のあと次の1枚ずつ流れへ */
+const FLOW_MS = 500; /* 1枚の縦スライド時間 */
+const STAGGER_MS = 110; /* カード間のずらし */
 const HOURLY_COUNT = 6;
 const FONT = '"Roboto", "Noto Sans JP", sans-serif';
 const CARD_COUNT = 4;
 const CHART_CARD = 3;
 const WIDE_COUNT = 4;
 const SIDE_COUNT_A = 4; /* 左右サイド：1項目×4 */
+const LAY_MAX = 4; /* スケッチ配置 1〜4（5は1に戻る） */
+const WX_CARD_SEL = [".wx-a", ".wx-b", ".wx-c", ".wx-d"];
 
 let hourlySeries = [];
 let leftIndex = 0, rightIndex = 0;
 let frontA = 0, frontAAnim = false;
 let wideTop = 0, wideAnim = false;
-let slotPhase = 0; /* 0=上段ワイド → 1=左 → 2=正面 → 3=右 */
+let layoutPhase = 1; /* 現在の配置番号 1〜4 */
+let layoutAnimating = false;
 
 function windDir(deg) {
   if (deg == null || isNaN(deg)) return "--";
@@ -10254,7 +10448,7 @@ function drawChart(canvasId) {
     ctx.textBaseline = "bottom";
     ctx.fillText(String(p.temp), p.x, p.y - DOT - 2);
 
-    ctx.fillStyle = "#E8E2D4";
+    ctx.fillStyle = "#EBE8E1";
     ctx.beginPath(); ctx.arc(p.x, p.y, DOT + 1.5, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = CHART_LINE;
     ctx.beginPath(); ctx.arc(p.x, p.y, DOT, 0, Math.PI * 2); ctx.fill();
@@ -10415,15 +10609,71 @@ function stepRight() {
   setSide("rightA", rightIndex);
 }
 
-/** 単一配置：スロットル式でカード本体を物理スライド（上段→左→正面→右） */
+function applyWxLayout_(n) {
+  var board = document.getElementById("wxBoard");
+  if (!board) return;
+  layoutPhase = n;
+  board.setAttribute("data-lay", String(n));
+}
+
+function wxCards_() {
+  var board = document.getElementById("wxBoard");
+  if (!board) return [];
+  return WX_CARD_SEL.map(function (sel) {
+    return board.querySelector(sel);
+  }).filter(Boolean);
+}
+
+function resetWxFlow_(board) {
+  if (!board) board = document.getElementById("wxBoard");
+  if (!board) return;
+  board.classList.remove("is-flow-out", "is-flow-in");
+  wxCards_().forEach(function (el) {
+    el.classList.remove("is-exit-down", "is-enter-top");
+  });
+}
+
+/** 1枚ずつ下へ退場 */
+function flowCardsDown_(cards, done) {
+  if (!cards.length) { if (done) done(); return; }
+  cards.forEach(function (el, i) {
+    setTimeout(function () {
+      el.classList.remove("is-enter-top");
+      el.classList.add("is-exit-down");
+      if (i === cards.length - 1 && done) setTimeout(done, FLOW_MS);
+    }, i * STAGGER_MS);
+  });
+}
+
+/** 1枚ずつ上から入場 */
+function flowCardsIn_(cards, done) {
+  if (!cards.length) { if (done) done(); return; }
+  cards.forEach(function (el) {
+    el.classList.remove("is-exit-down");
+    el.classList.add("is-enter-top");
+  });
+  void document.body.offsetWidth;
+  cards.forEach(function (el, i) {
+    setTimeout(function () {
+      el.classList.remove("is-enter-top");
+      if (i === cards.length - 1 && done) setTimeout(done, FLOW_MS);
+    }, i * STAGGER_MS);
+  });
+}
+
+/** スケッチ順 1→2→3→4→1：1カードずつ上から入り・下へ退場して配置切替 */
 function slotTick() {
-  if (frontAAnim || wideAnim) return;
-  var p = slotPhase % 4;
-  if (p === 0) wideStep();
-  else if (p === 1) stepLeft();
-  else if (p === 2) frontStepA();
-  else stepRight();
-  slotPhase += 1;
+  if (layoutAnimating) return;
+  var cards = wxCards_();
+  if (!cards.length) return;
+  layoutAnimating = true;
+  flowCardsDown_(cards, function () {
+    var next = layoutPhase >= LAY_MAX ? 1 : layoutPhase + 1;
+    applyWxLayout_(next);
+    flowCardsIn_(wxCards_(), function () {
+      layoutAnimating = false;
+    });
+  });
 }
 
 window.WbgtWeather = {
@@ -10440,7 +10690,9 @@ window.WbgtWeather = {
     });
     frontAAnim = false;
     wideAnim = false;
-    slotPhase = 0;
+    layoutAnimating = false;
+    resetWxFlow_();
+    applyWxLayout_(1);
     if (opts.level != null) weatherSetLevel_(opts.level);
     apply640Mode();
     updateClock();
@@ -10461,8 +10713,11 @@ window.WbgtWeather = {
     });
     var span = document.getElementById("layoutSpan");
     if (span) span.classList.add("is-active");
+    resetWxFlow_();
+    applyWxLayout_(1);
     frontAAnim = false;
     wideAnim = false;
+    layoutAnimating = false;
   },
   setLevel: weatherSetLevel_
 };
