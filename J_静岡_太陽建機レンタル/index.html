@@ -1855,22 +1855,27 @@
             gap: 3px; justify-content: flex-start;
             --front-cards-h: 36px;
             --front-legend-h: 36px;
-            --front-stack-gap: 3px;
+            /* 白カード⇔レベルゲージの隙間（サイネージで潰さないよう確保） */
+            --front-stack-gap: 5px;
             --front-bottom-pad: 8px;
         }
         #scene4 .s4-face-front .s4-bottom-stack {
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
+            flex-shrink: 0;
         }
         #scene4 .s4-face-front .s4-cards {
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
+            flex-shrink: 0;
+            min-height: var(--front-cards-h, 36px);
         }
         #scene4 .s4-bottom-stack {
             display: flex; flex-direction: column;
-            gap: var(--front-stack-gap, 3px);
+            /* gap 非対応／縮小時でも潰れないよう margin で隙間を確保 */
+            gap: 0;
             width: 100%; flex-shrink: 0;
         }
         #scene4 .s4-status {
@@ -1913,7 +1918,7 @@
             gap: 8px;
             --front-cards-h: 36px;
             --front-legend-h: 36px;
-            --front-stack-gap: 3px;
+            --front-stack-gap: 5px;
             --front-bottom-pad: 8px;
         }
         #scene4 .s4-face-side .s4-status {
@@ -1985,7 +1990,8 @@
         #scene4 .s4-cards {
             display: grid; grid-template-columns: repeat(4, 1fr);
             gap: 4px; width: 100%; height: var(--front-cards-h, 36px); flex-shrink: 0;
-            min-height: 0;
+            min-height: var(--front-cards-h, 36px);
+            max-height: var(--front-cards-h, 36px);
         }
         #scene4 .s4-wcard {
             background: #fff; border-radius: 7px; overflow: hidden;
@@ -2010,8 +2016,8 @@
             font-size: 11px; color: #222; white-space: nowrap; line-height: 1;
             gap: 0.14em; position: relative; z-index: 1;
         }
-        #scene4 .s4-cards .s4-wcard { overflow: visible; }
-        #scene4 .s4-cards .s4-wcard-in { overflow: visible; }
+        #scene4 .s4-cards .s4-wcard { overflow: hidden; }
+        #scene4 .s4-cards .s4-wcard-in { overflow: hidden; }
         #scene4 .s4-cards .s4-lbl {
             font-size: 10px; gap: 0.1em;
             overflow: visible; position: relative; z-index: 20;
@@ -2067,7 +2073,21 @@
             --card-r: 5px;
             display: flex; flex-direction: row; align-items: stretch;
             width: 100%; height: var(--front-legend-h, 36px); flex-shrink: 0; gap: 0;
+            /* 白カードとの隙間を margin で固定（サイネージでも潰れない） */
+            margin-top: var(--front-stack-gap, 5px);
+            min-height: var(--front-legend-h, 36px);
             overflow: visible; position: relative; border-radius: 0;
+        }
+        /* ネイティブ640表示でも隙間を確実に残す */
+        html.native-640 #scene4 .s4-body-front,
+        body.native-640 #scene4 .s4-body-front,
+        html.native-640 #scene4 .s4-face-side .s4-body,
+        body.native-640 #scene4 .s4-face-side .s4-body {
+            --front-stack-gap: 5px;
+        }
+        html.native-640 #scene4 .s4-legend,
+        body.native-640 #scene4 .s4-legend {
+            margin-top: 5px;
         }
         #scene4 .s4-leg {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -2120,15 +2140,38 @@
 .content-area.weather-on > .scene,
 .content-area.weather-on > .scene-strip-bg { visibility: hidden; }
 
-/* WBGT↔天気：右から左へスライドイン */
+/* WBGT↔天気の切替アニメ */
 #weather-panel,
 #scene4 {
-  transition: transform .55s cubic-bezier(.33, 0, .2, 1);
+  transition: transform .9s cubic-bezier(.33, 0, .2, 1);
 }
-#weather-panel.is-enter-rtl,
+/* WBGT→天気：右から押し出し（天気が右→左、WBGTは左へ退場で被らない） */
+#weather-panel.is-enter-rtl {
+  transform: translate3d(640px, 0, 0);
+  transition: none !important;
+}
 #scene4.is-enter-rtl {
   transform: translate3d(640px, 0, 0);
   transition: none !important;
+}
+#weather-panel.is-swap-rtl-flow,
+#scene4.is-swap-rtl-flow {
+  transition: transform var(--wx-rtl-ms, .48s) cubic-bezier(.33, 0, .2, 1) !important;
+}
+#scene4.is-exit-push {
+  transform: translate3d(-640px, 0, 0);
+}
+/* 天気→WBGT：縦の押し出し（天気↓／WBGT↓着地を同時・被らない） */
+#weather-panel.is-exit-down {
+  transform: translate3d(0, 192px, 0);
+}
+#scene4.is-enter-top {
+  transform: translate3d(0, -192px, 0);
+  transition: none !important;
+}
+#weather-panel.is-swap-v-flow,
+#scene4.is-swap-v-flow {
+  transition: transform var(--wx-v-ms, .9s) cubic-bezier(.33, 0, .2, 1) !important;
 }
 #scene4.is-swap-front {
   z-index: 45 !important;
@@ -2203,13 +2246,12 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
 /* 天気パネル（index 内オーバーレイ・640×192） */
 #weather-panel {
   position: absolute; left: 0; top: 0; width: 640px; height: 192px;
-  margin: 0; padding: 0; overflow: hidden;
+  margin: 0; padding: 0; overflow: hidden !important;
   font-family: var(--font); color: var(--on);
   display: none; z-index: 40;
   background: var(--wbgt-bg, #308ED8);
   transform: translate3d(0, 0, 0);
-  /* 非表示時に合成レイヤーを残さない */
-  contain: strict;
+  clip-path: inset(0);
 }
 #weather-panel.is-on {
   display: block;
@@ -2218,10 +2260,11 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
 }
 /* wx-embed: unused (same page) */
 #weather-stage {
-  width: 640px; height: 192px; overflow: hidden; position: absolute;
+  width: 640px; height: 192px; overflow: hidden !important; position: absolute;
   left: 0; top: 0;
   background: var(--wbgt-bg, #308ED8) !important;
   transition: background .45s ease;
+  clip-path: inset(0);
 }
 /* WBGT段階色（index SignageBg.colorsForLevel と同値） */
 .lv-safe { --wbgt-bg:#308ED8; --bg0:#308ED8; --bg1:#308ED8; }
@@ -2262,6 +2305,7 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
 
 .layout {
   position: absolute; inset: 0;
+  overflow: hidden;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -2324,7 +2368,8 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
   inset: 0;
   width: 640px;
   height: 192px;
-  overflow: hidden;
+  overflow: hidden !important;
+  clip-path: inset(0);
 }
 .wx-phys {
   position: absolute;
@@ -2338,25 +2383,50 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 4px 6px;
+  padding: 2px 6px 3px;
   opacity: 1;
   z-index: 2;
   transform: translate3d(0, 0, 0);
-  /* 1枚ずつ：上から入場・下へ退場 */
-  transition: transform .5s cubic-bezier(.33, 0, .2, 1), opacity .35s ease;
-  will-change: transform;
+  transition: transform .8s cubic-bezier(.33, 0, .2, 1), opacity .45s ease;
+  will-change: transform, left, top, width, height;
   backface-visibility: hidden;
 }
+/* 配置モーフィング：上段→下段への物理移動 */
+#wxBoard.geom-anim .wx-phys:not(.is-exit-down):not(.is-enter-top):not(.is-pinned) {
+  transition:
+    left .8s cubic-bezier(.33, 0, .2, 1),
+    top .8s cubic-bezier(.33, 0, .2, 1),
+    width .8s cubic-bezier(.33, 0, .2, 1),
+    height .8s cubic-bezier(.33, 0, .2, 1),
+    opacity .45s ease,
+    transform .8s cubic-bezier(.33, 0, .2, 1);
+}
 .wx-phys.is-exit-down {
-  transform: translate3d(0, 210px, 0);
+  transform: translate3d(0, 220px, 0);
+  opacity: 1; /* 消さず、下へ下ろす */
   z-index: 1;
+  pointer-events: none;
 }
 .wx-phys.is-enter-top {
-  transform: translate3d(0, -210px, 0);
+  transform: translate3d(0, -220px, 0);
   transition: none;
+  opacity: 1;
   z-index: 4;
 }
-.wx-phys .slot-title { flex-shrink: 0; }
+/* 退場中は現在位置を固定してから下へ（配置切替で飛ばない） */
+.wx-phys.is-pinned {
+  z-index: 3;
+  opacity: 1 !important;
+  transition:
+    transform .8s cubic-bezier(.33, 0, .2, 1),
+    opacity 0s;
+}
+.wx-phys .slot-title {
+  flex-shrink: 0;
+  font-size: 9px;
+  line-height: 1.1;
+  margin-bottom: 0;
+}
 .wx-phys .wx-body {
   flex: 1;
   min-height: 0;
@@ -2373,31 +2443,41 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
   justify-content: center;
   text-align: center;
   height: 100%;
-  gap: 4px;
+  gap: 2px;
 }
-.wx-phys .wx-side-pack .side-lbl { margin-bottom: 0; font-size: 12px; font-weight: 700; }
-.wx-phys .wx-side-pack .side-val { font-size: 30px; }
+.wx-phys .wx-side-pack .side-lbl { margin-bottom: 0; font-size: 11px; font-weight: 700; }
+.wx-phys .wx-side-pack .side-val { font-size: 28px; }
 .wx-extra {
   display: none;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 #wxBoard[data-lay="1"] .wx-a .wx-extra,
 #wxBoard[data-lay="1"] .wx-d .wx-extra { display: flex; }
 .wx-phys .pill {
   width: 90%;
   margin: 0 auto;
-  font-size: 14px;
-  padding: 8px 6px;
+  font-size: 13px;
+  padding: 6px 4px;
 }
-.wx-phys .now-body { padding-left: 0; gap: 8px; }
-.wx-phys .now-icon { width: 40px; height: 40px; }
-.wx-phys .now-icon svg { width: 30px; height: 30px; }
-.wx-phys .wx-temp { font-size: 26px; }
-.wx-phys .wx-desc { font-size: 14px; }
-.wx-phys .wx-sub { font-size: 11px; }
+.wx-phys .now-body {
+  padding-left: 0;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+}
+.wx-phys .now-icon { width: 34px; height: 34px; flex-shrink: 0; }
+.wx-phys .now-icon svg { width: 26px; height: 26px; }
+.wx-phys .wx-temp { font-size: 22px; }
+.wx-phys .wx-desc { font-size: 12px; }
+.wx-phys .wx-sub {
+  font-size: 10px;
+  margin-top: 0;
+  line-height: 1.15;
+  max-width: 100%;
+}
 .wx-c-metrics, .wx-c-weekly {
   flex: 1;
   min-height: 0;
@@ -2435,7 +2515,12 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.wx-c-weekly .weekly { height: 100%; }
+.wx-c-weekly .weekly { height: 100%; min-height: 0; }
+.wx-c-weekly .flow-body { min-height: 0; overflow: hidden; padding-top: 0; }
+.wx-c-weekly .day { gap: 0; padding-bottom: 0; }
+.wx-c-weekly .d-label { font-size: 10px; }
+.wx-c-weekly .d-temp { font-size: 10px; }
+.wx-c-weekly .wx-icon { width: 20px; height: 20px; flex: 0 0 20px; }
 #wxBoard[data-lay="1"] .wx-c-weekly,
 #wxBoard[data-lay="3"] .wx-c-metrics,
 #wxBoard[data-lay="2"] .wx-c-metrics,
@@ -2465,11 +2550,11 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
 #wxBoard[data-lay="2"] .wx-a,
 #wxBoard[data-lay="2"] .wx-d { opacity: 1; }
 
-/* --- layout 3: 上下ワイド2枚（左右は退避） --- */
+/* --- layout 3: 上下ワイド2枚（左右は下へ退避・消さない） --- */
 #wxBoard[data-lay="3"] .wx-b { left: 8px; top: 8px; width: 624px; height: 84px; }
 #wxBoard[data-lay="3"] .wx-c { left: 8px; top: 100px; width: 624px; height: 84px; }
-#wxBoard[data-lay="3"] .wx-a { left: -128px; top: 8px; width: 112px; height: 176px; opacity: 0; }
-#wxBoard[data-lay="3"] .wx-d { left: 656px; top: 8px; width: 112px; height: 176px; opacity: 0; }
+#wxBoard[data-lay="3"] .wx-a { left: 8px; top: 220px; width: 112px; height: 84px; opacity: 1; }
+#wxBoard[data-lay="3"] .wx-d { left: 520px; top: 220px; width: 112px; height: 84px; opacity: 1; }
 
 /* --- layout 4: 上3枚 + 下ワイド --- */
 #wxBoard[data-lay="4"] .wx-a { left: 8px; top: 8px; width: 112px; height: 84px; }
@@ -2480,10 +2565,10 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
 #wxBoard[data-lay="4"] .wx-d { opacity: 1; }
 
 #wxBoard[data-lay="1"] .wx-a .side-val,
-#wxBoard[data-lay="1"] .wx-d .side-val { font-size: 34px; }
-#wxBoard[data-lay="3"] .wx-b .wx-temp { font-size: 30px; }
-#wxBoard[data-lay="3"] .wx-b .now-icon { width: 48px; height: 48px; }
-#wxBoard[data-lay="3"] .wx-b .now-icon svg { width: 36px; height: 36px; }
+#wxBoard[data-lay="1"] .wx-d .side-val { font-size: 30px; }
+#wxBoard[data-lay="3"] .wx-b .wx-temp { font-size: 26px; }
+#wxBoard[data-lay="3"] .wx-b .now-icon { width: 40px; height: 40px; }
+#wxBoard[data-lay="3"] .wx-b .now-icon svg { width: 30px; height: 30px; }
 
 /* ===== 単一配置：上段ロング / 下段 左右+正面（隙間 8px） ===== */
 #topBand {
@@ -3829,8 +3914,14 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only')) || 's4';
     /** WBGTの次に販売機天気（販売機天気パネル）を流す（only=s4 / s1s4） */
     const PLAY_WEATHER_AFTER_S4 = query.get('nowx') !== '1';
-    const WEATHER_HOLD_MS = 8000;
-    const SCENE_SWAP_MS = 560; /* WBGT↔天気の右→左スライド */
+    const WEATHER_HOLD_MS = 16000; /* フォールバック用（通常はカード切替回数で終了） */
+    const SCENE_SWAP_MS = 900; /* 天気→WBGT の縦押し出し */
+    /* 顔イラスト・WBGT文言の横流れ速度 (px/s) */
+    const WBGT_TELOP_SPEED_PX = 48;
+    /* WBGT→天気：右から押し出し */
+    const SCENE_SWAP_RTL_MS = 700;
+    /* 絵コンテ①→②→③→④→⑤(=①戻し) = 配置切替4回で天気終了 */
+    const WEATHER_LAYOUT_SWITCHES = 4;
     let weatherShowing_ = false;
     let weatherReturnTimerId_ = null;
     let weatherSafetyTimerId_ = null;
@@ -3862,13 +3953,19 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
     function clearSceneSwapClasses_() {
         const panel = document.getElementById('weather-panel');
         if (panel) {
-            panel.classList.remove('is-enter-rtl');
+            panel.classList.remove('is-enter-rtl', 'is-exit-down', 'is-swap-rtl-flow', 'is-swap-v-flow');
             panel.style.transform = '';
+            panel.style.transition = '';
+            panel.style.removeProperty('--wx-rtl-ms');
+            panel.style.removeProperty('--wx-v-ms');
         }
         if (s4) {
-            s4.classList.remove('is-enter-rtl', 'is-swap-front');
+            s4.classList.remove('is-enter-rtl', 'is-enter-top', 'is-swap-front', 'is-exit-push', 'is-swap-rtl-flow', 'is-swap-v-flow');
             s4.style.transform = '';
             s4.style.zIndex = '';
+            s4.style.transition = '';
+            s4.style.removeProperty('--wx-rtl-ms');
+            s4.style.removeProperty('--wx-v-ms');
         }
     }
     function hideWeatherOverlay_() {
@@ -3879,13 +3976,17 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
         if (area) area.classList.remove('weather-on');
         clearSceneSwapClasses_();
         if (panel) {
-            panel.classList.remove('is-on');
+            panel.classList.remove('is-on', 'is-enter-rtl', 'is-exit-down', 'is-swap-rtl-flow', 'is-swap-v-flow');
             panel.setAttribute('aria-hidden', 'true');
             panel.style.display = 'none';
             panel.style.visibility = 'hidden';
             panel.style.opacity = '0';
+            panel.style.transform = '';
+            panel.style.transition = '';
+            panel.style.removeProperty('--wx-rtl-ms');
         }
         try { if (window.WbgtWeather) window.WbgtWeather.stop(); } catch (e) {}
+        window.onWeatherLayoutCycleDone_ = null;
         /* シーン側の visibility/opacity を復帰（weather-on の名残を消す） */
         document.querySelectorAll('.content-area > .scene, .content-area > .scene-strip-bg').forEach(function (el) {
             el.style.visibility = '';
@@ -3902,7 +4003,7 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
             s4.style.opacity = '';
             s4.style.zIndex = '';
             s4.style.transform = '';
-            s4.classList.remove('is-enter-rtl', 'is-swap-front');
+            s4.classList.remove('is-enter-rtl', 'is-enter-top', 'is-swap-front', 'is-exit-push', 'is-swap-rtl-flow');
         }
         const area = document.querySelector('.content-area');
         if (area) area.classList.remove('weather-on');
@@ -3916,35 +4017,55 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
         weatherShowing_ = false;
         const panel = document.getElementById('weather-panel');
         const area = document.querySelector('.content-area');
-        /* 天気の上に WBGT を右から被せる */
-        if (area) area.classList.remove('weather-on');
+        /* カード動きを止めてから、縦押し出しで WBGT へ */
+        try { if (window.WbgtWeather) window.WbgtWeather.stop(); } catch (e) {}
+
         if (s1) hideSceneEl(s1);
+        if (area) area.classList.remove('weather-on');
+
         if (s4) {
             s4.style.display = sceneDisplayMode(s4);
-            s4.classList.add('active', 'is-swap-front', 'is-enter-rtl');
+            s4.style.setProperty('--wx-v-ms', (SCENE_SWAP_MS / 1000) + 's');
+            s4.classList.add('active', 'is-enter-top', 'is-swap-v-flow');
             s4.style.visibility = 'visible';
             s4.style.opacity = '1';
+            s4.style.zIndex = '35'; /* 天気(40)の下。接面のみ・面積は被らない */
         }
+        if (panel) {
+            panel.style.setProperty('--wx-v-ms', (SCENE_SWAP_MS / 1000) + 's');
+            panel.classList.remove('is-enter-rtl', 'is-swap-rtl-flow');
+            panel.classList.add('is-swap-v-flow');
+            panel.style.visibility = 'visible';
+            panel.style.opacity = '1';
+            panel.style.display = 'block';
+            void panel.offsetWidth;
+        }
+
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
-                if (s4) s4.classList.remove('is-enter-rtl');
+                if (panel) panel.classList.add('is-exit-down');
+                if (s4) s4.classList.remove('is-enter-top');
             });
         });
+
         weatherSwapTimerId_ = setTimeout(function () {
             weatherSwapTimerId_ = null;
             if (panel) {
-                panel.classList.remove('is-on', 'is-enter-rtl');
+                panel.classList.remove('is-on', 'is-enter-rtl', 'is-exit-down', 'is-swap-v-flow');
                 panel.setAttribute('aria-hidden', 'true');
                 panel.style.display = 'none';
                 panel.style.visibility = 'hidden';
                 panel.style.opacity = '0';
                 panel.style.transform = '';
+                panel.style.transition = '';
+                panel.style.removeProperty('--wx-v-ms');
             }
-            try { if (window.WbgtWeather) window.WbgtWeather.stop(); } catch (e) {}
             if (s4) {
-                s4.classList.remove('is-swap-front');
+                s4.classList.remove('is-swap-front', 'is-enter-top', 'is-swap-v-flow');
                 s4.style.zIndex = '';
                 s4.style.transform = '';
+                s4.style.transition = '';
+                s4.style.removeProperty('--wx-v-ms');
             }
             clearScene4Timers();
             playScene4();
@@ -3982,23 +4103,51 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
         panel.style.display = 'block';
         panel.style.visibility = 'visible';
         panel.style.opacity = '1';
-        /* WBGTの上に天気を右から被せる（直後は weather-on にしない） */
-        panel.classList.add('is-on', 'is-enter-rtl');
-        panel.setAttribute('aria-hidden', 'false');
+        /* 画面切替中は天気コンテンツを静止。着地後に動き出す */
         try {
-            if (window.WbgtWeather) window.WbgtWeather.start({ level: lv });
+            if (window.WbgtWeather) window.WbgtWeather.prepare({ level: lv });
         } catch (e2) { console.error(e2); }
+        /* 右から素早く押し出し：天気が入る／WBGT は左へ退場（被らない） */
+        panel.style.setProperty('--wx-rtl-ms', (SCENE_SWAP_RTL_MS / 1000) + 's');
+        if (s4) {
+            s4.style.setProperty('--wx-rtl-ms', (SCENE_SWAP_RTL_MS / 1000) + 's');
+            s4.classList.add('is-swap-rtl-flow');
+            s4.style.visibility = 'visible';
+            s4.style.opacity = '1';
+            s4.style.zIndex = '39'; /* 天気(40)の下だが接面のみ・面積は被らない */
+        }
+        panel.classList.add('is-on', 'is-enter-rtl', 'is-swap-rtl-flow');
+        panel.setAttribute('aria-hidden', 'false');
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
                 panel.classList.remove('is-enter-rtl');
+                if (s4) s4.classList.add('is-exit-push');
             });
         });
         weatherSwapTimerId_ = setTimeout(function () {
             weatherSwapTimerId_ = null;
             area.classList.add('weather-on');
-        }, SCENE_SWAP_MS);
-        weatherReturnTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS);
-        weatherSafetyTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS + 3000);
+            panel.classList.remove('is-swap-rtl-flow');
+            panel.style.transition = '';
+            if (s4) {
+                s4.classList.remove('is-exit-push', 'is-swap-rtl-flow', 'is-swap-front');
+                s4.style.transform = '';
+                s4.style.transition = '';
+                s4.style.zIndex = '';
+                s4.style.removeProperty('--wx-rtl-ms');
+            }
+            /* 切替完了後に天気カードの動きを開始 */
+            try {
+                if (window.WbgtWeather) window.WbgtWeather.beginMotion();
+            } catch (e3) { console.error(e3); }
+            /* 天気終了はカード配置切替回数で判定（固定秒数ではない） */
+            window.onWeatherLayoutCycleDone_ = function () {
+                window.onWeatherLayoutCycleDone_ = null;
+                onWeatherDone_();
+            };
+            /* 万一切替が進まないときの安全弁 */
+            weatherSafetyTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS + SCENE_SWAP_RTL_MS);
+        }, SCENE_SWAP_RTL_MS);
     }
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
     /* 640×192 ネイティブが既定。拡大は ?preview=1 / ?scale=1 / native640=0 のみ */
@@ -6838,7 +6987,7 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
     let s4FlowX_ = 0;
     let s4FlowLastTs_ = 0;
     let s4FlowSetW_ = 0; /* display:none 中に幅0へ落ちないよう最後の有効幅を保持 */
-    const S4_FLOW_SPEED_PX = 48;
+    const S4_FLOW_SPEED_PX = WBGT_TELOP_SPEED_PX; /* 顔・文言・天気切替と同速 */
 
     function ensureS4FlowScroll_() {
         const track = document.querySelector('#scene4 .s4-flow-track');
@@ -9679,16 +9828,17 @@ const CLOCK_TZ = "Asia/Tokyo";
 const AMEDAS_POINT_SUPPLEMENT_KEYS = ["pressure", "normalPressure", "maxTemp", "minTemp", "gust"];
 const CHART_LINE = "#4285F4";
 const DOT = 5;
-const SLOT_MS = 3000; /* 配置保持のあと次の1枚ずつ流れへ */
-const FLOW_MS = 500; /* 1枚の縦スライド時間 */
-const STAGGER_MS = 110; /* カード間のずらし */
+const SLOT_MS = 4200; /* 各配置の保持（①〜④＋⑤戻りまで天気枠内で完走） */
+const FLOW_MS = 800; /* 1枚の縦スライド時間 */
+const STAGGER_MS = 180; /* カード間のずらし */
 const HOURLY_COUNT = 6;
 const FONT = '"Roboto", "Noto Sans JP", sans-serif';
 const CARD_COUNT = 4;
 const CHART_CARD = 3;
 const WIDE_COUNT = 4;
 const SIDE_COUNT_A = 4; /* 左右サイド：1項目×4 */
-const LAY_MAX = 4; /* スケッチ配置 1〜4（5は1に戻る） */
+const LAY_MAX = 4; /* スケッチ①〜④。⑤は①と同じ配置への戻り */
+const LAY_SWITCHES_FOR_WEATHER = 4; /* ①→②→③→④→⑤(=①) の切替回数 */
 const WX_CARD_SEL = [".wx-a", ".wx-b", ".wx-c", ".wx-d"];
 
 let hourlySeries = [];
@@ -9697,6 +9847,7 @@ let frontA = 0, frontAAnim = false;
 let wideTop = 0, wideAnim = false;
 let layoutPhase = 1; /* 現在の配置番号 1〜4 */
 let layoutAnimating = false;
+let layoutSwitchCount_ = 0; /* 天気表示中の配置切替カウント */
 
 function windDir(deg) {
   if (deg == null || isNaN(deg)) return "--";
@@ -10624,65 +10775,177 @@ function wxCards_() {
   }).filter(Boolean);
 }
 
+/** 各配置の上段・下段カード（流れは上→下） */
+function rowCards_(lay) {
+  var board = document.getElementById("wxBoard");
+  if (!board) return { top: [], bottom: [], rest: [] };
+  var a = board.querySelector(".wx-a");
+  var b = board.querySelector(".wx-b");
+  var c = board.querySelector(".wx-c");
+  var d = board.querySelector(".wx-d");
+  /* top / bottom は左→右（一通の流れの順） */
+  if (lay === 1) return { top: [b], bottom: [c], rest: [a, d] };
+  if (lay === 2) return { top: [c], bottom: [a, b, d], rest: [] };
+  if (lay === 3) return { top: [b], bottom: [c], rest: [a, d] };
+  if (lay === 4) return { top: [a, b, d], bottom: [c], rest: [] };
+  return { top: [], bottom: [], rest: [] };
+}
+
 function resetWxFlow_(board) {
   if (!board) board = document.getElementById("wxBoard");
   if (!board) return;
-  board.classList.remove("is-flow-out", "is-flow-in");
+  board.classList.remove("is-flow-out", "is-flow-in", "geom-anim");
   wxCards_().forEach(function (el) {
-    el.classList.remove("is-exit-down", "is-enter-top");
+    el.classList.remove("is-exit-down", "is-enter-top", "is-pinned");
+    el.style.left = "";
+    el.style.top = "";
+    el.style.width = "";
+    el.style.height = "";
+    el.style.opacity = "";
   });
 }
 
-/** 1枚ずつ下へ退場 */
-function flowCardsDown_(cards, done) {
-  if (!cards.length) { if (done) done(); return; }
-  cards.forEach(function (el, i) {
-    setTimeout(function () {
-      el.classList.remove("is-enter-top");
-      el.classList.add("is-exit-down");
-      if (i === cards.length - 1 && done) setTimeout(done, FLOW_MS);
-    }, i * STAGGER_MS);
-  });
+/** 退場カードを現在の見た目位置に固定（消えて飛ばないように） */
+function pinCardAt_(el, board) {
+  if (!el || !board) return;
+  var br = board.getBoundingClientRect();
+  var r = el.getBoundingClientRect();
+  el.style.left = (r.left - br.left) + "px";
+  el.style.top = (r.top - br.top) + "px";
+  el.style.width = r.width + "px";
+  el.style.height = r.height + "px";
+  el.style.opacity = "1";
+  el.classList.add("is-pinned");
 }
 
-/** 1枚ずつ上から入場 */
-function flowCardsIn_(cards, done) {
-  if (!cards.length) { if (done) done(); return; }
-  cards.forEach(function (el) {
-    el.classList.remove("is-exit-down");
-    el.classList.add("is-enter-top");
-  });
-  void document.body.offsetWidth;
-  cards.forEach(function (el, i) {
-    setTimeout(function () {
-      el.classList.remove("is-enter-top");
-      if (i === cards.length - 1 && done) setTimeout(done, FLOW_MS);
-    }, i * STAGGER_MS);
-  });
+function unpinCard_(el) {
+  if (!el) return;
+  el.classList.remove("is-pinned", "is-exit-down");
+  el.style.left = "";
+  el.style.top = "";
+  el.style.width = "";
+  el.style.height = "";
+  el.style.opacity = "";
 }
 
-/** スケッチ順 1→2→3→4→1：1カードずつ上から入り・下へ退場して配置切替 */
+/**
+ * 一通で上から下へ流す配置切替
+ * カードは消さず、見えるまま下へ下ろす
+ */
 function slotTick() {
   if (layoutAnimating) return;
-  var cards = wxCards_();
-  if (!cards.length) return;
+  var board = document.getElementById("wxBoard");
+  if (!board) return;
+  var curLay = layoutPhase;
+  var nextLay = curLay >= LAY_MAX ? 1 : curLay + 1;
+  var cur = rowCards_(curLay);
+  var nxt = rowCards_(nextLay);
   layoutAnimating = true;
-  flowCardsDown_(cards, function () {
-    var next = layoutPhase >= LAY_MAX ? 1 : layoutPhase + 1;
-    applyWxLayout_(next);
-    flowCardsIn_(wxCards_(), function () {
-      layoutAnimating = false;
+
+  function finishCascade_() {
+    board.classList.remove("geom-anim");
+    wxCards_().forEach(function (el) {
+      unpinCard_(el);
+      el.classList.remove("is-exit-down", "is-enter-top");
+    });
+    layoutAnimating = false;
+    layoutSwitchCount_ += 1;
+    if (layoutSwitchCount_ >= LAY_SWITCHES_FOR_WEATHER) {
+      try {
+        if (typeof window.onWeatherLayoutCycleDone_ === "function") {
+          window.onWeatherLayoutCycleDone_();
+        }
+      } catch (eDone) {}
+    }
+  }
+
+  var nextKeep = nxt.top.concat(nxt.bottom).filter(Boolean);
+  var curOn = cur.top.concat(cur.bottom).filter(Boolean);
+
+  var enterTop = nxt.top.filter(function (el) {
+    return el && cur.top.indexOf(el) < 0;
+  });
+  var enterBot = nxt.bottom.filter(function (el) {
+    return el && curOn.indexOf(el) < 0 && enterTop.indexOf(el) < 0;
+  });
+
+  var leaveDown = [];
+  cur.top.concat(cur.bottom).concat(cur.rest).forEach(function (el) {
+    if (el && nextKeep.indexOf(el) < 0 && leaveDown.indexOf(el) < 0) {
+      leaveDown.push(el);
+    }
+  });
+
+  var landTop = enterTop.slice();
+  var landBot = enterBot.slice();
+  var waveN = Math.max(landTop.length, 1) + nxt.bottom.length + leaveDown.length;
+  var waveMs = (Math.max(waveN - 1, 0) * STAGGER_MS) + FLOW_MS + 60;
+
+  /* 退場カードは位置を固定 → 下へ下ろす（配置変更で消えない） */
+  leaveDown.forEach(function (el) {
+    el.classList.remove("is-enter-top");
+    pinCardAt_(el, board);
+  });
+
+  landTop.concat(landBot).forEach(function (el) {
+    el.classList.remove("is-exit-down", "is-pinned");
+    el.style.left = "";
+    el.style.top = "";
+    el.style.width = "";
+    el.style.height = "";
+    el.style.opacity = "1";
+    el.classList.add("is-enter-top");
+  });
+  nextKeep.forEach(function (el) {
+    if (landTop.indexOf(el) < 0 && landBot.indexOf(el) < 0) {
+      el.classList.remove("is-exit-down", "is-enter-top", "is-pinned");
+      el.style.left = "";
+      el.style.top = "";
+      el.style.width = "";
+      el.style.height = "";
+      el.style.opacity = "";
+    }
+  });
+
+  board.classList.add("geom-anim");
+  applyWxLayout_(nextLay);
+  void board.offsetWidth;
+
+  var step = 0;
+  function arm_(fn) {
+    var d = step * STAGGER_MS;
+    step += 1;
+    setTimeout(fn, d);
+  }
+
+  /* ① 上段 → ② 下段 → ③ 見えるまま下へ下ろす */
+  if (landTop.length) {
+    landTop.forEach(function (el) {
+      arm_(function () { el.classList.remove("is-enter-top"); });
+    });
+  } else if (nxt.top.length) {
+    arm_(function () {});
+  }
+  nxt.bottom.forEach(function (el) {
+    if (!el) return;
+    arm_(function () {
+      if (landBot.indexOf(el) >= 0) el.classList.remove("is-enter-top");
     });
   });
+  leaveDown.forEach(function (el) {
+    arm_(function () { el.classList.add("is-exit-down"); });
+  });
+
+  setTimeout(finishCascade_, waveMs);
 }
 
 window.WbgtWeather = {
-  start: function (opts) {
+  /** 表示内容だけ準備（カード切替はまだ動かさない） */
+  prepare: function (opts) {
     opts = opts || {};
     clearWeatherLocalTimers_();
     weatherRunning_ = true;
     document.documentElement.classList.add("wx-no-anim");
-    /* 切替アニメの途中状態を破棄（残像の原因） */
     document.querySelectorAll("#weather-panel .layout").forEach(function (el) {
       el.classList.remove("is-leaving", "is-entering");
       if (el.id === "layoutSpan") el.classList.add("is-active");
@@ -10691,18 +10954,26 @@ window.WbgtWeather = {
     frontAAnim = false;
     wideAnim = false;
     layoutAnimating = false;
+    layoutSwitchCount_ = 0;
     resetWxFlow_();
     applyWxLayout_(1);
     if (opts.level != null) weatherSetLevel_(opts.level);
     apply640Mode();
     updateClock();
     refresh();
-    requestAnimationFrame(function () {
-      document.documentElement.classList.remove("wx-no-anim");
-    });
+  },
+  /** 画面切替着地後：カード切替・時計を開始 */
+  beginMotion: function () {
+    if (!weatherRunning_) return;
+    clearWeatherLocalTimers_();
+    document.documentElement.classList.remove("wx-no-anim");
     weatherTimers_.push(setInterval(slotTick, SLOT_MS));
     weatherTimers_.push(setInterval(updateClock, 1000));
     weatherTimers_.push(setInterval(refresh, 10 * 60 * 1000));
+  },
+  start: function (opts) {
+    this.prepare(opts);
+    this.beginMotion();
   },
   stop: function () {
     weatherRunning_ = false;
@@ -10718,6 +10989,7 @@ window.WbgtWeather = {
     frontAAnim = false;
     wideAnim = false;
     layoutAnimating = false;
+    layoutSwitchCount_ = 0;
   },
   setLevel: weatherSetLevel_
 };
