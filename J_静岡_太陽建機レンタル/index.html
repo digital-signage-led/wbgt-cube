@@ -3,7 +3,7 @@
 <!-- wbgt-cube-osaka-3face / 大阪 WBGT サイネージ（本番 3面 640×192・全面流し・カード128×192） -->
 <!-- 同階層: assets/greencross_logo.png（左右ロゴ列） / assets/greencross_foot_name.svg（時刻下の下帯） -->
 <!-- 会場: 静岡県静岡市駿河区大坪町2-26 -->
-<!-- WBGT・環境省地点 50331（静岡）／天気・気象庁 AMeDAS 50331・予報 220000 -->
+<!-- WBGT・環境省地点 50331（静岡）／天気・気象庁 AMeDAS 50331・予報 220000（販売機天気は同一 index.html） -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +14,7 @@
     <title>WBGT Signage 3面 640×192 - 大阪</title>
     <link rel="preload" as="image" href="./assets/greencross_logo.png">
     <link rel="preload" as="image" href="./assets/greencross_foot_name.svg">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
     (function () {
         ['./assets/greencross_logo.png', './assets/greencross_foot_name.svg'].forEach(function (u) {
@@ -25,27 +25,27 @@
     })();
     </script>
     <script>
-/** 3面 640×192 本番用（コンテンツ全面640・カード128×192・native640）。localhost は PC 確認用に拡大表示 */
+/**
+ * 3面 640×192 — サイネージと WEB を同一ピクセルにする（拡大しない）。
+ * 拡大プレビューは ?preview=1 または ?scale=1 のときのみ。
+ */
 (function () {
     var q = new URLSearchParams(location.search);
-    var localDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    var forceNative = localDev
-        ? q.get('native640') === '1'
-        : q.get('native640') !== '0';
+    var wantScale = q.get('preview') === '1' || q.get('scale') === '1'
+        || q.get('native640') === '0';
+    var forceNative = !wantScale;
     if (forceNative) {
-        if (!q.has('native640')) q.set('native640', '1');
-        var qs = q.toString();
-        if (qs && location.search !== '?' + qs) {
+        if (q.get('native640') !== '1') {
+            q.set('native640', '1');
+            var qs = q.toString();
             history.replaceState(null, '', location.pathname + '?' + qs);
         }
         document.documentElement.classList.add('native-640');
         document.documentElement.classList.remove('browser-preview');
     } else {
-        if (q.get('native640') === '1') {
-            q.delete('native640');
-            var qsOff = q.toString();
-            history.replaceState(null, '', location.pathname + (qsOff ? '?' + qsOff : ''));
-        }
+        q.delete('native640');
+        var qsOff = q.toString();
+        history.replaceState(null, '', location.pathname + (qsOff ? '?' + qsOff : ''));
         document.documentElement.classList.add('browser-preview');
         document.documentElement.classList.remove('native-640');
     }
@@ -105,12 +105,14 @@
             position: absolute; top: 0; left: 0;
             margin: 0; padding: 0;
         }
-        .canvas { width: 640px; height: 192px; position: relative; overflow: hidden; display: flex; flex-direction: row; flex-wrap: nowrap; gap: 0; transform-origin: top left; }
-        @media screen and (min-width: 641px) {
-            .canvas { transform: scale(calc(100vw / 640)); }
+        /* 既定: 拡大なし（サイネージ実機と同寸 640×192） */
+        .canvas {
+            width: 640px; height: 192px; position: relative; overflow: hidden;
+            display: flex; flex-direction: row; flex-wrap: nowrap; gap: 0;
+            transform: none; transform-origin: top left;
         }
         body.native-640 .canvas { transform: none !important; }
-        /* localhost / 127.0.0.1 確認用: ビューポートに合わせて拡大（native640 無効時） */
+        /* 任意拡大プレビュー（?preview=1）のみ。サブピクセルずれの原因になるため本番では使わない */
         body.browser-preview {
             min-height: 100vh;
             display: flex;
@@ -127,15 +129,6 @@
         .content-area { width: 640px; height: 192px; position: relative; overflow: hidden; flex: 0 0 640px; flex-shrink: 0; background: #308DD8; }
         .content-area > .scene-strip-bg { z-index: 0; }
         .content-area > .scene { z-index: 1; will-change: transform; }
-        /* WBGT↔天気: ページ遷移ではなく iframe 重ね（再読込のチラつき防止） */
-        #weather-frame {
-            position: absolute; left: 0; top: 0; width: 640px; height: 192px;
-            border: 0; margin: 0; padding: 0; z-index: 40;
-            display: none; background: #308ED8;
-        }
-        #weather-frame.is-on { display: block; }
-        .content-area.weather-on > .scene,
-        .content-area.weather-on > .scene-strip-bg { visibility: hidden; }
         .scene {
             position: absolute; top: 0; left: 0; width: 640px; height: 192px;
             display: none; overflow: hidden; box-sizing: border-box;
@@ -1842,12 +1835,12 @@
         #scene4 .s4-face .col-bg-foot { display: none; }
         #scene4 .s4-face > :not(.col-bg-layer) { position: relative; z-index: 1; }
         #scene4 .s4-body-front {
-            padding: 3px 8px var(--front-bottom-pad, 5px); align-items: stretch;
+            padding: 3px 8px var(--front-bottom-pad, 8px); align-items: stretch;
             gap: 3px; justify-content: flex-start;
             --front-cards-h: 36px;
             --front-legend-h: 36px;
             --front-stack-gap: 3px;
-            --front-bottom-pad: 5px;
+            --front-bottom-pad: 8px;
         }
         #scene4 .s4-bottom-stack {
             display: flex; flex-direction: column;
@@ -1888,13 +1881,14 @@
             color: #111; white-space: nowrap;
         }
         #scene4 .s4-face-side .s4-body {
-            padding: 14px 5px var(--front-bottom-pad, 5px);
+            /* 128面内に112カード → 左右ちょうど 8px（天気画面の --wx-gap と一致） */
+            padding: 14px 8px var(--front-bottom-pad, 8px);
             justify-content: flex-start;
             gap: 8px;
             --front-cards-h: 36px;
             --front-legend-h: 36px;
             --front-stack-gap: 3px;
-            --front-bottom-pad: 5px;
+            --front-bottom-pad: 8px;
         }
         #scene4 .s4-face-side .s4-status {
             margin-top: 6px;
@@ -2094,6 +2088,605 @@
         #scene4.s4-txt-light .s4-msg { color: #fff; }
         #scene4.s4-txt-dark .s4-name,
         #scene4.s4-txt-dark .s4-msg { color: #111; }
+
+    
+/* ===== 販売機天気（同一ページ埋め込み） ===== */
+.content-area.weather-on > .scene,
+.content-area.weather-on > .scene-strip-bg { visibility: hidden; }
+
+#weather-panel {
+  --font: "Roboto", "Noto Sans JP", sans-serif;
+  /* カード面デフォルト（天気クラスで上書き・白禁止） */
+  --surface: #E8E2D4;
+  --on: #202124;
+  --muted: #5f6368;
+  --line: #c8c0b0;
+  /* 影は隙間を視覚的に潰すためサイネージでは使わない */
+  --shadow: none;
+  --accent: #7A6E5C;
+  --on-accent: #202124;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --bg0: #2478c4;
+  --bg1: #2F8CDC;
+  /*
+    カード幅112 / サイド面128 → 左右余白 (128-112)/2 = 8px。
+    外周・列間とも 8px にすると中央幅がちょうど 384（正面面）になり、
+    3面サイネージで隙間が潰えない。
+  */
+  --wx-gap: 8px;
+  --wx-side: 112px;
+  --wx-face: 128px;
+  --wx-mid: 384px;
+  --wx-top-h: 96px;
+}
+#weather-panel, #weather-panel * { box-sizing: border-box; }
+/* 天気パネル（index 内オーバーレイ・640×192） */
+#weather-panel {
+  position: absolute; left: 0; top: 0; width: 640px; height: 192px;
+  margin: 0; padding: 0; overflow: hidden;
+  font-family: var(--font); color: var(--on);
+  display: none; z-index: 40;
+  background: var(--wbgt-bg, #308ED8);
+}
+#weather-panel.is-on { display: block; }
+/* wx-embed: unused (same page) */
+#weather-stage {
+  width: 640px; height: 192px; overflow: hidden; position: absolute;
+  left: 0; top: 0;
+  background: var(--wbgt-bg, #308ED8) !important;
+  transition: background .45s ease;
+}
+/* WBGT段階色（index SignageBg.colorsForLevel と同値） */
+.lv-safe { --wbgt-bg:#308ED8; --bg0:#308ED8; --bg1:#308ED8; }
+.lv-caution { --wbgt-bg:#FFD92E; --bg0:#FFD92E; --bg1:#FFD92E; }
+.lv-warning { --wbgt-bg:#FFBE2C; --bg0:#FFBE2C; --bg1:#FFBE2C; }
+.lv-alert { --wbgt-bg:#FF7E00; --bg0:#FF7E00; --bg1:#FF7E00; }
+.lv-extreme { --wbgt-bg:#D61914; --bg0:#D61914; --bg1:#D61914; }
+
+/* 天気：カード薄色（指定シーン色の淡色面＋アクセント＝指定16進） */
+.wx-clear {
+  --surface:#C5D9F8; --line:#9Abbf0;
+  --accent:#4285F4; --on-accent:#E8F0FE;
+}
+.wx-partly {
+  --surface:#F5E8B0; --line:#e8d070;
+  --accent:#FBBC04; --on-accent:#202124;
+}
+.wx-cloudy {
+  --surface:#F5D4A8; --line:#e8b870;
+  --accent:#F29900; --on-accent:#202124;
+}
+.wx-rain {
+  --surface:#D0D4E8; --line:#a8b0d0;
+  --accent:#5C6BC0; --on-accent:#E8ECF4;
+}
+.wx-thunder {
+  --surface:#F0C8C4; --line:#e09890;
+  --accent:#EA4335; --on-accent:#FCE8E6;
+}
+.wx-snow {
+  --surface:#D0D8E8; --line:#a8b8d0;
+  --accent:#5C6BC0; --on-accent:#E8ECF4;
+}
+.wx-night {
+  --surface:#C8D0E8; --line:#98a8d0;
+  --accent:#5C6BC0; --on-accent:#E8ECF4;
+}
+
+.layout {
+  position: absolute; inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: none;
+  transition:
+    opacity .5s ease,
+    visibility 0s linear .5s;
+  z-index: 1;
+}
+.layout.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  transition:
+    opacity .5s ease,
+    visibility 0s;
+  z-index: 2;
+}
+.layout.is-leaving {
+  opacity: 0;
+  visibility: visible;
+  pointer-events: none;
+  transform: none;
+  transition:
+    opacity .45s ease,
+    visibility 0s linear .45s;
+  z-index: 1;
+}
+.layout.is-entering {
+  opacity: 0;
+  visibility: visible;
+  pointer-events: none;
+  transform: none;
+  transition: none;
+  z-index: 3;
+}
+.layout.is-entering.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+  transition:
+    opacity .5s ease,
+    visibility 0s;
+}
+
+/* ===== 配置A：上段ロング / 下段 左右+正面（隙間はすべて 8px＝面分割準拠） ===== */
+#topBand {
+  position: absolute;
+  left: var(--wx-gap);
+  top: calc(var(--wx-gap) + var(--wx-top-h) + var(--wx-gap)); /* 8+96+8=112 */
+  width: calc(640px - var(--wx-gap) * 2); /* 624 */
+  height: calc(192px - var(--wx-gap) - var(--wx-top-h) - var(--wx-gap) - var(--wx-gap)); /* 72 */
+  display: grid;
+  /* 112 + 8 + 384 + 8 + 112 = 624 */
+  grid-template-columns: var(--wx-side) var(--wx-mid) var(--wx-side);
+  column-gap: var(--wx-gap);
+  z-index: 4;
+  box-sizing: border-box;
+}
+.face-a { width: 100%; height: 100%; overflow: hidden; min-width: 0; box-sizing: border-box; }
+/* 左右サイド列＝カード幅112px（列間・外周 8px） */
+#topBand > .face-a:not(.front) {
+  width: var(--wx-side);
+  max-width: var(--wx-side);
+  min-width: var(--wx-side);
+  flex: 0 0 var(--wx-side);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+.card-a {
+  width: var(--wx-side); min-width: var(--wx-side); max-width: var(--wx-side); height: 100%;
+  box-sizing: border-box;
+  background: var(--surface);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  overflow: hidden; position: relative;
+}
+.face-a.front .card-front {
+  width: 100%; height: 100%; background: transparent; border: none; box-shadow: none;
+}
+
+.side-stack { position: relative; width: 100%; height: 100%; }
+.side-pane {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; padding: 6px 4px;
+  opacity: 0;
+  transform: translate3d(0, 55%, 0);
+  transition: opacity .45s ease, transform .5s cubic-bezier(.33, 0, .2, 1);
+}
+.side-pane.on { opacity: 1; transform: translate3d(0, 0, 0); }
+.side-pane.is-exit { opacity: 0; transform: translate3d(0, -55%, 0); }
+.side-lbl { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.side-val {
+  font-size: 32px; font-weight: 800; line-height: 1; letter-spacing: -0.02em;
+  max-width: 100%; font-variant-numeric: tabular-nums; overflow: hidden;
+}
+.side-val.sm { font-size: 28px; }
+.js-wind-dir {
+  font-size: 26px !important;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.js-wind-spd {
+  font-size: 30px !important;
+  font-weight: 800;
+}
+.side-pane .pill {
+  margin: 0 auto;
+  font-size: 14px;
+  padding: 8px 6px;
+  max-width: calc(var(--wx-side) - 16px);
+  box-sizing: border-box;
+}
+.unit {
+  font-size: 0.5em;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin-left: 0.08em;
+  vertical-align: 0.2em;
+  line-height: 1;
+}
+.wx-sub .unit { font-size: 0.85em; vertical-align: 0.05em; }
+.pill {
+  display: block; width: 90%; margin: 2px auto 4px; padding: 4px;
+  border-radius: 999px; font-size: 12px; font-weight: 700; line-height: 1.2;
+  background: var(--accent); color: var(--on-accent);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+#frontFlowA {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+}
+.flow-a {
+  position: absolute; left: 0; right: 0; top: 0; height: 100%;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: var(--shadow); overflow: hidden; padding: 3px 6px 4px;
+  display: flex; flex-direction: column; min-height: 0;
+  opacity: 0;
+  transform: scale(0.86);
+  transform-origin: center center;
+  transition: opacity .55s ease, transform .55s cubic-bezier(.33, 0, .2, 1);
+  backface-visibility: hidden;
+  z-index: 1;
+}
+.flow-a.is-on { opacity: 1; transform: scale(1); z-index: 3; }
+.flow-a.is-exit { opacity: 0; transform: scale(0.86); z-index: 2; }
+.flow-a.is-wait { opacity: 0; transform: scale(0.86); z-index: 0; pointer-events: none; }
+.flow-a.is-enter { opacity: 0; transform: scale(0.86); z-index: 4; pointer-events: none; }
+
+.slot-title {
+  font-size: 10px; font-weight: 500; color: var(--muted);
+  margin-bottom: 1px; flex-shrink: 0; line-height: 1.2;
+}
+.now-body {
+  flex: 1; min-height: 0; display: grid;
+  grid-template-columns: auto minmax(0,1fr);
+  align-items: center; gap: 10px; width: 100%;
+  padding-left: 2px;
+}
+.wx-row { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.wx-temp {
+  font-size: 34px; font-weight: 900; line-height: 0.95; letter-spacing: -0.04em;
+  color: var(--accent); white-space: nowrap;
+}
+.wx-desc {
+  font-size: 16px; font-weight: 800; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.wx-sub {
+  font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.now-icon {
+  width: 58px; height: 58px; border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  display: grid; place-items: center; flex-shrink: 0;
+  margin-left: 2px;
+  animation: iconFloat 3.2s ease-in-out infinite;
+}
+.now-icon svg { width: 44px; height: 44px; display: block; }
+@keyframes iconFloat { 50% { transform: translateY(-2px); } }
+
+.flow-body {
+  flex: 1; min-height: 0; display: flex; align-items: stretch;
+  overflow: hidden; padding-top: 1px;
+}
+.weekly {
+  display: flex; justify-content: space-between; align-items: stretch;
+  width: 100%; gap: 2px; min-height: 0; height: 100%;
+}
+.hourly {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  width: 100%; gap: 2px; min-height: 0; height: 100%;
+}
+.day, .hour-slot {
+  flex: 1; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center; line-height: 1;
+  overflow: hidden; padding: 0 1px 1px;
+  gap: 1px;
+}
+.hourly .hour-slot {
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 0;
+  padding: 0 1px 2px;
+  min-height: 0;
+}
+.d-label, .h-time {
+  font-size: 14px; font-weight: 800; line-height: 1;
+  flex-shrink: 0;
+}
+.d-temp, .h-temp {
+  font-size: 15px; font-weight: 900; line-height: 1;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+.hourly .h-time,
+.hourly .h-temp {
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.d-sep { color: var(--muted); margin: 0 1px; }
+.wx-icon {
+  width: 34px; height: 34px; margin: 0 auto;
+  display: block; flex: 0 0 34px;
+}
+.wx-icon svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.hourly .wx-icon {
+  width: 34px; height: 34px; flex: 0 0 34px; margin: 0 auto;
+}
+.flow-a .slot-title, .flow-b .slot-title { font-size: 10px; margin-bottom: 0; line-height: 1.1; }
+.flow-a .wx-icon { width: 26px; height: 26px; flex: 0 0 26px; }
+.flow-a .d-label, .flow-a .h-time { font-size: 12px; }
+.flow-a .d-temp, .flow-a .h-temp { font-size: 12px; }
+.flow-a .weekly .wx-icon { width: 24px; height: 24px; flex: 0 0 24px; }
+.flow-a .weekly .d-label { font-size: 11px; }
+.flow-a .weekly .d-temp { font-size: 11px; }
+.flow-a .hourly .wx-icon { width: 26px; height: 26px; flex: 0 0 26px; }
+.flow-a .hourly .h-time { font-size: 11px; }
+.flow-a .hourly .h-temp { font-size: 12px; }
+.flow-a .now-icon { width: 40px; height: 40px; }
+.flow-a .now-icon svg { width: 30px; height: 30px; }
+.flow-a .wx-temp { font-size: 26px; }
+.flow-a .wx-desc { font-size: 13px; }
+.flow-a .wx-sub { font-size: 11px; }
+#topBand .side-lbl { font-size: 15px; margin-bottom: 4px; font-weight: 700; }
+#topBand .side-val { font-size: 38px; }
+#topBand .side-val.sm { font-size: 32px; }
+#topBand .js-wind-dir { font-size: 28px !important; }
+#topBand .js-wind-spd { font-size: 32px !important; }
+#topBand .pill { font-size: 15px; padding: 8px 6px; }
+#topBand .side-pane { padding: 4px 2px; }
+#topBand .unit { font-size: 0.42em; }
+.flow-b .d-label, .flow-b .h-time { font-size: 12px; }
+.flow-b .d-temp, .flow-b .h-temp { font-size: 13px; }
+.flow-b .wx-icon { width: 28px; height: 28px; flex: 0 0 28px; }
+.flow-b .weekly .wx-icon { width: 26px; height: 26px; flex: 0 0 26px; }
+.flow-b .hourly .wx-icon { width: 28px; height: 28px; flex: 0 0 28px; }
+.flow-b .hourly .h-time { font-size: 13px; }
+.flow-b .hourly .h-temp { font-size: 14px; }
+.flow-b .day, .flow-b .hour-slot { gap: 0; padding-bottom: 0; }
+.hourly-chart { display: block; width: 100%; height: 100%; }
+
+/*
+  配置A：1段目＝長いカード（上）、2段目＝左右+正面（下）。
+  レールは上段96pxのみ（下段を覆って見切れさせない）。外周・段間 8px。
+*/
+#wideRail {
+  position: absolute;
+  left: var(--wx-gap);
+  top: var(--wx-gap);
+  width: calc(640px - var(--wx-gap) * 2); /* 624 */
+  height: var(--wx-top-h);
+  overflow: hidden; z-index: 3;
+}
+.wide-card {
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  padding: 4px 0 6px; display: flex; flex-direction: column;
+  opacity: 0;
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
+  transform-origin: center center;
+  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .5s ease;
+  backface-visibility: hidden;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 1;
+}
+/* 1段目（上）に着地 */
+.wide-card.is-top {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 3;
+}
+/* 上外から入場 */
+.wide-card.is-enter {
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
+  opacity: 0;
+  z-index: 4;
+  transition: none;
+}
+/* 下へ退場（レール外へ・下段は覆わない） */
+.wide-card.is-exit {
+  transform: translate3d(0, calc(100% + var(--wx-gap)), 0);
+  opacity: 0;
+  z-index: 2;
+}
+.wide-card.is-wait {
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.wide-card:not(.is-top) .marquee-track { animation-play-state: paused !important; }
+.wide-card .slot-title {
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.wline {
+  flex: 1; min-height: 0; display: grid;
+  grid-template-columns: var(--wx-side) var(--wx-mid) var(--wx-side);
+  column-gap: var(--wx-gap); align-items: center;
+}
+.wline > .wface:not(.mid) {
+  width: var(--wx-side); max-width: var(--wx-side); min-width: var(--wx-side); overflow: hidden;
+}
+.wface {
+  display: flex; align-items: center; justify-content: space-evenly;
+  height: 100%; min-width: 0; padding: 0 4px;
+  box-sizing: border-box;
+}
+.wface.mid { padding: 0 var(--wx-gap); }
+.metric { min-width: 0; text-align: center; line-height: 1.15; flex: 1; }
+.metric .m-l { font-size: 14px; font-weight: 700; color: var(--muted); }
+.metric .m-v {
+  font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums;
+  margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: -0.02em;
+}
+
+/* ===== 配置B：以前の上下カスケード（外周・列間・カード間 8px） ===== */
+#facesB {
+  display: grid;
+  /* padding 8 内で 112+8+384+8+112 = 624 */
+  grid-template-columns: var(--wx-side) var(--wx-mid) var(--wx-side);
+  column-gap: var(--wx-gap);
+  width: 640px; height: 192px;
+  box-sizing: border-box;
+  padding: var(--wx-gap);
+}
+.face-b {
+  height: 100%; padding: 0; overflow: hidden; min-width: 0;
+  box-sizing: border-box;
+}
+#facesB > .face-b:not(.front) {
+  width: var(--wx-side);
+  max-width: var(--wx-side);
+  min-width: var(--wx-side);
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+#facesB > .face-b:not(.front) .card-b {
+  width: var(--wx-side);
+  min-width: var(--wx-side);
+  max-width: var(--wx-side);
+  height: 100%;
+}
+.card-b {
+  width: 100%; max-width: 100%; height: 100%;
+  box-sizing: border-box;
+  background: var(--surface);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+  overflow: hidden; position: relative;
+}
+.face-b.front { padding: 0; }
+#frontFlowB {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+}
+.flow-b {
+  position: absolute; left: 0; right: 0; top: 0;
+  height: calc(50% - var(--wx-gap) / 2);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: var(--shadow); overflow: hidden; padding: 5px 8px 6px;
+  display: flex; flex-direction: column; min-height: 0;
+  opacity: 0;
+  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0) scale(0.9);
+  transform-origin: center center;
+  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .5s ease;
+  backface-visibility: hidden;
+  z-index: 1;
+}
+.flow-b.is-top { transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 3; }
+.flow-b.is-bottom { transform: translate3d(0, calc(100% + var(--wx-gap)), 0) scale(1); opacity: 1; z-index: 2; }
+.flow-b.is-enter { transform: translate3d(0, calc(-100% - var(--wx-gap)), 0) scale(0.9); opacity: 0; z-index: 4; }
+.flow-b.is-exit { transform: translate3d(0, calc(200% + var(--wx-gap) * 2), 0) scale(0.9); opacity: 0; z-index: 1; }
+.flow-b.is-wait { transform: translate3d(0, calc(-100% - var(--wx-gap)), 0) scale(0.9); opacity: 0; z-index: 0; pointer-events: none; }
+.face-b .side-lbl { font-size: 14px; margin-bottom: 10px; }
+.face-b .side-val { font-size: 40px; }
+.face-b .side-val.sm { font-size: 36px; }
+.face-b .js-wind-dir { font-size: 34px !important; }
+.face-b .js-wind-spd { font-size: 38px !important; }
+.face-b .pill { font-size: 16px; padding: 12px 8px; margin: 0 auto; }
+.face-b .js-pressure { font-size: 32px !important; }
+.flow-b .wx-temp { font-size: 40px; }
+.flow-b .wx-desc { font-size: 18px; }
+.flow-b .now-icon { width: 64px; height: 64px; }
+.flow-b .now-icon svg { width: 48px; height: 48px; }
+
+/* 640接続時：カード内テロップ流水 */
+#weather-stage.is-640 .marquee-clip {
+  overflow: hidden; width: 100%;
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+#weather-stage.is-640 .marquee-track {
+  display: inline-flex; gap: 28px; white-space: nowrap;
+  animation: marqueeX 26s linear infinite;
+  will-change: transform;
+}
+#weather-stage.is-640 .marquee-track .metric { flex: 0 0 auto; min-width: 88px; }
+#weather-stage.is-640 .wx-sub.marquee-clip .marquee-track {
+  display: inline-block; animation-duration: 20s;
+}
+
+/* 下段ロング（風・降水・現在の気象）は常に文字を流す */
+#wideRail .wide-card {
+  padding: 2px 0 3px;
+  justify-content: center;
+  gap: 0;
+}
+#wideRail .wide-title-row {
+  flex: 0 0 auto;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 18px;
+}
+#wideRail .marquee-clip {
+  overflow: hidden; width: 100%;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+  display: flex !important;
+  align-items: center !important;
+  padding-top: 0;
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+#wideRail .marquee-clip.wide-metrics-marquee {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-items: center !important;
+  overflow: hidden;
+}
+#wideRail .marquee-track {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 32px;
+  white-space: nowrap;
+  width: max-content !important;
+  max-width: none !important;
+  padding: 0 20px 1px;
+  animation: marqueeX 28s linear infinite !important;
+  will-change: transform;
+  justify-content: flex-start !important;
+  transform: translateX(0);
+}
+#wideRail .marquee-track .metric {
+  flex: 0 0 auto !important;
+  min-width: 110px;
+  width: auto !important;
+  line-height: 1;
+}
+#wideRail .metric .m-l { font-size: 14px; line-height: 1; }
+#wideRail .metric .m-v {
+  font-size: 24px;
+  margin-top: 1px;
+  line-height: 1;
+  overflow: visible;
+}
+#wideRail .metric .unit { vertical-align: 0.06em; }
+#wideRail .wide-title-chip {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--muted);
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  white-space: nowrap;
+  margin-top: 0;
+  line-height: 1.2;
+}
+@keyframes marqueeX {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 
     </style>
 </head>
@@ -2450,8 +3043,220 @@
             <div class="t3-guid-bar s2-meta-bar"><div class="t3-guid-track s2-meta-track" id="t3-guid-track"></div></div>
         </div>
     </div>
-    <iframe id="weather-frame" title="天気" src="about:blank" allow="fullscreen" loading="eager"></iframe>
+    <div id="weather-panel" class="lv-safe wx-cloudy" aria-hidden="true">
+<div id="weather-stage" class="lv-safe wx-cloudy">
+
+  <!-- A: 下段ロングで流す配置 -->
+  <div id="layoutSpan" class="layout is-active">
+    <div id="topBand">
+      <section class="face-a">
+        <div class="card-a">
+          <div class="side-stack" data-side-stack="leftA">
+            <div class="side-pane on">
+              <div class="side-lbl">時刻</div>
+              <div class="side-val js-clock">--:--</div>
+            </div>
+            <div class="side-pane">
+              <div class="side-lbl">気温</div>
+              <div class="side-val js-temp">--<span class="unit">℃</span></div>
+            </div>
+            <div class="side-pane">
+              <div class="side-lbl">気圧</div>
+              <div class="side-val js-pressure">----<span class="unit">hPa</span></div>
+            </div>
+            <div class="side-pane">
+              <div class="side-lbl">湿度</div>
+              <div class="side-val js-hum">--<span class="unit">%</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="face-a front">
+        <div class="card-front">
+          <div id="frontFlowA">
+            <article class="flow-a is-on" data-a="0">
+              <div class="slot-title">現在の天気</div>
+              <div class="now-body">
+                <div class="now-icon js-hero-icon"></div>
+                <div style="min-width:0">
+                  <div class="wx-row">
+                    <div class="wx-temp js-hero-temp">--<span class="unit">℃</span></div>
+                    <div class="wx-desc js-hero-desc">--</div>
+                  </div>
+                  <div class="wx-sub marquee-clip"><span class="marquee-track js-hero-sub">--</span></div>
+                </div>
+              </div>
+            </article>
+            <article class="flow-a is-wait" data-a="1">
+              <div class="slot-title">週間天気</div>
+              <div class="flow-body"><div class="weekly js-weekly"></div></div>
+            </article>
+            <article class="flow-a is-wait" data-a="2">
+              <div class="slot-title">1時間ごとの天気</div>
+              <div class="flow-body"><div class="hourly js-hourly"></div></div>
+            </article>
+            <article class="flow-a is-wait" data-a="3">
+              <div class="slot-title">気温の推移</div>
+              <div class="flow-body"><canvas class="hourly-chart" id="chartA"></canvas></div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="face-a">
+        <div class="card-a">
+          <div class="side-stack" data-side-stack="rightA">
+            <div class="side-pane on">
+              <div class="side-lbl">天気</div>
+              <div class="pill js-side-weather">--</div>
+            </div>
+            <div class="side-pane">
+              <div class="side-lbl">気温</div>
+              <div class="side-val sm js-side-temp">--<span class="unit">℃</span></div>
+            </div>
+            <div class="side-pane">
+              <div class="side-lbl">風向</div>
+              <div class="side-val sm js-wind-dir">--</div>
+            </div>
+            <div class="side-pane">
+              <div class="side-lbl">風速</div>
+              <div class="side-val sm js-wind-spd">--</div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
+
+    <div id="wideRail">
+      <article class="wide-card is-top" data-wide="0">
+        <div class="wide-title-row">
+          <span class="wide-title-chip">風・降水・気圧</span>
+        </div>
+        <div class="marquee-clip wide-metrics-marquee">
+          <div class="marquee-track wline-flat" data-marquee="wide">
+            <div class="metric"><div class="m-l">風向</div><div class="m-v" data-k="windDir">--</div></div>
+            <div class="metric"><div class="m-l">風速</div><div class="m-v" data-k="windSpd">--</div></div>
+            <div class="metric"><div class="m-l">瞬間最大</div><div class="m-v" data-k="gust">--</div></div>
+            <div class="metric"><div class="m-l">降水量</div><div class="m-v" data-k="rain">--</div></div>
+          </div>
+        </div>
+      </article>
+      <article class="wide-card is-wait" data-wide="1">
+        <div class="wide-title-row">
+          <span class="wide-title-chip">風・降水・気圧</span>
+        </div>
+        <div class="marquee-clip wide-metrics-marquee">
+          <div class="marquee-track wline-flat" data-marquee="wide">
+            <div class="metric"><div class="m-l">気圧</div><div class="m-v" data-k="press">--</div></div>
+            <div class="metric"><div class="m-l">最高</div><div class="m-v" data-k="max">--</div></div>
+            <div class="metric"><div class="m-l">最低</div><div class="m-v" data-k="min">--</div></div>
+            <div class="metric"><div class="m-l">日付</div><div class="m-v" data-k="date">--</div></div>
+          </div>
+        </div>
+      </article>
+      <article class="wide-card is-wait" data-wide="2">
+        <div class="wide-title-row">
+          <span class="wide-title-chip">現在の気象</span>
+        </div>
+        <div class="marquee-clip wide-metrics-marquee">
+          <div class="marquee-track wline-flat" data-marquee="wide">
+            <div class="metric"><div class="m-l">天気</div><div class="m-v" data-k="desc">--</div></div>
+            <div class="metric"><div class="m-l">気温</div><div class="m-v" data-k="temp">--</div></div>
+            <div class="metric"><div class="m-l">体感</div><div class="m-v" data-k="feels">--</div></div>
+            <div class="metric"><div class="m-l">湿度</div><div class="m-v" data-k="hum">--</div></div>
+          </div>
+        </div>
+      </article>
+      <article class="wide-card is-wait" data-wide="3">
+        <div class="wide-title-row">
+          <span class="wide-title-chip">現在の気象</span>
+        </div>
+        <div class="marquee-clip wide-metrics-marquee">
+          <div class="marquee-track wline-flat" data-marquee="wide">
+            <div class="metric"><div class="m-l">気圧</div><div class="m-v" data-k="press">--</div></div>
+            <div class="metric"><div class="m-l">最高</div><div class="m-v" data-k="max">--</div></div>
+            <div class="metric"><div class="m-l">最低</div><div class="m-v" data-k="min">--</div></div>
+            <div class="metric"><div class="m-l">風向</div><div class="m-v" data-k="windDir">--</div></div>
+            <div class="metric"><div class="m-l">風速</div><div class="m-v" data-k="windSpd">--</div></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- B: 以前の配置（上下カスケード） -->
+  <div id="layoutClassic" class="layout">
+    <div id="facesB">
+      <section class="face-b">
+        <div class="card-b">
+          <div class="side-stack" data-side-stack="leftB">
+            <div class="side-pane on">
+              <div class="side-lbl">時刻</div>
+              <div class="side-val js-clock">--:--</div>
+              <div class="side-lbl" style="margin-top:10px">気温</div>
+              <div class="side-val js-temp">--<span class="unit">℃</span></div>
+            </div>
+            <div class="side-pane">
+              <div class="side-lbl">気圧</div>
+              <div class="side-val js-pressure">----<span class="unit">hPa</span></div>
+              <div class="side-lbl" style="margin-top:10px">湿度</div>
+              <div class="side-val js-hum">--<span class="unit">%</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="face-b front">
+        <div id="frontFlowB">
+          <article class="flow-b is-top" data-b="0">
+            <div class="slot-title">現在の天気</div>
+            <div class="now-body">
+              <div class="now-icon js-hero-icon"></div>
+              <div style="min-width:0">
+                <div class="wx-row">
+                  <div class="wx-temp js-hero-temp">--<span class="unit">℃</span></div>
+                  <div class="wx-desc js-hero-desc">--</div>
+                </div>
+                <div class="wx-sub marquee-clip"><span class="marquee-track js-hero-sub">--</span></div>
+              </div>
+            </div>
+          </article>
+          <article class="flow-b is-bottom" data-b="1">
+            <div class="slot-title">週間天気</div>
+            <div class="flow-body"><div class="weekly js-weekly"></div></div>
+          </article>
+          <article class="flow-b is-wait" data-b="2">
+            <div class="slot-title">1時間ごとの天気</div>
+            <div class="flow-body"><div class="hourly js-hourly"></div></div>
+          </article>
+          <article class="flow-b is-wait" data-b="3">
+            <div class="slot-title">気温の推移</div>
+            <div class="flow-body"><canvas class="hourly-chart" id="chartB"></canvas></div>
+          </article>
+        </div>
+      </section>
+      <section class="face-b">
+        <div class="card-b">
+          <div class="side-stack" data-side-stack="rightB">
+            <div class="side-pane on">
+              <div class="side-lbl">天気</div>
+              <div class="pill js-side-weather">--</div>
+              <div class="side-lbl" style="margin-top:10px">気温</div>
+              <div class="side-val sm js-side-temp">--<span class="unit">℃</span></div>
+            </div>
+            <div class="side-pane">
+              <div class="side-lbl">風向</div>
+              <div class="side-val sm js-wind-dir">--</div>
+              <div class="side-lbl" style="margin-top:14px">風速</div>
+              <div class="side-val sm js-wind-spd">--</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+    </div>
+    </div>
+</div>
 
 <script>
 /**
@@ -2777,7 +3582,7 @@
      *  → 4 4日予報 (s5) → 5 多言語WBGT (s3) → シーン1へ
      * ?only= は 1〜5 または s1〜s5（旧キー）両対応
      * 静岡: 既定は 熱中症WBGT(s4) ↔ 天気。時刻は出さない。全シーンは ?only=all
-     * WBGTの次は weather.html（販売機天気）へ遷移
+     * WBGTの次は 販売機天気（同一ページ）へ遷移
      */
     function normalizeOnlyParam_(raw) {
         if (raw == null || raw === '') return null;
@@ -2797,7 +3602,7 @@
     };
     /* 本番既定: WBGT と天気の2本のみ（時刻なし）。only= は再生フィルタ */
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only')) || 's4';
-    /** WBGTの次に販売機天気（weather.html）を流す（only=s4 / s1s4） */
+    /** WBGTの次に販売機天気（販売機天気パネル）を流す（only=s4 / s1s4） */
     const PLAY_WEATHER_AFTER_S4 = query.get('nowx') !== '1';
     const WEATHER_HOLD_MS = 8000;
     let weatherShowing_ = false;
@@ -2827,18 +3632,16 @@
         if (weatherSafetyTimerId_ != null) { clearTimeout(weatherSafetyTimerId_); weatherSafetyTimerId_ = null; }
     }
     function hideWeatherOverlay_() {
-        const frame = document.getElementById('weather-frame');
+        const panel = document.getElementById('weather-panel');
         const area = document.querySelector('.content-area');
         clearWeatherTimers_();
         weatherShowing_ = false;
         if (area) area.classList.remove('weather-on');
-        if (frame) {
-            frame.classList.remove('is-on');
-            frame.style.display = 'none';
-            frame.onload = null;
-            try { frame.contentWindow.postMessage({ type: 'wbgt-weather-pause' }, '*'); } catch (e) {}
-            try { frame.src = 'about:blank'; } catch (e2) {}
+        if (panel) {
+            panel.classList.remove('is-on');
+            panel.setAttribute('aria-hidden', 'true');
         }
+        try { if (window.WbgtWeather) window.WbgtWeather.stop(); } catch (e) {}
     }
     function ensureWbgtSceneVisible_() {
         hideWeatherOverlay_();
@@ -2877,55 +3680,44 @@
             playScene4();
             return;
         }
-        const p = new URLSearchParams();
-        p.set('embed', '1');
-        p.set('native640', '1');
-        p.set('from', 's4');
-        p.set('iframe', '1');
-        p.set('level', String(lv));
         try {
             sessionStorage.setItem('wbgtLevel', String(lv));
             sessionStorage.setItem('wbgtLevelReal', String(lv));
         } catch (e) {}
-        const url = './weather.html?' + p.toString();
-        const frame = document.getElementById('weather-frame');
+        const panel = document.getElementById('weather-panel');
         const area = document.querySelector('.content-area');
-        if (!frame || !area) {
-            location.replace(url);
+        if (!panel || !area) {
+            playScene4();
             return;
         }
         clearWeatherTimers_();
         weatherShowing_ = true;
         const bgHex = ['#308ED8', '#FFD92E', '#FFBE2C', '#FF7E00', '#D61914'][lv] || '#FF7E00';
-        frame.style.background = bgHex;
+        panel.style.background = bgHex;
+        panel.style.setProperty('--wbgt-bg', bgHex);
         area.classList.add('weather-on');
-        frame.style.display = 'block';
-        frame.classList.add('is-on');
-        frame.onload = function () {
-            if (!weatherShowing_) return;
-            clearWeatherTimers_();
-            /* 表示完了から 8 秒キープ（読込待ち分を含めない） */
-            weatherReturnTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS);
-            weatherSafetyTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS + 3000);
-        };
-        frame.src = url + '&t=' + String(Date.now());
-        /* onload 欠落時の保険 */
-        weatherSafetyTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS + 12000);
+        panel.classList.add('is-on');
+        panel.setAttribute('aria-hidden', 'false');
+        try {
+            if (window.WbgtWeather) window.WbgtWeather.start({ level: lv });
+        } catch (e2) { console.error(e2); }
+        weatherReturnTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS);
+        weatherSafetyTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS + 3000);
     }
-    window.addEventListener('message', function (ev) {
-        const d = ev && ev.data;
-        if (!d || typeof d !== 'object') return;
-        if (d.type === 'wbgt-weather-done') onWeatherDone_();
-    });
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
-    /* 640×128 ネイティブ: embed / native640=1 / フルデモ順送り */
-    const NATIVE_640 = query.get('native640') === '1' || DEMO_EMBED
-        || (DEMO_SIGNAGE && !DEMO_ONLY && query.get('native640') !== '0');
+    /* 640×192 ネイティブが既定。拡大は ?preview=1 / ?scale=1 / native640=0 のみ */
+    const NATIVE_640 = query.get('preview') !== '1' && query.get('scale') !== '1'
+        && query.get('native640') !== '0';
     if (NATIVE_640) {
         document.documentElement.classList.add('native-640');
         document.documentElement.classList.remove('browser-preview');
         document.body.classList.add('native-640');
         document.body.classList.remove('browser-preview');
+    } else {
+        document.documentElement.classList.add('browser-preview');
+        document.documentElement.classList.remove('native-640');
+        document.body.classList.add('browser-preview');
+        document.body.classList.remove('native-640');
     }
     function shouldShowDemoBadge_() {
         return !DEMO_EMBED && !NATIVE_640 && DEMO_ONLY !== 's4' && DEMO_ONLY !== 's1s4';
@@ -8544,5 +9336,1087 @@
 
 
 </script>
+
+<script>
+/* ===== 販売機天気（同一ページ） ===== */
+(function () {
+'use strict';
+/* コンテンツ版の起点 */
+/* 天気: 気象庁 AMeDAS+予報 / WBGT段階色は index から level 引継ぎ */
+const CONTENT_VERSION = "X.Y0.0";
+const LAT = 34.965369;
+const LON = 138.395503;
+const LOCATION_LABEL = "静岡県静岡市駿河区大坪町2-26";
+const LOCATION_SHORT = "静岡市駿河区";
+const JMA_AMEDAS_POINT = "50331"; /* 静岡（駿河区曲金） */
+const JMA_AMEDAS_SUPPLEMENT_POINT = "50261"; /* 清水：気圧等の補完 */
+const JMA_FORECAST_AREA = "220000";
+const JMA_FORECAST_WX_AREA = "220010"; /* 中部（静岡市） */
+const JMA_LATEST_TIME_URL = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt";
+const JMA_FORECAST_URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/" + JMA_FORECAST_AREA + ".json";
+const JMA_FETCH = { cache: "no-store" };
+const CLOCK_TZ = "Asia/Tokyo";
+const AMEDAS_POINT_SUPPLEMENT_KEYS = ["pressure", "normalPressure", "maxTemp", "minTemp", "gust"];
+const CHART_LINE = "#4285F4";
+const DOT = 5;
+const SLOT_MS = 3200; /* スロットル：1カードずつ順番切替 */
+const HOURLY_COUNT = 6;
+const FONT = '"Roboto", "Noto Sans JP", sans-serif';
+const CARD_COUNT = 4;
+const CHART_CARD = 3;
+const WIDE_COUNT = 4;
+const SIDE_COUNT_A = 4; /* 短いサイド：1項目×4 */
+const SIDE_COUNT_B = 2; /* 縦長サイド：2項目×2 */
+
+let hourlySeries = [];
+let leftIndex = 0, rightIndex = 0;
+let leftIndexB = 0, rightIndexB = 0;
+let layoutMode = "span"; /* span | classic */
+let layoutAnimating = false;
+let frontA = 0, frontAAnim = false;
+let topB = 0, bottomB = 1, frontBAnim = false;
+let wideTop = 0, wideAnim = false;
+let wideShown = 0; /* span で流した枚数 */
+let classicSteps = 0; /* classic で進めた回数 */
+let slotPhase = 0; /* スロットル式の現在スロット */
+const LAYOUT_MS = 560;
+
+function windDir(deg) {
+  if (deg == null || isNaN(deg)) return "--";
+  var dirs = ["北","北北東","北東","東北東","東","東南東","南東","南南東",
+    "南","南南西","南西","西南西","西","西北西","北西","北北西"];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+function u(unit) { return '<span class="unit">' + unit + "</span>"; }
+function nu(n, unit) {
+  if (n == null || n === "" || (typeof n === "number" && isNaN(n))) return "--";
+  return n + u(unit);
+}
+function fmtMs(v) {
+  if (v == null || isNaN(v)) return "--";
+  return nu(Math.round(v * 10) / 10, "m/s");
+}
+function amedasFieldValue(field) {
+  if (!Array.isArray(field) || field.length < 1) return null;
+  var v = field[0];
+  if (v === "" || v == null) return null;
+  return v;
+}
+function jmaWeatherCodeToType(code) {
+  var n = parseInt(code, 10);
+  if (!isFinite(n)) return "cloudy";
+  var h = Math.floor(n / 100);
+  var rest = n % 100;
+  if ([206, 215, 216, 217, 218, 219, 228, 229, 230, 231, 250, 350, 406, 407].indexOf(n) >= 0) {
+    return "thunder";
+  }
+  if (h >= 4) return "snow";
+  if (h === 3) return rest >= 40 && rest < 50 ? "thunder" : "rain";
+  if (h === 2) {
+    if ((rest >= 2 && rest <= 6) || (rest >= 12 && rest <= 18) || rest === 22 || rest === 23) return "rain";
+    if (rest === 1 || rest === 11) return "partly-day";
+    return "cloudy";
+  }
+  if (rest === 0 || rest === 30 || rest === 31) return "clear-day";
+  if (rest === 1 || rest === 10 || rest === 11) return "partly-day";
+  if ((rest >= 2 && rest <= 9) || (rest >= 12 && rest <= 18)) return "shower";
+  return "clear-day";
+}
+function amedasToType(obs) {
+  var p10 = amedasFieldValue(obs.precipitation10m);
+  var p1 = amedasFieldValue(obs.precipitation1h);
+  if ((p10 != null && Number(p10) > 0) || (p1 != null && Number(p1) > 0)) return "rain";
+  var sun1 = amedasFieldValue(obs.sun1h);
+  if (sun1 != null && Number(sun1) < 0.2) return "cloudy";
+  return "clear-day";
+}
+function shortWeatherDesc(text, type) {
+  if (text) {
+    var s = String(text).replace(/\s+/g, "").replace(/　/g, "");
+    if (s.indexOf("雷") >= 0) return "雷雨";
+    if (s.indexOf("雪") >= 0) return "雪";
+    if (s.indexOf("雨") >= 0) return "雨";
+    if (s.indexOf("曇") >= 0 && s.indexOf("晴") >= 0) return "晴れ時々曇り";
+    if (s.indexOf("晴") >= 0 && s.indexOf("曇") >= 0) return "晴れ時々曇り";
+    if (s.indexOf("曇") >= 0) return "曇り";
+    if (s.indexOf("晴") >= 0) return "晴れ";
+    return s.length > 12 ? s.slice(0, 12) : s;
+  }
+  if (type === "rain" || type === "shower") return "雨";
+  if (type === "thunder") return "雷雨";
+  if (type === "snow") return "雪";
+  if (type === "cloudy") return "曇り";
+  if (type === "partly-day" || type === "partly-night") return "晴れ時々曇り";
+  return "晴れ";
+}
+function pickForecastArea(areas, preferCodes) {
+  if (!areas || !areas.length) return null;
+  preferCodes = preferCodes || [];
+  for (var i = 0; i < preferCodes.length; i++) {
+    for (var j = 0; j < areas.length; j++) {
+      if (areas[j].area && String(areas[j].area.code) === String(preferCodes[i])) return areas[j];
+    }
+  }
+  return areas[0];
+}
+
+/** 640表示機に接続しているか（解像度・クエリ） */
+function detect640Link() {
+  var q = new URLSearchParams(location.search);
+  if (q.get("native640") === "1" || q.get("640") === "1" || q.get("embed") === "1") return true;
+  if (q.get("native640") === "0" || q.get("640") === "0") return false;
+  var w = window.innerWidth || document.documentElement.clientWidth;
+  var h = window.innerHeight || document.documentElement.clientHeight;
+  if (screen && screen.width === 640) return true;
+  if (w <= 660 && h <= 240) return true;
+  /* index.html は本体が640向け。ブラウザでも中身流水を有効にする */
+  return true;
+}
+function apply640Mode() {
+  document.getElementById("weather-stage").classList.toggle("is-640", detect640Link());
+  syncMarqueeTracks();
+}
+
+/** テロップ用：最新内容を1セット保存し、シームレスループのため2本並べる */
+function syncMarqueeTracks() {
+  document.querySelectorAll(".marquee-track").forEach(function(track) {
+    var mode = track.getAttribute("data-marquee");
+    var forceWide = mode === "wide";
+    var needFlow = forceWide || document.getElementById("weather-stage").classList.contains("is-640");
+    if (!needFlow) return;
+
+    /* 横長カードの指標行のみ二重化（体感テロップ等のテキスト混在は fillUI 側で二重化済み） */
+    var metricN = track.querySelectorAll(":scope > .metric").length;
+    if (!metricN) return;
+
+    var kids = Array.prototype.slice.call(track.children);
+    if (!kids.length) return;
+
+    var baseLen = Number(track.dataset.baseLen || 0);
+    var unitLen = kids.length;
+    if (baseLen > 0 && kids.length >= baseLen * 2) unitLen = baseLen;
+    else if (metricN >= 8 && metricN % 2 === 0) unitLen = Math.floor(kids.length / 2);
+
+    var baseKids = kids.slice(0, unitLen);
+    var base = baseKids.map(function(el) { return el.outerHTML; }).join("");
+    track.dataset.baseLen = String(unitLen);
+    track.dataset.baseHtml = base;
+    track.innerHTML = base + base;
+  });
+}
+
+async function fetchJmaLatestTime() {
+  var res = await fetch(JMA_LATEST_TIME_URL, JMA_FETCH);
+  if (!res.ok) throw new Error("JMA latest_time " + res.status);
+  var text = (await res.text()).trim();
+  var iso = text;
+  if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(iso)) iso = iso.replace(/\.\d+$/, "") + "+09:00";
+  var dt = new Date(iso);
+  if (!isFinite(dt.getTime())) throw new Error("JMA latest_time parse");
+  return dt;
+}
+function pickPointBlockObs(data, exactKey) {
+  if (data.temp) return data;
+  var keys = Object.keys(data).filter(function(k) { return /^\d{14}$/.test(k); }).sort();
+  if (!keys.length) throw new Error("point JSON形式不明");
+  if (data[exactKey]) return data[exactKey];
+  var candidates = keys.filter(function(k) { return k <= exactKey; });
+  var key = candidates.length ? candidates[candidates.length - 1] : keys[keys.length - 1];
+  return data[key];
+}
+function amedasObsNeedsSupplement(obs) {
+  if (!obs) return true;
+  return AMEDAS_POINT_SUPPLEMENT_KEYS.some(function(k) {
+    return amedasFieldValue(obs[k]) == null;
+  });
+}
+function mergeAmedasObs(base, extra) {
+  if (!base) return extra;
+  if (!extra) return base;
+  var out = Object.assign({}, base);
+  AMEDAS_POINT_SUPPLEMENT_KEYS.forEach(function(k) {
+    if (amedasFieldValue(out[k]) == null && extra[k] != null) out[k] = extra[k];
+  });
+  return out;
+}
+async function fetchJmaAmedasPointUrls(pt, ymd, hhmm, exactKey, blockH) {
+  var urls = [
+    { kind: "point-block", url: "https://www.jma.go.jp/bosai/amedas/data/point/" + pt + "/" + ymd + "_" + blockH + ".json", exactKey: exactKey },
+    { kind: "point", url: "https://www.jma.go.jp/bosai/amedas/data/point/" + pt + "/" + ymd + hhmm + ".json", exactKey: exactKey },
+    { kind: "map", url: "https://www.jma.go.jp/bosai/amedas/data/map/" + ymd + hhmm + "00.json", mapKey: pt }
+  ];
+  var lastErr = null;
+  for (var i = 0; i < urls.length; i++) {
+    var entry = urls[i];
+    try {
+      var res = await fetch(entry.url, JMA_FETCH);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      var data = await res.json();
+      if (entry.kind === "map") {
+        var mapObs = data[entry.mapKey || pt];
+        if (!mapObs) throw new Error("mapに地点なし " + pt);
+        return mapObs;
+      }
+      return pickPointBlockObs(data, entry.exactKey || exactKey);
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error("JMA amedas point failed " + pt);
+}
+async function enrichAmedasObs(obs, ymd, hhmm, exactKey, blockH) {
+  var out = obs;
+  if (!amedasObsNeedsSupplement(out)) return out;
+  try {
+    out = mergeAmedasObs(out, await fetchJmaAmedasPointUrls(JMA_AMEDAS_POINT, ymd, hhmm, exactKey, blockH));
+  } catch (e) { /* keep partial */ }
+  if (!amedasObsNeedsSupplement(out) || String(JMA_AMEDAS_SUPPLEMENT_POINT) === String(JMA_AMEDAS_POINT)) {
+    return out;
+  }
+  try {
+    out = mergeAmedasObs(out, await fetchJmaAmedasPointUrls(JMA_AMEDAS_SUPPLEMENT_POINT, ymd, hhmm, exactKey, blockH));
+  } catch (e) { /* keep partial */ }
+  return out;
+}
+async function fetchJmaAmedasObservation() {
+  var latest = await fetchJmaLatestTime();
+  var fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: CLOCK_TZ, year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false
+  });
+  var p = Object.fromEntries(fmt.formatToParts(latest).map(function(x) { return [x.type, x.value]; }));
+  var ymd = p.year + p.month + p.day;
+  var hhmm = p.hour + p.minute;
+  var exactKey = ymd + hhmm + "00";
+  var blockH = String(Math.floor(Number(p.hour) / 3) * 3).padStart(2, "0");
+  var obs = await fetchJmaAmedasPointUrls(JMA_AMEDAS_POINT, ymd, hhmm, exactKey, blockH);
+  obs = await enrichAmedasObs(obs, ymd, hhmm, exactKey, blockH);
+  return { latest: latest, obs: obs };
+}
+
+var lastForecastDesc = null;
+var lastForecastIcon = null;
+
+async function fetchWeather() {
+  var result = await fetchJmaAmedasObservation();
+  var obs = result.obs;
+  var tempRaw = amedasFieldValue(obs.temp);
+  var humRaw = amedasFieldValue(obs.humidity);
+  var presRaw = amedasFieldValue(obs.normalPressure);
+  if (presRaw == null) presRaw = amedasFieldValue(obs.pressure);
+  var windRaw = amedasFieldValue(obs.wind);
+  var gustRaw = amedasFieldValue(obs.gust);
+  var wdirRaw = amedasFieldValue(obs.windDirection);
+  var rainRaw = amedasFieldValue(obs.precipitation1h);
+  if (rainRaw == null) rainRaw = amedasFieldValue(obs.precipitation10m);
+  var icon = lastForecastIcon || amedasToType(obs);
+  var desc = lastForecastDesc || shortWeatherDesc(null, icon);
+  var temp = tempRaw != null ? Math.round(Number(tempRaw)) : null;
+  return {
+    temp: temp,
+    feels: temp,
+    hum: humRaw != null ? Math.round(Number(humRaw)) : null,
+    pressure: presRaw != null ? Math.round(Number(presRaw)) : null,
+    icon: icon,
+    desc: desc,
+    windDeg: wdirRaw != null ? Number(wdirRaw) * 22.5 : null,
+    windSpd: windRaw != null ? Number(windRaw) : null,
+    windGust: gustRaw != null ? Number(gustRaw) : null,
+    rain: rainRaw != null ? Number(rainRaw) : 0,
+    maxTemp: amedasFieldValue(obs.maxTemp),
+    minTemp: amedasFieldValue(obs.minTemp)
+  };
+}
+
+function ymdFromDate_(dt) {
+  return dt.getFullYear() * 10000 + (dt.getMonth() + 1) * 100 + dt.getDate();
+}
+function ymdFromIso_(tStr) {
+  if (!tStr) return null;
+  var dt = new Date(tStr);
+  if (!isFinite(dt.getTime())) return null;
+  return ymdFromDate_(dt);
+}
+function numOrNull_(v) {
+  if (v === "" || v == null) return null;
+  var n = Number(v);
+  return isFinite(n) ? n : null;
+}
+/** 週間の最高/最低は日付で引く（空欄スロットを避ける） */
+function weekTempAtYmd_(tempsMax, tempsMin, tempTimes, ymd) {
+  if (!tempTimes || !tempsMax) return { max: null, min: null };
+  for (var i = 0; i < tempTimes.length; i++) {
+    if (ymdFromIso_(tempTimes[i]) !== ymd) continue;
+    return { max: numOrNull_(tempsMax[i]), min: numOrNull_(tempsMin && tempsMin[i]) };
+  }
+  return { max: null, min: null };
+}
+/** 短期（今日・明日）の気温列から日付ごとの最高/最低を推定 */
+function shortTempRangeByYmd_(shortSeries) {
+  var map = {};
+  if (!shortSeries) return map;
+  for (var i = 0; i < shortSeries.length; i++) {
+    var block = shortSeries[i];
+    var area = pickForecastArea(block.areas, [JMA_AMEDAS_POINT, JMA_FORECAST_WX_AREA, JMA_FORECAST_AREA]);
+    if (!area || !area.temps || !block.timeDefines) continue;
+    for (var t = 0; t < block.timeDefines.length; t++) {
+      var ymd = ymdFromIso_(block.timeDefines[t]);
+      var v = numOrNull_(area.temps[t]);
+      if (ymd == null || v == null) continue;
+      if (!map[ymd]) map[ymd] = { max: v, min: v };
+      else {
+        if (v > map[ymd].max) map[ymd].max = v;
+        if (v < map[ymd].min) map[ymd].min = v;
+      }
+    }
+  }
+  return map;
+}
+function weekCodeAtYmd_(weekCodes, weekTimes, ymd) {
+  if (!weekCodes || !weekTimes) return null;
+  for (var i = 0; i < weekTimes.length; i++) {
+    if (ymdFromIso_(weekTimes[i]) === ymd && weekCodes[i] !== "" && weekCodes[i] != null) {
+      return weekCodes[i];
+    }
+  }
+  return null;
+}
+
+function buildWeeklyFromForecast(fc, todayHi, todayLo, todayIcon) {
+  var weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  var short = Array.isArray(fc) ? fc[0] : null;
+  var weekly = Array.isArray(fc) ? fc[1] : null;
+  var shortSeries = short && short.timeSeries;
+  var weekSeries = weekly && weekly.timeSeries;
+
+  var wxCodes = null, wxTexts = null, shortWxTimes = null;
+  if (shortSeries && shortSeries[0]) {
+    var wxArea = pickForecastArea(shortSeries[0].areas, [JMA_FORECAST_WX_AREA, JMA_FORECAST_AREA]);
+    if (wxArea) {
+      wxCodes = wxArea.weatherCodes;
+      wxTexts = wxArea.weathers;
+      shortWxTimes = shortSeries[0].timeDefines;
+    }
+  }
+
+  if (wxTexts && wxTexts[0]) {
+    lastForecastDesc = shortWeatherDesc(wxTexts[0], jmaWeatherCodeToType(wxCodes && wxCodes[0]));
+  }
+  if (wxCodes && wxCodes[0]) {
+    lastForecastIcon = jmaWeatherCodeToType(wxCodes[0]);
+  }
+
+  var days = [];
+  var today = new Date();
+  var todayIconFinal = lastForecastIcon || todayIcon || "cloudy";
+  days.push({
+    label: weekdays[today.getDay()],
+    icon: todayIconFinal,
+    max: todayHi != null && isFinite(Number(todayHi)) ? Math.round(Number(todayHi)) : "--",
+    min: todayLo != null && isFinite(Number(todayLo)) ? Math.round(Number(todayLo)) : "--"
+  });
+
+  var tempsMax = null, tempsMin = null, tempTimes = null, weekCodes = null, weekTimes = null;
+  if (weekSeries) {
+    for (var i = 0; i < weekSeries.length; i++) {
+      var block = weekSeries[i];
+      if (!block || !block.areas) continue;
+      /* 気温はアメダス地点、天気コードは予報区 — 別系列で取る */
+      var tempArea = pickForecastArea(block.areas, [JMA_AMEDAS_POINT]);
+      if (tempArea && tempArea.tempsMax) {
+        tempsMax = tempArea.tempsMax;
+        tempsMin = tempArea.tempsMin;
+        tempTimes = block.timeDefines;
+      }
+      var codeArea = pickForecastArea(block.areas, [JMA_FORECAST_AREA, JMA_FORECAST_WX_AREA, JMA_AMEDAS_POINT]);
+      if (codeArea && codeArea.weatherCodes) {
+        weekCodes = codeArea.weatherCodes;
+        weekTimes = block.timeDefines;
+      }
+    }
+  }
+
+  var shortTemps = shortTempRangeByYmd_(shortSeries);
+  var dateSet = {};
+  function addDateKey_(tStr) {
+    var y = ymdFromIso_(tStr);
+    if (y != null) dateSet[y] = true;
+  }
+  if (tempTimes) tempTimes.forEach(addDateKey_);
+  if (weekTimes) weekTimes.forEach(addDateKey_);
+  if (shortWxTimes) shortWxTimes.forEach(addDateKey_);
+  Object.keys(shortTemps).forEach(function (k) { dateSet[k] = true; });
+
+  var todayYmd = ymdFromDate_(today);
+  var ymds = Object.keys(dateSet).map(Number).sort(function (a, b) { return a - b; });
+  for (var di = 0; di < ymds.length && days.length < 5; di++) {
+    var ymd = ymds[di];
+    if (ymd <= todayYmd) continue;
+    var tm = weekTempAtYmd_(tempsMax, tempsMin, tempTimes, ymd);
+    var maxV = tm.max, minV = tm.min;
+    /* 週間が空の日（発表直後の明日など）は短期気温で補完 */
+    if ((maxV == null || minV == null) && shortTemps[ymd]) {
+      if (maxV == null) maxV = shortTemps[ymd].max;
+      if (minV == null) minV = shortTemps[ymd].min;
+    }
+    /* 気温がまだ無い日は --/-- で出さずスキップ */
+    if (maxV == null && minV == null) continue;
+
+    var code = weekCodeAtYmd_(weekCodes, weekTimes, ymd);
+    if (shortWxTimes && wxCodes) {
+      for (var s = 0; s < shortWxTimes.length; s++) {
+        if (ymdFromIso_(shortWxTimes[s]) === ymd && wxCodes[s]) { code = wxCodes[s]; break; }
+      }
+    }
+    var y = Math.floor(ymd / 10000);
+    var m = Math.floor((ymd % 10000) / 100);
+    var day = ymd % 100;
+    var dt = new Date(y, m - 1, day);
+    days.push({
+      label: weekdays[dt.getDay()],
+      icon: code != null ? jmaWeatherCodeToType(code) : "cloudy",
+      max: maxV != null ? Math.round(maxV) : "--",
+      min: minV != null ? Math.round(minV) : "--"
+    });
+  }
+
+  return {
+    days: days.slice(0, 5),
+    todayHi: days[0].max !== "--" ? days[0].max : null,
+    todayLo: days[0].min !== "--" ? days[0].min : null,
+    desc: lastForecastDesc,
+    icon: lastForecastIcon
+  };
+}
+
+function buildHourlyFromForecast(fc, liveTemp) {
+  var short = Array.isArray(fc) ? fc[0] : null;
+  var series = short && short.timeSeries;
+  if (!series) return [];
+  var tempBlock = null, wxBlock = null;
+  for (var i = 0; i < series.length; i++) {
+    var area = pickForecastArea(series[i].areas, [JMA_AMEDAS_POINT, JMA_FORECAST_WX_AREA]);
+    if (!area) continue;
+    if (area.temps && !tempBlock) tempBlock = { times: series[i].timeDefines, temps: area.temps };
+    if (area.weatherCodes && !wxBlock) wxBlock = { times: series[i].timeDefines, codes: area.weatherCodes };
+  }
+  var points = [];
+  if (tempBlock) {
+    for (var t = 0; t < tempBlock.times.length; t++) {
+      var tempVal = tempBlock.temps[t];
+      if (tempVal === "" || tempVal == null) continue;
+      var ts = new Date(tempBlock.times[t]).getTime();
+      if (!isFinite(ts)) continue;
+      var icon = "cloudy";
+      if (wxBlock) {
+        var best = 0;
+        for (var w = 0; w < wxBlock.times.length; w++) {
+          var wt = new Date(wxBlock.times[w]).getTime();
+          if (wt <= ts) best = w;
+        }
+        if (wxBlock.codes[best]) icon = jmaWeatherCodeToType(wxBlock.codes[best]);
+      }
+      points.push({ t: ts, temp: Number(tempVal), icon: icon });
+    }
+  }
+  if (liveTemp != null && isFinite(Number(liveTemp))) {
+    points.unshift({ t: Date.now(), temp: Number(liveTemp), icon: lastForecastIcon || (points[0] && points[0].icon) || "cloudy" });
+  }
+  points.sort(function(a, b) { return a.t - b.t; });
+  /* 同一時刻は後勝ち */
+  var dedup = [];
+  for (var p = 0; p < points.length; p++) {
+    if (dedup.length && Math.abs(dedup[dedup.length - 1].t - points[p].t) < 60000) {
+      dedup[dedup.length - 1] = points[p];
+    } else {
+      dedup.push(points[p]);
+    }
+  }
+  points = dedup;
+  if (points.length < 1) return [];
+  if (points.length === 1) {
+    var only = points[0];
+    var out1 = [];
+    for (var h1 = 0; h1 < HOURLY_COUNT; h1++) {
+      var dt1 = new Date(Date.now() + h1 * 3600000);
+      out1.push({
+        temp: Math.round(only.temp),
+        hour: String(dt1.getHours()).padStart(2, "0"),
+        hourLabel: String(dt1.getHours()).padStart(2, "0") + "時",
+        icon: only.icon
+      });
+    }
+    return out1;
+  }
+  var out = [], start = Date.now();
+  for (var h = 0; h < HOURLY_COUNT; h++) {
+    var target = start + h * 3600000;
+    var p0 = points[0], p1 = points[points.length - 1];
+    for (var j = 0; j < points.length - 1; j++) {
+      if (target >= points[j].t && target <= points[j + 1].t) {
+        p0 = points[j]; p1 = points[j + 1]; break;
+      }
+    }
+    if (target > points[points.length - 1].t) {
+      p0 = points[Math.max(0, points.length - 2)];
+      p1 = points[points.length - 1];
+    }
+    if (target < points[0].t) {
+      p0 = points[0];
+      p1 = points[Math.min(1, points.length - 1)];
+    }
+    var ratio = p1.t === p0.t ? 0 : (target - p0.t) / (p1.t - p0.t);
+    ratio = Math.max(0, Math.min(1, ratio));
+    var dt = new Date(target);
+    out.push({
+      temp: Math.round(p0.temp + (p1.temp - p0.temp) * ratio),
+      hour: String(dt.getHours()).padStart(2, "0"),
+      hourLabel: String(dt.getHours()).padStart(2, "0") + "時",
+      icon: ratio < 0.5 ? p0.icon : p1.icon
+    });
+  }
+  return out;
+}
+
+async function fetchForecast(liveObs) {
+  var r = await fetch(JMA_FORECAST_URL, JMA_FETCH);
+  if (!r.ok) throw new Error("forecast " + r.status);
+  var d = await r.json();
+  var todayHi = liveObs && liveObs.maxTemp != null ? Number(liveObs.maxTemp) : null;
+  var todayLo = liveObs && liveObs.minTemp != null ? Number(liveObs.minTemp) : null;
+  if (todayHi == null && liveObs && liveObs.temp != null) todayHi = Number(liveObs.temp);
+  var todayIcon = liveObs && liveObs.icon ? liveObs.icon : null;
+  var weekly = buildWeeklyFromForecast(d, todayHi, todayLo, todayIcon);
+  hourlySeries = buildHourlyFromForecast(d, liveObs && liveObs.temp);
+  if (weekly.desc && liveObs) {
+    liveObs.desc = weekly.desc;
+    lastForecastDesc = weekly.desc;
+  }
+  if (weekly.icon && liveObs) {
+    /* 予報コードを優先（観測ヒューリスティックより具体的） */
+    liveObs.icon = weekly.icon;
+    lastForecastIcon = weekly.icon;
+  }
+  return weekly;
+}
+
+function iconType(icon) {
+  if (!icon) return "cloudy";
+  if (/^(clear-|partly-|cloudy|rain|shower|thunder|snow)/.test(String(icon))) return String(icon);
+  var code = String(icon).slice(0, 2);
+  var night = String(icon).slice(-1) === "n";
+  if (code === "01") return night ? "clear-night" : "clear-day";
+  if (code === "02") return night ? "partly-night" : "partly-day";
+  if (code === "03" || code === "04") return "cloudy";
+  if (code === "09") return "shower";
+  if (code === "10") return "rain";
+  if (code === "11") return "thunder";
+  if (code === "13") return "snow";
+  return "cloudy";
+}
+function weatherSvg(type) {
+  var sun = '<circle cx="32" cy="28" r="12" fill="#FBBC04"/><g stroke="#F9AB00" stroke-width="3.5" stroke-linecap="round"><line x1="32" y1="6" x2="32" y2="12"/><line x1="32" y1="44" x2="32" y2="50"/><line x1="10" y1="28" x2="16" y2="28"/><line x1="48" y1="28" x2="54" y2="28"/></g>';
+  var moon = '<path d="M38 16a16 16 0 1 0 10 22A14 14 0 0 1 38 16z" fill="#FDD663"/>';
+  var cloud = '<path d="M18 40h28a10 10 0 0 0 1-20 14 14 0 0 0-27-3A11 11 0 0 0 18 40z" fill="#9AA0A6"/>';
+  var rain = '<g stroke="#5C6BC0" stroke-width="3.5" stroke-linecap="round"><line x1="24" y1="44" x2="22" y2="56"/><line x1="32" y1="46" x2="30" y2="58"/><line x1="40" y1="44" x2="38" y2="56"/></g>';
+  var bolt = '<polygon points="34,42 29,52 35,52 30,62 44,46 37,46 41,42" fill="#FBBC04"/>';
+  var snow = '<g fill="#8AB4F8"><circle cx="24" cy="50" r="3"/><circle cx="32" cy="54" r="3"/><circle cx="40" cy="50" r="3"/></g>';
+  var body = cloud;
+  if (type === "clear-day") body = sun;
+  else if (type === "clear-night") body = moon;
+  else if (type === "partly-day") body = '<g transform="translate(-4,-6)">' + sun + "</g>" + cloud;
+  else if (type === "partly-night") body = '<g transform="translate(-2,-4)">' + moon + "</g>" + cloud;
+  else if (type === "rain" || type === "shower") body = cloud + rain;
+  else if (type === "thunder") body = cloud + bolt;
+  else if (type === "snow") body = cloud + snow;
+  return '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">' + body + "</svg>";
+}
+function iconHtml(icon) {
+  return '<div class="wx-icon">' + weatherSvg(iconType(icon)) + "</div>";
+}
+function minColor(t) { return t <= 12 ? "#1A73E8" : t <= 18 ? "#4285F4" : "#669DF6"; }
+
+function setAll(sel, htmlOrText, asHtml) {
+  document.querySelectorAll(sel).forEach(function(el) {
+    if (asHtml) el.innerHTML = htmlOrText;
+    else el.textContent = htmlOrText;
+  });
+}
+
+function renderWeekly(days) {
+  var html = !days.length ? '<div class="day">データなし</div>' : days.map(function(d) {
+    return '<div class="day"><div class="d-label">' + d.label + "</div>" +
+      iconHtml(d.icon) +
+      '<div class="d-temp"><span style="color:#E8710A">' + d.max + u("°") + "</span>" +
+      '<span class="d-sep">/</span><span style="color:' + minColor(d.min) + '">' + d.min + u("°") + "</span></div></div>";
+  }).join("");
+  setAll(".js-weekly", html, true);
+}
+function renderHourly(hours) {
+  hours = hours.slice(0, HOURLY_COUNT);
+  var html = !hours.length ? '<div class="hour-slot">データなし</div>' : hours.map(function(h) {
+    return '<div class="hour-slot"><div class="h-time">' + (h.hour || h.hourLabel.replace("時", "")) + u("時") + "</div>" +
+      iconHtml(h.icon) +
+      '<div class="h-temp">' + nu(h.temp, "℃") + "</div></div>";
+  }).join("");
+  setAll(".js-hourly", html, true);
+}
+
+function calcWbgt(t, h) {
+  return 0.7 * Number(t) + 0.3 * (Number(h) / 5);
+}
+function wbgtClass(w) {
+  if (w >= 31) return "lv-extreme";
+  if (w >= 28) return "lv-alert";
+  if (w >= 25) return "lv-warning";
+  if (w >= 21) return "lv-caution";
+  return "lv-safe";
+}
+function wbgtClassFromLevel(idx) {
+  var map = ["lv-safe", "lv-caution", "lv-warning", "lv-alert", "lv-extreme"];
+  if (idx >= 0 && idx < map.length) return map[idx];
+  return "lv-safe";
+}
+var WBGT_BG_HEX = ["#308ED8", "#FFD92E", "#FFBE2C", "#FF7E00", "#D61914"];
+var lockedWbgtLevel_ = null; /* index から引き継いだ段階（天気では変えない） */
+function resolveWbgtLevel_() {
+  if (lockedWbgtLevel_ != null) return lockedWbgtLevel_;
+  var q = new URLSearchParams(location.search);
+  var lvQ = q.get("level");
+  /* 実測レベルを優先（仮の level=0 で青固定しない） */
+  try {
+    var real = sessionStorage.getItem("wbgtLevelReal");
+    if (real != null && real !== "" && !isNaN(Number(real))) {
+      lockedWbgtLevel_ = Math.max(0, Math.min(4, Number(real) | 0));
+      return lockedWbgtLevel_;
+    }
+  } catch (e0) {}
+  if (lvQ != null && lvQ !== "" && !isNaN(Number(lvQ))) {
+    lockedWbgtLevel_ = Math.max(0, Math.min(4, Number(lvQ) | 0));
+    return lockedWbgtLevel_;
+  }
+  try {
+    var ss = sessionStorage.getItem("wbgtLevel");
+    if (ss != null && ss !== "" && !isNaN(Number(ss))) {
+      lockedWbgtLevel_ = Math.max(0, Math.min(4, Number(ss) | 0));
+      return lockedWbgtLevel_;
+    }
+  } catch (e) {}
+  return null;
+}
+function weatherCardClass(icon) {
+  var t = iconType(icon);
+  if (t === "clear-day") return "wx-clear";
+  if (t === "partly-day") return "wx-partly";
+  if (t === "rain" || t === "shower") return "wx-rain";
+  if (t === "thunder") return "wx-thunder";
+  if (t === "snow") return "wx-snow";
+  if (t === "clear-night" || t === "partly-night") return "wx-night";
+  return "wx-cloudy";
+}
+function applyTheme(temp, hum, icon) {
+  var stage = document.getElementById("weather-stage");
+  if (!stage) return;
+  var keep640 = stage.classList.contains("is-640");
+  var lv = resolveWbgtLevel_();
+  /* 一度決まった段階色は気温更新でも変えない（ちらつき防止） */
+  if (lv == null && temp != null && hum != null) {
+    lockedWbgtLevel_ = (function (w) {
+      if (w >= 31) return 4;
+      if (w >= 28) return 3;
+      if (w >= 25) return 2;
+      if (w >= 21) return 1;
+      return 0;
+    })(calcWbgt(temp, hum));
+    lv = lockedWbgtLevel_;
+    try { sessionStorage.setItem("wbgtLevel", String(lv)); } catch (e) {}
+  }
+  if (lv == null) lv = 0;
+  var lvCls = wbgtClassFromLevel(lv);
+  var hex = WBGT_BG_HEX[lv] || WBGT_BG_HEX[0];
+  var wx = weatherCardClass(icon);
+  stage.className = lvCls + " " + wx + (keep640 ? " is-640" : "");
+  stage.style.setProperty("background", hex, "important");
+  stage.style.setProperty("--wbgt-bg", hex);
+}
+/* boot color: WbgtWeather.start(level) */
+
+function fillUI(w, todayHi, todayLo) {
+  var now = new Date();
+  var dateTxt = (now.getMonth() + 1) + "/" + now.getDate();
+  var hi = todayHi == null ? "--" + u("℃") : nu(todayHi, "℃");
+  var lo = todayLo == null ? "--" + u("℃") : nu(todayLo, "℃");
+  var sub = LOCATION_SHORT + " · 体感 " + nu(w.feels, "℃") + " · 湿度 " + nu(w.hum, "%") + " · " + nu(w.pressure, "hPa");
+  var values = {
+    windDir: windDir(w.windDeg),
+    windSpd: fmtMs(w.windSpd),
+    gust: fmtMs(w.windGust),
+    rain: nu(Math.round(w.rain * 10) / 10, "mm"),
+    press: nu(w.pressure, "hPa"),
+    max: hi, min: lo, date: dateTxt,
+    desc: w.desc || "--",
+    temp: nu(w.temp, "℃"),
+    feels: nu(w.feels, "℃"),
+    hum: nu(w.hum, "%")
+  };
+
+  setAll(".js-temp", nu(w.temp, "℃"), true);
+  setAll(".js-hum", nu(w.hum, "%"), true);
+  setAll(".js-pressure", nu(w.pressure, "hPa"), true);
+  setAll(".js-hero-temp", nu(w.temp, "℃"), true);
+  setAll(".js-hero-desc", w.desc || "--");
+  setAll(".js-hero-sub", sub + "　　" + sub, true);
+  document.querySelectorAll(".js-hero-icon").forEach(function(el) {
+    el.innerHTML = weatherSvg(iconType(w.icon));
+  });
+  setAll(".js-side-weather", w.desc || "--");
+  setAll(".js-side-temp", nu(w.temp, "℃"), true);
+  setAll(".js-wind-dir", values.windDir);
+  setAll(".js-wind-spd", values.windSpd, true);
+
+  document.querySelectorAll("[data-k]").forEach(function(el) {
+    var k = el.getAttribute("data-k");
+    if (values[k] != null) el.innerHTML = values[k];
+  });
+
+  applyTheme(w.temp, w.hum, w.icon);
+  apply640Mode();
+  /* 数値反映後にテロップを組み直す（現在の気象・風なども流す） */
+  syncMarqueeTracks();
+}
+
+function chartY(v, minV, maxV, top, h) {
+  return top + h - ((v - minV) / (maxV - minV || 1)) * h;
+}
+function drawChart(canvasId) {
+  var c = document.getElementById(canvasId);
+  if (!c) return;
+  var lay = c.closest(".layout");
+  if (lay && !lay.classList.contains("is-active")) return;
+  var box = c.parentElement;
+  var w = Math.max(160, Math.floor(box.clientWidth));
+  var h = Math.max(36, Math.floor(box.clientHeight || 50));
+  c.width = w; c.height = h;
+  var ctx = c.getContext("2d");
+  var data = hourlySeries.slice(0, HOURLY_COUNT);
+  ctx.clearRect(0, 0, w, h);
+  if (data.length < 2) return;
+  var padL = 10, padR = 10, padT = 16, padB = 14;
+  var graphW = w - padL - padR, graphH = h - padT - padB;
+  var top = padT, bottom = top + graphH;
+  var vals = data.map(function(d) { return d.temp; });
+  var minV = Math.floor(Math.min.apply(null, vals) / 5) * 5 - 5;
+  var maxV = Math.ceil(Math.max.apply(null, vals) / 5) * 5 + 5;
+  if (maxV - minV < 8) maxV = minV + 8;
+  var step = graphW / (data.length - 1);
+  var pts = data.map(function(d, i) {
+    return { x: padL + i * step, y: chartY(d.temp, minV, maxV, top, graphH), temp: d.temp, hour: d.hour, hourLabel: d.hourLabel };
+  });
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, bottom);
+  pts.forEach(function(p) { ctx.lineTo(p.x, p.y); });
+  ctx.lineTo(pts[pts.length - 1].x, bottom);
+  ctx.closePath();
+  var g = ctx.createLinearGradient(0, top, 0, bottom);
+  g.addColorStop(0, "rgba(66,133,244,.25)");
+  g.addColorStop(1, "rgba(66,133,244,.02)");
+  ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = CHART_LINE; ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  pts.forEach(function(p, i) { if (!i) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y); });
+  ctx.stroke();
+  pts.forEach(function(p) {
+    /* 気温は点の上に大きく表示（点の中だと見づらい） */
+    ctx.fillStyle = "#202124";
+    ctx.font = "800 13px " + FONT;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(String(p.temp), p.x, p.y - DOT - 2);
+
+    ctx.fillStyle = "#E8E2D4";
+    ctx.beginPath(); ctx.arc(p.x, p.y, DOT + 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = CHART_LINE;
+    ctx.beginPath(); ctx.arc(p.x, p.y, DOT, 0, Math.PI * 2); ctx.fill();
+
+    ctx.fillStyle = "#3c4043";
+    var hourNum = p.hour || String(p.hourLabel || "").replace("時", "");
+    var numSize = 11;
+    var unitSize = Math.max(5, Math.round(numSize / 2));
+    ctx.font = "700 " + numSize + "px " + FONT;
+    ctx.textBaseline = "alphabetic";
+    ctx.textAlign = "left";
+    var numW = ctx.measureText(hourNum).width;
+    ctx.font = "600 " + unitSize + "px " + FONT;
+    var unitW = ctx.measureText("時").width;
+    var startX = p.x - (numW + unitW) / 2;
+    ctx.font = "700 " + numSize + "px " + FONT;
+    ctx.fillText(hourNum, startX, bottom + 11);
+    ctx.font = "600 " + unitSize + "px " + FONT;
+    ctx.fillText("時", startX + numW, bottom + 11);
+  });
+}
+
+function setSide(stackName, index) {
+  var stack = document.querySelector('[data-side-stack="' + stackName + '"]');
+  if (!stack) return;
+  stack.querySelectorAll(".side-pane").forEach(function(el, i) {
+    var wasOn = el.classList.contains("on");
+    var nowOn = i === index;
+    el.classList.remove("is-exit");
+    if (wasOn && !nowOn) {
+      el.classList.remove("on");
+      el.classList.add("is-exit");
+      setTimeout(function() { el.classList.remove("is-exit"); }, 480);
+    } else {
+      el.classList.toggle("on", nowOn);
+    }
+  });
+}
+
+/* 同一ページ: 表示制御は index 側（WbgtWeather.start/stop） */
+var weatherTimers_ = [];
+var weatherRunning_ = false;
+function clearWeatherLocalTimers_() {
+  weatherTimers_.forEach(function (id) { clearInterval(id); clearTimeout(id); });
+  weatherTimers_ = [];
+}
+function weatherSetLevel_(lv) {
+  if (lv == null || isNaN(Number(lv))) return;
+  lockedWbgtLevel_ = Math.max(0, Math.min(4, Number(lv) | 0));
+  try { sessionStorage.setItem("wbgtLevelReal", String(lockedWbgtLevel_)); } catch (e) {}
+  try { sessionStorage.setItem("wbgtLevel", String(lockedWbgtLevel_)); } catch (e2) {}
+  var stage = document.getElementById("weather-stage");
+  if (!stage) return;
+  stage.classList.remove("lv-safe", "lv-caution", "lv-warning", "lv-alert", "lv-extreme");
+  stage.classList.add(wbgtClassFromLevel(lockedWbgtLevel_));
+  var hex = WBGT_BG_HEX[lockedWbgtLevel_];
+  stage.style.setProperty("background", hex, "important");
+  stage.style.setProperty("--wbgt-bg", hex);
+  var panel = document.getElementById("weather-panel");
+  if (panel) {
+    panel.style.background = hex;
+    panel.style.setProperty("--wbgt-bg", hex);
+  }
+}
+
+
+function switchLayout(mode) {
+  if (layoutAnimating || mode === layoutMode) return;
+  layoutAnimating = true;
+
+  var from = document.getElementById(layoutMode === "span" ? "layoutSpan" : "layoutClassic");
+  var to = document.getElementById(mode === "span" ? "layoutSpan" : "layoutClassic");
+
+  /* カードのみフェード切替（背景はそのまま） */
+  from.classList.remove("is-active", "is-entering");
+  from.classList.add("is-leaving");
+
+  requestAnimationFrame(function() {
+    to.classList.remove("is-leaving");
+    to.classList.add("is-entering");
+    requestAnimationFrame(function() {
+      to.classList.add("is-active");
+    });
+  });
+
+  layoutMode = mode;
+
+  slotPhase = 0;
+  if (mode === "classic") {
+    classicSteps = 0;
+  } else {
+    wideShown = 0;
+    wideTop = 0;
+    wideAnim = false;
+    document.querySelectorAll("#wideRail .wide-card").forEach(function(el, i) {
+      clearWide(el);
+      el.classList.add(i === 0 ? "is-top" : "is-wait");
+    });
+  }
+
+  setTimeout(function() {
+    from.classList.remove("is-leaving");
+    to.classList.remove("is-entering");
+    layoutAnimating = false;
+    /* 切替完了後にグラフ描画（アニメ中の負荷を避ける） */
+    drawChart(mode === "classic" ? "chartB" : "chartA");
+  }, LAYOUT_MS);
+}
+
+function cardA(i) { return document.querySelector('.flow-a[data-a="' + i + '"]'); }
+function cardB(i) { return document.querySelector('.flow-b[data-b="' + i + '"]'); }
+
+function frontStepA() {
+  if (layoutMode !== "span" || frontAAnim || layoutAnimating) return;
+  frontAAnim = true;
+  var next = (frontA + 1) % CARD_COUNT;
+  var cur = cardA(frontA), nxt = cardA(next);
+  /* 縮んだ状態で入れてから、伸びて表示 */
+  nxt.classList.remove("is-on", "is-exit", "is-wait");
+  nxt.classList.add("is-enter");
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      nxt.classList.remove("is-enter");
+      nxt.classList.add("is-on");
+      cur.classList.remove("is-on", "is-enter", "is-wait");
+      cur.classList.add("is-exit");
+    });
+  });
+  setTimeout(function() {
+    cur.classList.remove("is-exit");
+    cur.classList.add("is-wait");
+    frontA = next;
+    frontAAnim = false;
+    if (next === CHART_CARD) drawChart("chartA");
+  }, 560);
+}
+
+function clearB(el) {
+  el.classList.remove("is-top", "is-bottom", "is-enter", "is-exit", "is-wait");
+}
+
+function frontStepB() {
+  if (layoutMode !== "classic" || frontBAnim || layoutAnimating) return;
+  frontBAnim = true;
+  var enterIdx = (bottomB + 1) % CARD_COUNT;
+  var elTop = cardB(topB), elBot = cardB(bottomB), elEnter = cardB(enterIdx);
+  requestAnimationFrame(function() {
+    clearB(elEnter); elEnter.classList.add("is-enter");
+    requestAnimationFrame(function() {
+      clearB(elEnter); elEnter.classList.add("is-top");
+      clearB(elTop); elTop.classList.add("is-bottom");
+      clearB(elBot); elBot.classList.add("is-exit");
+    });
+  });
+  setTimeout(function() {
+    clearB(elBot); elBot.classList.add("is-wait");
+    bottomB = topB;
+    topB = enterIdx;
+    frontBAnim = false;
+    if (enterIdx === CHART_CARD || topB === CHART_CARD) drawChart("chartB");
+    classicSteps += 1;
+    /* 切替タイミングは WEATHER_HOLD_MS（8秒）側で制御 */
+    if (classicSteps >= CARD_COUNT) {
+      switchLayout("span");
+    }
+  }, 560);
+}
+
+function wideCard(i) { return document.querySelector('.wide-card[data-wide="' + i + '"]'); }
+function clearWide(el) {
+  el.classList.remove("is-top", "is-enter", "is-exit", "is-wait");
+}
+
+function wideStep() {
+  if (layoutMode !== "span" || layoutAnimating || wideAnim) return;
+  wideAnim = true;
+  var enterIdx = (wideTop + 1) % WIDE_COUNT;
+  var elTop = wideCard(wideTop), elEnter = wideCard(enterIdx);
+  /* スロットル：上から降りて1段目へ。旧1段目は2段目側へ下降 */
+  requestAnimationFrame(function() {
+    clearWide(elEnter); elEnter.classList.add("is-enter");
+    requestAnimationFrame(function() {
+      clearWide(elEnter); elEnter.classList.add("is-top");
+      clearWide(elTop); elTop.classList.add("is-exit");
+    });
+  });
+  setTimeout(function() {
+    clearWide(elTop); elTop.classList.add("is-wait");
+    wideTop = enterIdx;
+    wideAnim = false;
+    wideShown += 1;
+    if (wideShown >= WIDE_COUNT) {
+      setTimeout(function() { switchLayout("classic"); }, 100);
+    }
+  }, 560);
+}
+
+function updateClock() {
+  var t = new Date().toLocaleTimeString("ja-JP", {
+    hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Tokyo"
+  });
+  setAll(".js-clock", t);
+  var md = (new Date().getMonth() + 1) + "/" + new Date().getDate();
+  document.querySelectorAll('[data-k="date"]').forEach(function(el) {
+    el.textContent = md;
+  });
+}
+
+async function refresh() {
+  try {
+    var w = await fetchWeather();
+    var fc = await fetchForecast(w);
+    fillUI(w, fc.todayHi, fc.todayLo);
+    renderWeekly(fc.days);
+    renderHourly(hourlySeries);
+    drawChart(layoutMode === "classic" ? "chartB" : "chartA");
+  } catch (e) {
+    console.error(e);
+    setAll(".js-hero-desc", "通信エラー");
+  }
+}
+
+/* CSS helpers：下段以外の非640時はテロップ停止 */
+var styleExtra = document.createElement("style");
+styleExtra.textContent =
+  "#weather-stage:not(.is-640) .wx-sub .marquee-track{animation:none!important;transform:none!important;display:block;overflow:hidden;text-overflow:ellipsis;}";
+document.head.appendChild(styleExtra);
+
+function stepLeft() {
+  leftIndex = (leftIndex + 1) % SIDE_COUNT_A;
+  setSide("leftA", leftIndex);
+  leftIndexB = (leftIndexB + 1) % SIDE_COUNT_B;
+  setSide("leftB", leftIndexB);
+}
+function stepRight() {
+  rightIndex = (rightIndex + 1) % SIDE_COUNT_A;
+  setSide("rightA", rightIndex);
+  rightIndexB = (rightIndexB + 1) % SIDE_COUNT_B;
+  setSide("rightB", rightIndexB);
+}
+
+/** 各カードごとにスロットル式（長いカードは2段目→1段目） */
+function slotTick() {
+  if (layoutAnimating || frontAAnim || frontBAnim || wideAnim) return;
+  if (layoutMode === "span") {
+    /* 長いカード(2→1段) → 左 → 正面 → 右 */
+    var p = slotPhase % 4;
+    if (p === 0) wideStep();
+    else if (p === 1) stepLeft();
+    else if (p === 2) frontStepA();
+    else stepRight();
+    slotPhase += 1;
+  } else {
+    var q = slotPhase % 3;
+    if (q === 0) stepLeft();
+    else if (q === 1) frontStepB();
+    else stepRight();
+    slotPhase += 1;
+  }
+}
+
+window.WbgtWeather = {
+  start: function (opts) {
+    opts = opts || {};
+    clearWeatherLocalTimers_();
+    weatherRunning_ = true;
+    if (opts.level != null) weatherSetLevel_(opts.level);
+    apply640Mode();
+    updateClock();
+    refresh();
+    weatherTimers_.push(setInterval(slotTick, SLOT_MS));
+    weatherTimers_.push(setInterval(updateClock, 1000));
+    weatherTimers_.push(setInterval(refresh, 10 * 60 * 1000));
+  },
+  stop: function () {
+    weatherRunning_ = false;
+    clearWeatherLocalTimers_();
+  },
+  setLevel: weatherSetLevel_
+};
+window.addEventListener("resize", function () {
+  if (weatherRunning_) apply640Mode();
+});
+})();
+</script>
+
 </body>
 </html>
