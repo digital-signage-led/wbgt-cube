@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <!-- CONTENT_VER: X.Y0.0 — このコンテンツの版管理起点 -->
-<!-- wbgt-cube-osaka-3face / 大阪 WBGT サイネージ（本番 3面 640×192・全面流し・カード128×192） -->
+<!-- 静岡 WBGT サイネージ（本番 3面 640×192・全面流し・カード128×192） -->
 <!-- 同階層: assets/greencross_logo.png（左右ロゴ列） / assets/greencross_foot_name.svg（時刻下の下帯） -->
 <!-- 会場: 静岡県静岡市駿河区大坪町2-26 -->
-<!-- WBGT・環境省地点 50331（静岡）／天気・気象庁 AMeDAS 50331・予報 220000（販売機天気は同一 index.html） -->
+<!-- データ元: 気象庁（AMeDAS・予報・警報）／環境省（WBGT・熱中症アラート）のみ。外部天気APIは使用しない -->
+<!-- WBGT・環境省地点 50331（静岡）／天気・気象庁 AMeDAS 50331・予報 220000 -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +12,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
-    <title>WBGT Signage 3面 640×192 - 大阪</title>
+    <title>WBGT Signage 3面 640×192 - 静岡</title>
     <link rel="preload" as="image" href="./assets/greencross_logo.png">
     <link rel="preload" as="image" href="./assets/greencross_foot_name.svg">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
@@ -25,7 +26,6 @@
     html.booting #weather-panel {
       visibility: hidden !important;
       opacity: 0 !important;
-      pointer-events: none !important;
     }
     </style>
     <script>
@@ -2145,7 +2145,6 @@
 #scene4 {
   transition: transform .9s cubic-bezier(.33, 0, .2, 1);
 }
-/* WBGT→天気：右から押し出し（天気が右→左、WBGTは左へ退場で被らない） */
 #weather-panel.is-enter-rtl {
   transform: translate3d(640px, 0, 0);
   transition: none !important;
@@ -2161,7 +2160,6 @@
 #scene4.is-exit-push {
   transform: translate3d(-640px, 0, 0);
 }
-/* 天気→WBGT：縦の押し出し（天気↓／WBGT↓着地を同時・被らない） */
 #weather-panel.is-exit-down {
   transform: translate3d(0, 192px, 0);
 }
@@ -2179,7 +2177,6 @@
   opacity: 1 !important;
 }
 
-/* 起動・再読込中はコンテンツ全体を消す（仮のほぼ安全が映り込むのを防ぐ） */
 html.booting .content-area,
 html.booting #weather-panel,
 #weather-panel:not(.is-on) {
@@ -2191,60 +2188,30 @@ html.booting #weather-panel,
 #weather-panel:not(.is-on) {
   display: none !important;
 }
-#weather-panel:not(.is-on) .layout,
-#weather-panel:not(.is-on) .wx-phys,
-#weather-panel:not(.is-on) .wide-card,
-#weather-panel:not(.is-on) .flow-a,
-#weather-panel:not(.is-on) .flow-b,
+#weather-panel:not(.is-on) .flow-card,
 #weather-panel:not(.is-on) .side-pane {
   transition: none !important;
   animation: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
 }
-html.wx-no-anim #weather-panel .layout,
-html.wx-no-anim #weather-panel .wx-phys,
-html.wx-no-anim #weather-panel .wide-card,
-html.wx-no-anim #weather-panel .flow-a,
-html.wx-no-anim #weather-panel .flow-b,
+html.wx-no-anim #weather-panel .flow-card,
 html.wx-no-anim #weather-panel .side-pane {
   transition: none !important;
-}
-html.wx-no-anim #weather-panel #wxBoard .wx-phys {
-  transform: none !important;
 }
 
 #weather-panel {
   --font: "Roboto", "Noto Sans JP", sans-serif;
-  /* カード面：白すぎない淡色（純白不可） */
-  --surface: #EBE8E1;
+  --surface: #ffffff;
   --on: #202124;
   --muted: #5f6368;
-  --line: #cdc8be;
-  /* 影は隙間を視覚的に潰すためサイネージでは使わない */
-  --shadow: none;
+  --line: #e0e0e0;
+  --shadow: 0 1px 2px rgba(60,64,67,.12), 0 2px 6px rgba(60,64,67,.08);
   --accent: #7A6E5C;
   --on-accent: #202124;
   --ease: cubic-bezier(.22, 1, .36, 1);
   --bg0: #2478c4;
   --bg1: #2F8CDC;
-  /*
-    カード幅112 / サイド面128 → 左右余白 (128-112)/2 = 8px。
-    外周・列間とも 8px にすると中央幅がちょうど 384（正面面）になり、
-    3面サイネージで隙間が潰えない。
-  */
-  --wx-gap: 8px;
-  --wx-side: 112px;
-  --wx-face: 128px;
-  --wx-mid: 384px;
-  --wx-front-inset: 4px; /* 正面384内の左右余白（キチキチ防止） */
-  /* 上段・下段カード高さ揃え: 8 + 84 + 8 + 84 + 8 = 192 */
-  --wx-top-h: 84px;
-  --wx-bot-h: 84px;
-}
-#weather-panel, #weather-panel * { box-sizing: border-box; }
-/* 天気パネル（index 内オーバーレイ・640×192） */
-#weather-panel {
   position: absolute; left: 0; top: 0; width: 640px; height: 192px;
   margin: 0; padding: 0; overflow: hidden !important;
   font-family: var(--font); color: var(--on);
@@ -2253,399 +2220,102 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
   transform: translate3d(0, 0, 0);
   clip-path: inset(0);
 }
+#weather-panel, #weather-panel * { box-sizing: border-box; }
 #weather-panel.is-on {
   display: block;
   visibility: visible;
   opacity: 1;
 }
-/* wx-embed: unused (same page) */
 #weather-stage {
-  width: 640px; height: 192px; overflow: hidden !important; position: absolute;
-  left: 0; top: 0;
-  background: var(--wbgt-bg, #308ED8) !important;
-  transition: background .45s ease;
-  clip-path: inset(0);
+  width: 640px; height: 192px; overflow: hidden; position: relative;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--bg0), var(--bg1));
+  transition: background .6s ease;
 }
-/* WBGT段階色（index SignageBg.colorsForLevel と同値） */
-.lv-safe { --wbgt-bg:#308ED8; --bg0:#308ED8; --bg1:#308ED8; }
-.lv-caution { --wbgt-bg:#FFD92E; --bg0:#FFD92E; --bg1:#FFD92E; }
-.lv-warning { --wbgt-bg:#FFBE2C; --bg0:#FFBE2C; --bg1:#FFBE2C; }
-.lv-alert { --wbgt-bg:#FF7E00; --bg0:#FF7E00; --bg1:#FF7E00; }
-.lv-extreme { --wbgt-bg:#D61914; --bg0:#D61914; --bg1:#D61914; }
+.lv-safe { --bg0:#2478c4; --bg1:#2F8CDC; }
+.lv-caution { --bg0:#E6C200; --bg1:#FDD72E; }
+.lv-warning { --bg0:#E8910C; --bg1:#FDBA2B; }
+.lv-alert { --bg0:#E06A00; --bg1:#FE7D03; }
+.lv-extreme { --bg0:#B01210; --bg1:#D31715; }
 
-/* 天気：カード薄色（白すぎない・純白NG） */
 .wx-clear {
-  --surface:#E4ECF6; --line:#b8c8dc;
+  --surface:#ffffff; --line:#e0e0e0;
   --accent:#4285F4; --on-accent:#E8F0FE;
 }
 .wx-partly {
-  --surface:#F0EAD5; --line:#d8cfb0;
+  --surface:#ffffff; --line:#e0e0e0;
   --accent:#FBBC04; --on-accent:#202124;
 }
 .wx-cloudy {
-  --surface:#EFE6D8; --line:#d4c8b4;
+  --surface:#ffffff; --line:#e0e0e0;
   --accent:#F29900; --on-accent:#202124;
 }
 .wx-rain {
-  --surface:#E4E6EF; --line:#bcc0d0;
+  --surface:#ffffff; --line:#e0e0e0;
   --accent:#5C6BC0; --on-accent:#E8ECF4;
 }
 .wx-thunder {
-  --surface:#EFE4E2; --line:#d8c0bc;
+  --surface:#ffffff; --line:#e0e0e0;
   --accent:#EA4335; --on-accent:#FCE8E6;
 }
 .wx-snow {
-  --surface:#E4E8F0; --line:#bcc4d0;
+  --surface:#ffffff; --line:#e0e0e0;
   --accent:#5C6BC0; --on-accent:#E8ECF4;
 }
 .wx-night {
-  --surface:#E2E5EF; --line:#b8c0d0;
+  --surface:#ffffff; --line:#e0e0e0;
   --accent:#5C6BC0; --on-accent:#E8ECF4;
 }
 
-.layout {
-  position: absolute; inset: 0;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: none;
-  transition:
-    opacity .5s ease,
-    visibility 0s linear .5s;
-  z-index: 1;
+#faces {
+  display: grid; grid-template-columns: 128px 384px 128px;
+  width: 640px; height: 192px;
 }
-.layout.is-active {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: none;
-  transition:
-    opacity .5s ease,
-    visibility 0s;
-  z-index: 2;
+#weather-panel .face {
+  height: 192px; padding: 6px; overflow: hidden; min-width: 0;
 }
-.layout.is-leaving {
-  opacity: 0;
-  visibility: visible;
-  pointer-events: none;
-  transform: none;
-  transition:
-    opacity .45s ease,
-    visibility 0s linear .45s;
-  z-index: 1;
-}
-.layout.is-entering {
-  opacity: 0;
-  visibility: visible;
-  pointer-events: none;
-  transform: none;
-  transition: none;
-  z-index: 3;
-}
-.layout.is-entering.is-active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: none;
-  transition:
-    opacity .5s ease,
-    visibility 0s;
-}
-
-/* 配置Bは使わない（単一配置＋スロットル式のみ） */
-#layoutClassic {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
-/* ===== 物理スロットル：4カードがスケッチ順に配置変更 =====
-   1: 左右縦＋中央上下   2: 上ワイド＋下3枚
-   3: 上下ワイド2枚      4: 上3枚＋下ワイド  →1へ
-*/
-#wxBoard {
-  position: absolute;
-  inset: 0;
-  width: 640px;
-  height: 192px;
-  overflow: hidden !important;
-  clip-path: inset(0);
-}
-.wx-phys {
-  position: absolute;
-  box-sizing: border-box;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  padding: 2px 6px 3px;
-  opacity: 1;
-  z-index: 2;
-  transform: translate3d(0, 0, 0);
-  transition: transform .8s cubic-bezier(.33, 0, .2, 1), opacity .45s ease;
-  will-change: transform, left, top, width, height;
-  backface-visibility: hidden;
-}
-/* 配置モーフィング：上段→下段への物理移動 */
-#wxBoard.geom-anim .wx-phys:not(.is-exit-down):not(.is-enter-top):not(.is-pinned) {
-  transition:
-    left .8s cubic-bezier(.33, 0, .2, 1),
-    top .8s cubic-bezier(.33, 0, .2, 1),
-    width .8s cubic-bezier(.33, 0, .2, 1),
-    height .8s cubic-bezier(.33, 0, .2, 1),
-    opacity .45s ease,
-    transform .8s cubic-bezier(.33, 0, .2, 1);
-}
-.wx-phys.is-exit-down {
-  transform: translate3d(0, 220px, 0);
-  opacity: 1; /* 消さず、下へ下ろす */
-  z-index: 1;
-  pointer-events: none;
-}
-.wx-phys.is-enter-top {
-  transform: translate3d(0, -220px, 0);
-  transition: none;
-  opacity: 1;
-  z-index: 4;
-}
-/* 退場中は現在位置を固定してから下へ（配置切替で飛ばない） */
-.wx-phys.is-pinned {
-  z-index: 3;
-  opacity: 1 !important;
-  transition:
-    transform .8s cubic-bezier(.33, 0, .2, 1),
-    opacity 0s;
-}
-.wx-phys .slot-title {
-  flex-shrink: 0;
-  font-size: 9px;
-  line-height: 1.1;
-  margin-bottom: 0;
-}
-.wx-phys .wx-body {
-  flex: 1;
-  min-height: 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
-}
-.wx-phys .wx-side-pack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  height: 100%;
-  gap: 2px;
-}
-.wx-phys .wx-side-pack .side-lbl { margin-bottom: 0; font-size: 11px; font-weight: 700; }
-.wx-phys .wx-side-pack .side-val { font-size: 28px; }
-.wx-extra {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  margin-top: 4px;
-}
-#wxBoard[data-lay="1"] .wx-a .wx-extra,
-#wxBoard[data-lay="1"] .wx-d .wx-extra { display: flex; }
-.wx-phys .pill {
-  width: 90%;
-  margin: 0 auto;
-  font-size: 13px;
-  padding: 6px 4px;
-}
-.wx-phys .now-body {
-  padding-left: 0;
-  gap: 6px;
-  min-height: 0;
-  overflow: hidden;
-}
-.wx-phys .now-icon { width: 34px; height: 34px; flex-shrink: 0; }
-.wx-phys .now-icon svg { width: 26px; height: 26px; }
-.wx-phys .wx-temp { font-size: 22px; }
-.wx-phys .wx-desc { font-size: 12px; }
-.wx-phys .wx-sub {
-  font-size: 10px;
-  margin-top: 0;
-  line-height: 1.15;
-  max-width: 100%;
-}
-.wx-c-metrics, .wx-c-weekly {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-}
-.wx-c-metrics .wline-flat {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  gap: 4px;
-  padding: 0 4px;
-  min-height: 0;
-}
-.wx-c-metrics .metric {
-  flex: 1;
-  min-width: 0;
-  text-align: center;
-}
-.wx-c-metrics .m-l {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  line-height: 1.1;
-}
-.wx-c-metrics .m-v {
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.wx-c-weekly .weekly { height: 100%; min-height: 0; }
-.wx-c-weekly .flow-body { min-height: 0; overflow: hidden; padding-top: 0; }
-.wx-c-weekly .day { gap: 0; padding-bottom: 0; }
-.wx-c-weekly .d-label { font-size: 10px; }
-.wx-c-weekly .d-temp { font-size: 10px; }
-.wx-c-weekly .wx-icon { width: 20px; height: 20px; flex: 0 0 20px; }
-#wxBoard[data-lay="1"] .wx-c-weekly,
-#wxBoard[data-lay="3"] .wx-c-metrics,
-#wxBoard[data-lay="2"] .wx-c-metrics,
-#wxBoard[data-lay="4"] .wx-c-metrics {
-  display: flex;
-}
-#wxBoard[data-lay="1"] .wx-c-metrics,
-#wxBoard[data-lay="2"] .wx-c-weekly,
-#wxBoard[data-lay="3"] .wx-c-weekly,
-#wxBoard[data-lay="4"] .wx-c-weekly {
-  display: none;
-}
-
-/* --- layout 1: 左右縦 + 中央上下（正面384内は左右4px） --- */
-#wxBoard[data-lay="1"] .wx-a { left: 8px; top: 8px; width: 112px; height: 176px; }
-#wxBoard[data-lay="1"] .wx-b { left: 132px; top: 8px; width: 376px; height: 84px; }
-#wxBoard[data-lay="1"] .wx-c { left: 132px; top: 100px; width: 376px; height: 84px; }
-#wxBoard[data-lay="1"] .wx-d { left: 520px; top: 8px; width: 112px; height: 176px; }
-#wxBoard[data-lay="1"] .wx-a,
-#wxBoard[data-lay="1"] .wx-d { opacity: 1; }
-
-/* --- layout 2: 上ワイド + 下3枚 --- */
-#wxBoard[data-lay="2"] .wx-c { left: 8px; top: 8px; width: 624px; height: 84px; }
-#wxBoard[data-lay="2"] .wx-a { left: 8px; top: 100px; width: 112px; height: 84px; }
-#wxBoard[data-lay="2"] .wx-b { left: 132px; top: 100px; width: 376px; height: 84px; }
-#wxBoard[data-lay="2"] .wx-d { left: 520px; top: 100px; width: 112px; height: 84px; }
-#wxBoard[data-lay="2"] .wx-a,
-#wxBoard[data-lay="2"] .wx-d { opacity: 1; }
-
-/* --- layout 3: 上下ワイド2枚（左右は下へ退避・消さない） --- */
-#wxBoard[data-lay="3"] .wx-b { left: 8px; top: 8px; width: 624px; height: 84px; }
-#wxBoard[data-lay="3"] .wx-c { left: 8px; top: 100px; width: 624px; height: 84px; }
-#wxBoard[data-lay="3"] .wx-a { left: 8px; top: 220px; width: 112px; height: 84px; opacity: 1; }
-#wxBoard[data-lay="3"] .wx-d { left: 520px; top: 220px; width: 112px; height: 84px; opacity: 1; }
-
-/* --- layout 4: 上3枚 + 下ワイド --- */
-#wxBoard[data-lay="4"] .wx-a { left: 8px; top: 8px; width: 112px; height: 84px; }
-#wxBoard[data-lay="4"] .wx-b { left: 132px; top: 8px; width: 376px; height: 84px; }
-#wxBoard[data-lay="4"] .wx-d { left: 520px; top: 8px; width: 112px; height: 84px; }
-#wxBoard[data-lay="4"] .wx-c { left: 8px; top: 100px; width: 624px; height: 84px; }
-#wxBoard[data-lay="4"] .wx-a,
-#wxBoard[data-lay="4"] .wx-d { opacity: 1; }
-
-#wxBoard[data-lay="1"] .wx-a .side-val,
-#wxBoard[data-lay="1"] .wx-d .side-val { font-size: 30px; }
-#wxBoard[data-lay="3"] .wx-b .wx-temp { font-size: 26px; }
-#wxBoard[data-lay="3"] .wx-b .now-icon { width: 40px; height: 40px; }
-#wxBoard[data-lay="3"] .wx-b .now-icon svg { width: 30px; height: 30px; }
-
-/* ===== 単一配置：上段ロング / 下段 左右+正面（隙間 8px） ===== */
-#topBand {
-  position: absolute;
-  left: var(--wx-gap);
-  top: calc(var(--wx-gap) + var(--wx-top-h) + var(--wx-gap)); /* 8+84+8=100 */
-  width: calc(640px - var(--wx-gap) * 2); /* 624 */
-  height: var(--wx-bot-h); /* 上段と同高 84px */
-  display: grid;
-  /* 112 + 8 + 384 + 8 + 112 = 624 */
-  grid-template-columns: var(--wx-side) var(--wx-mid) var(--wx-side);
-  column-gap: var(--wx-gap);
-  z-index: 4;
-  box-sizing: border-box;
-}
-.face-a { width: 100%; height: 100%; overflow: hidden; min-width: 0; box-sizing: border-box; }
-/* 左右サイド列＝カード幅112px（列間・外周 8px） */
-#topBand > .face-a:not(.front) {
-  width: var(--wx-side);
-  max-width: var(--wx-side);
-  min-width: var(--wx-side);
-  flex: 0 0 var(--wx-side);
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-}
-.card-a {
-  width: var(--wx-side); min-width: var(--wx-side); max-width: var(--wx-side); height: 100%;
-  box-sizing: border-box;
-  background: var(--surface);
+#weather-panel .card {
+  width: 100%; height: 100%; background: var(--surface);
   border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
   overflow: hidden; position: relative;
 }
-.face-a.front .card-front {
+#weather-panel .face.front { padding: 6px; }
+#weather-panel .face.front .card-front {
   width: 100%; height: 100%; background: transparent; border: none; box-shadow: none;
 }
-/* 正面384px列：カード左右に 4px ずつ余白 */
-#topBand > .face-a.front {
-  padding: 0 var(--wx-front-inset);
-  box-sizing: border-box;
-  overflow: hidden;
-}
 
-.side-stack { position: relative; width: 100%; height: 100%; }
-.side-pane {
+#weather-panel .side-stack { position: relative; width: 100%; height: 100%; }
+#weather-panel .side-pane {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  text-align: center; padding: 6px 4px;
+  text-align: center; padding: 10px 6px;
   opacity: 0;
-  transform: translate3d(0, 55%, 0);
+  transform: translate3d(0, -55%, 0);
   transition: opacity .45s ease, transform .5s cubic-bezier(.33, 0, .2, 1);
 }
-.side-pane.on { opacity: 1; transform: translate3d(0, 0, 0); }
-.side-pane.is-exit { opacity: 0; transform: translate3d(0, -55%, 0); }
-.side-lbl { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-.side-val {
-  font-size: 32px; font-weight: 800; line-height: 1; letter-spacing: -0.02em;
+#weather-panel .side-pane.on { opacity: 1; transform: translate3d(0, 0, 0); }
+#weather-panel .side-pane.is-exit { opacity: 0; transform: translate3d(0, 55%, 0); }
+#weather-panel .side-lbl { font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
+#weather-panel .side-val {
+  font-size: 40px; font-weight: 800; line-height: 1; letter-spacing: -0.02em;
   max-width: 100%; font-variant-numeric: tabular-nums; overflow: hidden;
 }
-.side-val.sm { font-size: 28px; }
-.js-wind-dir {
-  font-size: 26px !important;
+#weather-panel .side-val.sm { font-size: 36px; }
+#weather-panel .js-wind-dir {
+  font-size: 34px !important;
   font-weight: 800;
   letter-spacing: -0.04em;
 }
-.js-wind-spd {
-  font-size: 30px !important;
+#weather-panel .js-wind-spd {
+  font-size: 38px !important;
   font-weight: 800;
 }
-.side-pane .pill {
+#weather-panel .side-pane .pill {
   margin: 0 auto;
-  font-size: 14px;
-  padding: 8px 6px;
-  max-width: calc(var(--wx-side) - 16px);
-  box-sizing: border-box;
+  font-size: 16px;
+  padding: 12px 8px;
 }
-.unit {
+#weather-panel .unit {
   font-size: 0.5em;
   font-weight: 600;
   letter-spacing: 0;
@@ -2653,111 +2323,91 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
   vertical-align: 0.2em;
   line-height: 1;
 }
-.wx-sub .unit { font-size: 0.85em; vertical-align: 0.05em; }
-.pill {
+#weather-panel .wx-sub .unit { font-size: 0.85em; vertical-align: 0.05em; }
+#weather-panel .pill {
   display: block; width: 90%; margin: 2px auto 4px; padding: 4px;
-  border-radius: 999px; font-size: 12px; font-weight: 700; line-height: 1.2;
+  border-radius: 999px; font-size: 16px; font-weight: 700; line-height: 1.2;
   background: var(--accent); color: var(--on-accent);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-#frontFlowA {
+#frontFlow {
   position: relative; width: 100%; height: 100%; overflow: hidden;
 }
-/* 正面カード：拡大フェードではなくカードごと縦にスライド */
-.flow-a {
-  position: absolute; left: 0; right: 0; top: 0; height: 100%;
+#weather-panel .flow-card {
+  position: absolute; left: 0; right: 0; top: 0;
+  height: calc(50% - 6px);
   background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
-  box-shadow: var(--shadow); overflow: hidden; padding: 3px 6px 4px;
+  box-shadow: var(--shadow); overflow: hidden; padding: 5px 8px 6px;
   display: flex; flex-direction: column; min-height: 0;
   opacity: 0;
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
+  transform: translate3d(0, calc(-100% - 6px), 0) scale(0.9);
   transform-origin: center center;
-  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .35s ease;
+  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .5s ease;
   backface-visibility: hidden;
-  will-change: transform;
   z-index: 1;
-  pointer-events: none;
 }
-.flow-a.is-on {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-  z-index: 3;
-  pointer-events: auto;
-}
-.flow-a.is-enter {
-  opacity: 1;
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
-  z-index: 4;
-  transition: none;
-}
-.flow-a.is-exit {
-  opacity: 1;
-  transform: translate3d(0, calc(100% + var(--wx-gap)), 0);
-  z-index: 2;
-}
-.flow-a.is-wait {
-  opacity: 0;
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
-  z-index: 0;
-  pointer-events: none;
-}
+#weather-panel .flow-card.is-top { transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 3; }
+#weather-panel .flow-card.is-bottom { transform: translate3d(0, calc(100% + 6px), 0) scale(1); opacity: 1; z-index: 2; }
+#weather-panel .flow-card.is-enter { transform: translate3d(0, calc(-100% - 6px), 0) scale(0.9); opacity: 0; z-index: 4; }
+#weather-panel .flow-card.is-exit { transform: translate3d(0, calc(200% + 12px), 0) scale(0.9); opacity: 0; z-index: 1; }
+#weather-panel .flow-card.is-wait { transform: translate3d(0, calc(-100% - 6px), 0) scale(0.9); opacity: 0; z-index: 0; pointer-events: none; }
 
-.slot-title {
+#weather-panel .slot-title {
   font-size: 10px; font-weight: 500; color: var(--muted);
-  margin-bottom: 1px; flex-shrink: 0; line-height: 1.2;
+  margin-bottom: 0; flex-shrink: 0; line-height: 1.1;
 }
-.now-body {
+#weather-panel .now-body {
   flex: 1; min-height: 0; display: grid;
   grid-template-columns: auto minmax(0,1fr);
   align-items: center; gap: 10px; width: 100%;
   padding-left: 2px;
 }
-.wx-row { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
-.wx-temp {
-  font-size: 34px; font-weight: 900; line-height: 0.95; letter-spacing: -0.04em;
+#weather-panel .wx-row { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+#weather-panel .wx-temp {
+  font-size: 40px; font-weight: 900; line-height: 0.95; letter-spacing: -0.04em;
   color: var(--accent); white-space: nowrap;
 }
-.wx-desc {
-  font-size: 16px; font-weight: 800; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+#weather-panel .wx-desc {
+  font-size: 18px; font-weight: 800; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
-.wx-sub {
+#weather-panel .wx-sub {
   font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 2px;
   overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
-.now-icon {
-  width: 58px; height: 58px; border-radius: 50%;
+#weather-panel .now-icon {
+  width: 64px; height: 64px; border-radius: 50%;
   background: color-mix(in srgb, var(--accent) 16%, var(--surface));
   display: grid; place-items: center; flex-shrink: 0;
   margin-left: 2px;
   animation: iconFloat 3.2s ease-in-out infinite;
 }
-.now-icon svg { width: 44px; height: 44px; display: block; }
+#weather-panel .now-icon svg { width: 48px; height: 48px; display: block; }
 @keyframes iconFloat { 50% { transform: translateY(-2px); } }
 
-.flow-body {
+#weather-panel .flow-body {
   flex: 1; min-height: 0; display: flex; align-items: stretch;
   overflow: hidden; padding-top: 1px;
 }
-.weekly {
+#weather-panel .weekly {
   display: flex; justify-content: space-between; align-items: stretch;
   width: 100%; gap: 2px; min-height: 0; height: 100%;
 }
-.hourly {
+#weather-panel .hourly {
   display: flex;
   justify-content: space-between;
   align-items: stretch;
   width: 100%; gap: 2px; min-height: 0; height: 100%;
 }
-.day, .hour-slot {
+#weather-panel .day, #weather-panel .hour-slot {
   flex: 1; min-width: 0; min-height: 0;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   text-align: center; line-height: 1;
-  overflow: hidden; padding: 0 1px 1px;
-  gap: 1px;
+  overflow: hidden; padding: 0 1px 0;
+  gap: 0;
 }
-.hourly .hour-slot {
+#weather-panel .hourly .hour-slot {
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
@@ -2765,312 +2415,48 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
   padding: 0 1px 2px;
   min-height: 0;
 }
-.d-label, .h-time {
-  font-size: 14px; font-weight: 800; line-height: 1;
+#weather-panel .d-label, #weather-panel .h-time {
+  font-size: 12px; font-weight: 800; line-height: 1;
   flex-shrink: 0;
 }
-.d-temp, .h-temp {
-  font-size: 15px; font-weight: 900; line-height: 1;
+#weather-panel .d-temp, #weather-panel .h-temp {
+  font-size: 13px; font-weight: 900; line-height: 1;
   flex-shrink: 0;
   letter-spacing: -0.02em;
 }
-.hourly .h-time,
-.hourly .h-temp {
-  font-size: 14px;
-  line-height: 1;
-  white-space: nowrap;
-}
-.d-sep { color: var(--muted); margin: 0 1px; }
-.wx-icon {
-  width: 34px; height: 34px; margin: 0 auto;
-  display: block; flex: 0 0 34px;
-}
-.wx-icon svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.hourly .wx-icon {
-  width: 34px; height: 34px; flex: 0 0 34px; margin: 0 auto;
-}
-.flow-a .slot-title, .flow-b .slot-title { font-size: 10px; margin-bottom: 0; line-height: 1.1; }
-.flow-a .wx-icon { width: 26px; height: 26px; flex: 0 0 26px; }
-.flow-a .d-label, .flow-a .h-time { font-size: 12px; }
-.flow-a .d-temp, .flow-a .h-temp { font-size: 12px; }
-.flow-a .weekly .wx-icon { width: 24px; height: 24px; flex: 0 0 24px; }
-.flow-a .weekly .d-label { font-size: 11px; }
-.flow-a .weekly .d-temp { font-size: 11px; }
-.flow-a .hourly .wx-icon { width: 26px; height: 26px; flex: 0 0 26px; }
-.flow-a .hourly .h-time { font-size: 11px; }
-.flow-a .hourly .h-temp { font-size: 12px; }
-.flow-a .now-icon { width: 40px; height: 40px; }
-.flow-a .now-icon svg { width: 30px; height: 30px; }
-.flow-a .wx-temp { font-size: 26px; }
-.flow-a .wx-desc { font-size: 13px; }
-.flow-a .wx-sub { font-size: 11px; }
-#topBand .side-lbl { font-size: 15px; margin-bottom: 4px; font-weight: 700; }
-#topBand .side-val { font-size: 38px; }
-#topBand .side-val.sm { font-size: 32px; }
-#topBand .js-wind-dir { font-size: 28px !important; }
-#topBand .js-wind-spd { font-size: 32px !important; }
-#topBand .pill { font-size: 15px; padding: 8px 6px; }
-#topBand .side-pane { padding: 4px 2px; }
-#topBand .unit { font-size: 0.42em; }
-.flow-b .d-label, .flow-b .h-time { font-size: 12px; }
-.flow-b .d-temp, .flow-b .h-temp { font-size: 13px; }
-.flow-b .wx-icon { width: 28px; height: 28px; flex: 0 0 28px; }
-.flow-b .weekly .wx-icon { width: 26px; height: 26px; flex: 0 0 26px; }
-.flow-b .hourly .wx-icon { width: 28px; height: 28px; flex: 0 0 28px; }
-.flow-b .hourly .h-time { font-size: 13px; }
-.flow-b .hourly .h-temp { font-size: 14px; }
-.flow-b .day, .flow-b .hour-slot { gap: 0; padding-bottom: 0; }
-.hourly-chart { display: block; width: 100%; height: 100%; }
-
-/*
-  配置A：1段目＝長いカード（上）、2段目＝左右+正面（下）。
-  上下カード高さはどちらも 84px（太さを揃える）。外周・段間 8px。
-*/
-#wideRail {
-  position: absolute;
-  left: var(--wx-gap);
-  top: var(--wx-gap);
-  width: calc(640px - var(--wx-gap) * 2); /* 624 */
-  height: var(--wx-top-h);
-  overflow: hidden; z-index: 3;
-}
-.wide-card {
-  position: absolute; left: 0; right: 0; top: 0;
-  height: 100%;
-  background: var(--surface);
-  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
-  padding: 4px 0 6px; display: flex; flex-direction: column;
-  opacity: 0;
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
-  transform-origin: center center;
-  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .5s ease;
-  backface-visibility: hidden;
-  pointer-events: none;
-  will-change: transform, opacity;
-  z-index: 1;
-}
-/* 1段目（上）に着地 */
-.wide-card.is-top {
-  transform: translate3d(0, 0, 0);
-  opacity: 1;
-  pointer-events: auto;
-  z-index: 3;
-}
-/* 広幅カードも不透明のまま物理スライド（退場中に薄く重なって残像にならない） */
-.wide-card.is-exit {
-  transform: translate3d(0, calc(100% + var(--wx-gap)), 0);
-  opacity: 1;
-  z-index: 2;
-}
-.wide-card.is-enter {
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
-  opacity: 1;
-  z-index: 4;
-  transition: none;
-}
-.wide-card.is-wait {
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
-  opacity: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.wide-card:not(.is-top) .marquee-track { animation-play-state: paused !important; }
-.wide-card .slot-title {
-  padding: 0 12px;
+#weather-panel .hourly .h-time,
+#weather-panel .hourly .h-temp {
   font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 2px;
-}
-.wline {
-  flex: 1; min-height: 0; display: grid;
-  grid-template-columns: var(--wx-side) var(--wx-mid) var(--wx-side);
-  column-gap: var(--wx-gap); align-items: center;
-}
-.wline > .wface:not(.mid) {
-  width: var(--wx-side); max-width: var(--wx-side); min-width: var(--wx-side); overflow: hidden;
-}
-.wface {
-  display: flex; align-items: center; justify-content: space-evenly;
-  height: 100%; min-width: 0; padding: 0 4px;
-  box-sizing: border-box;
-}
-.wface.mid { padding: 0 var(--wx-gap); }
-.metric { min-width: 0; text-align: center; line-height: 1.15; flex: 1; }
-.metric .m-l { font-size: 14px; font-weight: 700; color: var(--muted); }
-.metric .m-v {
-  font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums;
-  margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  letter-spacing: -0.02em;
-}
-
-/* ===== 配置B：以前の上下カスケード（外周・列間・カード間 8px） ===== */
-#facesB {
-  display: grid;
-  /* padding 8 内で 112+8+384+8+112 = 624 */
-  grid-template-columns: var(--wx-side) var(--wx-mid) var(--wx-side);
-  column-gap: var(--wx-gap);
-  width: 640px; height: 192px;
-  box-sizing: border-box;
-  padding: var(--wx-gap);
-}
-.face-b {
-  height: 100%; padding: 0; overflow: hidden; min-width: 0;
-  box-sizing: border-box;
-}
-#facesB > .face-b:not(.front) {
-  width: var(--wx-side);
-  max-width: var(--wx-side);
-  min-width: var(--wx-side);
-  padding: 0;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-}
-#facesB > .face-b:not(.front) .card-b {
-  width: var(--wx-side);
-  min-width: var(--wx-side);
-  max-width: var(--wx-side);
-  height: 100%;
-}
-.card-b {
-  width: 100%; max-width: 100%; height: 100%;
-  box-sizing: border-box;
-  background: var(--surface);
-  border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
-  overflow: hidden; position: relative;
-}
-.face-b.front {
-  padding: 0 var(--wx-front-inset);
-  box-sizing: border-box;
-}
-#frontFlowB {
-  position: relative; width: 100%; height: 100%; overflow: hidden;
-}
-.flow-b {
-  position: absolute; left: 0; right: 0; top: 0;
-  height: calc(50% - var(--wx-gap) / 2);
-  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
-  box-shadow: var(--shadow); overflow: hidden; padding: 5px 8px 6px;
-  display: flex; flex-direction: column; min-height: 0;
-  opacity: 0;
-  transform: translate3d(0, calc(-100% - var(--wx-gap)), 0);
-  transform-origin: center center;
-  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .35s ease;
-  backface-visibility: hidden;
-  will-change: transform;
-  z-index: 1;
-}
-.flow-b.is-top { transform: translate3d(0, 0, 0); opacity: 1; z-index: 3; }
-.flow-b.is-bottom { transform: translate3d(0, calc(100% + var(--wx-gap)), 0); opacity: 1; z-index: 2; }
-.flow-b.is-enter { transform: translate3d(0, calc(-100% - var(--wx-gap)), 0); opacity: 1; z-index: 4; transition: none; }
-.flow-b.is-exit { transform: translate3d(0, calc(200% + var(--wx-gap) * 2), 0); opacity: 1; z-index: 1; }
-.flow-b.is-wait { transform: translate3d(0, calc(-100% - var(--wx-gap)), 0); opacity: 0; z-index: 0; pointer-events: none; }
-.face-b .side-lbl { font-size: 14px; margin-bottom: 10px; }
-.face-b .side-val { font-size: 40px; }
-.face-b .side-val.sm { font-size: 36px; }
-.face-b .js-wind-dir { font-size: 34px !important; }
-.face-b .js-wind-spd { font-size: 38px !important; }
-.face-b .pill { font-size: 16px; padding: 12px 8px; margin: 0 auto; }
-.face-b .js-pressure { font-size: 32px !important; }
-.flow-b .wx-temp { font-size: 40px; }
-.flow-b .wx-desc { font-size: 18px; }
-.flow-b .now-icon { width: 64px; height: 64px; }
-.flow-b .now-icon svg { width: 48px; height: 48px; }
-
-/* カード本体の物理スライドを主にする。文字テロップは残像の原因になるため停止 */
-#weather-stage.is-640 .marquee-track,
-#wideRail .marquee-track {
-  animation: none !important;
-  transform: none !important;
-}
-#weather-stage.is-640 .marquee-clip,
-#wideRail .marquee-clip {
-  mask-image: none;
-}
-#weather-stage.is-640 .wx-sub.marquee-clip .marquee-track,
-.wx-sub.marquee-clip .marquee-track {
-  display: block !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1;
   white-space: nowrap;
-  max-width: 100%;
 }
+#weather-panel .d-sep { color: var(--muted); margin: 0 1px; }
+#weather-panel .wx-icon {
+  width: 28px; height: 28px; margin: 0 auto;
+  display: block; flex: 0 0 28px;
+}
+#weather-panel .wx-icon svg { width: 100%; height: 100%; display: block; overflow: visible; }
+#weather-panel .weekly .wx-icon { width: 26px; height: 26px; flex: 0 0 26px; }
+#weather-panel .hourly .wx-icon { width: 28px; height: 28px; flex: 0 0 28px; margin: 0 auto; }
+#weather-panel .hourly-chart { display: block; width: 100%; height: 100%; }
+#weather-panel .js-pressure { font-size: 32px !important; }
 
-/* 下段ロング（風・降水・現在の気象）は常に文字を流す */
-#wideRail .wide-card {
-  padding: 2px 0 3px;
-  justify-content: center;
-  gap: 0;
-}
-#wideRail .wide-title-row {
-  flex: 0 0 auto;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 18px;
-}
-#wideRail .marquee-clip {
+#weather-stage.is-640 .marquee-clip {
   overflow: hidden; width: 100%;
-  flex: 0 0 auto;
-  height: auto;
-  min-height: 0;
-  display: flex !important;
-  align-items: center !important;
-  padding-top: 0;
-  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
-#wideRail .marquee-clip.wide-metrics-marquee {
-  flex: 1 1 auto;
-  min-height: 0;
-  align-items: center !important;
-  overflow: hidden;
+#weather-stage.is-640 .marquee-track {
+  display: inline-flex; gap: 28px; white-space: nowrap;
+  animation: marqueeX 26s linear infinite;
+  will-change: transform;
 }
-#wideRail .marquee-track {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 32px;
-  white-space: nowrap;
-  width: max-content !important;
-  max-width: none !important;
-  padding: 0 20px 1px;
-  animation: none !important;
-  will-change: auto;
-  justify-content: flex-start !important;
-  transform: none !important;
-}
-#wideRail .marquee-track .metric {
-  flex: 0 0 auto !important;
-  min-width: 110px;
-  width: auto !important;
-  line-height: 1;
-}
-#wideRail .metric .m-l { font-size: 14px; line-height: 1; }
-#wideRail .metric .m-v {
-  font-size: 24px;
-  margin-top: 1px;
-  line-height: 1;
-  overflow: visible;
-}
-#wideRail .metric .unit { vertical-align: 0.06em; }
-#wideRail .wide-title-chip {
-  flex: 0 0 auto;
-  align-self: center;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--muted);
-  padding: 3px 12px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-  white-space: nowrap;
-  margin-top: 0;
-  line-height: 1.2;
+#weather-stage.is-640 .wx-sub.marquee-clip .marquee-track {
+  display: inline-block; animation-duration: 20s;
 }
 @keyframes marqueeX {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-
 
     </style>
 </head>
@@ -3096,8 +2482,9 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
       customer: '太陽建機レンタル',
       rental: '太陽建機レンタル',
       label: '太陽建機レンタル',
+      /* 会場位置情報（表示・雨雲タイル等の基準） */
       address: '静岡県静岡市駿河区大坪町2-26',
-      locationLabel: '静岡市駿河区'
+      locationLabel: '静岡市駿河区大坪町'
     },
     moe: {
       /* 環境省 WBGT（気象庁と併用・現場計測なし）地点 50331＝静岡（駿河区曲金） */
@@ -3118,7 +2505,8 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
       warnArea: '220000',
       warnCity: '2210000'
     },
-    geo: { lat: 34.965369, lon: 138.395503 },
+    /* 大坪町付近（会場アドレス基準） */
+    geo: { lat: 34.965156, lon: 138.396642 },
     timeZone: 'Asia/Tokyo',
     refreshMs: 60000,
     footSource: 'データ提供：気象庁、環境省'
@@ -3170,7 +2558,7 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
         <div class="ra-pair ra-advisory" id="ra-pair">
             <div class="ra-mid-band-wrap" aria-hidden="true"><div class="ra-mid-band-unit"></div><div class="ra-mid-band-unit"></div></div>
             <div class="ra-white-header" aria-hidden="true">
-                <span class="ra-white-area">大阪市の地域で発表されています</span>
+                <span class="ra-white-area">静岡市の地域で発表されています</span>
                 <span class="ra-white-time">発表 --/-- --:--</span>
                 <span class="ra-white-what">警報・注意報など</span>
             </div>
@@ -3376,18 +2764,18 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
 
 <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">大阪市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
         </div>
     </div>
 
@@ -3427,96 +2815,31 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
             <div class="t3-guid-bar s2-meta-bar"><div class="t3-guid-track s2-meta-track" id="t3-guid-track"></div></div>
         </div>
     </div>
-    <div id="weather-panel" class="lv-safe wx-cloudy" aria-hidden="true">
+        <div id="weather-panel" class="lv-safe wx-cloudy" aria-hidden="true">
 <div id="weather-stage" class="lv-safe wx-cloudy">
-
-  <!-- 物理スロットル：4カードが配置1→2→3→4→1で移動 -->
-  <div id="layoutSpan" class="layout is-active">
-    <div id="wxBoard" data-lay="1">
-      <article class="wx-phys wx-a">
-        <div class="wx-body">
-          <div class="wx-side-pack">
+  <div id="faces">
+    <section class="face">
+      <div class="card">
+        <div class="side-stack" data-side-stack="left">
+          <div class="side-pane on">
             <div class="side-lbl">時刻</div>
             <div class="side-val js-clock">--:--</div>
-            <div class="wx-extra">
-              <div class="side-lbl">湿度</div>
-              <div class="side-val js-hum">--<span class="unit">%</span></div>
-            </div>
+            <div class="side-lbl" style="margin-top:14px">湿度</div>
+            <div class="side-val js-hum">--<span class="unit">%</span></div>
+          </div>
+          <div class="side-pane">
+            <div class="side-lbl">気温</div>
+            <div class="side-val js-temp">--<span class="unit">℃</span></div>
+            <div class="side-lbl" style="margin-top:14px">気圧</div>
+            <div class="side-val js-pressure">----<span class="unit">hPa</span></div>
           </div>
         </div>
-      </article>
-      <article class="wx-phys wx-b">
-        <div class="slot-title">現在の天気</div>
-        <div class="wx-body">
-          <div class="now-body">
-            <div class="now-icon js-hero-icon"></div>
-            <div style="min-width:0">
-              <div class="wx-row">
-                <div class="wx-temp js-hero-temp">--<span class="unit">℃</span></div>
-                <div class="wx-desc js-hero-desc">--</div>
-              </div>
-              <div class="wx-sub marquee-clip"><span class="marquee-track js-hero-sub">--</span></div>
-            </div>
-          </div>
-        </div>
-      </article>
-      <article class="wx-phys wx-c">
-        <div class="wx-c-metrics">
-          <div class="wide-title-row" style="padding:0 4px 2px">
-            <span class="wide-title-chip" style="font-size:11px;font-weight:700;color:var(--muted)">風・降水・気圧</span>
-          </div>
-          <div class="wline-flat">
-            <div class="metric"><div class="m-l">気圧</div><div class="m-v" data-k="press">--</div></div>
-            <div class="metric"><div class="m-l">最高</div><div class="m-v" data-k="max">--</div></div>
-            <div class="metric"><div class="m-l">最低</div><div class="m-v" data-k="min">--</div></div>
-            <div class="metric"><div class="m-l">風向</div><div class="m-v" data-k="windDir">--</div></div>
-            <div class="metric"><div class="m-l">風速</div><div class="m-v" data-k="windSpd">--</div></div>
-          </div>
-        </div>
-        <div class="wx-c-weekly">
-          <div class="slot-title">週間天気</div>
-          <div class="flow-body" style="flex:1;min-height:0"><div class="weekly js-weekly"></div></div>
-        </div>
-      </article>
-      <article class="wx-phys wx-d">
-        <div class="wx-body">
-          <div class="wx-side-pack">
-            <div class="side-lbl">天気</div>
-            <div class="pill js-side-weather">--</div>
-            <div class="wx-extra">
-              <div class="side-lbl">気温</div>
-              <div class="side-val sm js-side-temp">--<span class="unit">℃</span></div>
-            </div>
-          </div>
-        </div>
-      </article>
-    </div>
-  </div>
-
-  <!-- B: 以前の配置（非表示） -->
-  <div id="layoutClassic" class="layout" hidden>
-    <div id="facesB">
-      <section class="face-b">
-        <div class="card-b">
-          <div class="side-stack" data-side-stack="leftB">
-            <div class="side-pane on">
-              <div class="side-lbl">時刻</div>
-              <div class="side-val js-clock">--:--</div>
-              <div class="side-lbl" style="margin-top:10px">気温</div>
-              <div class="side-val js-temp">--<span class="unit">℃</span></div>
-            </div>
-            <div class="side-pane">
-              <div class="side-lbl">気圧</div>
-              <div class="side-val js-pressure">----<span class="unit">hPa</span></div>
-              <div class="side-lbl" style="margin-top:10px">湿度</div>
-              <div class="side-val js-hum">--<span class="unit">%</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section class="face-b front">
-        <div id="frontFlowB">
-          <article class="flow-b is-top" data-b="0">
+      </div>
+    </section>
+    <section class="face front">
+      <div class="card-front">
+        <div id="frontFlow">
+          <article class="flow-card is-top" data-card="0">
             <div class="slot-title">現在の天気</div>
             <div class="now-body">
               <div class="now-icon js-hero-icon"></div>
@@ -3529,39 +2852,39 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
               </div>
             </div>
           </article>
-          <article class="flow-b is-bottom" data-b="1">
+          <article class="flow-card is-bottom" data-card="1">
             <div class="slot-title">週間天気</div>
             <div class="flow-body"><div class="weekly js-weekly"></div></div>
           </article>
-          <article class="flow-b is-wait" data-b="2">
+          <article class="flow-card is-wait" data-card="2">
             <div class="slot-title">1時間ごとの天気</div>
             <div class="flow-body"><div class="hourly js-hourly"></div></div>
           </article>
-          <article class="flow-b is-wait" data-b="3">
+          <article class="flow-card is-wait" data-card="3">
             <div class="slot-title">気温の推移</div>
-            <div class="flow-body"><canvas class="hourly-chart" id="chartB"></canvas></div>
+            <div class="flow-body"><canvas class="hourly-chart" id="chartMain"></canvas></div>
           </article>
         </div>
-      </section>
-      <section class="face-b">
-        <div class="card-b">
-          <div class="side-stack" data-side-stack="rightB">
-            <div class="side-pane on">
-              <div class="side-lbl">天気</div>
-              <div class="pill js-side-weather">--</div>
-              <div class="side-lbl" style="margin-top:10px">気温</div>
-              <div class="side-val sm js-side-temp">--<span class="unit">℃</span></div>
-            </div>
-            <div class="side-pane">
-              <div class="side-lbl">風向</div>
-              <div class="side-val sm js-wind-dir">--</div>
-              <div class="side-lbl" style="margin-top:14px">風速</div>
-              <div class="side-val sm js-wind-spd">--</div>
-            </div>
+      </div>
+    </section>
+    <section class="face">
+      <div class="card">
+        <div class="side-stack" data-side-stack="right">
+          <div class="side-pane on">
+            <div class="side-lbl">天気</div>
+            <div class="pill js-side-weather">--</div>
+            <div class="side-lbl" style="margin-top:14px">気温</div>
+            <div class="side-val sm js-side-temp">--<span class="unit">℃</span></div>
+          </div>
+          <div class="side-pane">
+            <div class="side-lbl">風向</div>
+            <div class="side-val sm js-wind-dir">--</div>
+            <div class="side-lbl" style="margin-top:14px">風速</div>
+            <div class="side-val sm js-wind-spd">--</div>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </div>
 </div>
     </div>
@@ -4312,7 +3635,7 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
     function getSiteLocationLabel_() {
         return (SITE_CFG.site && SITE_CFG.site.locationLabel)
             || (SITE_CFG.jma && SITE_CFG.jma.forecastLabel)
-            || '静岡市駿河区';
+            || '静岡市駿河区大坪町';
     }
     function applySiteLocationLabels_() {
         const label = getSiteLocationLabel_();
@@ -4392,8 +3715,8 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
     /* 気象庁 高解像度降水ナウキャスト（雨雲レーダー）— https://www.jma.go.jp/bosai/nowc/ */
     const JMA_NOWC_TARGET_TIMES_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N2.json';
     const JMA_NOWC_TILE_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/{basetime}/none/{validtime}/surf/hrpns/{z}/{x}/{y}.png';
-    const DEFAULT_GEO_LAT = (SITE_CFG.geo && SITE_CFG.geo.lat) || 34.965369;
-    const DEFAULT_GEO_LON = (SITE_CFG.geo && SITE_CFG.geo.lon) || 138.395503;
+    const DEFAULT_GEO_LAT = (SITE_CFG.geo && SITE_CFG.geo.lat) || 34.965156;
+    const DEFAULT_GEO_LON = (SITE_CFG.geo && SITE_CFG.geo.lon) || 138.396642;
     const RAIN_ALERT_LAT = parseFloat(query.get('rainLat') || DEFAULT_GEO_LAT);
     const RAIN_ALERT_LON = parseFloat(query.get('rainLon') || DEFAULT_GEO_LON);
     const RAIN_ALERT_ZOOM = 6;
@@ -6386,7 +5709,7 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
         }
         const badge = document.getElementById('demo-badge');
         const liveLabel = RAIN_WHITE_DESIGN && !whiteModeForced_()
-            ? ('確認 · ' + (rainWarnMeta.cityName || '大阪') + ' 発表中 ' + rainWhiteQueue.length + '件')
+            ? ('確認 · ' + (rainWarnMeta.cityName || '静岡') + ' 発表中 ' + rainWhiteQueue.length + '件')
             : '確認 · 大雨警報';
         if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = liveLabel; }
         else if (badge) { badge.hidden = true; }
@@ -7664,12 +6987,12 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
                     }
                     const wbgt = unpacked.wbgt;
                     if (!isUsableMoeWbgtPayload_(wbgt)) {
-                        console.warn('[WBGT] 徳島以外/代替地点データを破棄', wbgt.point, wbgt.dataVia || '');
+                        console.warn('[WBGT] 設定地点以外/代替地点データを破棄', wbgt.point, wbgt.dataVia || '');
                         continue;
                     }
                     if (wbgt.source === 'off-season' || wbgt.inService === false) {
                         sawOffSeason = true;
-                        console.log('[WBGT] 徳島(71106)にデータなし');
+                        console.log('[WBGT] 環境省は当該地点でデータなし（提供期間外の可能性）');
                         continue;
                     }
                     return parseMoeJson_(wbgt);
@@ -9841,17 +9164,28 @@ html.wx-no-anim #weather-panel #wxBoard .wx-phys {
 /* ===== 販売機天気（同一ページ） ===== */
 (function () {
 'use strict';
-/* コンテンツ版の起点 */
-/* 天気: 気象庁 AMeDAS+予報 / WBGT段階色は index から level 引継ぎ */
+/*
+ * データ元（このブロックは次の2つのみ）:
+ *  - 気象庁: AMeDAS 観測・予報（jma.go.jp/bosai）
+ *  - 環境省: WBGT 段階色・熱中症アラート（SignageConfig.moe / GAS）
+ * OpenWeather 等の外部天気APIは使用しない
+ */
+var SITE = (typeof window !== "undefined" && window.SignageConfig) ? window.SignageConfig : {};
+var SITE_JMA = SITE.jma || {};
+var SITE_MOE = SITE.moe || {};
+var SITE_GEO = SITE.geo || {};
+var SITE_SITE = SITE.site || {};
 const CONTENT_VERSION = "X.Y0.0";
-const LAT = 34.965369;
-const LON = 138.395503;
-const LOCATION_LABEL = "静岡県静岡市駿河区大坪町2-26";
-const LOCATION_SHORT = "静岡市駿河区";
-const JMA_AMEDAS_POINT = "50331"; /* 静岡（駿河区曲金） */
-const JMA_AMEDAS_SUPPLEMENT_POINT = "50261"; /* 清水：気圧等の補完 */
-const JMA_FORECAST_AREA = "220000";
+const DATA_SOURCE_ATTR = SITE.footSource || "データ提供：気象庁、環境省";
+const LAT = SITE_GEO.lat != null ? SITE_GEO.lat : 34.965156;
+const LON = SITE_GEO.lon != null ? SITE_GEO.lon : 138.396642;
+const LOCATION_LABEL = SITE_SITE.address || "静岡県静岡市駿河区大坪町2-26";
+const LOCATION_SHORT = SITE_SITE.locationLabel || "静岡市駿河区大坪町";
+const JMA_AMEDAS_POINT = String(SITE_JMA.amedasPoint || "50331"); /* 静岡（駿河区曲金） */
+const JMA_AMEDAS_SUPPLEMENT_POINT = String(SITE_JMA.amedasSupplementPoint || "50261"); /* 清水：気圧等の補完 */
+const JMA_FORECAST_AREA = String(SITE_JMA.forecastArea || "220000");
 const JMA_FORECAST_WX_AREA = "220010"; /* 中部（静岡市） */
+const MOE_WBGT_POINT = String(SITE_MOE.point || JMA_AMEDAS_POINT); /* 環境省 WBGT 地点 */
 const JMA_LATEST_TIME_URL = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt";
 const JMA_FORECAST_URL = "https://www.jma.go.jp/bosai/forecast/data/forecast/" + JMA_FORECAST_AREA + ".json";
 const JMA_FETCH = { cache: "no-store" };
@@ -9859,26 +9193,13 @@ const CLOCK_TZ = "Asia/Tokyo";
 const AMEDAS_POINT_SUPPLEMENT_KEYS = ["pressure", "normalPressure", "maxTemp", "minTemp", "gust"];
 const CHART_LINE = "#4285F4";
 const DOT = 5;
-const SLOT_MS = 4200; /* 各配置の保持（①〜④＋⑤戻りまで天気枠内で完走） */
-const FLOW_MS = 800; /* 1枚の縦スライド時間 */
-const STAGGER_MS = 180; /* カード間のずらし */
 const HOURLY_COUNT = 6;
 const FONT = '"Roboto", "Noto Sans JP", sans-serif';
 const CARD_COUNT = 4;
 const CHART_CARD = 3;
-const WIDE_COUNT = 4;
-const SIDE_COUNT_A = 4; /* 左右サイド：1項目×4 */
-const LAY_MAX = 4; /* スケッチ①〜④。⑤は①と同じ配置への戻り */
-const LAY_SWITCHES_FOR_WEATHER = 4; /* ①→②→③→④→⑤(=①) の切替回数 */
-const WX_CARD_SEL = [".wx-a", ".wx-b", ".wx-c", ".wx-d"];
 
 let hourlySeries = [];
-let leftIndex = 0, rightIndex = 0;
-let frontA = 0, frontAAnim = false;
-let wideTop = 0, wideAnim = false;
-let layoutPhase = 1; /* 現在の配置番号 1〜4 */
-let layoutAnimating = false;
-let layoutSwitchCount_ = 0; /* 天気表示中の配置切替カウント */
+
 
 function windDir(deg) {
   if (deg == null || isNaN(deg)) return "--";
@@ -10543,7 +9864,7 @@ function fillUI(w, todayHi, todayLo) {
   var dateTxt = (now.getMonth() + 1) + "/" + now.getDate();
   var hi = todayHi == null ? "--" + u("℃") : nu(todayHi, "℃");
   var lo = todayLo == null ? "--" + u("℃") : nu(todayLo, "℃");
-  var sub = LOCATION_SHORT + " · 体感 " + nu(w.feels, "℃") + " · 湿度 " + nu(w.hum, "%") + " · " + nu(w.pressure, "hPa");
+  var sub = LOCATION_LABEL + " · 体感 " + nu(w.feels, "℃") + " · 湿度 " + nu(w.hum, "%") + " · " + nu(w.pressure, "hPa") + " · " + DATA_SOURCE_ATTR;
   var values = {
     windDir: windDir(w.windDeg),
     windSpd: fmtMs(w.windSpd),
@@ -10562,7 +9883,7 @@ function fillUI(w, todayHi, todayLo) {
   setAll(".js-pressure", nu(w.pressure, "hPa"), true);
   setAll(".js-hero-temp", nu(w.temp, "℃"), true);
   setAll(".js-hero-desc", w.desc || "--");
-  setAll(".js-hero-sub", sub, true);
+  setAll(".js-hero-sub", sub + "　　" + sub, true);
   document.querySelectorAll(".js-hero-icon").forEach(function(el) {
     el.innerHTML = weatherSvg(iconType(w.icon));
   });
@@ -10586,10 +9907,8 @@ function chartY(v, minV, maxV, top, h) {
   return top + h - ((v - minV) / (maxV - minV || 1)) * h;
 }
 function drawChart(canvasId) {
-  var c = document.getElementById(canvasId);
+  var c = document.getElementById(canvasId || "chartMain");
   if (!c) return;
-  var lay = c.closest(".layout");
-  if (lay && !lay.classList.contains("is-active")) return;
   var box = c.parentElement;
   var w = Math.max(160, Math.floor(box.clientWidth));
   var h = Math.max(36, Math.floor(box.clientHeight || 50));
@@ -10630,7 +9949,7 @@ function drawChart(canvasId) {
     ctx.textBaseline = "bottom";
     ctx.fillText(String(p.temp), p.x, p.y - DOT - 2);
 
-    ctx.fillStyle = "#EBE8E1";
+    ctx.fillStyle = "#ffffff";
     ctx.beginPath(); ctx.arc(p.x, p.y, DOT + 1.5, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = CHART_LINE;
     ctx.beginPath(); ctx.arc(p.x, p.y, DOT, 0, Math.PI * 2); ctx.fill();
@@ -10697,60 +10016,6 @@ function weatherSetLevel_(lv) {
 }
 
 
-function cardA(i) { return document.querySelector('.flow-a[data-a="' + i + '"]'); }
-
-function frontStepA() {
-  if (frontAAnim) return;
-  frontAAnim = true;
-  var next = (frontA + 1) % CARD_COUNT;
-  var cur = cardA(frontA), nxt = cardA(next);
-  if (!cur || !nxt) { frontAAnim = false; return; }
-  /* スロットル：カード本体が上から入り、現カードは下へ滑って退場 */
-  nxt.classList.remove("is-on", "is-exit", "is-wait");
-  nxt.classList.add("is-enter");
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      nxt.classList.remove("is-enter");
-      nxt.classList.add("is-on");
-      cur.classList.remove("is-on", "is-enter", "is-wait");
-      cur.classList.add("is-exit");
-    });
-  });
-  setTimeout(function() {
-    cur.classList.remove("is-exit");
-    cur.classList.add("is-wait");
-    frontA = next;
-    frontAAnim = false;
-    if (next === CHART_CARD) drawChart("chartA");
-  }, 620);
-}
-
-function wideCard(i) { return document.querySelector('.wide-card[data-wide="' + i + '"]'); }
-function clearWide(el) {
-  el.classList.remove("is-top", "is-enter", "is-exit", "is-wait");
-}
-
-function wideStep() {
-  if (wideAnim) return;
-  wideAnim = true;
-  var enterIdx = (wideTop + 1) % WIDE_COUNT;
-  var elTop = wideCard(wideTop), elEnter = wideCard(enterIdx);
-  if (!elTop || !elEnter) { wideAnim = false; return; }
-  /* スロットル：上段スロットでカード本体が縦スライド */
-  requestAnimationFrame(function() {
-    clearWide(elEnter); elEnter.classList.add("is-enter");
-    requestAnimationFrame(function() {
-      clearWide(elEnter); elEnter.classList.add("is-top");
-      clearWide(elTop); elTop.classList.add("is-exit");
-    });
-  });
-  setTimeout(function() {
-    clearWide(elTop); elTop.classList.add("is-wait");
-    wideTop = enterIdx;
-    wideAnim = false;
-  }, 620);
-}
-
 function updateClock() {
   var t = new Date().toLocaleTimeString("ja-JP", {
     hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Tokyo"
@@ -10769,231 +10034,121 @@ async function refresh() {
     fillUI(w, fc.todayHi, fc.todayLo);
     renderWeekly(fc.days);
     renderHourly(hourlySeries);
-    drawChart("chartA");
+    drawChart("chartMain");
   } catch (e) {
     console.error(e);
     setAll(".js-hero-desc", "通信エラー");
   }
 }
 
-/* CSS helpers：下段以外の非640時はテロップ停止 */
+/* CSS helpers：非640時はテロップ停止 */
 var styleExtra = document.createElement("style");
 styleExtra.textContent =
   "#weather-stage:not(.is-640) .wx-sub .marquee-track{animation:none!important;transform:none!important;display:block;overflow:hidden;text-overflow:ellipsis;}";
 document.head.appendChild(styleExtra);
 
+const SLOT_MS = 4000; /* 左 → 正面 → 右 のスロットル間隔 */
+const SIDE_COUNT = 2;
+const FRONT_SWITCHES_FOR_WEATHER = 4; /* 正面 cascade 4回で WBGT へ戻る */
+
+let leftIndex = 0, rightIndex = 0;
+let topIdx = 0, bottomIdx = 1, frontAnim = false;
+let slotPhase = 0;
+let frontSwitchCount_ = 0;
+
 function stepLeft() {
-  leftIndex = (leftIndex + 1) % SIDE_COUNT_A;
-  setSide("leftA", leftIndex);
+  leftIndex = (leftIndex + 1) % SIDE_COUNT;
+  setSide("left", leftIndex);
 }
 function stepRight() {
-  rightIndex = (rightIndex + 1) % SIDE_COUNT_A;
-  setSide("rightA", rightIndex);
+  rightIndex = (rightIndex + 1) % SIDE_COUNT;
+  setSide("right", rightIndex);
 }
 
-function applyWxLayout_(n) {
-  var board = document.getElementById("wxBoard");
-  if (!board) return;
-  layoutPhase = n;
-  board.setAttribute("data-lay", String(n));
+function cardEl(i) {
+  return document.querySelector('#frontFlow .flow-card[data-card="' + i + '"]');
 }
-
-function wxCards_() {
-  var board = document.getElementById("wxBoard");
-  if (!board) return [];
-  return WX_CARD_SEL.map(function (sel) {
-    return board.querySelector(sel);
-  }).filter(Boolean);
-}
-
-/** 各配置の上段・下段カード（流れは上→下） */
-function rowCards_(lay) {
-  var board = document.getElementById("wxBoard");
-  if (!board) return { top: [], bottom: [], rest: [] };
-  var a = board.querySelector(".wx-a");
-  var b = board.querySelector(".wx-b");
-  var c = board.querySelector(".wx-c");
-  var d = board.querySelector(".wx-d");
-  /* top / bottom は左→右（一通の流れの順） */
-  if (lay === 1) return { top: [b], bottom: [c], rest: [a, d] };
-  if (lay === 2) return { top: [c], bottom: [a, b, d], rest: [] };
-  if (lay === 3) return { top: [b], bottom: [c], rest: [a, d] };
-  if (lay === 4) return { top: [a, b, d], bottom: [c], rest: [] };
-  return { top: [], bottom: [], rest: [] };
-}
-
-function resetWxFlow_(board) {
-  if (!board) board = document.getElementById("wxBoard");
-  if (!board) return;
-  board.classList.remove("is-flow-out", "is-flow-in", "geom-anim");
-  wxCards_().forEach(function (el) {
-    el.classList.remove("is-exit-down", "is-enter-top", "is-pinned");
-    el.style.left = "";
-    el.style.top = "";
-    el.style.width = "";
-    el.style.height = "";
-    el.style.opacity = "";
-  });
-}
-
-/** 退場カードを現在の見た目位置に固定（消えて飛ばないように） */
-function pinCardAt_(el, board) {
-  if (!el || !board) return;
-  var br = board.getBoundingClientRect();
-  var r = el.getBoundingClientRect();
-  el.style.left = (r.left - br.left) + "px";
-  el.style.top = (r.top - br.top) + "px";
-  el.style.width = r.width + "px";
-  el.style.height = r.height + "px";
-  el.style.opacity = "1";
-  el.classList.add("is-pinned");
-}
-
-function unpinCard_(el) {
+function clearCard(el) {
   if (!el) return;
-  el.classList.remove("is-pinned", "is-exit-down");
-  el.style.left = "";
-  el.style.top = "";
-  el.style.width = "";
-  el.style.height = "";
-  el.style.opacity = "";
+  el.classList.remove("is-top", "is-bottom", "is-enter", "is-exit", "is-wait");
 }
 
-/**
- * 一通で上から下へ流す配置切替
- * カードは消さず、見えるまま下へ下ろす
- */
-function slotTick() {
-  if (layoutAnimating) return;
-  var board = document.getElementById("wxBoard");
-  if (!board) return;
-  var curLay = layoutPhase;
-  var nextLay = curLay >= LAY_MAX ? 1 : curLay + 1;
-  var cur = rowCards_(curLay);
-  var nxt = rowCards_(nextLay);
-  layoutAnimating = true;
-
-  function finishCascade_() {
-    board.classList.remove("geom-anim");
-    wxCards_().forEach(function (el) {
-      unpinCard_(el);
-      el.classList.remove("is-exit-down", "is-enter-top");
+/** 正面：上段→下段→退場の一定方向 cascade */
+function frontStep() {
+  if (frontAnim) return;
+  frontAnim = true;
+  var enterIdx = (bottomIdx + 1) % CARD_COUNT;
+  var elTop = cardEl(topIdx), elBot = cardEl(bottomIdx), elEnter = cardEl(enterIdx);
+  if (!elTop || !elBot || !elEnter) { frontAnim = false; return; }
+  requestAnimationFrame(function () {
+    clearCard(elEnter); elEnter.classList.add("is-enter");
+    requestAnimationFrame(function () {
+      clearCard(elEnter); elEnter.classList.add("is-top");
+      clearCard(elTop); elTop.classList.add("is-bottom");
+      clearCard(elBot); elBot.classList.add("is-exit");
     });
-    layoutAnimating = false;
-    layoutSwitchCount_ += 1;
-    if (layoutSwitchCount_ >= LAY_SWITCHES_FOR_WEATHER) {
+  });
+  setTimeout(function () {
+    clearCard(elBot); elBot.classList.add("is-wait");
+    bottomIdx = topIdx;
+    topIdx = enterIdx;
+    frontAnim = false;
+    if (enterIdx === CHART_CARD || topIdx === CHART_CARD || bottomIdx === CHART_CARD) {
+      drawChart("chartMain");
+    }
+    frontSwitchCount_ += 1;
+    if (frontSwitchCount_ >= FRONT_SWITCHES_FOR_WEATHER) {
       try {
         if (typeof window.onWeatherLayoutCycleDone_ === "function") {
           window.onWeatherLayoutCycleDone_();
         }
       } catch (eDone) {}
     }
-  }
+  }, 560);
+}
 
-  var nextKeep = nxt.top.concat(nxt.bottom).filter(Boolean);
-  var curOn = cur.top.concat(cur.bottom).filter(Boolean);
-
-  var enterTop = nxt.top.filter(function (el) {
-    return el && cur.top.indexOf(el) < 0;
+function resetFrontFlow_() {
+  topIdx = 0;
+  bottomIdx = 1;
+  frontAnim = false;
+  slotPhase = 0;
+  frontSwitchCount_ = 0;
+  leftIndex = 0;
+  rightIndex = 0;
+  document.querySelectorAll("#frontFlow .flow-card").forEach(function (el, i) {
+    clearCard(el);
+    if (i === 0) el.classList.add("is-top");
+    else if (i === 1) el.classList.add("is-bottom");
+    else el.classList.add("is-wait");
   });
-  var enterBot = nxt.bottom.filter(function (el) {
-    return el && curOn.indexOf(el) < 0 && enterTop.indexOf(el) < 0;
-  });
+  setSide("left", 0);
+  setSide("right", 0);
+}
 
-  var leaveDown = [];
-  cur.top.concat(cur.bottom).concat(cur.rest).forEach(function (el) {
-    if (el && nextKeep.indexOf(el) < 0 && leaveDown.indexOf(el) < 0) {
-      leaveDown.push(el);
-    }
-  });
-
-  var landTop = enterTop.slice();
-  var landBot = enterBot.slice();
-  var waveN = Math.max(landTop.length, 1) + nxt.bottom.length + leaveDown.length;
-  var waveMs = (Math.max(waveN - 1, 0) * STAGGER_MS) + FLOW_MS + 60;
-
-  /* 退場カードは位置を固定 → 下へ下ろす（配置変更で消えない） */
-  leaveDown.forEach(function (el) {
-    el.classList.remove("is-enter-top");
-    pinCardAt_(el, board);
-  });
-
-  landTop.concat(landBot).forEach(function (el) {
-    el.classList.remove("is-exit-down", "is-pinned");
-    el.style.left = "";
-    el.style.top = "";
-    el.style.width = "";
-    el.style.height = "";
-    el.style.opacity = "1";
-    el.classList.add("is-enter-top");
-  });
-  nextKeep.forEach(function (el) {
-    if (landTop.indexOf(el) < 0 && landBot.indexOf(el) < 0) {
-      el.classList.remove("is-exit-down", "is-enter-top", "is-pinned");
-      el.style.left = "";
-      el.style.top = "";
-      el.style.width = "";
-      el.style.height = "";
-      el.style.opacity = "";
-    }
-  });
-
-  board.classList.add("geom-anim");
-  applyWxLayout_(nextLay);
-  void board.offsetWidth;
-
-  var step = 0;
-  function arm_(fn) {
-    var d = step * STAGGER_MS;
-    step += 1;
-    setTimeout(fn, d);
-  }
-
-  /* ① 上段 → ② 下段 → ③ 見えるまま下へ下ろす */
-  if (landTop.length) {
-    landTop.forEach(function (el) {
-      arm_(function () { el.classList.remove("is-enter-top"); });
-    });
-  } else if (nxt.top.length) {
-    arm_(function () {});
-  }
-  nxt.bottom.forEach(function (el) {
-    if (!el) return;
-    arm_(function () {
-      if (landBot.indexOf(el) >= 0) el.classList.remove("is-enter-top");
-    });
-  });
-  leaveDown.forEach(function (el) {
-    arm_(function () { el.classList.add("is-exit-down"); });
-  });
-
-  setTimeout(finishCascade_, waveMs);
+/** 各カードごとにスロットル式切替：左 → 正面 → 右 */
+function slotTick() {
+  if (frontAnim) return;
+  if (frontSwitchCount_ >= FRONT_SWITCHES_FOR_WEATHER) return;
+  var p = slotPhase % 3;
+  if (p === 0) stepLeft();
+  else if (p === 1) frontStep();
+  else stepRight();
+  slotPhase += 1;
 }
 
 window.WbgtWeather = {
-  /** 表示内容だけ準備（カード切替はまだ動かさない） */
   prepare: function (opts) {
     opts = opts || {};
     clearWeatherLocalTimers_();
     weatherRunning_ = true;
     document.documentElement.classList.add("wx-no-anim");
-    document.querySelectorAll("#weather-panel .layout").forEach(function (el) {
-      el.classList.remove("is-leaving", "is-entering");
-      if (el.id === "layoutSpan") el.classList.add("is-active");
-      else el.classList.remove("is-active");
-    });
-    frontAAnim = false;
-    wideAnim = false;
-    layoutAnimating = false;
-    layoutSwitchCount_ = 0;
-    resetWxFlow_();
-    applyWxLayout_(1);
+    frontAnim = false;
+    resetFrontFlow_();
     if (opts.level != null) weatherSetLevel_(opts.level);
     apply640Mode();
     updateClock();
     refresh();
   },
-  /** 画面切替着地後：カード切替・時計を開始 */
   beginMotion: function () {
     if (!weatherRunning_) return;
     clearWeatherLocalTimers_();
@@ -11010,17 +10165,7 @@ window.WbgtWeather = {
     weatherRunning_ = false;
     clearWeatherLocalTimers_();
     document.documentElement.classList.add("wx-no-anim");
-    document.querySelectorAll("#weather-panel .layout").forEach(function (el) {
-      el.classList.remove("is-leaving", "is-entering", "is-active");
-    });
-    var span = document.getElementById("layoutSpan");
-    if (span) span.classList.add("is-active");
-    resetWxFlow_();
-    applyWxLayout_(1);
-    frontAAnim = false;
-    wideAnim = false;
-    layoutAnimating = false;
-    layoutSwitchCount_ = 0;
+    resetFrontFlow_();
   },
   setLevel: weatherSetLevel_
 };
@@ -11028,7 +10173,6 @@ window.addEventListener("resize", function () {
   if (weatherRunning_) apply640Mode();
 });
 window.addEventListener("pageshow", function (ev) {
-  /* BFCache 復帰時も天気残像を消す */
   if (ev && ev.persisted) {
     try {
       document.documentElement.classList.add("booting");
@@ -11047,8 +10191,10 @@ window.addEventListener("pageshow", function (ev) {
     } catch (e) {}
   }
 });
+
 })();
 </script>
+
 
 </body>
 </html>
