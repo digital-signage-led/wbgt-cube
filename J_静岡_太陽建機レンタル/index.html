@@ -2284,36 +2284,56 @@ html.wx-no-anim #weather-panel .side-pane {
   width: 100%; height: 100%; background: transparent; border: none; box-shadow: none;
 }
 
-#weather-panel .side-stack { position: relative; width: 100%; height: 100%; }
+#weather-panel .side-stack { position: relative; width: 100%; height: 100%; overflow: hidden; }
 #weather-panel .side-pane {
   position: absolute; inset: 0;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  text-align: center; padding: 10px 6px;
+  text-align: center; padding: 8px 3px;
   opacity: 0;
   transform: translate3d(0, -55%, 0);
   transition: opacity .45s ease, transform .5s cubic-bezier(.33, 0, .2, 1);
+  min-width: 0;
+  box-sizing: border-box;
 }
 #weather-panel .side-pane.on { opacity: 1; transform: translate3d(0, 0, 0); }
 #weather-panel .side-pane.is-exit { opacity: 0; transform: translate3d(0, 55%, 0); }
-#weather-panel .side-lbl { font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
-#weather-panel .side-val {
-  font-size: 40px; font-weight: 800; line-height: 1; letter-spacing: -0.02em;
-  max-width: 100%; font-variant-numeric: tabular-nums; overflow: hidden;
+#weather-panel .side-lbl {
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  margin-bottom: 4px; flex-shrink: 0; line-height: 1.1;
 }
-#weather-panel .side-val.sm { font-size: 36px; }
+/* 左右列は実質 ~110px。40pxだと 18:28 / 1002hPa が見切れる */
+#weather-panel .side-val {
+  font-size: 28px; font-weight: 800; line-height: 1.05; letter-spacing: -0.05em;
+  width: 100%; max-width: 100%;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap; overflow: hidden; text-overflow: clip;
+  box-sizing: border-box; padding: 0 1px;
+}
+#weather-panel .side-val.sm { font-size: 24px; letter-spacing: -0.06em; }
+#weather-panel .js-clock {
+  font-size: 26px !important;
+  letter-spacing: -0.06em !important;
+}
+#weather-panel .js-pressure {
+  font-size: 20px !important;
+  letter-spacing: -0.07em !important;
+}
 #weather-panel .js-wind-dir {
-  font-size: 34px !important;
+  font-size: 22px !important;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.06em;
 }
 #weather-panel .js-wind-spd {
-  font-size: 38px !important;
+  font-size: 22px !important;
   font-weight: 800;
+  letter-spacing: -0.05em;
 }
 #weather-panel .side-pane .pill {
   margin: 0 auto;
-  font-size: 16px;
-  padding: 12px 8px;
+  font-size: 13px;
+  padding: 8px 4px;
+  max-width: 96%;
+  box-sizing: border-box;
 }
 #weather-panel .unit {
   font-size: 0.5em;
@@ -2439,7 +2459,7 @@ html.wx-no-anim #weather-panel .side-pane {
 #weather-panel .weekly .wx-icon { width: 26px; height: 26px; flex: 0 0 26px; }
 #weather-panel .hourly .wx-icon { width: 28px; height: 28px; flex: 0 0 28px; margin: 0 auto; }
 #weather-panel .hourly-chart { display: block; width: 100%; height: 100%; }
-#weather-panel .js-pressure { font-size: 32px !important; }
+#weather-panel .js-pressure { font-size: 20px !important; letter-spacing: -0.07em !important; }
 
 #weather-stage.is-640 .marquee-clip {
   overflow: hidden; width: 100%;
@@ -3237,7 +3257,7 @@ html.wx-no-anim #weather-panel .side-pane {
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only')) || 's4';
     /** WBGTの次に販売機天気（販売機天気パネル）を流す（only=s4 / s1s4） */
     const PLAY_WEATHER_AFTER_S4 = query.get('nowx') !== '1';
-    const WEATHER_HOLD_MS = 16000; /* フォールバック用（通常はカード切替回数で終了） */
+    const WEATHER_HOLD_MS = 240000; /* フォールバック用（通常はカード切替回数で終了・最大約4分） */
     const SCENE_SWAP_MS = 900; /* 天気→WBGT の縦押し出し */
     /* 顔イラスト・WBGT文言の横流れ速度 (px/s) */
     const WBGT_TELOP_SPEED_PX = 48;
@@ -5785,7 +5805,7 @@ html.wx-no-anim #weather-panel .side-pane {
     const SCENE4_LAPS = 6; /* コマ送り回数 */
     const SCENE4_STEP_HOLD_MS = 1100; /* 瞬時移動後、次コマまでの静止 */
     const SCENE4_SIZE_EASE_MS = 420;
-    const SCENE4_HOLD_MS = 8000;
+    const SCENE4_HOLD_MS = 30000;
     const SCENE4_LV_LAP_PX = FOOT_BAR_LAP_PX;
     let scene4SetWidth = SCENE4_TRACK_W;
     let scene4AnimId = null;
@@ -8821,7 +8841,7 @@ html.wx-no-anim #weather-panel .side-pane {
             scheduleDemoStep_(finishScene4);
             return;
         }
-        const holdMs = SCENE4_HOLD_MS; /* WBGT 8秒 → 天気へ */
+        const holdMs = SCENE4_HOLD_MS; /* WBGT 30秒 → 天気へ */
         scene4HoldTimerId = setTimeout(function () {
             scene4HoldTimerId = null;
             stopLogoSpinInterval();
@@ -10047,9 +10067,9 @@ styleExtra.textContent =
   "#weather-stage:not(.is-640) .wx-sub .marquee-track{animation:none!important;transform:none!important;display:block;overflow:hidden;text-overflow:ellipsis;}";
 document.head.appendChild(styleExtra);
 
-const SLOT_MS = 4000; /* 左 → 正面 → 右 のスロットル間隔 */
+const SLOT_MS = 8000; /* 左 → 正面 → 右 のスロットル間隔（各カードの見せ時間） */
 const SIDE_COUNT = 2;
-const FRONT_SWITCHES_FOR_WEATHER = 4; /* 正面 cascade 4回で WBGT へ戻る */
+const FRONT_SWITCHES_FOR_WEATHER = 8; /* 正面 cascade 8回で WBGT へ戻る（約3分） */
 
 let leftIndex = 0, rightIndex = 0;
 let topIdx = 0, bottomIdx = 1, frontAnim = false;
@@ -10153,7 +10173,12 @@ window.WbgtWeather = {
     if (!weatherRunning_) return;
     clearWeatherLocalTimers_();
     document.documentElement.classList.remove("wx-no-anim");
-    weatherTimers_.push(setInterval(slotTick, SLOT_MS));
+    /* 着地直後は最初の配置を十分見せてから切替開始 */
+    weatherTimers_.push(setTimeout(function () {
+      if (!weatherRunning_) return;
+      slotTick();
+      weatherTimers_.push(setInterval(slotTick, SLOT_MS));
+    }, SLOT_MS));
     weatherTimers_.push(setInterval(updateClock, 1000));
     weatherTimers_.push(setInterval(refresh, 10 * 60 * 1000));
   },
