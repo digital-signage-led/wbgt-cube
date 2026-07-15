@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- CONTENT_VER: X.Y0.0 — このコンテンツの版管理起点 -->
 <!-- wbgt-cube-osaka-3face / 大阪 WBGT サイネージ（本番 3面 640×192・全面流し・カード128×192） -->
 <!-- 同階層: assets/greencross_logo.png（左右ロゴ列） / assets/greencross_foot_name.svg（時刻下の下帯） -->
-<!-- 会場: 大阪府大阪市 -->
-<!-- WBGT・AMeDAS 62078（大阪・気象庁/環境省） -->
+<!-- 会場: 静岡県静岡市駿河区大坪町2-26 -->
+<!-- WBGT・環境省地点 50331（静岡）／天気・気象庁 AMeDAS 50331・予報 220000 -->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -127,6 +127,15 @@
         .content-area { width: 640px; height: 192px; position: relative; overflow: hidden; flex: 0 0 640px; flex-shrink: 0; background: #308DD8; }
         .content-area > .scene-strip-bg { z-index: 0; }
         .content-area > .scene { z-index: 1; will-change: transform; }
+        /* WBGT↔天気: ページ遷移ではなく iframe 重ね（再読込のチラつき防止） */
+        #weather-frame {
+            position: absolute; left: 0; top: 0; width: 640px; height: 192px;
+            border: 0; margin: 0; padding: 0; z-index: 40;
+            display: none; background: #308ED8;
+        }
+        #weather-frame.is-on { display: block; }
+        .content-area.weather-on > .scene,
+        .content-area.weather-on > .scene-strip-bg { visibility: hidden; }
         .scene {
             position: absolute; top: 0; left: 0; width: 640px; height: 192px;
             display: none; overflow: hidden; box-sizing: border-box;
@@ -367,7 +376,20 @@
             transform: translateY(-0.07em);
         }
         #scene1, #scene4 { overflow: hidden; position: relative; }
-        #scene1.active { display: block; }
+        /* 静岡: シーン1（時刻）は完全非表示 — WBGT↔天気のみ */
+        #scene1,
+        #scene1.active,
+        #scene1.scene,
+        #scene1[hidden] {
+            display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            opacity: 0 !important;
+            z-index: -1 !important;
+        }
         .fc-scroll-wrap {
             width: 640px; height: var(--led-col-main-h); flex-shrink: 0;
             overflow: hidden; position: relative; z-index: 1;
@@ -2094,32 +2116,32 @@
 
   var cfg = {
     site: {
-      customer: 'デジタルサイネージ株式会社',
-      rental: '',
-      label: 'デジタルサイネージ株式会社',
-      address: '大阪府大阪市',
-      locationLabel: '大阪市'
+      customer: '太陽建機レンタル',
+      rental: '太陽建機レンタル',
+      label: '太陽建機レンタル',
+      address: '静岡県静岡市駿河区大坪町2-26',
+      locationLabel: '静岡市駿河区'
     },
     moe: {
-      /* 環境省 WBGT（気象庁と併用・現場計測なし） */
+      /* 環境省 WBGT（気象庁と併用・現場計測なし）地点 50331＝静岡（駿河区曲金） */
       gasUrl:
         'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
-      point: '62078',
+      point: '50331',
       fallbackPoint: '',
-      pointName: '大阪',
-      alertArea: '大阪府',
-      region: '07',
-      prefecture: '62'
+      pointName: '静岡',
+      alertArea: '静岡県',
+      region: '05',
+      prefecture: '50'
     },
     jma: {
-      amedasPoint: '62078',
-      amedasSupplementPoint: '62091',
-      forecastArea: '270000',
-      forecastLabel: '大阪市',
-      warnArea: '270000',
-      warnCity: '2710000'
+      amedasPoint: '50331',
+      amedasSupplementPoint: '50261',
+      forecastArea: '220000',
+      forecastLabel: '静岡市',
+      warnArea: '220000',
+      warnCity: '2210000'
     },
-    geo: { lat: 34.6937, lon: 135.5023 },
+    geo: { lat: 34.965369, lon: 138.395503 },
     timeZone: 'Asia/Tokyo',
     refreshMs: 60000,
     footSource: 'データ提供：気象庁、環境省'
@@ -2241,25 +2263,10 @@
             </div>
         </div>
     </div>
-    <div class="scene active" id="scene1">
-        <div class="scene1-state active" id="s1-stateA">
-            <div class="panel panel-clock s1-face-side"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
-            <div class="panel panel-clock s1-face-front">
-                <div class="s1-top-bar"><span class="s1-bar-label">--</span></div>
-                <div class="s1-body s1-tv-body">
-                    <div class="s1-tv-plate">
-                        <div class="clock-hm time-val s1-tv-clock">--:--</div>
-                        <div class="s1-tv-meta">
-                            <svg class="s1-tv-icon weather-svg" aria-hidden="true"><use class="weather-icon-use" href="#icon-sunny"/></svg>
-                            <div class="s1-tv-temp"><span class="s1-tv-temp-num temp-val">--</span><span class="s1-tv-temp-unit">℃</span></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="s1-foot"></div>
-            </div>
-            <div class="panel panel-clock s1-face-side"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
-        </div>
-        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/greencross_foot_name.svg" alt="デジタルサイネージ株式会社" decoding="sync" fetchpriority="high"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/greencross_foot_name.svg" alt="デジタルサイネージ株式会社" decoding="sync"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/greencross_foot_name.svg" alt="デジタルサイネージ株式会社" decoding="sync"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div></div></div>
+    <!-- 時刻シーンは静岡では非表示（WBGT＋天気のみ） -->
+    <div class="scene" id="scene1" style="display:none" aria-hidden="true" hidden>
+        <div class="scene1-state" id="s1-stateA"></div>
+        <div class="s1-wbgt-bar" hidden><div class="s1-wbgt-track" id="s1-wbgt-track"></div></div>
     </div>
 
     <div class="scene" id="scene2">
@@ -2288,29 +2295,29 @@
         <div class="s2-meta-bar"><div class="s2-meta-track" id="s2-meta-track"></div></div>
     </div>
 
-        <div class="scene" id="scene4">
+        <div class="scene active" id="scene4">
         <div class="s4-dash">
             <div class="s4-flow" aria-label="WBGTステータス">
                 <div class="s4-flow-track">
                     <div class="s4-flow-set">
-                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>注意</div><div class="s4-msg" data-s4-msg-flow>体調を注意</div></div>
-                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/caution.png" alt=""></div>
-                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>注意</div><div class="s4-msg" data-s4-msg-flow>体調を注意</div></div>
-                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/caution.png" alt=""></div>
-                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>注意</div><div class="s4-msg" data-s4-msg-flow>体調を注意</div></div>
-                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/caution.png" alt=""></div>
-                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>注意</div><div class="s4-msg" data-s4-msg-flow>体調を注意</div></div>
-                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/caution.png" alt=""></div>
+                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>安全</div><div class="s4-msg" data-s4-msg-flow>適宜に水分補給</div></div>
+                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png" alt=""></div>
+                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>安全</div><div class="s4-msg" data-s4-msg-flow>適宜に水分補給</div></div>
+                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png" alt=""></div>
+                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>安全</div><div class="s4-msg" data-s4-msg-flow>適宜に水分補給</div></div>
+                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png" alt=""></div>
+                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>安全</div><div class="s4-msg" data-s4-msg-flow>適宜に水分補給</div></div>
+                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png" alt=""></div>
                     </div>
                     <div class="s4-flow-set" aria-hidden="true">
-                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>注意</div><div class="s4-msg" data-s4-msg-flow>体調を注意</div></div>
-                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/caution.png" alt=""></div>
-                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>注意</div><div class="s4-msg" data-s4-msg-flow>体調を注意</div></div>
-                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/caution.png" alt=""></div>
-                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>注意</div><div class="s4-msg" data-s4-msg-flow>体調を注意</div></div>
-                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/caution.png" alt=""></div>
-                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>注意</div><div class="s4-msg" data-s4-msg-flow>体調を注意</div></div>
-                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/caution.png" alt=""></div>
+                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>安全</div><div class="s4-msg" data-s4-msg-flow>適宜に水分補給</div></div>
+                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png" alt=""></div>
+                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>安全</div><div class="s4-msg" data-s4-msg-flow>適宜に水分補給</div></div>
+                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png" alt=""></div>
+                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>安全</div><div class="s4-msg" data-s4-msg-flow>適宜に水分補給</div></div>
+                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png" alt=""></div>
+                        <div class="s4-flow-text"><div class="s4-name" data-s4-name>安全</div><div class="s4-msg" data-s4-msg-flow>適宜に水分補給</div></div>
+                        <div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png" alt=""></div>
                     </div>
                 </div>
             </div>
@@ -2443,6 +2450,7 @@
             <div class="t3-guid-bar s2-meta-bar"><div class="t3-guid-track s2-meta-track" id="t3-guid-track"></div></div>
         </div>
     </div>
+    <iframe id="weather-frame" title="天気" src="about:blank" allow="fullscreen" loading="eager"></iframe>
     </div>
 
 <script>
@@ -2778,27 +2786,137 @@
         if (v === 'alert') return 'alert';
         if (v === 'rainwarn') return 'rainwarn';
         if (v === 'weather' || v === 'wx' || v === 's4wx') return 's4';
-        if (v === 's1s4' || v === 's1+s4' || v === '1,3' || v === '1+3') return 's1s4';
-        const map = { '1': 's1', '2': 's2', '3': 's4', '4': 's5', '5': 's3', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
+        /* 時刻は本番で使わない → s4（WBGT＋天気）へ寄せる */
+        if (v === 's1s4' || v === 's1+s4' || v === '1,3' || v === '1+3' || v === 's1' || v === '1') return 's4';
+        const map = { '2': 's2', '3': 's4', '4': 's5', '5': 's3', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
         return map[v] || null;
     }
     const SCENE_LABEL_BY_KEY = {
         s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5',
-        s1s4: '時刻＋熱中症(WBGT)＋天気', alert: '熱中症アラート', rainwarn: '大雨警報'
+        s1s4: '熱中症(WBGT)＋天気', alert: '熱中症アラート', rainwarn: '大雨警報'
     };
-    /* 本番既定: WBGT と天気の2本のみ（時刻なし） */
+    /* 本番既定: WBGT と天気の2本のみ（時刻なし）。only= は再生フィルタ */
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only')) || 's4';
     /** WBGTの次に販売機天気（weather.html）を流す（only=s4 / s1s4） */
     const PLAY_WEATHER_AFTER_S4 = query.get('nowx') !== '1';
+    const WEATHER_HOLD_MS = 8000;
+    let weatherShowing_ = false;
+    let weatherReturnTimerId_ = null;
+    let weatherSafetyTimerId_ = null;
+    /** 天気背景用の実測レベル。未確定なら -1（青=安全の仮決めはしない） */
+    function resolveWbgtLevelForWeather_() {
+        if (currentWbgtLevel >= 0 && currentWbgtLevel <= 4) return currentWbgtLevel;
+        const fromSlots = (typeof getS1WbgtLevelForDisplay_ === 'function') ? getS1WbgtLevelForDisplay_() : -1;
+        if (fromSlots >= 0 && fromSlots <= 4) return fromSlots;
+        const stable = (typeof levelFromLastGoodWbgtSlots_ === 'function') ? levelFromLastGoodWbgtSlots_() : null;
+        if (stable != null && stable >= 0 && stable <= 4) return stable;
+        if (typeof lastSignageBgLv_ !== 'undefined' && lastSignageBgLv_ >= 0 && lastSignageBgLv_ <= 4) {
+            return lastSignageBgLv_;
+        }
+        try {
+            const ss = sessionStorage.getItem('wbgtLevelReal');
+            if (ss != null && ss !== '' && !isNaN(Number(ss))) {
+                const n = Number(ss) | 0;
+                if (n >= 0 && n <= 4) return n;
+            }
+        } catch (e) {}
+        return -1;
+    }
+    function clearWeatherTimers_() {
+        if (weatherReturnTimerId_ != null) { clearTimeout(weatherReturnTimerId_); weatherReturnTimerId_ = null; }
+        if (weatherSafetyTimerId_ != null) { clearTimeout(weatherSafetyTimerId_); weatherSafetyTimerId_ = null; }
+    }
+    function hideWeatherOverlay_() {
+        const frame = document.getElementById('weather-frame');
+        const area = document.querySelector('.content-area');
+        clearWeatherTimers_();
+        weatherShowing_ = false;
+        if (area) area.classList.remove('weather-on');
+        if (frame) {
+            frame.classList.remove('is-on');
+            frame.style.display = 'none';
+            frame.onload = null;
+            try { frame.contentWindow.postMessage({ type: 'wbgt-weather-pause' }, '*'); } catch (e) {}
+            try { frame.src = 'about:blank'; } catch (e2) {}
+        }
+    }
+    function ensureWbgtSceneVisible_() {
+        hideWeatherOverlay_();
+        if (s1) hideSceneEl(s1);
+        if (s4) {
+            s4.style.display = sceneDisplayMode(s4);
+            s4.classList.add('active');
+            s4.style.visibility = '';
+            s4.style.opacity = '';
+            s4.style.zIndex = '';
+        }
+        const area = document.querySelector('.content-area');
+        if (area) area.classList.remove('weather-on');
+    }
+    function onWeatherDone_() {
+        if (!weatherShowing_) {
+            ensureWbgtSceneVisible_();
+            return;
+        }
+        hideWeatherOverlay_();
+        ensureWbgtSceneVisible_();
+        clearScene4Timers();
+        playScene4();
+    }
     function goWeatherAfterWbgt_() {
+        const lv = resolveWbgtLevelForWeather_();
+        /* レベル未確定なら天気へ行かない（青仮背景の固定を防ぐ）。少し待って再試行 */
+        if (lv < 0) {
+            if (!wbgtUnavailable && !wbgtOffSeason) {
+                setTimeout(function () {
+                    if (resolveWbgtLevelForWeather_() >= 0) goWeatherAfterWbgt_();
+                    else playScene4();
+                }, 1500);
+                return;
+            }
+            playScene4();
+            return;
+        }
         const p = new URLSearchParams();
         p.set('embed', '1');
         p.set('native640', '1');
         p.set('from', 's4');
-        const lv = (currentWbgtLevel >= 0 && currentWbgtLevel <= 4) ? currentWbgtLevel : 0;
+        p.set('iframe', '1');
         p.set('level', String(lv));
-        location.replace('./weather.html?' + p.toString());
+        try {
+            sessionStorage.setItem('wbgtLevel', String(lv));
+            sessionStorage.setItem('wbgtLevelReal', String(lv));
+        } catch (e) {}
+        const url = './weather.html?' + p.toString();
+        const frame = document.getElementById('weather-frame');
+        const area = document.querySelector('.content-area');
+        if (!frame || !area) {
+            location.replace(url);
+            return;
+        }
+        clearWeatherTimers_();
+        weatherShowing_ = true;
+        const bgHex = ['#308ED8', '#FFD92E', '#FFBE2C', '#FF7E00', '#D61914'][lv] || '#FF7E00';
+        frame.style.background = bgHex;
+        area.classList.add('weather-on');
+        frame.style.display = 'block';
+        frame.classList.add('is-on');
+        frame.onload = function () {
+            if (!weatherShowing_) return;
+            clearWeatherTimers_();
+            /* 表示完了から 8 秒キープ（読込待ち分を含めない） */
+            weatherReturnTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS);
+            weatherSafetyTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS + 3000);
+        };
+        frame.src = url + '&t=' + String(Date.now());
+        /* onload 欠落時の保険 */
+        weatherSafetyTimerId_ = setTimeout(onWeatherDone_, WEATHER_HOLD_MS + 12000);
     }
+    window.addEventListener('message', function (ev) {
+        const d = ev && ev.data;
+        if (!d || typeof d !== 'object') return;
+        if (d.type === 'wbgt-weather-done') onWeatherDone_();
+    });
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
     /* 640×128 ネイティブ: embed / native640=1 / フルデモ順送り */
     const NATIVE_640 = query.get('native640') === '1' || DEMO_EMBED
@@ -2851,7 +2969,8 @@
         if (n >= 1 && n <= 5) return n - 1;
         return null;
     })();
-    const DEMO_SIGNAGE_ACTIVE = DEMO_SIGNAGE || !!DEMO_ONLY;
+    /* only=s4 は本番の再生フィルタ。デモ静的データは demo=1 等のときだけ */
+    const DEMO_SIGNAGE_ACTIVE = !!(DEMO_SIGNAGE || DEMO_ALERT_ONLY || DEMO_RAINWARN_ONLY);
     /* フルデモ警報: 色付き3段（L1〜L5）→ 白ベース3段（L2〜L5）を順に流す */
     const DEMO_RAIN_PASS_ORDER = ['hero', 'white'];
     let demoRainPassIdx_ = 0;
@@ -2951,12 +3070,12 @@
     const DEMO_WBGT_BY_LEVEL = DEMO_SAMPLE_BY_LEVEL.map(function (r) { return r.wbgt; });
     const S4_FACE_ANIMS = ['anim-safe', 'anim-caution', 'anim-warning', 'anim-severe', 'anim-danger'];
     let demoLevelPointer = 0;
-    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '62078';
-    const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '大阪府';
+    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '50331';
+    const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '静岡県';
     function getSiteLocationLabel_() {
         return (SITE_CFG.site && SITE_CFG.site.locationLabel)
             || (SITE_CFG.jma && SITE_CFG.jma.forecastLabel)
-            || '大阪市';
+            || '静岡市駿河区';
     }
     function applySiteLocationLabels_() {
         const label = getSiteLocationLabel_();
@@ -3027,17 +3146,17 @@
         return base + sep + 'type=bundle';
     }
     const JMA_AMEDAS_POINT =
-        query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '62078';
+        query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '50331';
     const JMA_AMEDAS_SUPPLEMENT_POINT =
-        query.get('jmaSupplementPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasSupplementPoint) || '62091';
+        query.get('jmaSupplementPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasSupplementPoint) || '50261';
     const JMA_FORECAST_AREA_CODE =
-        query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '270000';
+        query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '220000';
     const JMA_FETCH_HEADERS = { cache: 'no-store' };
     /* 気象庁 高解像度降水ナウキャスト（雨雲レーダー）— https://www.jma.go.jp/bosai/nowc/ */
     const JMA_NOWC_TARGET_TIMES_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N2.json';
     const JMA_NOWC_TILE_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/{basetime}/none/{validtime}/surf/hrpns/{z}/{x}/{y}.png';
-    const DEFAULT_GEO_LAT = (SITE_CFG.geo && SITE_CFG.geo.lat) || 34.6937;
-    const DEFAULT_GEO_LON = (SITE_CFG.geo && SITE_CFG.geo.lon) || 135.5023;
+    const DEFAULT_GEO_LAT = (SITE_CFG.geo && SITE_CFG.geo.lat) || 34.965369;
+    const DEFAULT_GEO_LON = (SITE_CFG.geo && SITE_CFG.geo.lon) || 138.395503;
     const RAIN_ALERT_LAT = parseFloat(query.get('rainLat') || DEFAULT_GEO_LAT);
     const RAIN_ALERT_LON = parseFloat(query.get('rainLon') || DEFAULT_GEO_LON);
     const RAIN_ALERT_ZOOM = 6;
@@ -3182,9 +3301,15 @@
         /* デモ／確認ボード: 選択レベルを slot の levelIdx で維持（色と表示のずれ防止） */
         if (DEMO_SIGNAGE_ACTIVE && Number.isInteger(row.levelIdx)) {
             currentWbgtLevel = row.levelIdx;
-            return;
+        } else {
+            currentWbgtLevel = wbgtLevel(row.wbgt);
         }
-        currentWbgtLevel = wbgtLevel(row.wbgt);
+        try {
+            if (currentWbgtLevel >= 0 && currentWbgtLevel <= 4) {
+                sessionStorage.setItem('wbgtLevel', String(currentWbgtLevel));
+                sessionStorage.setItem('wbgtLevelReal', String(currentWbgtLevel));
+            }
+        } catch (e) {}
     }
     function getSignageDisplayMode_() {
         if (wbgtOffSeason) return 'offseason';
@@ -3707,10 +3832,9 @@
             line2: def ? def.line2 : ''
         };
     }
-    const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '270000';   /* 愛知県 */
-    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '2710000';  /* 大阪市 */
-/* 北島町 */
-    const JMA_WARN_CITY_LABELS = { '2710000': '大阪市', '270000': '大阪府' };
+    const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '220000';
+    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '2210000';
+    const JMA_WARN_CITY_LABELS = { '2210000': '静岡市', '220000': '静岡県', '2210300': '静岡市駿河区' };
     let rainWarnMeta = {
         cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || getSiteLocationLabel_(),
         updatedAt: ''
@@ -4806,7 +4930,7 @@
     }
     function finishMainLoopToS1_() {
         if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
-        transitionToScene(s1, playScene1);
+        transitionToScene(s4, playScene4);
     }
     function gotoAfterRainWarnOrScene1_() {
         if (isDemoFullRainLoop_()) {
@@ -5656,13 +5780,24 @@
         s4FlowRaf_ = requestAnimationFrame(frame);
     }
 
+    /** 未取得時は注意(黄)に落とさない。キャッシュ→ほぼ安全(青) */
+    function resolveS4DashLevel_() {
+        if (wbgtUnavailable || wbgtOffSeason) return -1;
+        if (currentWbgtLevel >= 0 && currentWbgtLevel <= 4) return currentWbgtLevel;
+        const fromSlots = getS1WbgtLevelForDisplay_();
+        if (fromSlots >= 0) return fromSlots;
+        const stable = levelFromLastGoodWbgtSlots_();
+        if (stable != null) return stable;
+        return 0;
+    }
     function renderS4Dashboard_() {
         const s4 = document.getElementById('scene4');
         if (!s4) return;
-        const lv = (currentWbgtLevel >= 0 && currentWbgtLevel <= 4) ? currentWbgtLevel : 1;
-        const dark = lv === 1 || lv === 2;
-        s4.classList.toggle('s4-txt-dark', !wbgtUnavailable && !wbgtOffSeason && dark);
-        s4.classList.toggle('s4-txt-light', wbgtUnavailable || wbgtOffSeason || !dark);
+        let lv = resolveS4DashLevel_();
+        if (lv < 0) lv = 0;
+        const dark = !wbgtUnavailable && !wbgtOffSeason && (lv === 1 || lv === 2);
+        s4.classList.toggle('s4-txt-dark', dark);
+        s4.classList.toggle('s4-txt-light', !dark);
         const name = (wbgtUnavailable || wbgtOffSeason) ? (wbgtOffSeason ? '期間外' : '取得不可') : S4_LEVEL_NAMES[lv];
         const msg = (wbgtUnavailable || wbgtOffSeason)
             ? { full: 'データを取得できません', side: '取得不可', sideHtml: '取得不可' }
@@ -5703,7 +5838,7 @@
         /* 背景色（デザイン案どおりボディ全体） */
         var bgColors = (typeof SignageBg !== 'undefined' && SignageBg.colorsForLevel)
             ? SignageBg.colorsForLevel(wbgtUnavailable || wbgtOffSeason ? -1 : lv)
-            : { bgColor: '#FFD92D' };
+            : { bgColor: '#308ED8' };
         if (wbgtUnavailable || wbgtOffSeason) bgColors = { bgColor: wbgtOffSeason ? '#484848' : '#555555' };
         s4.querySelectorAll('.s4-body').forEach(function (el) {
             el.style.backgroundColor = bgColors.bgColor;
@@ -6024,18 +6159,16 @@
         buildFcLvTrack(false);
         setS1FootBarVisible_(hasS1WbgtFootMessage_());
     }
-    /** 起動直後: キャッシュ／初期色をすぐ描画（画面を隠さない＝青画面にしない） */
+    /** 起動直後: WBGTを先に描画（時刻シーンは使わない） */
     function paintBootSplash_() {
         if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'boot-local');
         updateClock();
-        if (s1) {
-            s1.style.display = sceneDisplayMode(s1);
-            s1.classList.add('active');
-        }
+        ensureWbgtSceneVisible_();
         syncWbgtSlotsToDomIfReady_();
         if (typeof SignageBg !== 'undefined') refreshSignageBg();
-        refreshS1WbgtFootBar_(false);
-        setS1FootBarVisible_(hasS1WbgtFootMessage_());
+        if (typeof renderS4Dashboard_ === 'function') {
+            try { renderS4Dashboard_(); } catch (e) {}
+        }
     }
     function queueDisplayRefresh_() {
         pendingDisplayRefresh = true;
@@ -7160,14 +7293,8 @@
         if (scene1SafetyTimerId) { clearTimeout(scene1SafetyTimerId); scene1SafetyTimerId = null; }
     }
     function scheduleScene1SafetyAdvance_() {
-        if (scene1SafetyTimerId) clearTimeout(scene1SafetyTimerId);
-        scene1SafetyTimerId = setTimeout(function () {
-            scene1SafetyTimerId = null;
-            if (s1 && s1.classList.contains('active')) {
-                console.warn('[Scene1] 安全タイマーで次シーンへ進めます');
-                finishScene1();
-            }
-        }, SCENE1_SAFETY_MS);
+        if (scene1SafetyTimerId) { clearTimeout(scene1SafetyTimerId); scene1SafetyTimerId = null; }
+        /* シーン1非表示のため安全タイマー不要 */
     }
     function sceneDisplayMode(el) {
         if (!el) return 'block';
@@ -7181,17 +7308,33 @@
         el.style.display = 'none';
         el.style.transform = '';
         el.style.zIndex = '';
+        if (el.id === 'scene1') {
+            el.setAttribute('hidden', '');
+            el.setAttribute('aria-hidden', 'true');
+        }
     }
     function getActiveScene() {
-        return document.querySelector('.content-area .scene.active');
+        const el = document.querySelector('.content-area .scene.active');
+        /* シーン1は再生対象外 */
+        if (el && el.id === 'scene1') {
+            hideSceneEl(el);
+            return document.querySelector('.content-area .scene.active:not(#scene1)');
+        }
+        return el;
     }
     function transitionToScene(nextEl, onComplete) {
         clearSceneEndHoldTimer_();
         clearSceneSlideAnim_();
         clearOutgoingSceneAnims_();
+        /* 静岡: シーン1（時刻）へは行かない → 常に WBGT */
+        if (nextEl && nextEl.id === 'scene1') {
+            nextEl = s4;
+            onComplete = playScene4;
+        }
         const current = getActiveScene();
         if (!nextEl) { onComplete?.(); return; }
         if (current === nextEl) { onComplete?.(); return; }
+        if (s1 && s1.classList.contains('active')) hideSceneEl(s1);
         nextEl.style.display = sceneDisplayMode(nextEl);
         nextEl.classList.add('active');
         if (!current || SCENE_SLIDE_MS <= 0) {
@@ -7235,14 +7378,9 @@
         scene1AdvanceToken += 1;
         s1Flow_ = null;
         clearScene1WbgtTimers();
-        if (demoOnlyLoop_('s1', playScene1)) return;
-        if (DEMO_ONLY === 's1s4') {
-            if (!s4) { playScene1(); return; }
-            transitionToScene(s4, playScene4);
-            return;
-        }
-        if (!s2) return;
-        transitionToScene(s2, playScene2);
+        /* 時刻シーンは本番では使わない → 常に WBGT へ */
+        if (!s4) return;
+        transitionToScene(s4, playScene4);
     }
     /* シーン3（多言語WBGT）の後 → シーン1 */
     function gotoAfterScene3Tail_() {
@@ -7969,70 +8107,9 @@
         });
     }
     function playScene1() {
-        const advanceToken = scene1AdvanceToken + 1;
-        if (pendingSignageBgRefresh_) applyPendingSignageBgAtScene_();
-        clearScene1WbgtTimers();
-        clearDemoStepTimer_();
-        applyDisplayRefreshAtSceneEntry_();
-        applyPendingSignageBgAtScene_();
-        updateClock();
-        stepLogo90(420, true);
-        const showWbgtFoot = hasS1WbgtFootMessage_();
-        setS1FootBarVisible_(showWbgtFoot);
-        scheduleScene1SafetyAdvance_();
-        if (isFullDemoStep_()) {
-            scheduleDemoStep_(finishScene1);
-            return;
-        }
-        /* 時刻＋s4: 下帯周回待ちだけに依存せず、一定時間で確実に切替 */
-        const s1MaxHoldMs = (DEMO_ONLY === 's1s4') ? 5500 : SCENE1_CLOCK_HOLD_MS;
-        if (s1WbgtTrack && showWbgtFoot) {
-            if (!s1WbgtTrack.children.length) refreshS1WbgtFootBar_(true);
-            const s1FootLap = getS1FootLapPx_();
-            s1Flow_ = {
-                startX: wrapScrollX_(globalScrollX_, s1FootLap),
-                x: wrapScrollX_(globalScrollX_, s1FootLap),
-                laps: 0,
-                moved: false
-            };
-            applyGlobalScroll_(s1WbgtTrack, s1FootLap);
-            scene1HoldTimerId = setTimeout(function () {
-                scene1HoldTimerId = null;
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                finishScene1();
-            }, s1MaxHoldMs);
-            function animateS1WbgtRtl() {
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                const prevX = s1Flow_.x;
-                advanceGlobalScroll_(getScrollSpeedPx_());
-                s1Flow_.x = wrapScrollX_(globalScrollX_, s1FootLap);
-                if (!s1Flow_.moved && Math.abs(s1Flow_.x - s1Flow_.startX) > 0.5) {
-                    s1Flow_.moved = true;
-                }
-                applyGlobalScroll_(s1WbgtTrack, s1FootLap);
-                if (s1Flow_.moved && detectScrollLapCrossed_(prevX, s1Flow_.x)) {
-                    s1Flow_.laps += 1;
-                    if (s1Flow_.laps >= SCENE1_ADVANCE_LAPS) {
-                        scene1AnimId = null;
-                        s1Flow_ = null;
-                        finishScene1();
-                        return;
-                    }
-                }
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
-            }
-            runSceneScrollAfterHold_(function () {
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
-            });
-        } else {
-            s1Flow_ = null;
-            scene1HoldTimerId = setTimeout(function () {
-                scene1HoldTimerId = null;
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                finishScene1();
-            }, s1MaxHoldMs);
-        }
+        /* 静岡: シーン1（時刻）は出さない → WBGT へ */
+        if (s1) hideSceneEl(s1);
+        finishScene1();
     }
     /* シーン2の次はシーン3（WBGT表示） */
     function gotoSceneAfterScene2_() {
@@ -8089,9 +8166,9 @@
     }
     function finishScene4() {
         clearScene4Timers();
-        if (DEMO_ONLY === 's4') {
-            /* only=s4: 段階を進めてから天気へ（nowx=1 なら従来どおり WBGT のみ循環） */
-            if (DEMO_LEVEL_FIXED == null) {
+        if (DEMO_ONLY === 's4' || DEMO_ONLY === 's1s4') {
+            /* 段階色は実測WBGTを維持（巡回で変えない）。5段階デモは ?levelcycle=1 のみ */
+            if (query.get('levelcycle') === '1' && DEMO_LEVEL_FIXED == null) {
                 demoLevelPointer = (demoLevelPointer + 1) % DEMO_LEVEL_ORDER.length;
                 applyDemoLevel(DEMO_LEVEL_ORDER[demoLevelPointer]);
             }
@@ -8102,22 +8179,10 @@
             playScene4();
             return;
         }
-        if (DEMO_ONLY === 's1s4') {
-            /* 時刻(s1) → WBGT(s4) → 天気 → 時刻… */
-            if (DEMO_LEVEL_FIXED == null) {
-                demoLevelPointer = (demoLevelPointer + 1) % DEMO_LEVEL_ORDER.length;
-                applyDemoLevel(DEMO_LEVEL_ORDER[demoLevelPointer]);
-            }
-            if (PLAY_WEATHER_AFTER_S4) {
-                goWeatherAfterWbgt_();
-                return;
-            }
-            transitionToScene(s1, playScene1);
-            return;
-        }
         gotoSceneAfterScene4_();
     }
     function playScene4() {
+        ensureWbgtSceneVisible_();
         applyDisplayRefreshAtSceneEntry_();
         clearScene4Timers();
         if (wbgtOffSeason) {
@@ -8334,13 +8399,13 @@
         resetLogoRotation();
         function launchOnlyScene_() {
             switch (DEMO_ONLY) {
-                case 's1': showOnlyScene_(s1, playScene1); break;
+                case 's1':
+                case 's1s4':
+                case 's4': showOnlyScene_(s4, playScene4); break;
                 case 's2': showOnlyScene_(s2, playScene2); break;
                 case 's3': showOnlyScene_(s3, playScene3); break;
-                case 's4': showOnlyScene_(s4, playScene4); break;
-                case 's1s4': showOnlyScene_(s1, playScene1); break;
                 case 's5': showOnlyScene_(s5, playScene5); break;
-                default: break;
+                default: showOnlyScene_(s4, playScene4); break;
             }
         }
         launchOnlyScene_();
@@ -8352,12 +8417,8 @@
         const badge = document.getElementById('demo-badge');
         const rainTag = rainPreviewLabel_();
         if (sceneKey === 's1') {
-            buildS1WbgtTrack(false);
-            const s1WbgtBar = document.querySelector('#scene1 .s1-wbgt-bar');
-            if (s1WbgtBar) s1WbgtBar.style.display = 'block';
-            if (s1) { s1.style.display = 'flex'; s1.classList.add('active'); }
-            if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = 'プレビュー · シーン1 · ' + rainTag; }
-            document.title = 'プレビュー シーン1（' + rainTag + '）';
+            /* 静岡: 時刻プレビューは出さず WBGT へ */
+            showOnlyScene_(s4, playScene4);
             return;
         }
         if (sceneKey === 's3') {
@@ -8375,7 +8436,7 @@
         clearDemoStepTimer_();
         resetLogoRotation();
         [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
-        transitionToScene(s1, playScene1);
+        transitionToScene(s4, playScene4);
     }
 
     window.onload = async function() {
@@ -8441,28 +8502,28 @@
                 runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['起動'] }),
                 new Promise(function (resolve) { setTimeout(resolve, 3500); })
             ]);
-            if (s1) {
-                s1.style.display = sceneDisplayMode(s1);
-                s1.classList.add('active');
+            if (s4) {
+                s4.style.display = sceneDisplayMode(s4);
+                s4.classList.add('active');
             }
             flushInitialDisplay_();
             mainLoopStarted_ = true;
             scheduleDataRefresh();
-            playScene1();
+            playScene4();
         } catch (err) {
             console.error('Init:', err);
             bootDisplayHold_ = false;
             if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'local-fallback');
             updateClock();
             refreshSignageBgIfChanged_(true);
-            if (s1) {
-                s1.style.display = sceneDisplayMode(s1);
-                s1.classList.add('active');
+            if (s4) {
+                s4.style.display = sceneDisplayMode(s4);
+                s4.classList.add('active');
             }
             startClockTicker();
             mainLoopStarted_ = true;
             scheduleDataRefresh();
-            playScene1();
+            playScene4();
         } finally {
             bootDisplayHold_ = false;
         }
