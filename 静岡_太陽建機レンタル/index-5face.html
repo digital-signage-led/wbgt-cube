@@ -1,6 +1,6 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- wbgt-cube-taiyo-5face / 太陽建機レンタル WBGT サイネージ（本番 5面 640×128・ロゴ列128） -->
-<!-- 同階層: assets/taiyo_stack.png（右端・公式縦組焼付け） / assets/taiyo_logo.png（下帯） -->
+<!-- 同階層: assets/taiyo_stack.png（右端128・公式縦組） / assets/taiyo_logo.png（下帯） / assets/taiyo_mark.png（下帯小） -->
 <!-- 会場: 〒422-8507 静岡市駿河区大坪町2－26（太陽建機レンタル本社） -->
 <!-- WBGT・AMeDAS 50331（静岡・気象庁/環境省） -->
 <!-- サイネージ: 640×128 を縦横同倍率で表示（歪み防止）。画素確認のみ ?native640=1。ロゴ補正 ?logoPitch= -->
@@ -134,7 +134,7 @@
         .logo-panel {
             width: 128px; height: 128px; display: flex; align-items: center; justify-content: center;
             flex: 0 0 128px; flex-shrink: 0; overflow: hidden; position: relative;
-            background: #FECD58; margin: 0; padding: 0; border: 0; box-sizing: border-box;
+            background: #ffffff; margin: 0; padding: 0; border: 0; box-sizing: border-box;
             aspect-ratio: 1 / 1;
         }
         .logo-aspect-fix {
@@ -150,15 +150,15 @@
             transition: transform 0.6s ease-in-out;
             aspect-ratio: 1 / 1;
         }
-        /* 右端 128×128: 公式縦組を1枚画像に焼付け（隙間=マーク高×0.1163・端末のCSS gap崩れ防止） */
+        /* 右端 128×128: ユーザー提供の公式縦組ロゴ（1枚・比率固定） */
         .logo-stack {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 112px; max-width: 112px; max-height: 120px;
+            width: 120px; max-width: 120px; max-height: 124px;
             box-sizing: border-box; padding: 0; margin: 0; overflow: hidden;
         }
         .logo-img {
             display: block;
-            width: 104px; height: auto; max-width: 104px; max-height: 118px;
+            width: 112px; height: auto; max-width: 112px; max-height: 120px;
             object-fit: contain; object-position: center center; margin: 0;
             flex: 0 0 auto;
             image-rendering: auto;
@@ -1690,7 +1690,7 @@
   global.SIGNAGE_CONFIG = {
     logoSrc: './assets/taiyo_stack.png',
     logoAlt: '太陽建機レンタル',
-    logoPanelBg: '',
+    logoPanelBg: '#ffffff',
     logoCorpSrc: '',
     footLogoSrc: './assets/taiyo_mark.png',
     footBannerSrc: './assets/taiyo_logo.png'
@@ -1906,7 +1906,7 @@
         <div class="logo-aspect-fix" id="logo-aspect-fix">
             <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="./assets/taiyo_stack.png" alt="TAIYO KENKI RENTAL" width="145" height="193" decoding="sync" fetchpriority="high">
+                <img class="logo-img" id="signage-logo" src="./assets/taiyo_stack.png" alt="TAIYO KENKI RENTAL" width="247" height="328" decoding="sync" fetchpriority="high">
                 <img class="logo-corp-img" id="signage-logo-corp" src="./assets/taiyo_corp.png" alt="" width="328" height="121" decoding="sync" hidden>
             </div>
             </div>
@@ -2135,7 +2135,7 @@
         applySceneStripBg(content, levelIdx, displayMode);
     }
 
-    /** 右端 128×128（513以降）: 上バー色（barColor）に同期。logoPanelBg 指定時のみ固定 */
+    /** 右端 128×128（513以降）: 背景は白固定（logoPanelBg）。未指定時のみ上バー色に同期 */
     function initSignageLogo_() {
         const img = document.getElementById('signage-logo') || document.querySelector('.logo-img');
         const corp = document.getElementById('signage-logo-corp') || document.querySelector('.logo-corp-img');
