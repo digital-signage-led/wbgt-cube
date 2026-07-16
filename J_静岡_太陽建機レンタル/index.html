@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CONTENT_VER: 2026.07.16.5 — このコンテンツの版管理起点（更新時は必ず上げる） -->
+<!-- CONTENT_VER: 2026.07.16.7 — このコンテンツの版管理起点（更新時は必ず上げる） -->
 <!-- 静岡 WBGT サイネージ（本番 3面 640×192・全面流し・カード128×192） -->
 <!-- 同階層: assets/greencross_logo.png（左右ロゴ列） / assets/greencross_foot_name.svg（時刻下の下帯） -->
 <!-- 会場: 静岡県静岡市駿河区大坪町2-26 -->
@@ -14,17 +14,17 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
-    <title>WBGT Signage 3面 640×192 - 静岡 · 2026.07.16.5</title>
+    <title>WBGT Signage 3面 640×192 - 静岡 · 2026.07.16.7</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- display=swap: optional だとサイネージでフォントが落ちて隙間が変わるのを防止 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap">
-    <link rel="preload" as="image" href="./assets/greencross_logo.png?v=2026.07.16.5">
-    <link rel="preload" as="image" href="./assets/greencross_foot_name.svg?v=2026.07.16.5">
+    <link rel="preload" as="image" href="./assets/greencross_logo.png?v=2026.07.16.7">
+    <link rel="preload" as="image" href="./assets/greencross_foot_name.svg?v=2026.07.16.7">
     <script>
     /* 改修:WEB＝サイネージ同一ピクセル + 旧キャッシュ排除（?v= 版番号） */
 (function () {
-    var VER = '2026.07.16.5';
+    var VER = '2026.07.16.7';
     var root = document.documentElement;
     root.classList.add('native-640');
     root.classList.remove('browser-preview');
@@ -2236,14 +2236,24 @@
 
     
 /* ===== 販売機天気（同一ページ埋め込み） ===== */
-/* 改修:visibility だけではサイネージで下レイヤが残る。display:none で完全消去 */
+/* 下レイヤは隠す。content-area の帯色（危険の赤など）だけが残って真っ赤になるのを防ぐ */
+.content-area.weather-on {
+  background: transparent !important;
+  background-color: transparent !important;
+}
 .content-area.weather-on > .scene,
 .content-area.weather-on > .scene-strip-bg {
-  display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
-  z-index: -1 !important;
+  z-index: 0 !important;
+}
+/* 天気表示中はパネルを必ず全面に出す（is-enter-rtl 残留で画面外＝真っ赤、を防止） */
+.content-area.weather-on #weather-panel,
+#weather-panel.is-on {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* WBGT↔天気の切替アニメ */
@@ -2477,14 +2487,27 @@ html.wx-no-anim #weather-panel .side-pane {
   margin: 0 0 3px; flex-shrink: 0; line-height: 1.1;
   font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
 }
-/* 左右列：数値サイズを統一（時刻・気温・風・湿度・気圧）。等幅＋固定フォントで端末差を抑える */
+/* 左右列：数値サイズを統一（時刻・気温・風・湿度）。等幅＋Notoで端末差を抑える */
 #weather-panel .side-val {
-  font-size: 34px; font-weight: 900; line-height: 1.02; letter-spacing: -0.05em;
-  width: 100%; max-width: 100%;
-  font-family: "Inter", "Roboto", "Noto Sans JP", sans-serif;
+  font-size: 32px; font-weight: 900; line-height: 1.02; letter-spacing: -0.04em;
+  width: 108px; max-width: 108px;
+  font-family: "Noto Sans JP", sans-serif;
   font-variant-numeric: tabular-nums;
   white-space: nowrap; overflow: hidden; text-overflow: clip;
-  box-sizing: border-box; padding: 0 1px;
+  box-sizing: border-box; padding: 0;
+  text-align: center;
+}
+/* 気圧1001hPa：カード内108pxに収まるよう逆算（34pxだとLEDでhPaが見切れる） */
+#weather-panel .side-val.js-pressure {
+  font-size: 24px;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#weather-panel .side-val.js-pressure .unit {
+  font-size: 11px;
+  margin-left: 2px;
+  top: -1px;
 }
 #weather-panel .side-pane .pill {
   margin: 0 auto;
@@ -2729,8 +2752,6 @@ html.wx-no-anim #weather-panel .side-pane {
 #weather-panel .weekly .wx-icon,
 #weather-panel .hourly .wx-icon { width: 34px; height: 34px; }
 #weather-panel .hourly-chart { display: block; width: 100%; height: 100%; }
-#weather-panel .side-val.js-pressure { letter-spacing: -0.08em; }
-#weather-panel .side-val.js-pressure .unit { font-size: 0.42em; }
 /* 正面：気象観測＝1行ニュースティッカー（右→左） */
 #weather-panel .meteo-ticker-wrap {
   flex: 1; min-height: 0; width: 100%;
@@ -2874,12 +2895,12 @@ html.wx-no-anim #weather-panel .side-pane {
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/greencross_logo.png?v=2026.07.16.5',
+    logoSrc: './assets/greencross_logo.png?v=2026.07.16.7',
     logoAlt: 'デジタルサイネージ株式会社',
     logoPanelBg: '#ffffff',
     logoCorpSrc: '',
-    footLogoSrc: './assets/greencross_logo.png?v=2026.07.16.5',
-    footBannerSrc: './assets/greencross_foot_name.svg?v=2026.07.16.5'
+    footLogoSrc: './assets/greencross_logo.png?v=2026.07.16.7',
+    footBannerSrc: './assets/greencross_foot_name.svg?v=2026.07.16.7'
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -3024,16 +3045,16 @@ html.wx-no-anim #weather-panel .side-pane {
             <div class="s4-flow" aria-label="WBGTステータス">
                 <div class="s4-flow-track">
                     <div class="s4-flow-set">
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.5" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.5" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.5" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.5" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
                     </div>
                     <div class="s4-flow-set" aria-hidden="true">
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.5" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.5" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.5" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.5" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
                     </div>
                 </div>
             </div>
@@ -3616,7 +3637,7 @@ html.wx-no-anim #weather-panel .side-pane {
 
 </script>
 <script>
-    const CONTENT_VER = '2026.07.16.5';
+    const CONTENT_VER = '2026.07.16.7';
     document.documentElement.dataset.contentVer = CONTENT_VER;
     const query = new URLSearchParams(window.location.search);
     /* demo=1: デモモード（demo.html からの転送先）。未指定時は本番（実データ取得） */
@@ -3732,18 +3753,11 @@ html.wx-no-anim #weather-panel .side-pane {
         }
         try { if (window.WbgtWeather) window.WbgtWeather.stop(); } catch (e) {}
         window.onWeatherLayoutCycleDone_ = null;
-        /* シーン側の visibility/opacity/display を復帰（weather-on の名残を消す） */
+        /* シーン側の visibility/opacity を復帰（weather-on の名残を消す） */
         document.querySelectorAll('.content-area > .scene, .content-area > .scene-strip-bg').forEach(function (el) {
             el.style.visibility = '';
             el.style.opacity = '';
-            /* display は active シーンだけ play 側で戻す。ここはインライン強制を解除 */
-            if (el.style.display === 'none' && !el.classList.contains('active')) {
-                /* keep none for inactive */
-            } else if (!el.classList.contains('active')) {
-                el.style.display = 'none';
-            } else {
-                el.style.display = '';
-            }
+            el.style.display = '';
         });
     }
     function ensureWbgtSceneVisible_() {
@@ -3857,12 +3871,10 @@ html.wx-no-anim #weather-panel .side-pane {
         document.querySelectorAll('.content-area > .scene').forEach(function (el) {
             if (el === s4) return;
             el.classList.remove('active');
-            el.style.display = 'none';
             el.style.visibility = 'hidden';
             el.style.opacity = '0';
         });
         document.querySelectorAll('.content-area > .scene-strip-bg').forEach(function (el) {
-            el.style.display = 'none';
             el.style.visibility = 'hidden';
             el.style.opacity = '0';
         });
@@ -3890,25 +3902,22 @@ html.wx-no-anim #weather-panel .side-pane {
         weatherSwapTimerId_ = setTimeout(function () {
             weatherSwapTimerId_ = null;
             area.classList.add('weather-on');
-            panel.classList.remove('is-swap-rtl-flow');
+            panel.classList.remove('is-swap-rtl-flow', 'is-enter-rtl');
+            panel.style.transform = '';
             panel.style.transition = '';
-            /* 切替完了後は下の WBGT 等を完全消去（visibility 残像・映り込み防止） */
+            panel.style.display = 'block';
+            panel.style.visibility = 'visible';
+            panel.style.opacity = '1';
+            /* WBGT は隠す（インライン display:none は使わない＝復帰不能の真っ赤を防ぐ） */
             if (s4) {
                 s4.classList.remove('is-exit-push', 'is-swap-rtl-flow', 'is-swap-front', 'active');
                 s4.style.transform = '';
                 s4.style.transition = '';
                 s4.style.zIndex = '';
-                s4.style.display = 'none';
                 s4.style.visibility = 'hidden';
                 s4.style.opacity = '0';
                 s4.style.removeProperty('--wx-rtl-ms');
             }
-            document.querySelectorAll('.content-area > .scene, .content-area > .scene-strip-bg').forEach(function (el) {
-                if (el.id === 'weather-panel') return;
-                el.style.display = 'none';
-                el.style.visibility = 'hidden';
-                el.style.opacity = '0';
-            });
             /* 切替完了後に天気カードの動きを開始 */
             try {
                 if (window.WbgtWeather) window.WbgtWeather.beginMotion();
@@ -4241,11 +4250,11 @@ html.wx-no-anim #weather-panel .side-pane {
         { full: '熱中症の危険性が非常に高い', side: '熱中症の危険性が非常に高い', sideHtml: '熱中症の危険性が非常に高い' }
     ];
     const S4_FACE_SRC = [
-        'assets/faces/safe.png?v=2026.07.16.5',
-        'assets/faces/caution.png?v=2026.07.16.5',
-        'assets/faces/warning.png?v=2026.07.16.5',
-        'assets/faces/severe.png?v=2026.07.16.5',
-        'assets/faces/danger.png?v=2026.07.16.5'
+        'assets/faces/safe.png?v=2026.07.16.7',
+        'assets/faces/caution.png?v=2026.07.16.7',
+        'assets/faces/warning.png?v=2026.07.16.7',
+        'assets/faces/severe.png?v=2026.07.16.7',
+        'assets/faces/danger.png?v=2026.07.16.7'
     ];
     const S4_BADGE_COLORS = ['#308ED8', '#FFD92E', '#FFBE2C', '#FF7E00', '#D61914'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
@@ -9725,7 +9734,7 @@ var SITE_JMA = SITE.jma || {};
 var SITE_MOE = SITE.moe || {};
 var SITE_GEO = SITE.geo || {};
 var SITE_SITE = SITE.site || {};
-const CONTENT_VERSION = "2026.07.16.5";
+const CONTENT_VERSION = "2026.07.16.7";
 const DATA_SOURCE_ATTR = SITE.footSource || "データ提供：気象庁、環境省";
 const LAT = SITE_GEO.lat != null ? SITE_GEO.lat : 34.965156;
 const LON = SITE_GEO.lon != null ? SITE_GEO.lon : 138.396642;
@@ -11214,7 +11223,7 @@ window.addEventListener("pageshow", function (ev) {
 </body>
 <!--
 改修要約（即起動・永続動作 / 実務版）:
-- CONTENT_VER 2026.07.16.5（?v= で HTML 取り直し。旧デザイン残存防止）
+- CONTENT_VER 2026.07.16.7（?v= で HTML 取り直し。旧デザイン残存防止）
 - Service Worker / Cache API を起動時に破棄
 - フォント: Google Fonts + display=swap
 - html に native-640 直書き。640×192 等倍固定（WEB＝サイネージ同一ピクセル）
