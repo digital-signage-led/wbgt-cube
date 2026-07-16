@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<!-- CONTENT_VER: 2026.07.16.7 — このコンテンツの版管理起点（更新時は必ず上げる） -->
+﻿<!DOCTYPE html>
+<!-- CONTENT_VER: 2026.07.16.12 — このコンテンツの版管理起点（更新時は必ず上げる） -->
 <!-- 静岡 WBGT サイネージ（本番 3面 640×192・全面流し・カード128×192） -->
 <!-- 同階層: assets/greencross_logo.png（左右ロゴ列） / assets/greencross_foot_name.svg（時刻下の下帯） -->
 <!-- 会場: 静岡県静岡市駿河区大坪町2-26 -->
@@ -14,40 +14,26 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
-    <title>WBGT Signage 3面 640×192 - 静岡 · 2026.07.16.7</title>
+    <title>WBGT Signage 3面 640×192 - 静岡 · 2026.07.16.12</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- display=swap: optional だとサイネージでフォントが落ちて隙間が変わるのを防止 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap">
-    <link rel="preload" as="image" href="./assets/greencross_logo.png?v=2026.07.16.7">
-    <link rel="preload" as="image" href="./assets/greencross_foot_name.svg?v=2026.07.16.7">
+    <link rel="preload" as="image" href="./assets/greencross_logo.png?v=2026.07.16.12">
+    <link rel="preload" as="image" href="./assets/greencross_foot_name.svg?v=2026.07.16.12">
     <script>
-    /* 改修:WEB＝サイネージ同一ピクセル + 旧キャッシュ排除（?v= 版番号） */
+    /* 改修:WEB＝サイネージ同一ピクセル。版(?v=)が変わったら HTML を取り直す */
 (function () {
-    var VER = '2026.07.16.7';
+    var VER = '2026.07.16.12';
     var root = document.documentElement;
     root.classList.add('native-640');
     root.classList.remove('browser-preview');
     root.dataset.contentVer = VER;
-    /* Service Worker / Cache API に古いデザインが残らないようにする */
-    try {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function (regs) {
-                for (var i = 0; i < regs.length; i++) regs[i].unregister();
-            });
-        }
-        if (window.caches && caches.keys) {
-            caches.keys().then(function (keys) {
-                for (var j = 0; j < keys.length; j++) caches.delete(keys[j]);
-            });
-        }
-    } catch (eSw) {}
     try {
         var q = new URLSearchParams(location.search);
         var needNav = false;
         if (q.get('v') !== VER) { q.set('v', VER); needNav = true; }
         if (q.get('native640') !== '1') { q.set('native640', '1'); needNav = true; }
-        /* 版が変わったら replace で HTML 自体を取り直す（古いデザイン残存防止） */
         if (needNav) {
             location.replace(location.pathname + '?' + q.toString() + (location.hash || ''));
             return;
@@ -1858,7 +1844,12 @@
             font-size: 26px; line-height: 1; flex-shrink: 0;
             max-height: 26px; overflow: visible;
         }
-        #scene4 .s4-flow .s4-name.s4-name-long { font-size: 18px; letter-spacing: -0.05em; }
+        /* 厳重警戒(4文字): 危険(2文字)=26px に近づけ、極端に小さくしない */
+        #scene4 .s4-flow .s4-name.s4-name-long {
+            font-size: 24px;
+            letter-spacing: -0.06em;
+            max-height: 26px;
+        }
         #scene4 .s4-flow .s4-msg {
             font-size: 11px; line-height: 1; width: 100%; max-width: 148px;
             overflow: visible;
@@ -2003,8 +1994,9 @@
         }
         #scene4 .s4-face-side .s4-name { font-size: 34px; }
         #scene4 .s4-face-front .s4-name { font-size: 34px; }
-        #scene4 .s4-face-side .s4-name.s4-name-long { font-size: 25px; letter-spacing: -0.04em; }
-        #scene4 .s4-face-front .s4-name.s4-name-long { font-size: 27px; letter-spacing: -0.03em; }
+        /* 厳重警戒: 34px→25px は下げすぎ。危険に近いサイズへ */
+        #scene4 .s4-face-side .s4-name.s4-name-long { font-size: 30px; letter-spacing: -0.05em; }
+        #scene4 .s4-face-front .s4-name.s4-name-long { font-size: 30px; letter-spacing: -0.04em; }
         #scene4 .s4-face-side .s4-msg.s4-msg-long { font-size: 8px; letter-spacing: -0.08em; }
         #scene4 .s4-msg {
             font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif; font-weight: 700;
@@ -2241,12 +2233,28 @@
   background: transparent !important;
   background-color: transparent !important;
 }
+/* 天気中は旧シーンを描画から外す（visibility だけだと LED で映り込みすることがある） */
 .content-area.weather-on > .scene,
 .content-area.weather-on > .scene-strip-bg {
+  display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
   z-index: 0 !important;
+}
+/* 本番 s4: 旧シーン（時刻・気象コンベア・予報・多言語）は絶対出さない */
+html[data-demo-only="s4"] #scene1,
+html[data-demo-only="s4"] #scene2,
+html[data-demo-only="s4"] #scene3,
+html[data-demo-only="s4"] #scene5,
+html[data-demo-only="s1s4"] #scene1,
+html[data-demo-only="s1s4"] #scene2,
+html[data-demo-only="s1s4"] #scene3,
+html[data-demo-only="s1s4"] #scene5 {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 /* 天気表示中はパネルを必ず全面に出す（is-enter-rtl 残留で画面外＝真っ赤、を防止） */
 .content-area.weather-on #weather-panel,
@@ -2433,17 +2441,17 @@ html.wx-no-anim #weather-panel .side-pane {
 }
 
 #weather-panel .side-stack { position: relative; width: 100%; height: 100%; overflow: hidden; }
-/* 左右：一定方向（上→下）。退場完了後に入場。同時クロスはしない */
+/* 左右：上→下。ゆったり入場（上レイヤ）／退場は下で並行＝白空きなし */
 #weather-panel .side-pane {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
   text-align: center; padding: 0;
   opacity: 0;
-  transform: translate3d(0, -100%, 0) scale(0.86);
+  transform: translate3d(0, -100%, 0) scale(0.96);
   transform-origin: center center;
   transition:
-    opacity .36s cubic-bezier(.33, 0, .2, 1),
-    transform .48s cubic-bezier(.33, 0, .2, 1);
+    opacity .45s cubic-bezier(.22, 1, .36, 1),
+    transform .72s cubic-bezier(.22, 1, .36, 1);
   min-width: 0;
   box-sizing: border-box;
   z-index: 1;
@@ -2457,15 +2465,22 @@ html.wx-no-anim #weather-panel .side-pane {
 }
 #weather-panel .side-pane.is-exit {
   opacity: 0;
-  transform: translate3d(0, 100%, 0) scale(0.86);
+  transform: translate3d(0, 100%, 0) scale(0.96);
   z-index: 1;
   animation: none;
   pointer-events: none;
 }
 /* 退場中は入場ペインを重ねない（入場は JS で退場完了後に .on） */
+#weather-panel .side-pane.on,
+#weather-panel .side-pane.is-exit {
+  display: flex !important;
+}
 #weather-panel .side-pane:not(.on):not(.is-exit) {
-  visibility: hidden;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
   transition: none;
+  pointer-events: none;
 }
 #weather-panel .side-half {
   flex: 1 1 50%;
@@ -2475,27 +2490,37 @@ html.wx-no-anim #weather-panel .side-pane {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2px 2px;
+  /* LED日本語フォントはアセントが大きく上寄りに見える → 上余白多め・下少なめで光学中央 */
+  padding: 8px 2px 3px;
   box-sizing: border-box;
+  transform: none;
 }
-/* 真ん中の余白を少しだけ詰める（上段↓・下段↑） */
-#weather-panel .side-half:first-child:not(:only-child) { transform: translateY(5px); }
-#weather-panel .side-half:last-child:not(:only-child) { transform: translateY(-5px); }
-#weather-panel .side-half:only-child { transform: none; }
+#weather-panel .side-half:first-child:not(:only-child),
+#weather-panel .side-half:last-child:not(:only-child),
+#weather-panel .side-half:only-child {
+  transform: none;
+}
 #weather-panel .side-lbl {
   font-size: 15px; font-weight: 700; color: var(--muted);
-  margin: 0 0 3px; flex-shrink: 0; line-height: 1.1;
-  font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  margin: 0 0 4px; flex-shrink: 0;
+  line-height: 15px;
+  height: 15px;
+  font-family: "Noto Sans JP", sans-serif;
+  display: flex; align-items: center; justify-content: center;
 }
-/* 左右列：数値サイズを統一（時刻・気温・風・湿度）。等幅＋Notoで端末差を抑える */
+/* 左右列：数値サイズを統一。line-height固定でWEB/サイネージの縦位置を揃える */
 #weather-panel .side-val {
-  font-size: 32px; font-weight: 900; line-height: 1.02; letter-spacing: -0.04em;
+  font-size: 32px; font-weight: 900;
+  line-height: 32px;
+  height: 34px;
+  letter-spacing: -0.04em;
   width: 108px; max-width: 108px;
   font-family: "Noto Sans JP", sans-serif;
   font-variant-numeric: tabular-nums;
   white-space: nowrap; overflow: hidden; text-overflow: clip;
   box-sizing: border-box; padding: 0;
   text-align: center;
+  display: flex; align-items: center; justify-content: center;
 }
 /* 気圧1001hPa：カード内108pxに収まるよう逆算（34pxだとLEDでhPaが見切れる） */
 #weather-panel .side-val.js-pressure {
@@ -2507,7 +2532,8 @@ html.wx-no-anim #weather-panel .side-pane {
 #weather-panel .side-val.js-pressure .unit {
   font-size: 11px;
   margin-left: 2px;
-  top: -1px;
+  position: static;
+  top: auto;
 }
 #weather-panel .side-pane .pill {
   margin: 0 auto;
@@ -2516,25 +2542,27 @@ html.wx-no-anim #weather-panel .side-pane {
   max-width: 96%;
   box-sizing: border-box;
 }
-/* 数字の横の単位：全体を約2px上げる */
+/* 数字の横の単位：baseline揃え（relative top はLEDで上寄りに見えるため使わない） */
 #weather-panel .unit {
   font-size: 0.55em;
   font-weight: 700;
   letter-spacing: 0;
   margin-left: 0.06em;
   vertical-align: baseline;
-  position: relative;
-  top: calc(0.08em - 2px);
+  position: static;
+  top: auto;
   line-height: 1;
 }
 #weather-panel .wx-sub .unit {
   font-size: 0.85em;
   vertical-align: baseline;
-  top: calc(0.04em - 2px);
+  position: static;
+  top: auto;
 }
-/* 時間別天気の単位だけ少し下げる */
+/* 時間別天気の単位 */
 #weather-panel .hourly .h-temp .unit {
-  top: calc(0.08em + 1px);
+  position: static;
+  top: auto;
 }
 #weather-panel .pill {
   display: block; width: 90%; margin: 2px auto 4px; padding: 4px;
@@ -2554,20 +2582,21 @@ html.wx-no-anim #weather-panel .side-pane {
   box-shadow: var(--shadow); overflow: hidden; padding: 4px 8px 4px 6px;
   display: flex; flex-direction: row; align-items: stretch; min-height: 0;
   opacity: 0;
-  transform: translate3d(0, calc(-100% - 5px), 0) scale(0.9);
+  transform: translate3d(0, calc(-100% - 5px), 0) scale(0.94);
   transform-origin: center center;
-  transition: transform .6s cubic-bezier(.33, 0, .2, 1), opacity .5s ease;
+  transition: transform .85s cubic-bezier(.22, 1, .36, 1), opacity .65s cubic-bezier(.22, 1, .36, 1);
   backface-visibility: hidden;
   z-index: 1;
   box-sizing: border-box;
 }
-#weather-panel .flow-card.is-top { transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 3; visibility: visible; }
-#weather-panel .flow-card.is-bottom { transform: translate3d(0, calc(100% + 5px), 0) scale(1); opacity: 1; z-index: 2; visibility: visible; }
-#weather-panel .flow-card.is-enter { transform: translate3d(0, calc(-100% - 5px), 0) scale(0.9); opacity: 0; z-index: 4; visibility: visible; }
-#weather-panel .flow-card.is-exit { transform: translate3d(0, calc(200% + 10px), 0) scale(0.9); opacity: 0; z-index: 1; visibility: visible; pointer-events: none; }
-/* 待機カードは完全非表示（前カードの映り込み防止） */
+#weather-panel .flow-card.is-top { display: flex !important; transform: translate3d(0, 0, 0) scale(1); opacity: 1; z-index: 3; visibility: visible; }
+#weather-panel .flow-card.is-bottom { display: flex !important; transform: translate3d(0, calc(100% + 5px), 0) scale(1); opacity: 1; z-index: 2; visibility: visible; }
+#weather-panel .flow-card.is-enter { display: flex !important; transform: translate3d(0, calc(-100% - 5px), 0) scale(0.94); opacity: 0; z-index: 4; visibility: visible; }
+#weather-panel .flow-card.is-exit { display: flex !important; transform: translate3d(0, calc(200% + 10px), 0) scale(0.94); opacity: 0; z-index: 1; visibility: visible; pointer-events: none; }
+/* 待機カードは描画から外す（旧カードの映り込み防止） */
 #weather-panel .flow-card.is-wait {
-  transform: translate3d(0, calc(-100% - 5px), 0) scale(0.9);
+  display: none !important;
+  transform: translate3d(0, calc(-100% - 5px), 0) scale(0.94);
   opacity: 0 !important;
   visibility: hidden !important;
   z-index: 0;
@@ -2895,12 +2924,12 @@ html.wx-no-anim #weather-panel .side-pane {
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/greencross_logo.png?v=2026.07.16.7',
+    logoSrc: './assets/greencross_logo.png?v=2026.07.16.12',
     logoAlt: 'デジタルサイネージ株式会社',
     logoPanelBg: '#ffffff',
     logoCorpSrc: '',
-    footLogoSrc: './assets/greencross_logo.png?v=2026.07.16.7',
-    footBannerSrc: './assets/greencross_foot_name.svg?v=2026.07.16.7'
+    footLogoSrc: './assets/greencross_logo.png?v=2026.07.16.12',
+    footBannerSrc: './assets/greencross_foot_name.svg?v=2026.07.16.12'
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -3045,16 +3074,16 @@ html.wx-no-anim #weather-panel .side-pane {
             <div class="s4-flow" aria-label="WBGTステータス">
                 <div class="s4-flow-track">
                     <div class="s4-flow-set">
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
                     </div>
                     <div class="s4-flow-set" aria-hidden="true">
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.7" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
                     </div>
                 </div>
             </div>
@@ -3637,7 +3666,7 @@ html.wx-no-anim #weather-panel .side-pane {
 
 </script>
 <script>
-    const CONTENT_VER = '2026.07.16.7';
+    const CONTENT_VER = '2026.07.16.12';
     document.documentElement.dataset.contentVer = CONTENT_VER;
     const query = new URLSearchParams(window.location.search);
     /* demo=1: デモモード（demo.html からの転送先）。未指定時は本番（実データ取得） */
@@ -3683,15 +3712,16 @@ html.wx-no-anim #weather-panel .side-pane {
     };
     /* 本番既定: WBGT と天気の2本のみ（時刻なし）。only= は再生フィルタ */
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only')) || 's4';
+    document.documentElement.dataset.demoOnly = DEMO_ONLY;
     /** WBGTの次に販売機天気（販売機天気パネル）を流す（only=s4 / s1s4） */
     const PLAY_WEATHER_AFTER_S4 = query.get('nowx') !== '1';
     const WEATHER_HOLD_MS = 20000; /* 天気15秒+終了静止1秒+余裕（通常はタイマーで終了） */
-    const SCENE_SWAP_MS = 900; /* 天気→WBGT の縦押し出し */
+    const SCENE_SWAP_MS = 1100; /* 天気→WBGT の縦押し出し（ゆったり） */
     /* 顔・文言の横流れ: 1周(640px)を SCENE4_HOLD(15秒)ちょうどで回す → 区間中ずっと同じ間隔 */
     const S4_FLOW_DESIGN_W = 896; /* 224×4。顔＋長文 */
     const WBGT_TELOP_SPEED_PX = S4_FLOW_DESIGN_W / 15; /* ≈58.67 px/s（15秒/周の既定） */
     /* WBGT→天気：右から押し出し */
-    const SCENE_SWAP_RTL_MS = 700;
+    const SCENE_SWAP_RTL_MS = 900;
     /* 絵コンテ①→②→③→④→⑤(=①戻し) = 配置切替4回で天気終了 */
     const WEATHER_LAYOUT_SWITCHES = 4;
     let weatherShowing_ = false;
@@ -3753,12 +3783,13 @@ html.wx-no-anim #weather-panel .side-pane {
         }
         try { if (window.WbgtWeather) window.WbgtWeather.stop(); } catch (e) {}
         window.onWeatherLayoutCycleDone_ = null;
-        /* シーン側の visibility/opacity を復帰（weather-on の名残を消す） */
+        /* シーン側の visibility/opacity を復帰（weather-on の名残を消す）。display は触らない */
         document.querySelectorAll('.content-area > .scene, .content-area > .scene-strip-bg').forEach(function (el) {
             el.style.visibility = '';
             el.style.opacity = '';
-            el.style.display = '';
         });
+        /* 旧シーンが display 復帰でちらつかないよう再隠蔽 */
+        if (typeof hideInactiveLegacyScenes_ === 'function') hideInactiveLegacyScenes_();
     }
     function ensureWbgtSceneVisible_() {
         hideWeatherOverlay_();
@@ -3871,13 +3902,16 @@ html.wx-no-anim #weather-panel .side-pane {
         document.querySelectorAll('.content-area > .scene').forEach(function (el) {
             if (el === s4) return;
             el.classList.remove('active');
+            el.style.display = 'none';
             el.style.visibility = 'hidden';
             el.style.opacity = '0';
         });
         document.querySelectorAll('.content-area > .scene-strip-bg').forEach(function (el) {
+            el.style.display = 'none';
             el.style.visibility = 'hidden';
             el.style.opacity = '0';
         });
+        if (typeof hideInactiveLegacyScenes_ === 'function') hideInactiveLegacyScenes_();
         /* 画面切替中は天気コンテンツを静止。着地後に動き出す */
         try {
             if (window.WbgtWeather) window.WbgtWeather.prepare({ level: lv });
@@ -4250,11 +4284,11 @@ html.wx-no-anim #weather-panel .side-pane {
         { full: '熱中症の危険性が非常に高い', side: '熱中症の危険性が非常に高い', sideHtml: '熱中症の危険性が非常に高い' }
     ];
     const S4_FACE_SRC = [
-        'assets/faces/safe.png?v=2026.07.16.7',
-        'assets/faces/caution.png?v=2026.07.16.7',
-        'assets/faces/warning.png?v=2026.07.16.7',
-        'assets/faces/severe.png?v=2026.07.16.7',
-        'assets/faces/danger.png?v=2026.07.16.7'
+        'assets/faces/safe.png?v=2026.07.16.12',
+        'assets/faces/caution.png?v=2026.07.16.12',
+        'assets/faces/warning.png?v=2026.07.16.12',
+        'assets/faces/severe.png?v=2026.07.16.12',
+        'assets/faces/danger.png?v=2026.07.16.12'
     ];
     const S4_BADGE_COLORS = ['#308ED8', '#FFD92E', '#FFBE2C', '#FF7E00', '#D61914'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
@@ -4575,6 +4609,27 @@ html.wx-no-anim #weather-panel .side-pane {
     const sceneRainWarn = document.getElementById('sceneRainWarn');
     const d5Conveyor = document.getElementById('d5-conveyor');
     const logoRotator = document.getElementById('logo-rotator');
+
+    /** 本番(s4): 使わない旧シーンを DOM から外す（映り込み・チラつきの根を断つ） */
+    function removeUnusedLegacyScenes_() {
+        if (DEMO_ONLY !== 's4' && DEMO_ONLY !== 's1s4') return;
+        [s1, s2, s3, s5].forEach(function (el) {
+            if (el && el.parentNode) el.remove();
+        });
+    }
+    /** 非アクティブな旧シーンを display:none で再隠蔽 */
+    function hideInactiveLegacyScenes_() {
+        [s1, s2, s3, s5].forEach(function (el) {
+            if (!el || !el.parentNode) return;
+            if (el.classList.contains('active')) return;
+            el.style.display = 'none';
+            el.style.visibility = 'hidden';
+            el.style.opacity = '0';
+            el.classList.remove('active');
+        });
+    }
+    removeUnusedLegacyScenes_();
+    hideInactiveLegacyScenes_();
 
     /** ロゴパネル: 現在の WBGT 段階色に同期 */
     function applySignageLogoPanel_() {
@@ -9734,7 +9789,7 @@ var SITE_JMA = SITE.jma || {};
 var SITE_MOE = SITE.moe || {};
 var SITE_GEO = SITE.geo || {};
 var SITE_SITE = SITE.site || {};
-const CONTENT_VERSION = "2026.07.16.7";
+const CONTENT_VERSION = "2026.07.16.12";
 const DATA_SOURCE_ATTR = SITE.footSource || "データ提供：気象庁、環境省";
 const LAT = SITE_GEO.lat != null ? SITE_GEO.lat : 34.965156;
 const LON = SITE_GEO.lon != null ? SITE_GEO.lon : 138.396642;
@@ -10673,8 +10728,11 @@ function setSide(stackName, index) {
       el.classList.remove("on", "is-exit");
     }
   });
-  /* 退場完了（transform 0.48s）後に入場。同時クロス禁止で被り防止 */
-  var EXIT_MS = 520;
+  /*
+   * スムーズ切替: 退場開始後すぐに入場（上レイヤ）。白空きなし・余韻あり。
+   */
+  var ENTER_DELAY_MS = 120;
+  var EXIT_CLEAN_MS = 780;
   if (exiting) {
     if (exiting.classList.contains("is-exit")) {
       exiting.classList.remove("is-exit");
@@ -10684,11 +10742,11 @@ function setSide(stackName, index) {
     exiting.classList.remove("on");
     sideSwitchTimers_[stackName].exitClean = setTimeout(function () {
       exiting.classList.remove("is-exit");
-    }, EXIT_MS);
+    }, EXIT_CLEAN_MS);
   }
   if (entering) {
     entering.classList.remove("is-exit", "on");
-    var delay = exiting ? EXIT_MS : 0;
+    var delay = exiting ? ENTER_DELAY_MS : 0;
     sideSwitchTimers_[stackName].enter = setTimeout(function () {
       void entering.offsetWidth;
       entering.classList.add("on");
@@ -10778,12 +10836,13 @@ styleExtra.textContent =
 document.head.appendChild(styleExtra);
 
 const SLOT_MS = 15000; /* 編集用など長周期切替 */
-const FRONT_CARD_MS = 4000; /* 改修:速くしない（15秒で全部見せなくてよい） */
+const FRONT_CARD_MS = 5000; /* 正面カードの静止時間（切替を急がない） */
 const SIDE_COUNT = 4; /* 各枠＝上＋下の2項目 */
 const SIDE_OFFSET = 2; /* 初期位相（左右で同じ枠を同時表示しない） */
-const SIDE_MS = 2000; /* 左右スロット切替（ピュン感） */
-const SIDE_LR_PHASE_MS = 1000; /* 右は左から1秒ずらして個別切替 */
+const SIDE_MS = 2400; /* 左右スロット切替（ゆったり） */
+const SIDE_LR_PHASE_MS = 1200; /* 右は左からずらして個別切替 */
 const SIDE_FRONT_GAP_MS = 800; /* 正面カード切替と左右が重ならない最小間隔 */
+const FRONT_ANIM_MS = 900; /* 正面 cascade 完了待ち（CSS .85s に合わせる） */
 const WEATHER_SEGMENT_MS = 15000; /* 天気予報の表示時間 */
 const WEATHER_END_PAUSE_MS = 1000; /* 終了直前の静止 → その後 WBGT へ */
 const METEO_START_PAUSE_MS = 1000; /* 流れる前に1秒静止（必須） */
@@ -10981,7 +11040,7 @@ function runSideStepSafe_(fn) {
   if (!weatherRunning_) return;
   if (frontTooCloseForSide_()) {
     var wait = frontAnim
-      ? 620 + SIDE_FRONT_GAP_MS
+      ? FRONT_ANIM_MS + SIDE_FRONT_GAP_MS
       : (SIDE_FRONT_GAP_MS - (Date.now() - lastFrontSwitchAt_) + 40);
     weatherTimers_.push(setTimeout(function () {
       runSideStepSafe_(fn);
@@ -11040,7 +11099,7 @@ function frontStep() {
       drawChart("chartMain");
     }
     scheduleMeteoToChart_();
-  }, 560);
+  }, FRONT_ANIM_MS);
 }
 
 function resetFrontFlow_() {
@@ -11185,7 +11244,20 @@ window.WbgtWeather = {
     clearMeteoAdvance_();
     clearWeatherLocalTimers_();
     document.documentElement.classList.add("wx-no-anim");
-    /* 位置は維持（次回 prepare で通常/気象観測を切り替える） */
+    /* 左右の退場タイマーを止め、待機ペインを描画から外す */
+    try {
+      Object.keys(sideSwitchTimers_).forEach(function (k) {
+        var t = sideSwitchTimers_[k];
+        if (!t) return;
+        if (t.enter) clearTimeout(t.enter);
+        if (t.exitClean) clearTimeout(t.exitClean);
+      });
+      sideSwitchTimers_ = Object.create(null);
+      document.querySelectorAll("#weather-panel .side-pane").forEach(function (el) {
+        el.classList.remove("on", "is-exit");
+      });
+    } catch (eSideStop) {}
+    /* 正面カードを待機状態へ（is-wait = display:none） */
     try {
       if (!weatherMeteoVisit_) clampNormalPair_();
       syncFrontFlow_();
@@ -11223,8 +11295,8 @@ window.addEventListener("pageshow", function (ev) {
 </body>
 <!--
 改修要約（即起動・永続動作 / 実務版）:
-- CONTENT_VER 2026.07.16.7（?v= で HTML 取り直し。旧デザイン残存防止）
-- Service Worker / Cache API を起動時に破棄
+- CONTENT_VER 2026.07.16.12（?v= で HTML 取り直し）
+- 本番 s4: 旧シーン(scene1/2/3/5)を DOM から削除。天気中は display:none で映り込み防止
 - フォント: Google Fonts + display=swap
 - html に native-640 直書き。640×192 等倍固定（WEB＝サイネージ同一ピクセル）
 - CSS transform 拡大プレビューは廃止
