@@ -1599,7 +1599,8 @@
     },
     jma: {
       amedasPoint: '53296',
-      amedasSupplementPoint: '53257',
+      /* 南伊勢・鳥羽は気圧なし → 津地方気象台で気圧・最高/最低・瞬間風速を補完 */
+      amedasSupplementPoint: '53133',
       forecastArea: '240000',
       forecastLabel: '浜島町',
       warnArea: '240000',
@@ -2383,7 +2384,7 @@
     const JMA_AMEDAS_POINT =
         query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '53296';
     const JMA_AMEDAS_SUPPLEMENT_POINT =
-        query.get('jmaSupplementPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasSupplementPoint) || '53257';
+        query.get('jmaSupplementPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasSupplementPoint) || '53133';
     const JMA_FORECAST_AREA_CODE =
         query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '240000';
     const JMA_FETCH_HEADERS = { cache: 'no-store' };
