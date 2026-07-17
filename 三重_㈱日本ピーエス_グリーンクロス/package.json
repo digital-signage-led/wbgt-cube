@@ -1,0 +1,13 @@
+{
+  "name": "mie-nihonps",
+  "version": "1.0.0",
+  "description": "株式会社日本ピーエス WBGT サイネージ（三重・桧山路大橋 / 4面 512×128）",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "commonjs"
+}
