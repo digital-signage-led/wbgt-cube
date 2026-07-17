@@ -1,5 +1,5 @@
-﻿<!DOCTYPE html>
-<!-- CONTENT_VER: 2026.07.16.12 — このコンテンツの版管理起点（更新時は必ず上げる） -->
+<!DOCTYPE html>
+<!-- CONTENT_VER: 2026.07.16.15 — このコンテンツの版管理起点（更新時は必ず上げる） -->
 <!-- 静岡 WBGT サイネージ（本番 3面 640×192・全面流し・カード128×192） -->
 <!-- 同階層: assets/greencross_logo.png（左右ロゴ列） / assets/greencross_foot_name.svg（時刻下の下帯） -->
 <!-- 会場: 静岡県静岡市駿河区大坪町2-26 -->
@@ -14,17 +14,17 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
-    <title>WBGT Signage 3面 640×192 - 静岡 · 2026.07.16.12</title>
+    <title>WBGT Signage 3面 640×192 - 静岡 · 2026.07.16.15</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- display=swap: optional だとサイネージでフォントが落ちて隙間が変わるのを防止 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap">
-    <link rel="preload" as="image" href="./assets/greencross_logo.png?v=2026.07.16.12">
-    <link rel="preload" as="image" href="./assets/greencross_foot_name.svg?v=2026.07.16.12">
+    <link rel="preload" as="image" href="./assets/greencross_logo.png?v=2026.07.16.15">
+    <link rel="preload" as="image" href="./assets/greencross_foot_name.svg?v=2026.07.16.15">
     <script>
     /* 改修:WEB＝サイネージ同一ピクセル。版(?v=)が変わったら HTML を取り直す */
 (function () {
-    var VER = '2026.07.16.12';
+    var VER = '2026.07.16.15';
     var root = document.documentElement;
     root.classList.add('native-640');
     root.classList.remove('browser-preview');
@@ -2256,12 +2256,15 @@ html[data-demo-only="s1s4"] #scene5 {
   opacity: 0 !important;
   pointer-events: none !important;
 }
-/* 天気表示中はパネルを必ず全面に出す（is-enter-rtl 残留で画面外＝真っ赤、を防止） */
+/* 天気表示中はパネルを必ず全面に出す（画面外＝色だけ、を防止） */
 .content-area.weather-on #weather-panel,
 #weather-panel.is-on {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+.content-area.weather-on #weather-panel.is-on:not(.is-enter-rtl):not(.is-exit-down) {
+  transform: none !important;
 }
 
 /* WBGT↔天気の切替アニメ */
@@ -2924,12 +2927,12 @@ html.wx-no-anim #weather-panel .side-pane {
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/greencross_logo.png?v=2026.07.16.12',
+    logoSrc: './assets/greencross_logo.png?v=2026.07.16.15',
     logoAlt: 'デジタルサイネージ株式会社',
     logoPanelBg: '#ffffff',
     logoCorpSrc: '',
-    footLogoSrc: './assets/greencross_logo.png?v=2026.07.16.12',
-    footBannerSrc: './assets/greencross_foot_name.svg?v=2026.07.16.12'
+    footLogoSrc: './assets/greencross_logo.png?v=2026.07.16.15',
+    footBannerSrc: './assets/greencross_foot_name.svg?v=2026.07.16.15'
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -3074,16 +3077,16 @@ html.wx-no-anim #weather-panel .side-pane {
             <div class="s4-flow" aria-label="WBGTステータス">
                 <div class="s4-flow-track">
                     <div class="s4-flow-set">
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.15" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.15" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.15" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.15" alt="" style="display:none"></div></div>
                     </div>
                     <div class="s4-flow-set" aria-hidden="true">
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
-                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.12" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.15" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.15" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.15" alt="" style="display:none"></div></div>
+                        <div class="s4-flow-unit"><div class="s4-flow-text"><div class="s4-name" data-s4-name></div><div class="s4-msg" data-s4-msg-flow></div></div><div class="s4-mascot"><img data-s4-face-img src="assets/faces/safe.png?v=2026.07.16.15" alt="" style="display:none"></div></div>
                     </div>
                 </div>
             </div>
@@ -3666,7 +3669,7 @@ html.wx-no-anim #weather-panel .side-pane {
 
 </script>
 <script>
-    const CONTENT_VER = '2026.07.16.12';
+    const CONTENT_VER = '2026.07.16.15';
     document.documentElement.dataset.contentVer = CONTENT_VER;
     const query = new URLSearchParams(window.location.search);
     /* demo=1: デモモード（demo.html からの転送先）。未指定時は本番（実データ取得） */
@@ -3937,7 +3940,7 @@ html.wx-no-anim #weather-panel .side-pane {
             weatherSwapTimerId_ = null;
             area.classList.add('weather-on');
             panel.classList.remove('is-swap-rtl-flow', 'is-enter-rtl');
-            panel.style.transform = '';
+            panel.style.transform = 'none';
             panel.style.transition = '';
             panel.style.display = 'block';
             panel.style.visibility = 'visible';
@@ -3952,10 +3955,18 @@ html.wx-no-anim #weather-panel .side-pane {
                 s4.style.opacity = '0';
                 s4.style.removeProperty('--wx-rtl-ms');
             }
-            /* 切替完了後に天気カードの動きを開始 */
+            /* 切替完了後に天気カードの動きを開始。中身が無いときは WBGT に戻す */
+            var uiOk = false;
             try {
-                if (window.WbgtWeather) window.WbgtWeather.beginMotion();
-            } catch (e3) { console.error(e3); }
+                if (window.WbgtWeather) {
+                    window.WbgtWeather.beginMotion();
+                    uiOk = window.WbgtWeather.ensureUi ? !!window.WbgtWeather.ensureUi() : true;
+                }
+            } catch (e3) { console.error(e3); uiOk = false; }
+            if (!uiOk) {
+                onWeatherDone_();
+                return;
+            }
             /* 天気終了はカード配置切替回数で判定（固定秒数ではない） */
             window.onWeatherLayoutCycleDone_ = function () {
                 window.onWeatherLayoutCycleDone_ = null;
@@ -4284,11 +4295,11 @@ html.wx-no-anim #weather-panel .side-pane {
         { full: '熱中症の危険性が非常に高い', side: '熱中症の危険性が非常に高い', sideHtml: '熱中症の危険性が非常に高い' }
     ];
     const S4_FACE_SRC = [
-        'assets/faces/safe.png?v=2026.07.16.12',
-        'assets/faces/caution.png?v=2026.07.16.12',
-        'assets/faces/warning.png?v=2026.07.16.12',
-        'assets/faces/severe.png?v=2026.07.16.12',
-        'assets/faces/danger.png?v=2026.07.16.12'
+        'assets/faces/safe.png?v=2026.07.16.15',
+        'assets/faces/caution.png?v=2026.07.16.15',
+        'assets/faces/warning.png?v=2026.07.16.15',
+        'assets/faces/severe.png?v=2026.07.16.15',
+        'assets/faces/danger.png?v=2026.07.16.15'
     ];
     const S4_BADGE_COLORS = ['#308ED8', '#FFD92E', '#FFBE2C', '#FF7E00', '#D61914'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
@@ -6894,6 +6905,40 @@ html.wx-no-anim #weather-panel .side-pane {
         if (stable != null) return stable;
         return -1;
     }
+    /** 温度・湿度: AMeDAS スナップショット優先（scene2 削除後も表示できる） */
+    function resolveS4TempHumi_() {
+        let tempNum = NaN;
+        let humiNum = NaN;
+        if (lastAmedasSnapshot_) {
+            if (lastAmedasSnapshot_.temp != null && isFinite(Number(lastAmedasSnapshot_.temp))) {
+                tempNum = Number(lastAmedasSnapshot_.temp);
+            }
+            if (lastAmedasSnapshot_.humi != null && isFinite(Number(lastAmedasSnapshot_.humi))) {
+                humiNum = Number(lastAmedasSnapshot_.humi);
+            }
+        }
+        if (!isFinite(tempNum)) {
+            const tempEl = document.querySelector('.temp-val');
+            const tempRaw = tempEl ? (tempEl.textContent || '').trim() : '';
+            if (tempRaw && tempRaw !== '--') tempNum = Number(tempRaw);
+        }
+        if (!isFinite(humiNum)) {
+            const humiEl = document.querySelector('.humi-val');
+            const humiRaw = humiEl ? (humiEl.textContent || '').trim() : '';
+            if (humiRaw && humiRaw !== '--') humiNum = Number(humiRaw);
+        }
+        return { tempNum: tempNum, humiNum: humiNum };
+    }
+    function paintS4TempHumi_(s4) {
+        if (!s4) return;
+        const th = resolveS4TempHumi_();
+        s4.querySelectorAll('[data-s4-temp]').forEach(function (el) {
+            el.textContent = isFinite(th.tempNum) ? th.tempNum.toFixed(1) : '--';
+        });
+        s4.querySelectorAll('[data-s4-humi]').forEach(function (el) {
+            el.textContent = isFinite(th.humiNum) ? String(Math.round(th.humiNum)) : '--';
+        });
+    }
     function renderS4Dashboard_() {
         const s4 = document.getElementById('scene4');
         if (!s4) return;
@@ -6933,18 +6978,7 @@ html.wx-no-anim #weather-panel .side-pane {
                 if (area && !area.classList.contains('weather-on')) area.style.background = '#555555';
             } catch (eArea) {}
             /* 時計・数値だけ更新して return */
-            const tempElP = document.querySelector('.temp-val');
-            const humiElP = document.querySelector('.humi-val');
-            const tempRawP = tempElP ? (tempElP.textContent || '').trim() : '';
-            const humiRawP = humiElP ? (humiElP.textContent || '').trim() : '';
-            const tempNumP = tempRawP && tempRawP !== '--' ? Number(tempRawP) : NaN;
-            const humiNumP = humiRawP && humiRawP !== '--' ? Number(humiRawP) : NaN;
-            s4.querySelectorAll('[data-s4-temp]').forEach(function (el) {
-                el.textContent = isFinite(tempNumP) ? tempNumP.toFixed(1) : '--';
-            });
-            s4.querySelectorAll('[data-s4-humi]').forEach(function (el) {
-                el.textContent = isFinite(humiNumP) ? String(Math.round(humiNumP)) : '--';
-            });
+            paintS4TempHumi_(s4);
             const msUpdP = getSyncedUtcMs();
             if (msUpdP != null) {
                 const puP = jstPartsFromMs(msUpdP);
@@ -7016,19 +7050,8 @@ html.wx-no-anim #weather-panel .side-pane {
                 areaOk.style.background = bgColors.bgColor;
             }
         } catch (eBg) {}
-        /* 気温・湿度 */
-        const tempEl = document.querySelector('.temp-val');
-        const humiEl = document.querySelector('.humi-val');
-        const tempRaw = tempEl ? (tempEl.textContent || '').trim() : '';
-        const humiRaw = humiEl ? (humiEl.textContent || '').trim() : '';
-        const tempNum = tempRaw && tempRaw !== '--' ? Number(tempRaw) : NaN;
-        const humiNum = humiRaw && humiRaw !== '--' ? Number(humiRaw) : NaN;
-        s4.querySelectorAll('[data-s4-temp]').forEach(function (el) {
-            el.textContent = isFinite(tempNum) ? tempNum.toFixed(1) : '--';
-        });
-        s4.querySelectorAll('[data-s4-humi]').forEach(function (el) {
-            el.textContent = isFinite(humiNum) ? String(Math.round(humiNum)) : '--';
-        });
+        /* 気温・湿度（AMeDAS。旧 scene2 DOM 依存をやめる） */
+        paintS4TempHumi_(s4);
         /* 更新時刻（実時計を優先・デザイン案の動く表示） */
         const msUpd = getSyncedUtcMs();
         let upd = '';
@@ -8045,6 +8068,7 @@ html.wx-no-anim #weather-panel .side-pane {
         fitScene2BodyText();
         captureAmedasSnapshot_(obs, latest);
         persistSignageStateCache_();
+        try { if (typeof renderS4Dashboard_ === 'function') renderS4Dashboard_(); } catch (eS4Th) {}
         return {
             todayMaxTemp: maxT != null ? Number(maxT) : (temp != null ? Number(temp) : null),
             todayLiveIcon: icon
@@ -9527,7 +9551,21 @@ html.wx-no-anim #weather-panel .side-pane {
         setTextAll('.tmaxmax-val', '32');
         setTextAll('.tmin-val', '24');
         setTextAll('.gust-val', '6.0');
+        lastAmedasSnapshot_ = {
+            time: (getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date()).toISOString(),
+            temp: sample.temp,
+            humi: sample.humi,
+            rain: 0,
+            wind: 2.5,
+            pres: 1013,
+            wdir: 8,
+            maxT: 32,
+            minT: 24,
+            gust: 6,
+            icon: '#icon-sunny'
+        };
         buildScene2MetaTrack(getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date());
+        try { if (typeof renderS4Dashboard_ === 'function') renderS4Dashboard_(); } catch (eDemoS4) {}
         fitScene2BodyText();
         document.querySelectorAll('.d5-temp').forEach(el => { el.innerText = '32'; });
         applyD5BarLabels_();
@@ -9579,6 +9617,11 @@ html.wx-no-anim #weather-panel .side-pane {
         const sample = DEMO_SAMPLE_BY_LEVEL[levelIdx] || DEMO_SAMPLE_BY_LEVEL[1];
         setTextAll('.temp-val', sample.temp.toFixed(1));
         setTextAll('.humi-val', String(sample.humi));
+        lastAmedasSnapshot_ = Object.assign({}, lastAmedasSnapshot_ || {}, {
+            temp: sample.temp,
+            humi: sample.humi,
+            time: (getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date()).toISOString()
+        });
         const slots = mockSlotsForDemoLevel(levelIdx);
         refreshSignageBg();
         updateForecastSlots(slots);
@@ -9748,6 +9791,17 @@ html.wx-no-anim #weather-panel .side-pane {
         }
         mainLoopStarted_ = true;
         try { playScene4(); } catch (ePlay) { console.warn(ePlay); }
+        /* 色だけ画面（シーンも天気も無い）になったら WBGT に戻す */
+        setInterval(function () {
+            try {
+                if (weatherShowing_) return;
+                var area = document.querySelector('.content-area');
+                if (!area || area.classList.contains('weather-on')) return;
+                var active = document.querySelector('.content-area > .scene.active');
+                var panelOn = document.querySelector('#weather-panel.is-on');
+                if (!active && !panelOn) ensureWbgtSceneVisible_();
+            } catch (eWatch) {}
+        }, 2000);
         /* 改修:二重 rAF 待ちを廃止。即 fetch 開始（表示と並列） */
         kickBootFetch_();
         document.addEventListener('visibilitychange', function() {
@@ -9789,7 +9843,7 @@ var SITE_JMA = SITE.jma || {};
 var SITE_MOE = SITE.moe || {};
 var SITE_GEO = SITE.geo || {};
 var SITE_SITE = SITE.site || {};
-const CONTENT_VERSION = "2026.07.16.12";
+const CONTENT_VERSION = "2026.07.16.15";
 const DATA_SOURCE_ATTR = SITE.footSource || "データ提供：気象庁、環境省";
 const LAT = SITE_GEO.lat != null ? SITE_GEO.lat : 34.965156;
 const LON = SITE_GEO.lon != null ? SITE_GEO.lon : 138.396642;
@@ -11244,7 +11298,6 @@ window.WbgtWeather = {
     clearMeteoAdvance_();
     clearWeatherLocalTimers_();
     document.documentElement.classList.add("wx-no-anim");
-    /* 左右の退場タイマーを止め、待機ペインを描画から外す */
     try {
       Object.keys(sideSwitchTimers_).forEach(function (k) {
         var t = sideSwitchTimers_[k];
@@ -11253,15 +11306,34 @@ window.WbgtWeather = {
         if (t.exitClean) clearTimeout(t.exitClean);
       });
       sideSwitchTimers_ = Object.create(null);
-      document.querySelectorAll("#weather-panel .side-pane").forEach(function (el) {
-        el.classList.remove("on", "is-exit");
-      });
     } catch (eSideStop) {}
-    /* 正面カードを待機状態へ（is-wait = display:none） */
+    /* カード状態を一括同期（先に .on を全部消すと一瞬オレンジだけになる） */
     try {
       if (!weatherMeteoVisit_) clampNormalPair_();
       syncFrontFlow_();
     } catch (eSync) {}
+  },
+  /** 天気UIが空（色だけ）になっていないか確認し、必要なら復帰 */
+  ensureUi: function () {
+    try {
+      clampNormalPair_();
+      syncFrontFlow_();
+      document.documentElement.classList.remove("wx-no-anim");
+      var panel = document.getElementById("weather-panel");
+      if (panel) {
+        panel.classList.add("is-on");
+        panel.classList.remove("is-enter-rtl");
+        panel.style.transform = "none";
+        panel.style.display = "block";
+        panel.style.visibility = "visible";
+        panel.style.opacity = "1";
+      }
+      var hasFront = !!document.querySelector("#frontFlow .flow-card.is-top");
+      var hasSide = !!document.querySelector("#weather-panel .side-pane.on");
+      return hasFront && hasSide;
+    } catch (eEns) {
+      return false;
+    }
   },
   setLevel: weatherSetLevel_
 };
@@ -11295,7 +11367,7 @@ window.addEventListener("pageshow", function (ev) {
 </body>
 <!--
 改修要約（即起動・永続動作 / 実務版）:
-- CONTENT_VER 2026.07.16.12（?v= で HTML 取り直し）
+- CONTENT_VER 2026.07.16.15（?v= で HTML 取り直し）
 - 本番 s4: 旧シーン(scene1/2/3/5)を DOM から削除。天気中は display:none で映り込み防止
 - フォント: Google Fonts + display=swap
 - html に native-640 直書き。640×192 等倍固定（WEB＝サイネージ同一ピクセル）
