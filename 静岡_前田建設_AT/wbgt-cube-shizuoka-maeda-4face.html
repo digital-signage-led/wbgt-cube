@@ -12,7 +12,9 @@
     <!-- clock: jst-network-v1 -->
     <title>WBGT Signage 4面 - 前田建設株式会社</title>
     <link rel="preload" as="image" href="./assets/maeda_logo.png?v=cream1">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap">
     <script>
 /** 4面 512×128 本番用（layout512 + native640）。localhost は PC 確認用に拡大表示 */
 (function () {
@@ -3049,8 +3051,8 @@
             line2: def ? def.line2 : ''
         };
     }
-    const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '220000';   /* 三重県 */
-    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '2220300';  /* 志摩市 */
+    const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '220000';   /* 静岡県 */
+    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '2220300';  /* 沼津市 */
     const JMA_WARN_CITY_LABELS = { '2220300': '沼津市', '2220600': '三島市', '2220100': '静岡市', '220000': '静岡県' };
     let rainWarnMeta = {
         cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || getSiteLocationLabel_(),
