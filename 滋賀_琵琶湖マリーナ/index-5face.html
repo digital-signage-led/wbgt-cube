@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-biwako-marina-5face / 琵琶湖マリーナ WBGT（本番 5面 640×128・ロゴ列128） -->
-<!-- 右端: 一旦社名テキスト（画像ロゴ未設定） / 下帯も社名テキスト -->
+<!-- 右端: assets/rotary_pier_88.png（512〜640） / 下帯: rotary_pier_88_foot.png -->
 <!-- site: 〒520-0102 滋賀県大津市苗鹿３丁目１２−１ -->
 <!-- WBGT/AMeDAS 60216 (大津) / supplement 60131 (彦根) -->
 <html lang="ja" class="native-640">
@@ -11,6 +11,8 @@
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
     <title>WBGT Signage 5面 - 琵琶湖マリーナ</title>
+    <link rel="preload" as="image" href="./assets/rotary_pier_88.png">
+    <link rel="preload" as="image" href="./assets/rotary_pier_88_foot.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap">
@@ -117,11 +119,11 @@
             body.layout-512 .canvas { transform: scale(calc(100vw / 512)); }
         }
         body.layout-512.native-640 .canvas { transform: none !important; }
-        /* 右端 128×128: メールロゴ同様（上に大きくマーク、下に社名） */
+        /* 右端 128×128（x=512〜640）: フルブリード正方形ロゴ */
         .logo-panel {
             width: 128px; height: 128px; display: flex; align-items: center; justify-content: center;
             flex: 0 0 128px; flex-shrink: 0; overflow: hidden; position: relative;
-            background: #ffffff;
+            background: #2BB3C9;
         }
         .logo-rotator {
             width: 128px; height: 128px; flex-shrink: 0; position: relative; z-index: 1;
@@ -129,15 +131,14 @@
             transform-origin: center center;
             transition: transform 0.6s ease-in-out;
         }
-        /* 右端 128×128: 参考画像の比率（マーク約65%・社名約幅揃え・被らない） */
         .logo-stack {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 5px; width: 112px; max-height: 124px; box-sizing: border-box;
-            padding: 4px 0;
+            gap: 0; width: 128px; height: 128px; max-height: 128px; box-sizing: border-box;
+            padding: 0;
         }
         .logo-img {
-            display: block; width: 108px; max-width: 108px; height: auto; max-height: 92px;
-            object-fit: contain; object-position: center center; margin: 0;
+            display: block; width: 128px; max-width: 128px; height: 128px; max-height: 128px;
+            object-fit: cover; object-position: center center; margin: 0;
             flex: 0 0 auto;
         }
         .logo-corp-img {
@@ -448,10 +449,14 @@
             display: block; margin: 0 auto;
             height: 28px; width: auto; max-width: 248px;
             object-fit: contain; object-position: center center;
-            background: var(--led-foot-bar-bg);
+            background: transparent;
             mix-blend-mode: normal;
             transform: none;
             transform-origin: center center;
+        }
+        /* 白帯用ロゴ（白字黒地 → 反転して黒字・背景透過風） */
+        #scene1 .s1-wbgt-site-slot .s1-wbgt-banner.s1-wbgt-banner-invert {
+            filter: invert(1);
         }
         #scene1 .s1-wbgt-site-slot .s1-wbgt-banner-svg {
             height: 30px; max-width: 256px;
@@ -1609,7 +1614,7 @@
  * jma.amedasSupplementPoint … 主地点に無い項目（気圧など）の近傍補完地点
  * jma.forecastArea … 気象庁予報区域（4面・5面共通）
  *
- * ※5面。画像ロゴ未設定時は右端・下帯とも社名テキスト
+ * ※5面。右端ロゴ = 水色版（512〜640）。下帯 = 白帯用モノクロ版
  */
 (function (global) {
   'use strict';
@@ -1649,14 +1654,15 @@
 
   global.SignageConfig = cfg;
 
-  /* 画像ロゴ未設定: 右端はテキスト、下帯も社名テキスト */
+  /* 右端: 水色正方形 / 時刻下白帯: 横長モノクロ（CSS invert で黒字） */
   global.SIGNAGE_CONFIG = {
-    logoSrc: '',
-    logoAlt: '琵琶湖マリーナ',
-    logoPanelBg: '#ffffff',
+    logoSrc: './assets/rotary_pier_88.png',
+    logoAlt: 'ROTARY PIER 88',
+    logoPanelBg: '#2BB3C9',
     logoCorpSrc: '',
     footLogoSrc: '',
-    footBannerSrc: ''
+    footBannerSrc: './assets/rotary_pier_88_foot.png',
+    footBannerInvert: true
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -6331,7 +6337,8 @@
     function getS1SiteLogoSrc_() {
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
         if (String(cfg.footBannerSrc || '').trim()) return '';
-        return cfg.footLogoSrc || cfg.logoSrc || '';
+        /* 右端フルロゴ(logoSrc)は下帯に使わない。下帯用は footLogoSrc のみ */
+        return String(cfg.footLogoSrc || '').trim();
     }
     function getS1FootBannerSrc_() {
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
@@ -6339,7 +6346,7 @@
     }
     function getS1FootMarkSrc_() {
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
-        return String(cfg.footLogoSrc || cfg.logoSrc || '').trim();
+        return String(cfg.footLogoSrc || '').trim();
     }
     function buildS1FootBrandHtml_() {
         const name = getS1SiteFootName_() || '琵琶湖マリーナ';
@@ -6354,7 +6361,7 @@
         const name = siteName || '琵琶湖マリーナ';
         const alt = escapeS1Html(name);
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
-        const logoSrc = escapeS1Html(cfg.footLogoSrc || cfg.logoSrc || '');
+        const logoSrc = escapeS1Html(cfg.footLogoSrc || '');
         return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><svg class="s1-wbgt-banner s1-wbgt-banner-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 215 32" role="img" aria-label="${alt}">
   <image href="${logoSrc}" x="0" y="7" width="14" height="18" preserveAspectRatio="xMidYMid meet"/>
   <text x="18" y="16" dominant-baseline="central" font-family="'M PLUS Rounded 1c','Hiragino Maru Gothic ProN','Rounded Mplus 1c',sans-serif" font-weight="700" font-size="18" fill="#231815">${alt}</text>
@@ -6364,8 +6371,10 @@
         const bannerSrc = getS1FootBannerSrc_();
         if (bannerSrc) {
             if (/\.svg$/i.test(bannerSrc)) return buildS1FootBannerSvgHtml_(siteName);
-            const alt = escapeS1Html(siteName || '');
-            return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="${escapeS1Html(bannerSrc)}" alt="${alt}" decoding="async"></div>`;
+            const alt = escapeS1Html(siteName || 'ROTARY PIER 88');
+            const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
+            const invertCls = cfg.footBannerInvert ? ' s1-wbgt-banner-invert' : '';
+            return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner${invertCls}" src="${escapeS1Html(bannerSrc)}" alt="${alt}" decoding="async"></div>`;
         }
         const logoHtml = buildS1SiteLogoHtml_();
         const labelHtml = `<span class="s1-wbgt-site-label">${escapeS1Html(siteName || '琵琶湖マリーナ')}</span>`;
