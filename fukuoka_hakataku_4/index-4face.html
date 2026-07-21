@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- wbgt-cube-hakata-4face / 博多区 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 会場: 福岡県福岡市博多区 / WBGT・AMeDAS 82182（博多区・気象庁/環境省） -->
 <html lang="ja" class="native-640 layout-512">
@@ -337,6 +337,20 @@
             display: flex; align-items: center; justify-content: center;
             padding: 0 4px; box-sizing: border-box;
         }
+        .s1-wbgt-banner-slot {
+            justify-content: center;
+            align-items: stretch;
+            padding: 0;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        #scene1 .s1-wbgt-banner-slot .s1-wbgt-banner {
+            display: block; margin: 0 auto;
+            height: 100%; width: auto; max-width: 100%;
+            object-fit: contain; object-position: center center;
+            background: transparent;
+            mix-blend-mode: normal;
+        }
         /* シーン1下帯・社名（1行） */
         .s1-foot-co-txt {
             display: inline-block; flex-shrink: 0; white-space: nowrap; line-height: var(--led-foot-bar-h);
@@ -359,6 +373,10 @@
         .s1-wbgt-logo {
             height: 17px; width: auto; max-width: 32px; flex-shrink: 0;
             display: block; object-fit: contain;
+        }
+        .s1-wbgt-banner {
+            display: block; height: 100%; width: auto; max-width: 100%;
+            object-fit: contain; object-position: center center;
         }
         .s1-wbgt-site-label {
             font-size: var(--led-foot-site-font); font-weight: 700; color: #1a1a1a; line-height: var(--led-foot-bar-h);
@@ -1510,9 +1528,10 @@
 
   global.SIGNAGE_CONFIG = {
     logoSrc: '',
-    logoAlt: '博多区',
+    logoAlt: 'KISAN',
     logoPanelBg: '#3a3a3a',
-    footLogoSrc: ''
+    footLogoSrc: '',
+    footBannerSrc: './assets/kisan-logo.png'
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -4642,7 +4661,7 @@
         const ms = getSyncedUtcMs();
         if (ms == null) return '';
         try {
-            const parts = new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ, hour: '2-digit', hour12: false }).formatToParts(new Date(ms));
+            const parts = new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ, hour: '2-digit', hour12: false, hourCycle: 'h23' }).formatToParts(new Date(ms));
             const hp = parts.find(p => p.type === 'hour');
             return hp ? (Number(hp.value) + '時') : '';
         } catch (e) { return ''; }
@@ -5859,13 +5878,16 @@
     }
     function hasS1WbgtFootMessage_() {
         if (wbgtOffSeason) return false;
+        if (String(getS1FootBannerSrc_() || '').trim()) return true;
         return !!String(getS1WbgtMessageJp() || '').trim();
     }
     /* 下帯: WBGT取得不可時は「取得不可」。提供期間外は地点名で白帯を維持 */
     function getS1FootFallbackText_() {
+        if (String(getS1FootBannerSrc_() || '').trim()) return '';
         return (SITE_CFG.site && SITE_CFG.site.label) || MOE_POINT_CFG.pointName || '博多区';
     }
     function getS1SiteCustomerName_() {
+        if (String(getS1FootBannerSrc_() || '').trim()) return '';
         const site = SITE_CFG.site || {};
         return site.rental || site.customer || '';
     }
@@ -5901,12 +5923,14 @@
         });
     }
     function buildS1FootWbgtSlotHtml_(msgText) {
-        return '<div class="s1-wbgt-slot s1-wbgt-slot-right s1-wbgt-slot-wbgt">' + buildS1WbgtMsgHtml(msgText) + '</div>';
+        return '<div class="s1-wbgt-slot s1-wbgt-slot-right s1-wbgt-slot-wbgt s1-wbgt-msg-slot">' +
+            (msgText ? buildS1WbgtMsgHtml(msgText) : '') + '</div>';
     }
     function buildS1FootCoSlotHtml_() {
         return '<div class="s1-wbgt-slot s1-wbgt-slot-left s1-wbgt-slot-co">' + buildS1FootCompanyHtml_() + '</div>';
     }
     function buildS1FootPairHtml_(msgText) {
+        if (getS1FootBannerSrc_()) return buildS1FootBannerSlotHtml_() + buildS1FootWbgtSlotHtml_(msgText);
         return buildS1FootCoSlotHtml_() + buildS1FootWbgtSlotHtml_(msgText);
     }
     function buildS1FootScrollSetHtml_(msgText) {
@@ -5915,14 +5939,25 @@
     }
     function getS1SiteLogoSrc_() {
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
+        if (String(cfg.footBannerSrc || '').trim()) return '';
         return cfg.footLogoSrc || cfg.logoSrc || '';
+    }
+    function getS1FootBannerSrc_() {
+        const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
+        return String(cfg.footBannerSrc || '').trim();
     }
     function buildS1SiteLogoHtml_() {
         const logoSrc = getS1SiteLogoSrc_();
         if (!logoSrc) return '';
         return `<span class="s1-wbgt-logo-wrap"><img class="s1-wbgt-logo" src="${escapeS1Html(logoSrc)}" alt="" decoding="async"></span>`;
     }
+    function buildS1FootBannerSlotHtml_() {
+        const bannerSrc = getS1FootBannerSrc_();
+        if (!bannerSrc) return '';
+        return `<div class="s1-wbgt-slot s1-wbgt-slot-left s1-wbgt-site-slot s1-wbgt-banner-slot"><img class="s1-wbgt-banner" src="${escapeS1Html(bannerSrc)}" alt="KISAN" decoding="async"></div>`;
+    }
     function buildS1SiteSlotHtml_(siteName) {
+        if (getS1FootBannerSrc_()) return buildS1FootBannerSlotHtml_();
         const logoHtml = buildS1SiteLogoHtml_();
         const labelHtml = `<span class="s1-wbgt-site-label">${escapeS1Html(siteName)}</span>`;
         return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-wbgt-site-inner">${logoHtml}${labelHtml}</span></div>`;
@@ -5953,9 +5988,16 @@
     function buildFootBarSlotHtml(msgHtml, slotClass) {
         return `<div class="${slotClass}">${msgHtml}</div>`;
     }
-    /* 下帯: WBGT文言のみ（社名は表示しない）— 512px周期で2分割しシームレスに */
+    /* 下帯: 左ロゴ（256）＋右WBGT文言（256）をシームレススクロール */
     function buildS1WbgtSetHtml(text) {
         const msgText = String(text || getS1WbgtMessageJp() || '').trim();
+        if (getS1FootBannerSrc_()) {
+            return buildS1FootScrollSetHtml_(msgText);
+        }
+        const siteName = getS1SiteCustomerName_();
+        if (siteName && msgText) {
+            return buildS1FootScrollSetHtml_(msgText);
+        }
         if (!msgText) return '';
         const msg = buildS1WbgtMsgHtml(msgText);
         if (footBarUseCompact_(msgText)) {
@@ -6002,12 +6044,13 @@
     function refreshS1WbgtFootBar_(resetTransform) {
         if (!s1WbgtTrack) return;
         const text = getS1WbgtMessageJp();
-        if (text === s1FootBarCachedText_ && s1WbgtTrack.children.length) {
+        const cacheKey = (getS1FootBannerSrc_() || '') + '\n' + text;
+        if (cacheKey === s1FootBarCachedText_ && s1WbgtTrack.children.length) {
             const bar = document.querySelector('#scene1 .s1-wbgt-bar');
             if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
             return;
         }
-        s1FootBarCachedText_ = text;
+        s1FootBarCachedText_ = cacheKey;
         let html = '';
         for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
         s1WbgtTrack.innerHTML = html;
