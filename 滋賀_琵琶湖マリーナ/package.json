@@ -1,0 +1,7 @@
+﻿{
+  "name": "biwako-marina-wbgt-signage",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  }
+}
