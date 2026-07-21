@@ -580,127 +580,6 @@
             line-height: 32px; box-sizing: border-box;
         }
         .t3-scene-top-bar.col-bg-dark-text .t3-lv-label { color: #000; }
-        /* 厳重警戒・危険: 回転灯（パトランプ）走査（帯の地色は単色のまま） */
-        .t3-scene-top-bar.t3-lv-wave-active {
-            overflow: hidden;
-        }
-        .t3-scene-top-bar.t3-lv-wave-active .t3-lv-cells {
-            position: relative; z-index: 1;
-        }
-        .t3-scene-top-bar.t3-lv-wave-active::before,
-        .t3-scene-top-bar.t3-lv-wave-active::after {
-            content: ''; position: absolute; top: 0; height: 100%;
-            pointer-events: none; z-index: 0;
-            will-change: transform;
-        }
-        /* 厳重警戒: 琥珀色パトランプ */
-        .t3-scene-top-bar.t3-lv-wave-severe::before {
-            left: -38%; width: 42%;
-            background: linear-gradient(
-                90deg,
-                rgba(0, 0, 0, 0) 0%,
-                rgba(220, 100, 0, 0.42) 22%,
-                rgba(255, 175, 0, 0.92) 40%,
-                rgba(255, 220, 80, 1) 46%,
-                rgba(255, 255, 255, 1) 50%,
-                rgba(255, 220, 80, 1) 54%,
-                rgba(255, 175, 0, 0.92) 60%,
-                rgba(220, 100, 0, 0.42) 78%,
-                rgba(0, 0, 0, 0) 100%
-            );
-            filter: blur(0.3px) brightness(1.5);
-            mix-blend-mode: screen;
-            opacity: 1;
-            box-shadow:
-                0 0 44px 14px rgba(255, 200, 0, 1),
-                0 0 88px 26px rgba(255, 150, 0, 0.82),
-                0 0 130px 40px rgba(230, 90, 0, 0.58);
-            animation: t3-patrol-sweep 2.8s linear infinite;
-        }
-        .t3-scene-top-bar.t3-lv-wave-severe::after {
-            left: -54%; width: 78%;
-            background:
-                radial-gradient(
-                    ellipse 68% 200% at 50% 50%,
-                    rgba(255, 240, 160, 1) 0%,
-                    rgba(255, 170, 30, 0.82) 28%,
-                    rgba(230, 90, 0, 0.45) 52%,
-                    rgba(0, 0, 0, 0) 100%
-                ),
-                linear-gradient(
-                    90deg,
-                    rgba(0, 0, 0, 0) 0%,
-                    rgba(255, 130, 0, 0.42) 20%,
-                    rgba(255, 190, 50, 0.9) 38%,
-                    rgba(255, 245, 200, 1) 50%,
-                    rgba(255, 190, 50, 0.9) 62%,
-                    rgba(255, 130, 0, 0.42) 80%,
-                    rgba(0, 0, 0, 0) 100%
-                );
-            filter: blur(4px) brightness(1.45);
-            mix-blend-mode: screen;
-            opacity: 1;
-            animation: t3-patrol-sweep 2.8s linear infinite;
-            animation-delay: -0.42s;
-        }
-        /* 危険: 赤色パトランプ */
-        .t3-scene-top-bar.t3-lv-wave-danger::before {
-            left: -38%; width: 42%;
-            background: linear-gradient(
-                90deg,
-                rgba(0, 0, 0, 0) 0%,
-                rgba(200, 0, 0, 0.44) 22%,
-                rgba(255, 50, 0, 0.94) 40%,
-                rgba(255, 110, 50, 1) 46%,
-                rgba(255, 255, 250, 1) 50%,
-                rgba(255, 110, 50, 1) 54%,
-                rgba(255, 50, 0, 0.94) 60%,
-                rgba(200, 0, 0, 0.44) 78%,
-                rgba(0, 0, 0, 0) 100%
-            );
-            filter: blur(0.3px) brightness(1.55);
-            mix-blend-mode: screen;
-            opacity: 1;
-            box-shadow:
-                0 0 44px 14px rgba(255, 70, 0, 1),
-                0 0 88px 26px rgba(255, 0, 0, 0.85),
-                0 0 130px 40px rgba(200, 0, 0, 0.58);
-            animation: t3-patrol-sweep 2.2s linear infinite;
-        }
-        /* 照射域（コーン状の拡散光） */
-        .t3-scene-top-bar.t3-lv-wave-danger::after {
-            left: -54%; width: 78%;
-            background:
-                radial-gradient(
-                    ellipse 68% 200% at 50% 50%,
-                    rgba(255, 150, 110, 1) 0%,
-                    rgba(255, 40, 0, 0.85) 28%,
-                    rgba(180, 0, 0, 0.46) 52%,
-                    rgba(0, 0, 0, 0) 100%
-                ),
-                linear-gradient(
-                    90deg,
-                    rgba(0, 0, 0, 0) 0%,
-                    rgba(230, 0, 0, 0.44) 20%,
-                    rgba(255, 70, 25, 0.9) 38%,
-                    rgba(255, 180, 150, 1) 50%,
-                    rgba(255, 70, 25, 0.9) 62%,
-                    rgba(230, 0, 0, 0.44) 80%,
-                    rgba(0, 0, 0, 0) 100%
-                );
-            filter: blur(4px) brightness(1.5);
-            mix-blend-mode: screen;
-            opacity: 1;
-            animation: t3-patrol-sweep 2.2s linear infinite;
-            animation-delay: -0.36s;
-        }
-        .t3-scene-top-bar.t3-lv-wave-danger {
-            box-shadow: inset 0 -10px 22px rgba(0, 0, 0, 0.5);
-        }
-        @keyframes t3-patrol-sweep {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(460%); }
-        }
         #t3-shell.t3-top-ha-active .t3-static-top-bar { display: none; }
         #t3-shell.t3-top-ha-active .t3-pair { height: var(--led-col-main-h); }
         #t3-shell.t3-top-ha-active .t3-col-top { display: block; }
@@ -1899,10 +1778,7 @@
 
     function applyT3LvWaveClasses_(el, levelIdx, displayMode) {
         if (!el) return;
-        const waveOn = displayMode === 'normal' && (levelIdx === 3 || levelIdx === 4);
-        el.classList.toggle('t3-lv-wave-active', waveOn);
-        el.classList.toggle('t3-lv-wave-severe', waveOn && levelIdx === 3);
-        el.classList.toggle('t3-lv-wave-danger', waveOn && levelIdx === 4);
+        el.classList.remove('t3-lv-wave-active', 't3-lv-wave-severe', 't3-lv-wave-danger');
     }
 
     function applyT3TopBar(el, levelIdx, displayMode) {
@@ -2373,11 +2249,11 @@
     let wbgtUnavailableTimerId_ = null;
 
     const multi = [
-        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"【Aman】Minum air secukupnya", fil:"【Halos ligtas】Uminom ng tubig kung kailangan", vn:"An toàn: Bổ sung nước" },
-        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"【Waspada】Minum air secara aktif", fil:"【Babala】Aktibong uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
-        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"【Siaga】Istirahat secara berkala", fil:"【Alerto】Magpahinga nang regular", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
-        { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", id:"【Waspada Ekstrem】Hentikan pekerjaan berat", fil:"【Malubhang babala】Itigil ang mabigat na gawain", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
-        { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", id:"【Bahaya】Segera hentikan pekerjaan", fil:"【Panganib】Itigil agad ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
+        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"Aman: Minum air cukup", fil:"Halos ligtas: Uminom ng tubig", vn:"An toàn: Bổ sung nước" },
+        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"Waspada: Minum air aktif", fil:"Babala: Uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
+        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"Siaga: Istirahat rutin", fil:"Alerto: Magpahinga", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
+        { jp:"【厳重警戒】こまめに休憩・体調確認", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
+        { jp:"【危険】休憩・水分塩分補給を徹底", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
     ];
     const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
     const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
@@ -2395,13 +2271,13 @@
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
     const T3_WBGT_GUIDE_TIERS = [
-        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '過去に例のない危険な暑さとなり、重大な健康上の被害が生じる恐れがある。' },
-        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '熱中症による健康上の被害が生じる恐れがある。' },
-        { range: '31以上', color: '赤', title: '危険', guide: '安静時でも熱中症になる危険性が大きい。外出はなるべく避け、運動や作業は原則中止する。' },
-        { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '外出時は炎天下を避け、室内でも室温の上昇に注意する。10～20分おきに水分や塩分を補給し、激しい運動や作業は避ける。' },
-        { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給を行う。激しい運動や作業をする場合には、30分おきくらいに休憩を入れる。' },
-        { range: '21～25未満', color: '水色', title: '注意', guide: '激しい運動や重労働をする場合には、十分注意する。熱中症の兆候に注意し、積極的に水分や塩分を補給する。' },
-        { range: '21未満', color: '青', title: 'ほぼ安全', guide: '熱中症の危険性は少ないが、水分や塩分の補給は必要。' }
+        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '記録的な暑さです。無理をせず、涼しい場所での休憩と水分・塩分補給を最優先にしてください。' },
+        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '危険な暑さです。こまめな休憩と水分・塩分補給を徹底し、体調の変化に注意してください。' },
+        { range: '31以上', color: '赤', title: '危険', guide: '熱中症の危険性が非常に高い状態です。休憩の間隔を短くし、水分・塩分補給と体調確認を徹底してください。' },
+        { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '炎天下を避け、10～20分おきに水分や塩分を補給してください。負荷の高い作業は控えめにしましょう。' },
+        { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給してください。負荷の高い作業では30分おきに休憩を入れましょう。' },
+        { range: '21～25未満', color: '水色', title: '注意', guide: '熱中症の兆候に注意し、こまめに水分や塩分を補給してください。' },
+        { range: '21未満', color: '青', title: 'ほぼ安全', guide: '熱中症の危険性は低い状態です。引き続き水分や塩分の補給を心掛けましょう。' }
     ];
     /* levelIdx 0〜4 → T3_WBGT_GUIDE_TIERS のインデックス（31以上〜21未満） */
     const T3_GUIDE_TIER_BY_LEVEL = [6, 5, 4, 3, 2];
@@ -2489,7 +2365,7 @@
         const fmt = new Intl.DateTimeFormat('en-CA', {
             timeZone: CLOCK_TZ,
             year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, hourCycle: 'h23'
         });
         const p = Object.fromEntries(fmt.formatToParts(new Date(ms)).map(x => [x.type, x.value]));
         return {
@@ -2565,7 +2441,7 @@
         return events.find(e => e.at > fromMs) || null;
     }
     function formatScheduleJst(ms) {
-        return new Date(ms).toLocaleString('ja-JP', { timeZone: CLOCK_TZ, hour12: false });
+        return new Date(ms).toLocaleString('ja-JP', { timeZone: CLOCK_TZ, hour12: false, hourCycle: 'h23' });
     }
     function refreshSignageBg() {
         if (typeof SignageBg === 'undefined') return;
@@ -3402,7 +3278,7 @@
             return '発表 ' + d.toLocaleString('ja-JP', {
                 month: 'numeric', day: 'numeric',
                 hour: '2-digit', minute: '2-digit',
-                timeZone: 'Asia/Tokyo'
+                timeZone: 'Asia/Tokyo', hour12: false, hourCycle: 'h23'
             });
         }
         return '発表 ' + s.slice(0, 16);
@@ -4433,10 +4309,10 @@
 
     const timeSync = { baseUtcMs: null, clientAtSync: 0, source: '' };
     const CLOCK_TZ = 'Asia/Tokyo';
-    /** 表示は時:分のみ。内部時刻はこの間隔で NICT 等と再同期（Wi-Fi 前提） */
+    /** 表示は日本標準時（Asia/Tokyo）。内部時刻はこの間隔でネット再同期（Wi-Fi 前提） */
     const CLOCK_SYNC_INTERVAL_MS = 60000;
     const clockHmFormatter = new Intl.DateTimeFormat('en-GB', {
-        timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hour12: false
+        timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23'
     });
     const clockDateFormatter = new Intl.DateTimeFormat('ja-JP', {
         timeZone: CLOCK_TZ, month: 'long', day: 'numeric', weekday: 'short'
@@ -4456,21 +4332,50 @@
         if (!Number.isFinite(serverUtcMs)) return NaN;
         return serverUtcMs + (t1 - t0) / 2;
     }
+    function pad2Clock_(n) {
+        return String(n == null ? 0 : n).padStart(2, '0');
+    }
     function utcMsFromOpenMeteoTime(iso) {
         let s = String(iso || '').trim();
         if (!s) return NaN;
         if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += '+09:00';
         return Date.parse(s);
     }
+    /** timeapi.io Asia/Tokyo 応答を UTC ms に変換（オフセット無し日時は必ず +09:00 として扱う） */
     function parseTimeApiIoJson(json) {
         if (!json || typeof json !== 'object') return NaN;
+        if (json.year != null && json.month != null && json.day != null && json.hour != null) {
+            const iso = `${json.year}-${pad2Clock_(json.month)}-${pad2Clock_(json.day)}T` +
+                `${pad2Clock_(json.hour)}:${pad2Clock_(json.minute)}:${pad2Clock_(json.seconds)}` +
+                `.${String(json.milliSeconds || 0).padStart(3, '0')}+09:00`;
+            const ms = Date.parse(iso);
+            if (Number.isFinite(ms)) return ms;
+        }
         if (json.dateTime) {
             const s = String(json.dateTime).trim();
             if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
             return Date.parse(s.replace(/\.\d+$/, '') + '+09:00');
         }
-        if (json.year == null) return NaN;
-        return Date.UTC(json.year, json.month - 1, json.day, json.hour - 9, json.minute, json.seconds, json.milliSeconds || 0);
+        return NaN;
+    }
+    async function fetchUtcMsFromCloudflare() {
+        const urls = ['https://www.cloudflare.com/cdn-cgi/trace', 'https://one.one.one.one/cdn-cgi/trace'];
+        for (let i = 0; i < urls.length; i++) {
+            const t0 = performance.now();
+            const res = await fetch(urls[i], { cache: 'no-store' });
+            const t1 = performance.now();
+            if (!res.ok) continue;
+            const text = await res.text();
+            const m = text.match(/(?:^|\n)ts=([0-9]+(?:\.[0-9]+)?)/);
+            let serverUtcMs = NaN;
+            if (m) serverUtcMs = Math.round(parseFloat(m[1]) * 1000);
+            if (!Number.isFinite(serverUtcMs)) {
+                const dateHdr = res.headers.get('Date');
+                if (dateHdr) serverUtcMs = Date.parse(dateHdr);
+            }
+            if (Number.isFinite(serverUtcMs)) return utcMsWithRtt(serverUtcMs, t0, t1);
+        }
+        throw new Error('Cloudflare time unavailable');
     }
     async function fetchUtcMsFromTimeApiIo() {
         const t0 = performance.now();
@@ -4524,11 +4429,12 @@
         if (!Number.isFinite(serverUtcMs)) throw new Error('jma-latest parse');
         return utcMsWithRtt(serverUtcMs, t0, t1);
     }
-    /** JMA latest_time は観測時刻（10分単位）のため時計同期には使わない */
+    /** NICT HTTP時刻配信は停止方向のため Cloudflare を優先。表示は常に Asia/Tokyo */
     const TIME_SYNC_CHAIN = [
-        { name: 'NICT', fetch: fetchUtcMsFromNict },
+        { name: 'Cloudflare', fetch: fetchUtcMsFromCloudflare },
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo },
-        { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi }
+        { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi },
+        { name: 'NICT', fetch: fetchUtcMsFromNict }
     ];
     function fetchWithTimeout_(promise, ms, label) {
         return Promise.race([
@@ -4545,7 +4451,7 @@
                 if (Number.isFinite(utcMs)) { applySyncedUtcMs(utcMs, src.name); return true; }
             } catch (e) { console.warn('Time sync [' + src.name + ']:', e.message || e); }
         }
-        console.warn('Time sync: 全ソース失敗。PC時計を暫定利用します。');
+        console.warn('Time sync: 全ソース失敗。PC時計を暫定利用（表示は Asia/Tokyo）します。');
         return false;
     }
     function fitS1DateFontSize_() {
@@ -4617,7 +4523,7 @@
         const ms = getSyncedUtcMs();
         if (ms == null) return '';
         try {
-            const parts = new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ, hour: '2-digit', hour12: false }).formatToParts(new Date(ms));
+            const parts = new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ, hour: '2-digit', hour12: false, hourCycle: 'h23' }).formatToParts(new Date(ms));
             const hp = parts.find(p => p.type === 'hour');
             return hp ? (Number(hp.value) + '時') : '';
         } catch (e) { return ''; }
@@ -5227,7 +5133,7 @@
         const latest = await fetchJmaLatestTime_();
         const fmt = new Intl.DateTimeFormat('en-CA', {
             timeZone: CLOCK_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false
+            hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23'
         });
         const p = Object.fromEntries(fmt.formatToParts(latest).map(x => [x.type, x.value]));
         const ymd = `${p.year}${p.month}${p.day}`;
@@ -5389,7 +5295,7 @@
         const d = date instanceof Date ? date : new Date(date);
         const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
             timeZone: CLOCK_TZ, month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false
+            hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23'
         }).formatToParts(d).map(x => [x.type, x.value]));
         return {
             date: `${Number(p.month)}/${Number(p.day)}`,
@@ -6945,6 +6851,10 @@
             applySyncedUtcMs(Date.now(), 'demo-local');
             updateClock();
             startClockTicker();
+            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+            setInterval(function () {
+                syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+            }, CLOCK_SYNC_INTERVAL_MS);
             applyDemoWeatherStatic();
             if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') {
                 startPreviewDemo_(DEMO_PREVIEW);
