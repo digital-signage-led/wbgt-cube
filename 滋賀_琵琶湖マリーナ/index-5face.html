@@ -447,16 +447,23 @@
         }
         #scene1 .s1-wbgt-site-slot .s1-wbgt-banner {
             display: block; margin: 0 auto;
-            height: 28px; width: auto; max-width: 248px;
+            height: 24px; width: auto; max-width: 200px;
             object-fit: contain; object-position: center center;
             background: transparent;
             mix-blend-mode: normal;
             transform: none;
             transform-origin: center center;
         }
-        /* 白帯用ロゴ（白字黒地 → 反転して黒字・背景透過風） */
         #scene1 .s1-wbgt-site-slot .s1-wbgt-banner.s1-wbgt-banner-invert {
             filter: invert(1);
+        }
+        #scene1 .s1-wbgt-msg-slot {
+            overflow: hidden;
+        }
+        #scene1 .s1-wbgt-msg-slot .s1-wbgt-msg-compact {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         #scene1 .s1-wbgt-site-slot .s1-wbgt-banner-svg {
             height: 30px; max-width: 256px;
@@ -1654,15 +1661,15 @@
 
   global.SignageConfig = cfg;
 
-  /* 右端: 水色正方形 / 時刻下白帯: 横長モノクロ（CSS invert で黒字） */
+  /* 右端: 水色正方形 / 時刻下白帯: 横長黒ロゴ（透過・invert不要） */
   global.SIGNAGE_CONFIG = {
     logoSrc: './assets/rotary_pier_88.png',
     logoAlt: 'ROTARY PIER 88',
     logoPanelBg: '#2BB3C9',
     logoCorpSrc: '',
     footLogoSrc: '',
-    footBannerSrc: './assets/rotary_pier_88_foot.png',
-    footBannerInvert: true
+    footBannerSrc: './assets/rotary_pier_88_foot.png?v=black1',
+    footBannerInvert: false
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -6395,10 +6402,8 @@
         return [...text].map(ch => `<span class="${chClass}">${escapeS1Html(ch)}</span>`).join('');
     }
     function buildS1WbgtMsgHtml(text) {
-        if (footBarUseCompact_(text)) {
-            return `<span class="s1-wbgt-msg-compact">${escapeS1Html(text)}</span>`;
-        }
-        return `<span class="s1-wbgt-msg">${buildEvenCharSpans(text, 's1-wbgt-ch')}</span>`;
+        /* シーン1白帯は常に1行（文字割当だと折り返しで崩れる） */
+        return `<span class="s1-wbgt-msg-compact">${escapeS1Html(text)}</span>`;
     }
     function buildBarTextHtml(text) {
         return `<span class="bar-text">${buildEvenCharSpans(text, 'bar-ch')}</span>`;
