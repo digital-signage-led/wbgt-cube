@@ -1,6 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- wbgt-cube-gifu-toa-4face / 東亜建設 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
-<!-- 同階層: assets/toa_logo.png（時刻下の下帯） -->
+<!-- 同階層: assets/toa_corporation_logo.png（時刻下の下帯・東亜建設工業） -->
 <!-- 会場: 岐阜県安八郡安八町大森 -->
 <!-- WBGT・AMeDAS 52581（大垣・気象庁/環境省） -->
 <html lang="ja" class="native-640 layout-512">
@@ -10,8 +10,8 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
-    <title>WBGT Signage 4面 - 東亜建設</title>
-    <link rel="preload" as="image" href="./assets/toa_logo.png">
+    <title>WBGT Signage 4面 - 東亜建設工業</title>
+    <link rel="preload" as="image" href="./assets/toa_corporation_logo.png?v=3">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
 /** 4面 512×128 本番用（layout512 + native640）。localhost は PC 確認用に拡大表示 */
@@ -411,7 +411,7 @@
         }
         #scene1 .s1-wbgt-site-slot .s1-wbgt-banner {
             display: block; margin: 0 auto;
-            height: 28px; width: auto; max-width: 248px;
+            height: 30px; width: auto; max-width: 252px;
             object-fit: contain; object-position: center center;
             background: transparent;
             mix-blend-mode: normal;
@@ -422,7 +422,7 @@
             height: 30px; max-width: 256px;
         }
         .s1-wbgt-banner {
-            display: block; height: 30px; width: auto; max-width: 256px;
+            display: block; height: 30px; width: auto; max-width: 252px;
             object-fit: contain; object-position: center center; flex-shrink: 0;
         }
         .s1-wbgt-banner-svg {
@@ -1579,9 +1579,9 @@
 
   var cfg = {
     site: {
-      customer: '東亜建設',
+      customer: '東亜建設工業',
       rental: '',
-      label: '東亜建設',
+      label: '東亜建設工業',
       address: '岐阜県安八郡安八町大森',
       locationLabel: '安八町'
     },
@@ -1613,12 +1613,12 @@
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/toa_logo.png',
-    logoAlt: '東亜建設',
+    logoSrc: './assets/toa_corporation_logo.png?v=3',
+    logoAlt: '東亜建設工業',
     logoPanelBg: '#ffffff',
     logoCorpSrc: '',
     footLogoSrc: '',
-    footBannerSrc: './assets/toa_logo.png'
+    footBannerSrc: './assets/toa_corporation_logo.png?v=3'
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -1733,7 +1733,7 @@
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
         </div>
-        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/toa_logo.png" alt="東亜建設" decoding="sync" fetchpriority="high"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/toa_logo.png" alt="東亜建設" decoding="sync"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/toa_logo.png" alt="東亜建設" decoding="sync"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div></div></div>
+        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/toa_corporation_logo.png?v=3" alt="東亜建設工業" decoding="sync" fetchpriority="high"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/toa_corporation_logo.png?v=3" alt="東亜建設工業" decoding="sync"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/toa_corporation_logo.png?v=3" alt="東亜建設工業" decoding="sync"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div></div></div>
     </div>
 
     <div class="scene" id="scene2">
@@ -1830,8 +1830,8 @@
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="" alt="東亜建設" decoding="sync" fetchpriority="high">
-                <img class="logo-corp-img" src="" alt="東亜建設" decoding="sync">
+                <img class="logo-img" id="signage-logo" src="" alt="東亜建設工業" decoding="sync" fetchpriority="high">
+                <img class="logo-corp-img" src="" alt="東亜建設工業" decoding="sync">
             </div>
         </div>
     </div>
@@ -4347,7 +4347,7 @@
         }
         const badge = document.getElementById('demo-badge');
         const liveLabel = RAIN_WHITE_DESIGN && !whiteModeForced_()
-            ? ('確認 · ' + (rainWarnMeta.cityName || '東亜建設') + ' 発表中 ' + rainWhiteQueue.length + '件')
+            ? ('確認 · ' + (rainWarnMeta.cityName || '東亜建設工業') + ' 発表中 ' + rainWhiteQueue.length + '件')
             : '確認 · 大雨警報';
         if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = liveLabel; }
         else if (badge) { badge.hidden = true; }
@@ -6095,7 +6095,7 @@
         return String(cfg.footLogoSrc || cfg.logoSrc || '').trim();
     }
     function buildS1FootBrandHtml_() {
-        const name = getS1SiteFootName_() || '東亜建設';
+        const name = getS1SiteFootName_() || '東亜建設工業';
         return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
     }
     function buildS1SiteLogoHtml_() {
@@ -6104,7 +6104,7 @@
         return `<span class="s1-wbgt-logo-wrap"><img class="s1-wbgt-logo" src="${escapeS1Html(logoSrc)}" alt="" decoding="async"></span>`;
     }
     function buildS1FootBannerSvgHtml_(siteName) {
-        const name = siteName || '東亜建設';
+        const name = siteName || '東亜建設工業';
         const alt = escapeS1Html(name);
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
         const logoSrc = escapeS1Html(cfg.footLogoSrc || cfg.logoSrc || '');
@@ -6121,7 +6121,7 @@
             return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="${escapeS1Html(bannerSrc)}" alt="${alt}" decoding="async"></div>`;
         }
         const logoHtml = buildS1SiteLogoHtml_();
-        const labelHtml = `<span class="s1-wbgt-site-label">${escapeS1Html(siteName || '東亜建設')}</span>`;
+        const labelHtml = `<span class="s1-wbgt-site-label">${escapeS1Html(siteName || '東亜建設工業')}</span>`;
         return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-wbgt-site-inner">${logoHtml}${labelHtml}</span></div>`;
     }
     function ensureS1WbgtBarVisible_() {
