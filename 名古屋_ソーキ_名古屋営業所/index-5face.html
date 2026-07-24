@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-nagoya-sooki-5face / ソーキ 名古屋営業所 WBGT サイネージ（本番 5面 640×128・ロゴ列128） -->
-<!-- 同階層: souki_logo.png（白帯） / souki_mark.png + souki_word.png（512以降・2段） -->
+<!-- 同階層: souki_logo.png（白帯・従来色） / souki_mark.png + souki_word.png（512以降・白黒反転・青は元色） -->
 <!-- 会場: 愛知県名古屋市西区栄生１丁目１８−２ -->
 <!-- WBGT・AMeDAS 51106（名古屋・気象庁/環境省） -->
 <html lang="ja">
@@ -11,9 +11,9 @@
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
     <title>WBGT Signage 5面 - ソーキ 名古屋営業所</title>
-    <link rel="preload" as="image" href="./assets/souki_mark.png?v=3">
-    <link rel="preload" as="image" href="./assets/souki_word.png?v=3">
-    <link rel="preload" as="image" href="./assets/souki_logo.png">
+    <link rel="preload" as="image" href="./assets/souki_mark.png?v=4">
+    <link rel="preload" as="image" href="./assets/souki_word.png?v=4">
+    <link rel="preload" as="image" href="./assets/souki_logo.png?v=5">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700;800;900&display=optional">
     <script>
 /** 5面 640×128 本番用（512 コンテンツ + 128 ロゴ列・native640）。localhost は PC 確認用に拡大表示 */
@@ -121,7 +121,7 @@
         .logo-panel {
             width: 128px; height: 128px; display: flex; align-items: center; justify-content: center;
             flex: 0 0 128px; flex-shrink: 0; overflow: hidden; position: relative;
-            background: #ffffff;
+            background: #000000;
         }
         .logo-rotator {
             width: 128px; height: 128px; flex-shrink: 0; position: relative; z-index: 1;
@@ -1589,7 +1589,7 @@
       rental: '',
       label: 'SOOKI',
       address: '愛知県名古屋市西区栄生１丁目１８−２',
-      locationLabel: '西区'
+      locationLabel: '名古屋'
     },
     moe: {
       /* 環境省 WBGT（名古屋市西区最寄り・名古屋 51106） */
@@ -1608,7 +1608,7 @@
       amedasPoint: '51106',
       amedasSupplementPoint: '',
       forecastArea: '230000',
-      forecastLabel: '西区',
+      forecastLabel: '名古屋',
       warnArea: '230000',
       warnCity: '2310000'
     },
@@ -1622,14 +1622,16 @@
 
   global.SIGNAGE_CONFIG = {
     /* 元素材ロゴのまま配置（フォント差し替えなし・画像のみ） */
-    logoSrc: './assets/souki_mark.png?v=3',
+    logoSrc: './assets/souki_mark.png?v=4',
     logoAlt: 'SOOKI',
     logoWord: '',
-    logoWordSrc: './assets/souki_word.png?v=3',
-    logoPanelBg: '#ffffff',
+    logoWordSrc: './assets/souki_word.png?v=4',
+    /* 白黒反転後の白文字が見えるよう右端は黒背景（青マークはそのまま） */
+    logoPanelBg: '#000000',
     logoCorpSrc: '',
-    footLogoSrc: './assets/souki_mark.png?v=3',
-    footBannerSrc: './assets/souki_logo.png'
+    footLogoSrc: './assets/souki_mark.png?v=4',
+    /* 時刻下白帯: 反転前（クリーム地＋黒SOOKI＋青マーク） */
+    footBannerSrc: './assets/souki_logo.png?v=5'
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -1667,7 +1669,7 @@
         <div class="ra-pair ra-advisory" id="ra-pair">
             <div class="ra-mid-band-wrap" aria-hidden="true"><div class="ra-mid-band-unit"></div><div class="ra-mid-band-unit"></div></div>
             <div class="ra-white-header" aria-hidden="true">
-                <span class="ra-white-area">西区の地域で発表されています</span>
+                <span class="ra-white-area">名古屋の地域で発表されています</span>
                 <span class="ra-white-time">発表 --/-- --:--</span>
                 <span class="ra-white-what">警報・注意報など</span>
             </div>
@@ -1791,14 +1793,14 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">西区</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">西区</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">西区</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">西区</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">西区</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">西区</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">西区</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">西区</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
         </div>
     </div>
 
@@ -1841,8 +1843,8 @@
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="./assets/souki_mark.png?v=3" alt="" decoding="sync" fetchpriority="high">
-                <img class="logo-word-img" id="signage-logo-word-img" src="./assets/souki_word.png?v=3" alt="SOOKI" decoding="sync">
+                <img class="logo-img" id="signage-logo" src="./assets/souki_mark.png?v=4" alt="" decoding="sync" fetchpriority="high">
+                <img class="logo-word-img" id="signage-logo-word-img" src="./assets/souki_word.png?v=4" alt="SOOKI" decoding="sync">
                 <span class="logo-word" id="signage-logo-word" hidden></span>
             </div>
         </div>
@@ -2336,7 +2338,7 @@
     function getSiteLocationLabel_() {
         return (SITE_CFG.site && SITE_CFG.site.locationLabel)
             || (SITE_CFG.jma && SITE_CFG.jma.forecastLabel)
-            || '西区';
+            || '名古屋';
     }
     function applySiteLocationLabels_() {
         const label = getSiteLocationLabel_();
