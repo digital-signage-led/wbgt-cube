@@ -2,7 +2,7 @@
 <!-- wbgt-cube-aichi-asanuma-4face / 浅沼組 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 同階層: assets/asanuma_logo.png（時刻下の下帯） -->
 <!-- 会場: 愛知県江南市 -->
-<!-- WBGT 51031（愛西）/ AMeDAS 51011（一宮）・補完 51031 / 予報・警報 愛知県 -->
+<!-- WBGT 51031（愛西）/ AMeDAS 51031（愛西）・気圧補完 51106（名古屋） / 予報・警報 愛知県 -->
 <html lang="ja" class="native-640 layout-512">
 <head>
     <meta charset="UTF-8">
@@ -1597,9 +1597,9 @@
       prefecture: '51'
     },
     jma: {
-      /* 一宮(51011)が会場最寄り。気圧等は愛西(51031)で補完 */
-      amedasPoint: '51011',
-      amedasSupplementPoint: '51031',
+      /* 一宮(51011)は降水量のみのため使わない。愛西(51031)を主、気圧等は名古屋(51106)で補完 */
+      amedasPoint: '51031',
+      amedasSupplementPoint: '51106',
       forecastArea: '230000',
       forecastLabel: '江南市',
       warnArea: '230000',
@@ -2381,9 +2381,9 @@
         return base + sep + 'type=bundle';
     }
     const JMA_AMEDAS_POINT =
-        query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '51011';
+        query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '51031';
     const JMA_AMEDAS_SUPPLEMENT_POINT =
-        query.get('jmaSupplementPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasSupplementPoint) || '51031';
+        query.get('jmaSupplementPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasSupplementPoint) || '51106';
     const JMA_FORECAST_AREA_CODE =
         query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '230000';
     const JMA_FETCH_HEADERS = { cache: 'no-store' };
@@ -2577,7 +2577,7 @@
         const p = Object.fromEntries(fmt.formatToParts(new Date(ms)).map(x => [x.type, x.value]));
         return {
             year: Number(p.year), month: Number(p.month), day: Number(p.day),
-            hour: Number(p.hour), minute: Number(p.minute), second: Number(p.second)
+            hour: Number(p.hour === '24' ? 0 : p.hour), minute: Number(p.minute), second: Number(p.second)
         };
     }
     function jstMsFromParts(y, mo, d, h, mi, s) {
@@ -4555,6 +4555,15 @@
     function pad2Clock_(n) {
         return String(n == null ? 0 : n).padStart(2, '0');
     }
+    /** dateTime に TZ が無い場合は必ず +09:00 として UTC に変換 */
+    function parseDateTimeAssumeJst_(raw) {
+        if (raw == null) return NaN;
+        const s = String(raw).trim();
+        if (!s) return NaN;
+        if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
+        const base = s.replace(/\.\d+$/, '').replace(/\//g, '-');
+        return Date.parse(/[T ]/.test(base) ? (base.replace(' ', 'T') + '+09:00') : (base + 'T00:00:00+09:00'));
+    }
     /** timeapi.io Asia/Tokyo 応答を UTC ms に変換（オフセット無し日時は必ず +09:00） */
     function parseTimeApiIoJson_(json) {
         if (!json || typeof json !== 'object') return NaN;
@@ -4565,11 +4574,8 @@
             const ms = Date.parse(iso);
             if (Number.isFinite(ms)) return ms;
         }
-        if (json.dateTime) {
-            const s = String(json.dateTime).trim();
-            if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
-            return Date.parse(s.replace(/\.\d+$/, '') + '+09:00');
-        }
+        if (json.dateTime) return parseDateTimeAssumeJst_(json.dateTime);
+        if (json.date_time) return parseDateTimeAssumeJst_(json.date_time);
         return NaN;
     }
     async function fetchUtcMsFromCloudflare_() {
@@ -4579,27 +4585,37 @@
             const res = await fetch(urls[i], { cache: 'no-store' });
             const t1 = performance.now();
             if (!res.ok) continue;
+            const dateHdr = res.headers.get('Date');
             const text = await res.text();
             const m = text.match(/(?:^|\n)ts=([0-9]+(?:\.[0-9]+)?)/);
             let serverUtcMs = NaN;
             if (m) serverUtcMs = Math.round(parseFloat(m[1]) * 1000);
-            if (!Number.isFinite(serverUtcMs)) {
-                const dateHdr = res.headers.get('Date');
-                if (dateHdr) serverUtcMs = Date.parse(dateHdr);
-            }
+            if (!Number.isFinite(serverUtcMs) && dateHdr) serverUtcMs = Date.parse(dateHdr);
             if (Number.isFinite(serverUtcMs)) return utcMsWithRtt_(serverUtcMs, t0, t1);
         }
         throw new Error('Cloudflare time unavailable');
     }
     async function fetchUtcMsFromTimeApiIo_() {
-        const t0 = performance.now();
-        const res = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia%2FTokyo', { cache: 'no-store' });
-        const t1 = performance.now();
-        if (!res.ok) throw new Error('timeapi.io HTTP ' + res.status);
-        const json = await res.json();
-        const serverUtcMs = parseTimeApiIoJson_(json);
-        if (!Number.isFinite(serverUtcMs)) throw new Error('timeapi.io parse');
-        return utcMsWithRtt_(serverUtcMs, t0, t1);
+        const endpoints = [
+            'https://timeapi.io/api/Time/current/zone?timeZone=Asia%2FTokyo',
+            'https://timeapi.io/api/time/current/zone?timeZone=Asia%2FTokyo'
+        ];
+        let lastErr = null;
+        for (let i = 0; i < endpoints.length; i++) {
+            try {
+                const t0 = performance.now();
+                const res = await fetch(endpoints[i], { cache: 'no-store' });
+                const t1 = performance.now();
+                if (!res.ok) throw new Error('timeapi.io HTTP ' + res.status);
+                const json = await res.json();
+                const serverUtcMs = parseTimeApiIoJson_(json);
+                if (!Number.isFinite(serverUtcMs)) throw new Error('timeapi.io parse');
+                return utcMsWithRtt_(serverUtcMs, t0, t1);
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+        throw lastErr || new Error('timeapi.io unavailable');
     }
     async function fetchUtcMsFromWorldTimeApi_() {
         const t0 = performance.now();
@@ -4610,14 +4626,15 @@
         let serverUtcMs = NaN;
         if (typeof json.unixtime === 'number') serverUtcMs = json.unixtime * 1000;
         else if (json.utc_datetime) serverUtcMs = Date.parse(json.utc_datetime);
+        else if (json.datetime) serverUtcMs = parseDateTimeAssumeJst_(json.datetime);
         if (!Number.isFinite(serverUtcMs)) throw new Error('worldtimeapi parse');
         return utcMsWithRtt_(serverUtcMs, t0, t1);
     }
     async function fetchUtcMsFromNict_() {
         const urls = ['https://ntp-b1.nict.go.jp/cgi-bin/json', 'https://ntp-a1.nict.go.jp/cgi-bin/json'];
-        for (const url of urls) {
+        for (let i = 0; i < urls.length; i++) {
             const t0 = performance.now();
-            const res = await fetch(url, { cache: 'no-store' });
+            const res = await fetch(urls[i], { cache: 'no-store' });
             const t1 = performance.now();
             if (!res.ok) continue;
             const dateHdr = res.headers.get('Date');
@@ -4631,7 +4648,11 @@
         }
         throw new Error('NICT unavailable');
     }
-    /** NICT HTTP は停止方向のため Cloudflare を優先。表示は常に Asia/Tokyo */
+    /**
+     * ネット時刻同期の優先順（NICT HTTP JSON は 404 になりやすいので最後）
+     * Cloudflare → timeapi.io(Asia/Tokyo) → worldtimeapi → NICT
+     * 表示は常に Asia/Tokyo + hourCycle h23（端末TZ非依存）
+     */
     const TIME_SYNC_CHAIN = [
         { name: 'Cloudflare', fetch: fetchUtcMsFromCloudflare_ },
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo_ },
@@ -4647,7 +4668,8 @@
         ]);
     }
     async function syncTimeFromNetwork() {
-        for (const src of TIME_SYNC_CHAIN) {
+        for (let i = 0; i < TIME_SYNC_CHAIN.length; i++) {
+            const src = TIME_SYNC_CHAIN[i];
             try {
                 const utcMs = await fetchWithTimeout_(src.fetch(), 8000, src.name);
                 if (Number.isFinite(utcMs)) {
@@ -4659,6 +4681,17 @@
         }
         console.warn('Time sync: 全ソース失敗。PC時計を暫定利用（表示は Asia/Tokyo）します。');
         return false;
+    }
+    let clockSyncIntervalId_ = null;
+    function startNetworkClockSync_() {
+        if (clockSyncIntervalId_ != null) {
+            clearInterval(clockSyncIntervalId_);
+            clockSyncIntervalId_ = null;
+        }
+        clockSyncIntervalId_ = setInterval(function () {
+            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+        }, CLOCK_SYNC_INTERVAL_MS);
+        syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
     }
     function fitS1DateFontSize_() {
         const probe = document.querySelector('#scene1 .panel-clock .s1-bar-label');
@@ -4758,7 +4791,8 @@
         try {
             const parts = new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ, hour: '2-digit', hour12: false, hourCycle: 'h23' }).formatToParts(new Date(ms));
             const hp = parts.find(p => p.type === 'hour');
-            return hp ? (Number(hp.value) + '時') : '';
+            const h = hp ? Number(hp.value === '24' ? 0 : hp.value) : NaN;
+            return Number.isFinite(h) ? (h + '時') : '';
         } catch (e) { return ''; }
     }
     function formatFcWbgtHtml(wbgt) {
@@ -5411,7 +5445,9 @@
     }
     /* map JSON は更新が速いが気圧・最高/最低・瞬間風速などが無い地点がある */
     const AMEDAS_POINT_SUPPLEMENT_KEYS = [
-        'pressure', 'normalPressure', 'maxTemp', 'minTemp', 'gust'
+        'temp', 'humidity', 'wind', 'windDirection',
+        'precipitation10m', 'precipitation1h', 'sun1h',
+        'pressure', 'normalPressure', 'maxTemp', 'minTemp', 'gust', 'gustDirection'
     ];
     function amedasObsNeedsPointSupplement_(obs) {
         if (!obs) return true;
@@ -7433,10 +7469,7 @@
             applySyncedUtcMs(Date.now(), 'demo-local');
             updateClock();
             startClockTicker();
-            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
-            setInterval(function () {
-                syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
-            }, CLOCK_SYNC_INTERVAL_MS);
+            startNetworkClockSync_();
             applyDemoWeatherStatic();
             if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') {
                 startPreviewDemo_(DEMO_PREVIEW);
@@ -7454,10 +7487,7 @@
         applySyncedUtcMs(Date.now(), 'boot-local');
         updateClock();
         startClockTicker();
-        setInterval(function () {
-            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
-        }, CLOCK_SYNC_INTERVAL_MS);
-        syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+        startNetworkClockSync_();
         try {
             await Promise.race([
                 runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['起動'] }),
