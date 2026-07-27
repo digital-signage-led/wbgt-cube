@@ -552,7 +552,7 @@
         #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
         #scene3 .t3-col .col-bg-layer { width: calc(100% + 1px); }
 
-        /* 騒音・振動（環境クラウド SSC）: 騒音|振動|騒音|振動 = 1ローテ / 2ローテ */
+        /* 騒音・振動（環境クラウド SSC）: 騒音|振動|騒音|振動 = 1周 / 3周で次シーン。前後1秒静止 */
         #sceneSsc { display: none; overflow: hidden; }
         #sceneSsc.active { display: block; }
         .ssc-scroll-wrap { width: 512px; height: var(--led-col-main-h); overflow: hidden; }
@@ -594,7 +594,7 @@
         }
         .ssc-unit {
             font-size: 18px; font-weight: 700; font-family: "Inter", sans-serif;
-            color: #7CFF6B; line-height: 1; margin-left: 1px;
+            color: #000; line-height: 1; margin-left: 1px;
         }
         .ssc-panel.is-pending .ssc-unit { display: none; }
         .ssc-meta-bar {
@@ -619,7 +619,7 @@
         .content-area.col-bg-dark-text .ssc-bar-label,
         .col-bg-dark-text .ssc-bar-label { color: #000; }
         .content-area.col-bg-dark-text .ssc-unit,
-        .col-bg-dark-text .ssc-unit { color: #0a7a14; }
+        .col-bg-dark-text .ssc-unit { color: #000; }
 
         .forecast-scene { display: none; overflow: hidden; }
         .fc-panel {
@@ -1681,7 +1681,8 @@
     },
     edamSsc: {
       /* 環境クラウド 騒音振動（公開URL: /Public/18237/Sokutei/SSC/RN）
-         EDAM は CORS 非対応のため cors.eu.org 等で取得。安定運用は gas/gas_edam_ssc_proxy.gs をデプロイして gasUrl を設定 */
+         ローカル確認: node server.js → http://127.0.0.1:PORT/index-4face.html?only=ssc
+         （Cursor Live Preview は /api/ssc が無いため CORS プロキシ経由。安定運用は gasUrl） */
       apiHost: 'https://www2.edam.ne.jp',
       apiPath: '/Json/SSCNumData',
       idNum: 2526,
@@ -1692,7 +1693,7 @@
       pageUrl: 'https://www2.edam.ne.jp/Public/18237/Sokutei/SSC/RN',
       gasUrl: '',
       corsProxy: 'https://cors.eu.org/',
-      refreshMs: 10000
+      refreshMs: 1000
     },
     geo: { lat: 35.6091, lon: 140.0722 },
     timeZone: 'Asia/Tokyo',
@@ -2940,11 +2941,11 @@
     const EDAM_SSC_ID = resolveEdamSscId_();
     const EDAM_SSC_READY = EDAM_SSC_ID > 0;
     const EDAM_SSC_REFRESH_MS = Math.max(
-        5000,
-        parseInt(query.get('sscRefresh') || String(EDAM_SSC_CFG.refreshMs || 10000), 10) || 10000
+        1000,
+        parseInt(query.get('sscRefresh') || String(EDAM_SSC_CFG.refreshMs || 1000), 10) || 1000
     );
     const SCENE_SSC_PANEL_COUNT = 4;
-    const SCENE_SSC_LAPS = 2;
+    const SCENE_SSC_LAPS = 3;
     let sceneSscSetWidth = SCENE_SSC_PANEL_COUNT * 128;
     let sceneSscAnimId = null;
     let sscMetaLapPx = 512;
@@ -7408,7 +7409,8 @@
                 sceneSscAnimId = null;
                 stopLogoSpinInterval();
                 if (demoOnlyLoop_('ssc', playSceneSsc)) return;
-                gotoSceneAfterSceneSsc_();
+                /* スクロール後も1秒静止してから次シーンへ */
+                runSceneScrollAfterHold_(gotoSceneAfterSceneSsc_);
                 return;
             }
             sceneSscAnimId = requestAnimationFrame(animateSceneSsc);

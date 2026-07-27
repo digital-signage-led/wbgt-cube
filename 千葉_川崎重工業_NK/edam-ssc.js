@@ -3,14 +3,18 @@
  * API: {apiHost}/Json/SSCNumData/{idNum}
  * RNSoVal … 騒音(dB) / RNShVal … 振動(dB)
  *
- * GitHub Pages / 異オリジンでは EDAM に CORS が無いため、
- * gasUrl（推奨）→ 複数 CORS プロキシ → 直叩き の順で取得する。
+ * 取得順:
+ *  1) 同一オリジン /api/ssc/{id}（node server.js のローカルプロキシ）
+ *  2) gasUrl（GAS プロキシ）
+ *  3) CORS プロキシ群
+ *  4) EDAM 直叩き（CORS許可時のみ）
  */
 (function (global) {
     'use strict';
 
     const DEFAULT_HOST = 'https://www2.edam.ne.jp';
     const DEFAULT_PATH = '/Json/SSCNumData';
+    const TRY_MS = 7000;
     const DEFAULT_PROXIES = [
         'https://cors.eu.org/',
         'https://api.allorigins.win/raw?url=',
@@ -52,29 +56,40 @@
         };
     }
 
-    function extractJsonArray(text) {
+    function isValidSscRow_(row) {
+        if (!row || typeof row !== 'object') return false;
+        const hasTime = row.Time != null && String(row.Time).length >= 8;
+        const hasNoise = row.RNSoVal != null || row.SoVal != null;
+        const hasVib = row.RNShVal != null || row.ShVal != null;
+        return !!(hasTime && (hasNoise || hasVib));
+    }
+
+    function extractJsonPayload(text) {
         const s = String(text || '').trim();
         if (!s) throw new Error('empty body');
+        /* HTML（Live Preview のフォールバック等）は除外 */
+        if (/^<!DOCTYPE/i.test(s) || /<html[\s>]/i.test(s)) throw new Error('html body');
         try {
             return JSON.parse(s);
         } catch (e0) {
-            /* jina.ai などが Markdown で包む場合 */
-            const m = s.match(/\[[\s\S]*?\]/);
+            const m = s.match(/\[\s*\{[\s\S]*?\}\s*\]/);
             if (!m) throw e0;
             return JSON.parse(m[0]);
         }
     }
 
     function firstRowFromData(data) {
-        if (Array.isArray(data) && data.length) return data[0];
-        if (data && Array.isArray(data.data) && data.data.length) return data.data[0];
-        if (data && data.Time != null) return data;
-        throw new Error('empty');
+        let row = null;
+        if (Array.isArray(data) && data.length) row = data[0];
+        else if (data && Array.isArray(data.data) && data.data.length) row = data.data[0];
+        else if (data && data.Time != null) row = data;
+        if (!isValidSscRow_(row)) throw new Error('empty');
+        return row;
     }
 
     async function fetchWithTimeout(url, ms) {
         const ctrl = new AbortController();
-        const timer = setTimeout(function () { ctrl.abort(); }, ms);
+        const timer = setTimeout(function () { ctrl.abort(); }, ms || TRY_MS);
         try {
             return await fetch(url, { cache: 'no-store', signal: ctrl.signal, mode: 'cors' });
         } finally {
@@ -93,7 +108,7 @@
                 settled = true;
                 cleanup();
                 reject(new Error('JSONP timeout'));
-            }, ms || 12000);
+            }, ms || TRY_MS);
             function cleanup() {
                 clearTimeout(timer);
                 try { delete global[cb]; } catch (e) { global[cb] = undefined; }
@@ -118,20 +133,52 @@
         });
     }
 
+    async function parseResponseRow_(url, res) {
+        const ct = String(res.headers.get('content-type') || '').toLowerCase();
+        const text = await res.text();
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        if (ct && ct.indexOf('text/html') >= 0) throw new Error('html content-type');
+        let data;
+        if (url.indexOf('allorigins.win/get') >= 0) {
+            const wrap = JSON.parse(text);
+            const inner = wrap.contents;
+            data = typeof inner === 'string' ? extractJsonPayload(inner) : inner;
+        } else {
+            data = extractJsonPayload(text);
+        }
+        return firstRowFromData(data);
+    }
+
     async function fetchViaGas_(idNum, gasUrl) {
         const base = String(gasUrl || '').replace(/\/$/, '');
         if (!base) throw new Error('gasUrl empty');
         const q = 'idNum=' + encodeURIComponent(idNum) + '&r=' + Date.now();
         const url = base + (base.indexOf('?') >= 0 ? '&' : '?') + q;
         try {
-            const res = await fetchWithTimeout(url, 12000);
-            const text = await res.text();
-            if (!res.ok) throw new Error('GAS HTTP ' + res.status);
-            return firstRowFromData(extractJsonArray(text));
+            const res = await fetchWithTimeout(url, TRY_MS);
+            return await parseResponseRow_(url, res);
         } catch (e) {
-            const payload = await fetchJsonp(url, 12000);
+            const payload = await fetchJsonp(url, TRY_MS);
             return firstRowFromData(payload);
         }
+    }
+
+    function localProxyUrls_(idNum) {
+        if (typeof location === 'undefined') return [];
+        if (location.protocol !== 'http:' && location.protocol !== 'https:') return [];
+        /* Live Preview 等で /api が無い場合に長く待たないよう、明示オプトイン or node server 想定時のみ */
+        const q = (typeof location !== 'undefined' && location.search) ? location.search : '';
+        const want = /(?:\?|&)sscLocal=1(?:&|$)/.test(q) || /(?:\?|&)proxy=1(?:&|$)/.test(q);
+        /* server.js 起動時は常に試す（短いタイムアウト） */
+        if (!want && !global.__EDAM_SSC_FORCE_LOCAL__) {
+            /* 同一オリジンは短時間1本だけ試し、HTML/404なら即フォールバック */
+        }
+        const origin = location.origin;
+        const id = encodeURIComponent(String(idNum));
+        const bust = 'r=' + Date.now();
+        return [
+            origin + '/api/ssc/' + id + '?' + bust
+        ];
     }
 
     function buildProxyUrls_(direct, options) {
@@ -153,14 +200,26 @@
             if (proxy.indexOf('allorigins.win/') >= 0 || /[?&]url=$/.test(proxy) || proxy.slice(-5) === '?url=') {
                 urls.push(proxy + enc);
             } else {
-                /* cors.eu.org 等: 素の URL を連結（エンコード版も併用） */
                 urls.push(proxy + direct);
-                urls.push(proxy + enc);
             }
         });
-        /* 最終手段: jina reader（Markdown 内 JSON） */
         urls.push('https://r.jina.ai/' + direct);
         return urls;
+    }
+
+    async function tryUrls_(urls, timeoutMs) {
+        let lastErr = null;
+        const ms = timeoutMs || TRY_MS;
+        for (let i = 0; i < urls.length; i++) {
+            const url = urls[i];
+            try {
+                const res = await fetchWithTimeout(url, ms);
+                return await parseResponseRow_(url, res);
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+        throw lastErr || new Error('EDAM SSC 取得不可');
     }
 
     async function fetchRow(idNum, options) {
@@ -168,6 +227,17 @@
         const direct = apiBase(options) + '/' + idNum + '?flag=true&r=' + Date.now();
         let lastErr = null;
 
+        /* 1) ローカル同一オリジン（短時間）。無ければすぐ次へ */
+        const localUrls = localProxyUrls_(idNum);
+        if (localUrls.length) {
+            try {
+                return await tryUrls_(localUrls, 2500);
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+
+        /* 2) GAS */
         if (options.gasUrl) {
             try {
                 return await fetchViaGas_(idNum, options.gasUrl);
@@ -176,32 +246,30 @@
             }
         }
 
-        const urls = [direct].concat(buildProxyUrls_(direct, options));
-        for (let i = 0; i < urls.length; i++) {
-            const url = urls[i];
-            try {
-                const res = await fetchWithTimeout(url, 12000);
-                const text = await res.text();
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                let data;
-                if (url.indexOf('allorigins.win/get') >= 0) {
-                    const wrap = JSON.parse(text);
-                    const inner = wrap.contents;
-                    data = typeof inner === 'string' ? extractJsonArray(inner) : inner;
-                } else {
-                    data = extractJsonArray(text);
-                }
-                return firstRowFromData(data);
-            } catch (e) {
-                lastErr = e;
-            }
+        /* 3) CORS プロキシ（ブラウザ本番経路） */
+        try {
+            return await tryUrls_(buildProxyUrls_(direct, options), TRY_MS);
+        } catch (e) {
+            lastErr = e;
         }
+
+        /* 4) 直叩き */
+        try {
+            return await tryUrls_([direct], TRY_MS);
+        } catch (e) {
+            lastErr = e;
+        }
+
         throw lastErr || new Error('EDAM SSC 取得不可');
     }
 
     async function fetchValues(idNum, options) {
         const row = await fetchRow(idNum, options);
-        return rowToValues(row);
+        const vals = rowToValues(row);
+        if (vals.noise == null && vals.vibration == null) {
+            throw new Error('SSC values missing');
+        }
+        return vals;
     }
 
     global.EdamSsc = {
@@ -210,4 +278,4 @@
         rowToValues: rowToValues,
         formatDb: formatDb
     };
-})(typeof window !== 'undefined' ? window : global);
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
