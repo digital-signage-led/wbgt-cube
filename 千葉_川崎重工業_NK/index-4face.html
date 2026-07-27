@@ -1681,8 +1681,9 @@
     },
     edamSsc: {
       /* 環境クラウド 騒音振動（公開URL: /Public/18237/Sokutei/SSC/RN）
-         ローカル確認: node server.js → http://127.0.0.1:PORT/index-4face.html?only=ssc
-         （Cursor Live Preview は /api/ssc が無いため CORS プロキシ経由。安定運用は gasUrl） */
+         本番正経路: gasUrl（GAS中継）。無料CORSプロキシは既定オフ。
+         テスト: ?only=ssc&sscGas=<GAS URL>
+         ローカル: node server.js → /api/ssc（本番非関与） */
       apiHost: 'https://www2.edam.ne.jp',
       apiPath: '/Json/SSCNumData',
       idNum: 2526,
@@ -1691,8 +1692,8 @@
       sensorLabel: '騒音振動計',
       siteName: '千葉市新港清掃工場更新整備工事',
       pageUrl: 'https://www2.edam.ne.jp/Public/18237/Sokutei/SSC/RN',
-      gasUrl: '',
-      corsProxy: 'https://cors.eu.org/',
+      gasUrl: 'https://script.google.com/macros/s/AKfycbxRSWjqBdNNB357pnPgtDM6QWO-scJCYhVZrsPq9vumh_mt2kRWIzBrJREMpdE7/exec',
+      corsProxy: 'off',
       refreshMs: 1000
     },
     geo: { lat: 35.6091, lon: 140.0722 },
@@ -3014,14 +3015,15 @@
                 apiHost: EDAM_SSC_CFG.apiHost || 'https://www2.edam.ne.jp',
                 apiPath: EDAM_SSC_CFG.apiPath || '/Json/SSCNumData',
                 gasUrl: query.get('sscGas') || EDAM_SSC_CFG.gasUrl || '',
-                corsProxy: query.get('sscProxy') || EDAM_SSC_CFG.corsProxy || ''
+                /* 既定 off。緊急時のみ ?sscProxy=https://... */
+                corsProxy: query.get('sscProxy') || EDAM_SSC_CFG.corsProxy || 'off'
             });
             applySscValuesToDom_(vals);
             console.log('[SSC] 騒音', vals.noise, '振動', vals.vibration, vals.time || '');
             return vals;
         } catch (e) {
-            /* 電源未投入などで [] のときは「取得中」を維持 */
-            console.warn('[SSC] 取得不可（電源未投入／空応答の可能性）:', e.message || e);
+            /* 一時失敗でも直前の正常値があれば「取得中」に落とさない（表示層） */
+            console.warn('[SSC] 取得不可:', e.message || e);
             if (lastSscValues_.noise == null && lastSscValues_.vibration == null) {
                 applySscPendingToDom_();
             }

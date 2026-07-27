@@ -1,13 +1,13 @@
 /**
- * 環境クラウドサービス（EDAM）騒音・振動 瞬時値
+ * 環境クラウドサービス（EDAM）騒音・振動 瞬時値 — 安定版 v2
  * API: {apiHost}/Json/SSCNumData/{idNum}
  * RNSoVal … 騒音(dB) / RNShVal … 振動(dB)
  *
- * 取得順:
- *  1) 同一オリジン /api/ssc/{id}（node server.js のローカルプロキシ）
- *  2) gasUrl（GAS プロキシ）
- *  3) CORS プロキシ群
- *  4) EDAM 直叩き（CORS許可時のみ）
+ * 取得順（本番正経路は GAS）:
+ *  1) 同一オリジン /api/ssc/{id}（node server.js ローカル専用）
+ *  2) gasUrl（GAS 中継）← GitHub Pages の正
+ *  3) CORS プロキシ … 既定オフ（corsProxy:'off'）。緊急時のみ ?sscProxy= で有効化
+ *  4) EDAM 直叩き（CORS 許可時のみ成功）
  */
 (function (global) {
     'use strict';
@@ -15,11 +15,6 @@
     const DEFAULT_HOST = 'https://www2.edam.ne.jp';
     const DEFAULT_PATH = '/Json/SSCNumData';
     const TRY_MS = 7000;
-    const DEFAULT_PROXIES = [
-        'https://cors.eu.org/',
-        'https://api.allorigins.win/raw?url=',
-        'https://api.allorigins.win/get?url='
-    ];
 
     function apiBase(options) {
         const host = String((options && options.apiHost) || DEFAULT_HOST).replace(/\/$/, '');
@@ -67,7 +62,6 @@
     function extractJsonPayload(text) {
         const s = String(text || '').trim();
         if (!s) throw new Error('empty body');
-        /* HTML（Live Preview のフォールバック等）は除外 */
         if (/^<!DOCTYPE/i.test(s) || /<html[\s>]/i.test(s)) throw new Error('html body');
         try {
             return JSON.parse(s);
@@ -166,44 +160,31 @@
     function localProxyUrls_(idNum) {
         if (typeof location === 'undefined') return [];
         if (location.protocol !== 'http:' && location.protocol !== 'https:') return [];
-        /* Live Preview 等で /api が無い場合に長く待たないよう、明示オプトイン or node server 想定時のみ */
-        const q = (typeof location !== 'undefined' && location.search) ? location.search : '';
-        const want = /(?:\?|&)sscLocal=1(?:&|$)/.test(q) || /(?:\?|&)proxy=1(?:&|$)/.test(q);
-        /* server.js 起動時は常に試す（短いタイムアウト） */
-        if (!want && !global.__EDAM_SSC_FORCE_LOCAL__) {
-            /* 同一オリジンは短時間1本だけ試し、HTML/404なら即フォールバック */
-        }
+        /* github.io では 404。server.js ローカル専用 */
+        if (/github\.io$/i.test(location.hostname || '')) return [];
         const origin = location.origin;
         const id = encodeURIComponent(String(idNum));
-        const bust = 'r=' + Date.now();
-        return [
-            origin + '/api/ssc/' + id + '?' + bust
-        ];
+        return [origin + '/api/ssc/' + id + '?r=' + Date.now()];
     }
 
+    /**
+     * 無料 CORS プロキシは既定オフ。
+     * 緊急時のみ options.corsProxy に URL を渡す（または ?sscProxy=）。
+     * 'off' / 'none' / 空 / 未指定 → 使わない。
+     */
     function buildProxyUrls_(direct, options) {
         const urls = [];
-        const off = options.corsProxy === 'off' || options.corsProxy === 'none';
-        if (off) return urls;
-
-        const list = [];
-        if (options.corsProxy && typeof options.corsProxy === 'string'
-            && options.corsProxy !== 'off' && options.corsProxy !== 'none') {
-            list.push(options.corsProxy);
+        const raw = options && options.corsProxy;
+        if (raw == null || raw === '' || raw === 'off' || raw === 'none' || raw === false) {
+            return urls;
         }
-        DEFAULT_PROXIES.forEach(function (p) {
-            if (list.indexOf(p) < 0) list.push(p);
-        });
-
+        const proxy = String(raw);
         const enc = encodeURIComponent(direct);
-        list.forEach(function (proxy) {
-            if (proxy.indexOf('allorigins.win/') >= 0 || /[?&]url=$/.test(proxy) || proxy.slice(-5) === '?url=') {
-                urls.push(proxy + enc);
-            } else {
-                urls.push(proxy + direct);
-            }
-        });
-        urls.push('https://r.jina.ai/' + direct);
+        if (proxy.indexOf('allorigins.win/') >= 0 || /[?&]url=$/.test(proxy) || proxy.slice(-5) === '?url=') {
+            urls.push(proxy + enc);
+        } else {
+            urls.push(proxy + direct);
+        }
         return urls;
     }
 
@@ -227,7 +208,7 @@
         const direct = apiBase(options) + '/' + idNum + '?flag=true&r=' + Date.now();
         let lastErr = null;
 
-        /* 1) ローカル同一オリジン（短時間）。無ければすぐ次へ */
+        /* 1) ローカル（server.js のみ） */
         const localUrls = localProxyUrls_(idNum);
         if (localUrls.length) {
             try {
@@ -237,7 +218,7 @@
             }
         }
 
-        /* 2) GAS */
+        /* 2) GAS（本番正経路） */
         if (options.gasUrl) {
             try {
                 return await fetchViaGas_(idNum, options.gasUrl);
@@ -246,11 +227,14 @@
             }
         }
 
-        /* 3) CORS プロキシ（ブラウザ本番経路） */
-        try {
-            return await tryUrls_(buildProxyUrls_(direct, options), TRY_MS);
-        } catch (e) {
-            lastErr = e;
+        /* 3) CORS プロキシ（既定オフ・緊急時のみ） */
+        const proxyUrls = buildProxyUrls_(direct, options);
+        if (proxyUrls.length) {
+            try {
+                return await tryUrls_(proxyUrls, TRY_MS);
+            } catch (e) {
+                lastErr = e;
+            }
         }
 
         /* 4) 直叩き */
