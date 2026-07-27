@@ -2,7 +2,7 @@
 <!-- wbgt-cube-chiba-kawasaki-nk-4face / 川崎重工業株式会社 WBGT＋騒音振動サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 同階層: assets/kawasaki_logo.png（時刻下の下帯） / edam-ssc.js -->
 <!-- 会場: 〒261-0002 千葉県千葉市美浜区新港226-1 新港クリーン・エネルギーセンター -->
-<!-- WBGT・AMeDAS 45212（千葉） / 騒音振動=環境クラウド SSC LoID 2526（電源未投入時は取得中） -->
+<!-- WBGT・AMeDAS 45212（千葉） / 騒音振動=環境クラウド SSC LoID 2526（CORS時は cors.eu.org / 空応答は取得中） -->
 <html lang="ja" class="native-640 layout-512">
 <head>
     <meta charset="UTF-8">
@@ -1680,7 +1680,8 @@
       warnCity: '1220410'
     },
     edamSsc: {
-      /* 環境クラウド 騒音振動（公開URL: /Public/18237/Sokutei/SSC/RN） */
+      /* 環境クラウド 騒音振動（公開URL: /Public/18237/Sokutei/SSC/RN）
+         EDAM は CORS 非対応のため cors.eu.org 等で取得。安定運用は gas/gas_edam_ssc_proxy.gs をデプロイして gasUrl を設定 */
       apiHost: 'https://www2.edam.ne.jp',
       apiPath: '/Json/SSCNumData',
       idNum: 2526,
@@ -1689,7 +1690,8 @@
       sensorLabel: '騒音振動計',
       siteName: '新港クリーン・エネルギーセンター',
       pageUrl: 'https://www2.edam.ne.jp/Public/18237/Sokutei/SSC/RN',
-      corsProxy: 'https://api.allorigins.win/raw?url=',
+      gasUrl: '',
+      corsProxy: 'https://cors.eu.org/',
       refreshMs: 10000
     },
     geo: { lat: 35.6091, lon: 140.0722 },
@@ -3010,6 +3012,7 @@
             const vals = await EdamSsc.fetchValues(EDAM_SSC_ID, {
                 apiHost: EDAM_SSC_CFG.apiHost || 'https://www2.edam.ne.jp',
                 apiPath: EDAM_SSC_CFG.apiPath || '/Json/SSCNumData',
+                gasUrl: query.get('sscGas') || EDAM_SSC_CFG.gasUrl || '',
                 corsProxy: query.get('sscProxy') || EDAM_SSC_CFG.corsProxy || ''
             });
             applySscValuesToDom_(vals);
