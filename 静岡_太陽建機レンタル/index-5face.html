@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-taiyo-5face / 太陽建機レンタル WBGT サイネージ（本番 5面 640×128・ロゴ列128） -->
 <!-- 同階層: assets/taiyo_stack.png（右端128・公式縦組） / assets/taiyo_logo.png（下帯） / assets/taiyo_mark.png（下帯小） -->
-<!-- 会場: 〒422-8507 静岡市駿河区大坪町2－26（太陽建機レンタル本社） -->
-<!-- WBGT・AMeDAS 50331（静岡・気象庁/環境省） -->
+<!-- 会場: 福岡市中央区天神1丁目4-1（太陽建機レンタル） -->
+<!-- WBGT・AMeDAS 82182（福岡・気象庁/環境省） -->
 <!-- サイネージ: 640×128 を縦横同倍率で表示（歪み防止）。画素確認のみ ?native640=1。ロゴ補正 ?logoPitch= -->
 <html lang="ja">
 <head>
@@ -167,7 +167,7 @@
         .logo-wordmark { display: none !important; }
         .content-area {
             width: 512px; height: 128px; position: relative; overflow: hidden;
-            flex: 0 0 512px; flex-shrink: 0; background: #308DD8;
+            flex: 0 0 512px; flex-shrink: 0; background: var(--led-foot-bar-bg);
             margin: 0; padding: 0; border: 0; box-sizing: border-box;
         }
         .content-area > .scene-strip-bg { z-index: 0; }
@@ -354,7 +354,7 @@
         .scene1-state.active { display: flex; }
         .panel-clock .s1-foot { display: none; }
         .s1-wbgt-bar, .fc-lv-bar, .s2-meta-bar {
-            position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: var(--led-foot-bar-h);
+            position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: calc(var(--led-foot-bar-h) + 1px);
             background: var(--led-foot-bar-bg); overflow: hidden; z-index: 12; box-sizing: border-box;
             margin: 0; padding: 0; border: 0;
         }
@@ -1657,29 +1657,29 @@
       customer: '太陽建機レンタル',
       rental: '',
       label: '太陽建機レンタル',
-      address: '〒422-8507 静岡市駿河区大坪町2－26',
-      locationLabel: '静岡市'
+      address: '福岡市中央区天神1丁目4-1',
+      locationLabel: '福岡市中央区天神'
     },
     moe: {
-      /* 環境省 WBGT（静岡地方気象台・駿河区曲金／会場最寄り） */
+      /* 環境省 WBGT（福岡管区気象台／会場最寄り） */
       gasUrl:
         'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
-      point: '50331',
+      point: '82182',
       fallbackPoint: '',
-      pointName: '静岡',
-      alertArea: '静岡県',
-      region: '05',
-      prefecture: '50'
+      pointName: '福岡',
+      alertArea: '福岡県',
+      region: '10',
+      prefecture: '82'
     },
     jma: {
-      amedasPoint: '50331',
+      amedasPoint: '82182',
       amedasSupplementPoint: '',
-      forecastArea: '220000',
-      forecastLabel: '静岡市',
-      warnArea: '220000',
-      warnCity: '2210001'
+      forecastArea: '400000',
+      forecastLabel: '福岡市中央区天神',
+      warnArea: '400000',
+      warnCity: '4013100'
     },
-    geo: { lat: 34.9654, lon: 138.3955 },
+    geo: { lat: 33.588657, lon: 130.401123 },
     timeZone: 'Asia/Tokyo',
     refreshMs: 60000,
     footSource: '出典：気象庁・環境省データ'
@@ -1731,7 +1731,7 @@
         <div class="ra-pair ra-advisory" id="ra-pair">
             <div class="ra-mid-band-wrap" aria-hidden="true"><div class="ra-mid-band-unit"></div><div class="ra-mid-band-unit"></div></div>
             <div class="ra-white-header" aria-hidden="true">
-                <span class="ra-white-area">静岡市の地域で発表されています</span>
+                <span class="ra-white-area">福岡市中央区天神の地域で発表されています</span>
                 <span class="ra-white-time">発表 --/-- --:--</span>
                 <span class="ra-white-what">警報・注意報など</span>
             </div>
@@ -1855,14 +1855,14 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">静岡市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市中央区天神</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市中央区天神</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市中央区天神</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市中央区天神</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市中央区天神</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市中央区天神</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市中央区天神</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">福岡市中央区天神</div></div></div>
         </div>
     </div>
 
@@ -2057,7 +2057,8 @@
         container.classList.toggle('col-bg-dark-text', isDarkTextForDisplay(levelIdx, displayMode));
         container.classList.toggle('wbgt-off-season', displayMode === 'offseason');
         container.classList.toggle('wbgt-unavailable', displayMode === 'unavailable');
-        container.style.backgroundColor = colors.bgColor;
+        /* 下帯境界から段階色がにじまないよう、土台は常に白帯色にする */
+        container.style.backgroundColor = LED_FOOT_BAR_BG;
         if (!wrap) return;
         const top = wrap.querySelector('.col-bg-top');
         const body = wrap.querySelector('.col-bg-body');
@@ -2400,12 +2401,12 @@
     const DEMO_LEVEL_ORDER = [0, 1, 2, 3, 4];
     const DEMO_WBGT_BY_LEVEL = [19.0, 22.0, 26.0, 29.0, 32.0];
     let demoLevelPointer = 0;
-    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '50331';
-    const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '静岡県';
+    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '82182';
+    const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '福岡県';
     function getSiteLocationLabel_() {
         return (SITE_CFG.site && SITE_CFG.site.locationLabel)
             || (SITE_CFG.jma && SITE_CFG.jma.forecastLabel)
-            || '静岡市';
+            || '福岡市中央区天神';
     }
     function applySiteLocationLabels_() {
         const label = getSiteLocationLabel_();
@@ -2476,17 +2477,17 @@
         return base + sep + 'type=bundle';
     }
     const JMA_AMEDAS_POINT =
-        query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '50331';
+        query.get('jmaPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasPoint) || '82182';
     const JMA_AMEDAS_SUPPLEMENT_POINT =
         query.get('jmaSupplementPoint') || (SITE_CFG.jma && SITE_CFG.jma.amedasSupplementPoint) || ''
     const JMA_FORECAST_AREA_CODE =
-        query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '220000';
+        query.get('jmaArea') || (SITE_CFG.jma && SITE_CFG.jma.forecastArea) || '400000';
     const JMA_FETCH_HEADERS = { cache: 'no-store' };
     /* 気象庁 高解像度降水ナウキャスト（雨雲レーダー）— https://www.jma.go.jp/bosai/nowc/ */
     const JMA_NOWC_TARGET_TIMES_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N2.json';
     const JMA_NOWC_TILE_URL = 'https://www.jma.go.jp/bosai/jmatile/data/nowc/{basetime}/none/{validtime}/surf/hrpns/{z}/{x}/{y}.png';
-    const DEFAULT_GEO_LAT = (SITE_CFG.geo && SITE_CFG.geo.lat) || 34.9654;
-    const DEFAULT_GEO_LON = (SITE_CFG.geo && SITE_CFG.geo.lon) || 138.3955;
+    const DEFAULT_GEO_LAT = (SITE_CFG.geo && SITE_CFG.geo.lat) || 33.5739;
+    const DEFAULT_GEO_LON = (SITE_CFG.geo && SITE_CFG.geo.lon) || 130.3646;
     const RAIN_ALERT_LAT = parseFloat(query.get('rainLat') || DEFAULT_GEO_LAT);
     const RAIN_ALERT_LON = parseFloat(query.get('rainLon') || DEFAULT_GEO_LON);
     const RAIN_ALERT_ZOOM = 6;
@@ -3140,10 +3141,9 @@
             line2: def ? def.line2 : ''
         };
     }
-    const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '220000';   /* 静岡県 */
-    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '2210001';  /* 静岡市南部 */
-/* 北島町 */
-    const JMA_WARN_CITY_LABELS = { '2210001': '静岡市南部', '220000': '静岡県' };
+    const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '400000';   /* 福岡県 */
+    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '4013100';  /* 福岡市中央区 */
+    const JMA_WARN_CITY_LABELS = { '4013100': '福岡市中央区天神', '400000': '福岡県' };
     let rainWarnMeta = {
         cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || getSiteLocationLabel_(),
         updatedAt: ''
