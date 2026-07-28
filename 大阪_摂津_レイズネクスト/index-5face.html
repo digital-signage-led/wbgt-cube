@@ -5085,8 +5085,22 @@
         scheduleWbgtUnavailableCheck_();
         return false;
     }
+    /** 直前の成功値があれば灰色・取得不可にせず表示を維持する */
+    function keepLastGoodWbgtDisplay_(reason) {
+        if (!(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))) return false;
+        wbgtUnavailable = false;
+        syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
+        updateForecastSlotsIfAllowed_(lastGoodWbgtSlots_);
+        queueOrRefreshS1FootBar_();
+        refreshSignageBgIfChanged_();
+        queueDisplayRefresh_();
+        if (reason) console.warn('[WBGT]', reason, '— 直前の成功値を維持（取得不可にしない）');
+        return true;
+    }
     function applyWbgtUnavailableToDom_() {
         if (wbgtOffSeason || !wbgtUnavailableGraceElapsed_()) return;
+        /* 一度でも成功値があれば長期灰色（取得不可）にしない */
+        if (keepLastGoodWbgtDisplay_('取得継続失敗')) return;
         wbgtUnavailable = true;
         syncWbgtDependentAlerts_();
         const nullSlot = { wbgt: null, hour: '取得不可' };
@@ -5097,7 +5111,7 @@
         queueOrRefreshS1FootBar_();
         refreshSignageBgIfChanged_(true);
         if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
-        console.warn('[WBGT] 1分以上取得できないため「取得不可」表示');
+        console.warn('[WBGT] 成功値なしで1分以上取得できないため「取得不可」表示');
     }
     function syncWbgtSlotsToDomIfReady_() {
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
@@ -5128,23 +5142,26 @@
             queueDisplayRefresh_();
             return true;
         }
+        /* 失敗時も直前値があれば灰色に落とさない（再取得はスケジュール側で継続） */
+        if (keepLastGoodWbgtDisplay_('取得失敗')) {
+            noteWbgtFetchFailure_();
+            return false;
+        }
         if (noteWbgtFetchFailure_()) {
             applyWbgtUnavailableToDom_();
             return false;
-        }
-        /* 1分以内の失敗: 直前の成功値を維持（取得不可は出さない） */
-        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-            wbgtUnavailable = false;
-            syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-            updateForecastSlotsIfAllowed_(lastGoodWbgtSlots_);
-            queueOrRefreshS1FootBar_();
-            refreshSignageBgIfChanged_();
-            queueDisplayRefresh_();
         }
         return false;
     }
     /* 提供期間外: WBGTレベルを無効化し、WBGT表示を全て隠す（該当シーンはループでスキップ） */
     function applyWbgtOffSeason_() {
+        /* 直前の実測がある間は提供期間外の灰色へ落とさない（誤検知・欠測の一時応答対策） */
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            console.warn('[WBGT] off-season応答だが直前値があるため維持');
+            applyWbgtInSeason_();
+            keepLastGoodWbgtDisplay_('off-season応答');
+            return;
+        }
         wbgtOffSeason = true;
         wbgtUnavailable = false;
         clearWbgtUnavailableGrace_();
@@ -5284,6 +5301,7 @@
                     timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
                 } catch (e) {
                     console.warn('[取得] WBGT系:', e.message || e);
+                    applyWbgtSlotsToDom(null);  // 直前値維持パスを通す
                     moeOk = false;
                 }
             })());
@@ -6697,11 +6715,8 @@
                 SignageBg.refreshLogoPanel(lv, mode);
             }
         }
-        const staticTopBar = document.querySelector('#scene3 .t3-static-top-bar');
         const alertTop = getT3HeatAlertTopForDisplay_();
-        if (staticTopBar) {
-            staticTopBar.classList.remove('col-bg-dark-text');
-        }
+        /* 注意・警戒は上帯も黒文字（refreshTicker/applyT3TopBar の col-bg-dark-text を維持） */
         if (!alertTop) {
             const lvLabel = (wbgtUnavailable || lv < 0) ? '--' : levelNames[lv];
             document.querySelectorAll('#scene3 .t3-lv-static').forEach(function (n) { n.textContent = lvLabel; });
