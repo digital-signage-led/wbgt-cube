@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!-- wbgt-cube-taiyo-5face / 太陽建機レンタル WBGT サイネージ（本番 5面 640×128・ロゴ列128） -->
 <!-- 同階層: assets/taiyo_stack.png（右端128・公式縦組） / assets/taiyo_logo.png（下帯） / assets/taiyo_mark.png（下帯小） -->
 <!-- 会場: 福岡市中央区天神1丁目4-1（太陽建機レンタル） -->
@@ -150,15 +150,15 @@
             transition: transform 0.6s ease-in-out;
             aspect-ratio: 1 / 1;
         }
-        /* 右端 128×128: ユーザー提供の公式縦組ロゴ（1枚・比率固定） */
+        /* 右端 128×128: 公式縦組ロゴ（他案件同様・object-fit で比率維持） */
         .logo-stack {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 120px; max-width: 120px; max-height: 124px;
-            box-sizing: border-box; padding: 0; margin: 0; overflow: hidden;
+            width: 128px; height: 128px; max-width: 128px; max-height: 128px;
+            box-sizing: border-box; padding: 4px; margin: 0; overflow: hidden;
         }
         .logo-img {
             display: block;
-            width: 112px; height: auto; max-width: 112px; max-height: 120px;
+            width: 120px; height: 120px; max-width: 120px; max-height: 120px;
             object-fit: contain; object-position: center center; margin: 0;
             flex: 0 0 auto;
             image-rendering: auto;
@@ -581,7 +581,7 @@
         #scene2 .s2-dir-text.dir-val { font-size: 30px; line-height: 1; }
         .s2-unit:empty { display: none; }
         .s2-unit { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); font-family: "Inter", sans-serif; }
-        .weather-svg { width: 46px; height: 46px; }
+        .weather-svg { width: 46px; height: 46px; display: block; }
         .s2-tmaxmin-card {
             display: inline-flex; align-items: baseline; justify-content: center;
             gap: 2px; padding: 3px 7px 4px;
@@ -1703,9 +1703,9 @@
 </script>
 <div class="demo-badge" id="demo-badge" hidden>デモ</div>
 <svg style="display: none;">
-    <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
-    <symbol id="icon-cloudy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#999"/></symbol>
-    <symbol id="icon-rainy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#666"/><path d="M36,75 L31,90 M50,75 L45,90 M64,75 L59,90" stroke="#00b0f0" stroke-width="6" stroke-linecap="round"/></symbol>
+    <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#FFE566"/><g stroke="#FFE566" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
+    <symbol id="icon-cloudy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#ffffff"/></symbol>
+    <symbol id="icon-rainy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#ffffff"/><path d="M36,75 L31,90 M50,75 L45,90 M64,75 L59,90" stroke="#7AD7FF" stroke-width="6" stroke-linecap="round"/></symbol>
 </svg>
 
 <div class="canvas">
