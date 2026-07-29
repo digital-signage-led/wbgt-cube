@@ -1,0 +1,13 @@
+{
+  "name": "shizuoka-sendai-meiban",
+  "version": "1.0.0",
+  "description": "仙台銘板 静岡営業所 WBGT サイネージ（5面 640×128）",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "commonjs"
+}
