@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-tokyo-sumida-shokaku-4face / 松鶴建設 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 同階層: assets/shokaku_logo_foot.png（時刻下の下帯・松鶴建設ロゴ／ヒカリ版と同型） -->
+<!-- 同階層: assets/fonts/（Inter・Noto Sans JP・M PLUS Rounded 1c 同梱。Google Fonts CDN 禁止） -->
 <!-- 作業所: 松鶴建設 -->
 <!-- 会場: 〒131-0031 東京都墨田区墨田4丁目12-8 -->
 <!-- WBGT・AMeDAS 44132（東京・気象庁/環境省） / 補完 44136 -->
@@ -13,7 +14,8 @@
     <!-- clock: jst-network-v2 / 表示・同期は常に Asia/Tokyo（端末TZ非依存） -->
     <title>WBGT Signage 4面 - 松鶴建設</title>
     <link rel="preload" as="image" href="./assets/shokaku_logo_foot.png?v=7">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
+    <!-- サイネージ機は Google Fonts に届かない／display=optional で永久フォールバックするため、同梱 woff2 を使う -->
+    <link rel="stylesheet" href="./assets/fonts/signage-fonts.css?v=1">
     <script>
 /** 4面 512×128 本番用（layout512 + native640）。localhost は PC 確認用に拡大表示 */
 (function () {
