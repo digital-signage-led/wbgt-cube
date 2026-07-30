@@ -4247,28 +4247,37 @@
                 if (raFlow_.midLaps >= RA_LAPS_BEFORE_SWITCH) {
                     if (DEMO_RAINWARN_ONLY) {
                         raFlow_.midLaps = 0;
+                        raAnimId = null;
+                        holdThenNextContent_(null, function () {
+                            raAnimId = requestAnimationFrame(step);
+                        });
+                        return;
                     } else if (DEMO_SIGNAGE && !DEMO_ONLY) {
                         raFlow_.midLaps = 0;
                         if (raFlow_.whiteBundle) {
                             raAnimId = null; raFlow_ = null;
-                            finishDemoRainWarnCycle_();
+                            runAfterSceneEndHold_(finishDemoRainWarnCycle_);
                             return;
                         }
                         raFlow_.warnIdx += 1;
                         if (raFlow_.warnIdx >= rainWarnActive.length) {
                             raAnimId = null; raFlow_ = null;
-                            finishDemoRainWarnCycle_();
+                            runAfterSceneEndHold_(finishDemoRainWarnCycle_);
                             return;
                         }
-                        setRainWarn_(raFlow_.warnIdx, 0);
-                        const midW2 = raFlow_.midBandW || RA_WHITE_BAND_W;
-                        raFlow_.midBandX = wrapScrollX_(globalScrollX_, midW2);
-                        if (raFlow_.heroBundle) applyRaHeroMidX_(raFlow_.midBandX);
-                        raAnimId = requestAnimationFrame(step);
+                        raAnimId = null;
+                        holdThenNextContent_(function () {
+                            setRainWarn_(raFlow_.warnIdx, 0);
+                            const midW2 = raFlow_.midBandW || RA_WHITE_BAND_W;
+                            raFlow_.midBandX = wrapScrollX_(globalScrollX_, midW2);
+                            if (raFlow_.heroBundle) applyRaHeroMidX_(raFlow_.midBandX);
+                        }, function () {
+                            raAnimId = requestAnimationFrame(step);
+                        });
                         return;
                     } else {
                         raAnimId = null; raFlow_ = null;
-                        finishMainLoopToS1_();
+                        runAfterSceneEndHold_(finishMainLoopToS1_);
                         return;
                     }
                 }
@@ -4283,35 +4292,61 @@
                     raFlow_.laps = 0;
                     const curKey = rainWarnActive[raFlow_.warnIdx] || rainWarnActive[0];
                     const curKinds = kindsForLevel_(curKey);
+                    let switchedKindOnly = false;
                     if (curKinds.length > 1) {
                         raFlow_.kindIdx += 1;
                         if (raFlow_.kindIdx >= curKinds.length) {
                             raFlow_.kindIdx = 0;
                             raFlow_.warnIdx += 1;
                         } else {
-                            setRainWarn_(raFlow_.warnIdx, raFlow_.kindIdx);
-                            applyRaTrackX_(tracks, raFlow_.x);
-                            raAnimId = requestAnimationFrame(step);
-                            return;
+                            switchedKindOnly = true;
                         }
                     } else {
                         raFlow_.kindIdx = 0;
                         raFlow_.warnIdx += 1;
                     }
+                    if (switchedKindOnly) {
+                        raAnimId = null;
+                        holdThenNextContent_(function () {
+                            setRainWarn_(raFlow_.warnIdx, raFlow_.kindIdx);
+                            raFlow_.x = wrapScrollX_(globalScrollX_, RA_UNIT_W);
+                            applyRaTrackX_(tracks, raFlow_.x);
+                        }, function () {
+                            raAnimId = requestAnimationFrame(step);
+                        });
+                        return;
+                    }
                     if (raFlow_.warnIdx >= rainWarnActive.length) {
                         if (DEMO_RAINWARN_ONLY) {
                             raFlow_.warnIdx = 0;
+                            raAnimId = null;
+                            holdThenNextContent_(function () {
+                                setRainWarn_(raFlow_.warnIdx, raFlow_.kindIdx);
+                                raFlow_.x = wrapScrollX_(globalScrollX_, RA_UNIT_W);
+                                applyRaTrackX_(tracks, raFlow_.x);
+                            }, function () {
+                                raAnimId = requestAnimationFrame(step);
+                            });
+                            return;
                         } else if (DEMO_SIGNAGE && !DEMO_ONLY) {
                             raAnimId = null; raFlow_ = null;
-                            finishDemoRainWarnCycle_();
+                            runAfterSceneEndHold_(finishDemoRainWarnCycle_);
                             return;
                         } else {
                             raAnimId = null; raFlow_ = null;
-                            finishMainLoopToS1_();
+                            runAfterSceneEndHold_(finishMainLoopToS1_);
                             return;
                         }
                     }
-                    setRainWarn_(raFlow_.warnIdx, raFlow_.kindIdx);
+                    raAnimId = null;
+                    holdThenNextContent_(function () {
+                        setRainWarn_(raFlow_.warnIdx, raFlow_.kindIdx);
+                        raFlow_.x = wrapScrollX_(globalScrollX_, RA_UNIT_W);
+                        applyRaTrackX_(tracks, raFlow_.x);
+                    }, function () {
+                        raAnimId = requestAnimationFrame(step);
+                    });
+                    return;
                 }
             }
             applyRaTrackX_(tracks, raFlow_.x);
@@ -4457,9 +4492,12 @@
     let t3Messages_ = [];
     let t3Flow_ = null;
     const SCENE_W = 512;
-    /** シーン切替スライド（次シーンはスライド開始と同時に準備、スクロールは SCENE_SCROLL_HOLD_MS 後） */
+    /** シーン切替スライド（次シーンはスライド開始と同時に準備、スクロールは前後各 SCENE_*_HOLD_MS 静止） */
     const SCENE_SLIDE_MS = 450;
+    /** スクロール開始前の静止 */
     const SCENE_SCROLL_HOLD_MS = 1000;
+    /** スクロール終了後〜次コンテンツ／次シーンまでの静止 */
+    const SCENE_END_HOLD_MS = 1000;
     const GLOBAL_SCROLL_SPEED_PX = 0.75;
     const DEMO_SCROLL_SPEED_PX = 0.5;
     function getScrollSpeedPx_() {
@@ -4467,6 +4505,7 @@
     }
     let sceneSlideAnimId = null;
     let sceneEndHoldTimerId_ = null;
+    let scenePostHoldTimerId_ = null;
     /** 全シーン共通スクロール位置（下帯・本体とも継ぎ目でリセットしない） */
     let globalScrollX_ = 0;
     function scrollPx_(x) {
@@ -4504,12 +4543,34 @@
             sceneEndHoldTimerId_ = null;
         }
     }
+    function clearScenePostHoldTimer_() {
+        if (scenePostHoldTimerId_ != null) {
+            clearTimeout(scenePostHoldTimerId_);
+            scenePostHoldTimerId_ = null;
+        }
+    }
+    /** スクロール開始前に1秒静止 */
     function runSceneScrollAfterHold_(fn) {
         clearSceneEndHoldTimer_();
         sceneEndHoldTimerId_ = setTimeout(function () {
             sceneEndHoldTimerId_ = null;
             fn();
         }, SCENE_SCROLL_HOLD_MS);
+    }
+    /** スクロール終了後に1秒静止してから次へ */
+    function runAfterSceneEndHold_(fn) {
+        clearScenePostHoldTimer_();
+        scenePostHoldTimerId_ = setTimeout(function () {
+            scenePostHoldTimerId_ = null;
+            fn();
+        }, SCENE_END_HOLD_MS);
+    }
+    /** 1コンテンツ終了 → 1秒静止 → 次準備 → 1秒静止 → スクロール再開 */
+    function holdThenNextContent_(prepareFn, resumeAnimFn) {
+        runAfterSceneEndHold_(function () {
+            if (typeof prepareFn === 'function') prepareFn();
+            runSceneScrollAfterHold_(resumeAnimFn);
+        });
     }
     function clearSceneSlideAnim_() {
         if (sceneSlideAnimId != null) {
@@ -4522,6 +4583,7 @@
     }
     function clearOutgoingSceneAnims_() {
         clearSceneEndHoldTimer_();
+        clearScenePostHoldTimer_();
         if (scene1AnimId) { cancelAnimationFrame(scene1AnimId); scene1AnimId = null; }
         if (scene2AnimId) { cancelAnimationFrame(scene2AnimId); scene2AnimId = null; }
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
@@ -6463,17 +6525,34 @@
                     if (haFlow_.alertIdx >= heatAlertActive.length) {
                         if (DEMO_ALERT_ONLY) {
                             haFlow_.alertIdx = 0;
+                            haAnimId = null;
+                            holdThenNextContent_(function () {
+                                setHeatAlert_(haFlow_.alertIdx);
+                                applyHaTrackX_(tracks, wrapScrollX_(globalScrollX_, HA_UNIT_W));
+                                haFlow_.x = wrapScrollX_(globalScrollX_, HA_UNIT_W);
+                            }, function () {
+                                haAnimId = requestAnimationFrame(step);
+                            });
+                            return;
                         } else if (DEMO_SIGNAGE && !DEMO_ONLY) {
                             haAnimId = null; haFlow_ = null;
-                            advanceDemoLevel();
+                            runAfterSceneEndHold_(advanceDemoLevel);
                             return;
                         } else {
                             haAnimId = null; haFlow_ = null;
-                            gotoAfterRainWarnOrScene1_();
+                            runAfterSceneEndHold_(gotoAfterRainWarnOrScene1_);
                             return;
                         }
                     }
-                    setHeatAlert_(haFlow_.alertIdx);
+                    haAnimId = null;
+                    holdThenNextContent_(function () {
+                        setHeatAlert_(haFlow_.alertIdx);
+                        haFlow_.x = wrapScrollX_(globalScrollX_, HA_UNIT_W);
+                        applyHaTrackX_(tracks, haFlow_.x);
+                    }, function () {
+                        haAnimId = requestAnimationFrame(step);
+                    });
+                    return;
                 }
             }
             applyHaTrackX_(tracks, haFlow_.x);
@@ -7048,11 +7127,18 @@
                         tickerAnimId = null;
                         t3Flow_ = null;
                         stopLogoSpinInterval();
-                        gotoAfterScene3_();
+                        runAfterSceneEndHold_(gotoAfterScene3_);
                         return;
                     }
-                    t3Flow_.x = snapT3ScrollToLap_(T3_UNIT_W);
-                    setT3Lang_(t3Flow_.langIdx);
+                    tickerAnimId = null;
+                    holdThenNextContent_(function () {
+                        t3Flow_.x = snapT3ScrollToLap_(T3_UNIT_W);
+                        setT3Lang_(t3Flow_.langIdx);
+                        applyT3TrackX_(tracks, t3Flow_.x);
+                    }, function () {
+                        tickerAnimId = requestAnimationFrame(step);
+                    });
+                    return;
                 }
             }
             applyT3TrackX_(tracks, t3Flow_.x);
@@ -7105,7 +7191,7 @@
                     if (s1Flow_.laps >= SCENE1_ADVANCE_LAPS) {
                         scene1AnimId = null;
                         s1Flow_ = null;
-                        finishScene1();
+                        runAfterSceneEndHold_(finishScene1);
                         return;
                     }
                 }
@@ -7168,7 +7254,7 @@
                 scene2AnimId = null;
                 stopLogoSpinInterval();
                 if (demoOnlyLoop_('s2', playScene2)) return;
-                gotoSceneAfterScene2_();
+                runAfterSceneEndHold_(gotoSceneAfterScene2_);
                 return;
             }
             scene2AnimId = requestAnimationFrame(animateScene2);
@@ -7222,7 +7308,7 @@
             if (totalScrolled >= scene4ScrollTotal) {
                 scene4AnimId = null;
                 stopLogoSpinInterval();
-                finishScene4();
+                runAfterSceneEndHold_(finishScene4);
                 return;
             }
             scene4AnimId = requestAnimationFrame(animateScene4);
@@ -7261,7 +7347,7 @@
                 scene5AnimId = null;
                 stopLogoSpinInterval();
                 if (demoOnlyLoop_('s5', playScene5)) return;
-                gotoSceneAfterScene5_();
+                runAfterSceneEndHold_(gotoSceneAfterScene5_);
                 return;
             }
             scene5AnimId = requestAnimationFrame(animateScene5);
