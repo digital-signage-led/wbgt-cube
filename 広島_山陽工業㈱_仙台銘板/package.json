@@ -1,0 +1,11 @@
+{
+  "name": "hiroshima-sanyo-sendai-meiban",
+  "version": "1.0.0",
+  "description": "山陽工業㈱（広島市中区竹屋町）WBGT サイネージ（4面 512×128）",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "UNLICENSED",
+  "type": "commonjs"
+}
