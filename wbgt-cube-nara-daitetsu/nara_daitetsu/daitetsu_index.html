@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-nara-daitetsu / 奈良市・大鉄 WBGT サイネージ -->
-<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png（大鉄PR用）, faces/face-0〜4.png（任意） -->
+<!-- 同階層: daitetsu_logo.png, daitetsu_wordmark.png（大鉄PR用）, daitetsu_mark.png（白帯用マーク）, faces/face-0〜4.png（任意） -->
 <!-- 〒630-8145 奈良県奈良市 / WBGT 64036 -->
-<!-- ▼ クリーン版 (2026-06-12)
+<!-- ▼ クリーン版 (2026-06-12 / 時刻同期 2026-07-31 飾磨版準拠・JST固定)
   ①時刻同期を非ブロッキング化: リロード直後もローカル時計で即表示（--:--横線対策）
+    → Cloudflare → timeapi.io → worldtimeapi → NICT（JMAアメダス時刻は使わない）
+    → 表示・スケジュールは常に Asia/Tokyo + hourCycle h23（端末TZ非依存）
+    → デモ(demo=1)でも起動時・定期で syncTimeFromNetwork
   ②WBGT直前値をlocalStorageに60分間キャッシュ: 更新・リロード直後も直前の実測値を表示
-    （実測成功値のみ・取得失敗は3回連続するまで灰色にしない）
+    （一度成功値があれば取得失敗・誤off-seasonでも灰色「取得不可」に落とさず直前値を維持）
   ③大鉄PRローテ番号(mainLoopCycle_)をlocalStorageで永続化: リロードしても1→2→3行目と巡回
-  ③bメインループ表示位置(mainLoopStep_)をlocalStorageで永続化: リロード後は途中シーンから直接再開（シーン1へ戻さない）
+    ③bメインループ表示位置(mainLoopStep_)をlocalStorageで永続化: リロード後は途中シーンから直接再開（シーン1へ戻さない）
   ④大雨警報シーン一式（sceneRainWarn / .ra-* CSS / RAIN_WARN系JS 約2,270行）を削除
     — 本サイトは気象庁警報非表示運用のため完全な死にコード。雨雲ナウキャスト下帯は維持
   ※併せてColorlight Cloud側はWebページ1項目・再生時間最大に設定（ページをリロードさせない）
+  ※大鉄固有: 5面640×ロゴ列 / 大鉄PR2段 / jp·en·vn·tl / 奈良64036
 -->
 <html lang="ja" class="native-640">
 <head>
@@ -18,6 +22,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <!-- clock: jst-network-v1 -->
     <title>WBGT Signage - 奈良市</title>
     <script>
 /** 5面 640×128 本番用（ロゴ列 + native640） */
@@ -44,6 +49,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@400;500&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap');
         :root {
             --led-foot-bar-bg: #fff9f0;
+            --led-foot-bar-h: 32px;
+            --led-col-body-h: 64px;
+            --led-col-main-h: 96px;
+            --led-foot-font: 20px;
+            --led-foot-site-font: 20px;
             --signage-text-lh: 1.14;
             --signage-multi-font: "Noto Sans", "Noto Sans JP", sans-serif;
             --signage-pad-y-top: 1px;
@@ -260,7 +270,7 @@
             opacity: 0;
             transition: opacity 0s;
         }
-        /* 大鉄PR 512×128（上32 + 中72 + 下24）— 上帯: 社名1列 / 下帯: ロゴ */
+        /* 大鉄PR 512×128（上32 + 中64 + 下32）— 上帯: 社名1列 / 下帯: ロゴ */
         .dp-shell {
             width: 512px; height: 128px;
             display: flex; flex-direction: column;
@@ -274,13 +284,13 @@
             padding: var(--signage-pad-y-top) 0 var(--signage-pad-y-bot);
         }
         .dp-mid {
-            width: 100%; height: 72px; flex-shrink: 0;
+            width: 100%; height: var(--led-col-body-h); flex-shrink: 0;
             overflow: hidden; position: relative; box-sizing: border-box;
             display: flex; align-items: center;
             padding: var(--signage-pad-y-top) 0 var(--signage-pad-y-bot);
         }
         .dp-bot {
-            width: 100%; height: 24px; flex-shrink: 0;
+            width: 100%; height: var(--led-foot-bar-h); flex-shrink: 0;
             overflow: hidden; position: relative; box-sizing: border-box;
             background: var(--led-foot-bar-bg);
         }
@@ -319,7 +329,7 @@
             display: inline-block;
             flex-shrink: 0; white-space: nowrap; line-height: var(--signage-text-lh);
             font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            font-weight: 700; font-size: 16px; letter-spacing: 0.02em;
+            font-weight: 700; font-size: 22px; letter-spacing: 0.02em;
             text-align: center;
         }
         .dp-mid-txt {
@@ -329,7 +339,7 @@
             justify-content: flex-start;
             gap: 0;
             flex-shrink: 0;
-            font-size: 28px; font-weight: 900; line-height: var(--signage-text-lh);
+            font-size: 40px; font-weight: 900; line-height: var(--signage-text-lh);
             font-family: "Noto Sans JP", "Inter", sans-serif; letter-spacing: 0.2px;
         }
         .dp-mid-em { color: #d10000; font-weight: 900; }
@@ -500,22 +510,22 @@
         .col-bg-host > .fc-body,
         .col-bg-host > .fc-foot { position: relative; z-index: 1; }
         .col-bg-top { height: 32px; flex-shrink: 0; }
-        .col-bg-body { height: 72px; flex-shrink: 0; position: relative; }
-        .col-bg-foot { height: 24px; flex-shrink: 0; background: var(--led-foot-bar-bg); }
-        .col-bg-layer.col-bg-wbgt .col-bg-body { height: 74px; }
+        .col-bg-body { height: var(--led-col-body-h); flex-shrink: 0; position: relative; }
+        .col-bg-foot { height: var(--led-foot-bar-h); flex-shrink: 0; background: var(--led-foot-bar-bg); }
+        .col-bg-layer.col-bg-wbgt .col-bg-body { height: 70px; }
         .col-bg-wbgt-line {
             position: absolute; left: 10px; right: 10px; top: 50%;
             height: 2px; margin-top: -1px; background: rgba(255,255,255,0.8);
         }
-        .col-bg-wbgt-foot { height: 22px; flex-shrink: 0; background: var(--led-foot-bar-bg); }
+        .col-bg-wbgt-foot { height: 26px; flex-shrink: 0; background: var(--led-foot-bar-bg); }
         .scene-strip-bg {
             position: absolute; left: 0; top: 0; width: 512px; height: 128px;
             z-index: 0; pointer-events: none; display: flex; flex-direction: column;
             border: none; outline: none;
         }
         .scene-strip-bg .col-bg-top { width: 100%; height: 32px; flex-shrink: 0; border: none; }
-        .scene-strip-bg .col-bg-body { width: 100%; height: 72px; flex-shrink: 0; border: none; }
-        .scene-strip-bg .col-bg-foot { width: 100%; height: 24px; flex-shrink: 0; background: var(--led-foot-bar-bg); border: none; }
+        .scene-strip-bg .col-bg-body { width: 100%; height: var(--led-col-body-h); flex-shrink: 0; border: none; }
+        .scene-strip-bg .col-bg-foot { width: 100%; height: var(--led-foot-bar-h); flex-shrink: 0; background: var(--led-foot-bar-bg); border: none; }
         .ticker-scene { width: 512px; height: 128px; background: transparent !important; position: relative; }
         .ticker-scene > .t3-shell { z-index: 1; }
         .panel, .s2-panel, .s2-panel-data, .fc-panel, .d5-panel { background: transparent; }
@@ -570,7 +580,7 @@
         .s1-top-bar { width: 100%; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
         .s1-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.42px; }
         #scene1 .panel-clock .s1-bar-label {
-            font-size: 20px;
+            font-size: 24px;
             line-height: 1.05;
             letter-spacing: 0.2px;
             max-width: 124px;
@@ -580,29 +590,29 @@
             padding: 0 2px;
             box-sizing: border-box;
         }
-        .s1-body { width: 100%; height: 72px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+        .s1-body { width: 100%; height: var(--led-col-body-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
         #scene1 .panel-clock .s1-body {
             height: 68px; max-height: 68px; width: 100%; max-width: 128px;
             overflow: hidden;
             padding: 1px 2px 2px;
             box-sizing: border-box;
         }
-        /* シーン1下帯: 24px→28pxで文字を大きく。時計中帯を4px縮めて被り防止 */
+        /* シーン1下帯: 飾磨版相当 32px（本体64px） */
         #scene1 .s1-wbgt-bar {
-            height: 28px;
+            height: var(--led-foot-bar-h);
             z-index: 3;
         }
         #scene1 .s1-wbgt-track {
-            height: 28px;
+            height: var(--led-foot-bar-h);
             flex-wrap: nowrap;
             gap: 0;
         }
         #scene1 .s1-wbgt-set {
             width: auto;
-            height: 28px;
+            height: var(--led-foot-bar-h);
         }
-        .s1-foot { width: 100%; height: 24px; flex-shrink: 0; box-sizing: border-box; }
-        .panel-clock .time-val { font-size: 44px; font-weight: 800; color: #ebebeb; line-height: var(--signage-text-lh); font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif; letter-spacing: -0.04em; }
+        .s1-foot { width: 100%; height: var(--led-foot-bar-h); flex-shrink: 0; box-sizing: border-box; }
+        .panel-clock .time-val { font-size: 52px; font-weight: 800; color: #ebebeb; line-height: var(--signage-text-lh); font-variant-numeric: tabular-nums; font-family: "Inter", sans-serif; letter-spacing: -0.04em; }
         /* シーン1時刻: WBGT実況数値（.fc-wbgt-num）と同型 Inter 800 */
         #scene1 .panel-clock .clock-hm.time-val {
             display: inline-flex;
@@ -611,7 +621,7 @@
             font-weight: 800;
             line-height: var(--signage-text-lh);
             letter-spacing: -0.04em;
-            max-width: 112px;
+            max-width: 114px;
             width: 100%;
             box-sizing: border-box;
             white-space: nowrap;
@@ -626,45 +636,65 @@
             font-variant-numeric: tabular-nums;
             letter-spacing: -0.04em;
         }
+        /* コロンは Inter の「:」glyph だと数字に対して低く見えるため、2点を縦中央に描画 */
         #scene1 .panel-clock .clock-sep {
+            position: relative;
             display: inline-block;
-            padding: 0;
-            transform: none;
+            align-self: center;
+            flex-shrink: 0;
+            width: 0.22em;
+            height: 0.56em;
+            margin: 0 0.04em;
+            line-height: 0;
+            vertical-align: middle;
         }
+        #scene1 .panel-clock .clock-sep::before,
+        #scene1 .panel-clock .clock-sep::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0.13em;
+            height: 0.13em;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        #scene1 .panel-clock .clock-sep::before { top: 0.1em; }
+        #scene1 .panel-clock .clock-sep::after { bottom: 0.1em; }
         #scene1, #scene4 { overflow: hidden; position: relative; }
         .fc-scroll-wrap {
-            width: 512px; height: 104px; flex-shrink: 0;
+            width: 512px; height: var(--led-col-main-h); flex-shrink: 0;
             overflow: hidden; position: relative; z-index: 1;
         }
         .fc-track {
             display: flex; flex-direction: row; width: 1024px; transition: none; gap: 0;
         }
         .fc-track .fc-panel {
-            width: 128px; height: 104px; max-height: 104px;
+            width: 128px; height: var(--led-col-main-h); max-height: var(--led-col-main-h);
         }
-        .scene1-state { display: none; width: 512px; height: 100px; flex-direction: row; flex-shrink: 0; overflow: hidden; }
+        .scene1-state { display: none; width: 512px; height: var(--led-col-main-h); flex-direction: row; flex-shrink: 0; overflow: hidden; }
         .scene1-state.active { display: flex; }
-        /* 下帯28px + 本体100px = 128px */
-        #scene1 .scene1-state { height: 100px; }
+        /* 下帯32px + 本体96px = 128px */
+        #scene1 .scene1-state { height: var(--led-col-main-h); }
         #scene1 .panel.panel-clock {
             width: 128px; max-width: 128px; min-width: 128px;
-            height: 100px; overflow: hidden;
+            height: var(--led-col-main-h); overflow: hidden;
         }
         #scene1 .panel-clock .s1-top-bar { overflow: hidden; width: 100%; }
         .panel-clock .s1-foot { display: none; }
         .s1-wbgt-bar, .fc-lv-bar, .s2-meta-bar {
-            position: absolute; left: 0; bottom: 0; width: 512px; height: 24px;
+            position: absolute; left: 0; bottom: 0; width: 512px; height: var(--led-foot-bar-h);
             background: var(--led-foot-bar-bg); overflow: hidden; z-index: 2; box-sizing: border-box;
         }
         .s1-wbgt-track, .fc-lv-track, .s2-meta-track {
-            display: flex; flex-direction: row; align-items: stretch; height: 24px;
+            display: flex; flex-direction: row; align-items: stretch; height: var(--led-foot-bar-h);
             position: absolute; top: 0; left: 0; will-change: transform;
         }
         #scene1 .s1-wbgt-track {
             align-items: center;
         }
         .s1-wbgt-set, .fc-lv-set, .s2-meta-set {
-            width: 512px; height: 24px; flex-shrink: 0;
+            width: 512px; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; flex-direction: row; align-items: stretch;
             box-sizing: border-box;
         }
@@ -676,14 +706,14 @@
         #scene1 .s1-wbgt-set.s1-wbgt-set-flow {
             width: max-content;
             min-width: 0;
-            height: 28px;
+            height: var(--led-foot-bar-h);
             flex-shrink: 0;
         }
         #scene1 .s1-foot-scroll-unit {
             flex: 0 0 auto;
             display: inline-flex;
             align-items: center;
-            height: 28px;
+            height: var(--led-foot-bar-h);
             padding: 0;
             margin: 0;
             box-sizing: border-box;
@@ -692,7 +722,7 @@
             width: max-content;
             min-width: 0;
             max-width: none;
-            height: 28px;
+            height: var(--led-foot-bar-h);
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -708,7 +738,7 @@
         .s1-wbgt-set.s1-wbgt-set-flow {
             width: auto;
             min-width: 0;
-            height: 24px;
+            height: var(--led-foot-bar-h);
             flex-shrink: 0;
         }
         .s1-wbgt-slot-flow {
@@ -734,7 +764,7 @@
             color: #1a1a1a;
         }
         .s1-wbgt-slot, .fc-lv-slot, .s2-meta-slot {
-            width: 256px; height: 24px; flex-shrink: 0;
+            width: 256px; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
             box-sizing: border-box;
         }
@@ -750,7 +780,7 @@
         }
         .s1-wbgt-msg-compact, .fc-lv-msg-compact {
             display: block; width: 100%; max-width: 100%;
-            font-size: 13px; font-weight: 700; color: #1a1a1a; line-height: 1;
+            font-size: 18px; font-weight: 700; color: #1a1a1a; line-height: 1;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             text-align: center; padding: 0 6px; box-sizing: border-box;
         }
@@ -759,7 +789,7 @@
             display: inline-block;
             flex-shrink: 0; white-space: nowrap;
             font-family: "Noto Sans JP", sans-serif;
-            font-weight: 700; font-size: 13px; line-height: 1;
+            font-weight: 700; font-size: 18px; line-height: 1;
             letter-spacing: 0.02em;
             color: #1a1a1a;
         }
@@ -777,8 +807,8 @@
             text-align: center; padding: 0;
         }
         .s2-meta-msg-scroll {
-            display: inline-block; white-space: nowrap; line-height: 24px;
-            font-size: 11px; font-weight: 700; color: #1a1a1a;
+            display: inline-block; white-space: nowrap; line-height: var(--led-foot-bar-h);
+            font-size: var(--led-foot-font); font-weight: 700; color: #1a1a1a;
             font-family: "Noto Sans JP", sans-serif; padding: 0 10px;
         }
         .s2-meta-msg-groups {
@@ -792,12 +822,57 @@
             box-sizing: border-box;
         }
         .s2-meta-set.s2-meta-set-flow {
-            width: auto; min-width: 512px; height: 24px; flex-shrink: 0;
+            width: auto; min-width: 512px; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; flex-direction: row; align-items: stretch;
             box-sizing: border-box;
         }
         .s1-wbgt-slot-wide, .fc-lv-slot-wide, .s2-meta-slot-wide {
             width: 512px; max-width: 512px; flex-shrink: 0;
+        }
+        /* シーン4下帯: 出典文言＋大鉄ロゴを同一単位でシームレス横スクロール */
+        #scene4 .fc-lv-track {
+            align-items: center;
+        }
+        #scene4 .fc-lv-unit {
+            flex: 0 0 auto;
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            height: var(--led-foot-bar-h);
+            padding: 0 16px;
+            box-sizing: border-box;
+            white-space: nowrap;
+        }
+        #scene4 .fc-lv-unit .fc-lv-msg-compact,
+        #scene4 .fc-lv-unit .fc-lv-msg {
+            display: inline-block;
+            width: auto;
+            max-width: none;
+            padding: 0;
+            margin: 0;
+            overflow: visible;
+            text-overflow: clip;
+            text-align: left;
+            vertical-align: middle;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 0.02em;
+            color: #1a1a1a;
+            font-family: "Noto Sans JP", sans-serif;
+        }
+        #scene4 .fc-lv-logo {
+            display: block;
+            height: 22px;
+            max-height: 22px;
+            width: auto;
+            max-width: 200px;
+            object-fit: contain;
+            object-position: center;
+            flex-shrink: 0;
+            background: transparent;
         }
         .s1-wbgt-ch, .fc-lv-ch {
             display: inline-flex; align-items: center; justify-content: center;
@@ -812,7 +887,7 @@
         .s2-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; letter-spacing: 0.42px; font-family: "Noto Sans JP", sans-serif; text-align: center; line-height: 1.15; padding: 0; max-width: 100%; overflow: hidden; white-space: nowrap; }
         .s2-panel-compact .s2-bar-label { letter-spacing: 0; }
         .s2-body {
-            width: 100%; max-width: 128px; height: 72px; flex-shrink: 0;
+            width: 100%; max-width: 128px; height: var(--led-col-body-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
             box-sizing: border-box; overflow: hidden;
             padding: var(--signage-pad-y-top) 8px var(--signage-pad-y-bot);
@@ -827,8 +902,8 @@
             font-family: "Inter", sans-serif; max-width: 116px; overflow: hidden;
             white-space: nowrap; text-align: center;
         }
-        .s2-foot { width: 100%; height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 0 2px; }
-        .s2-foot .s2-loc { font-size: 15px; font-weight: 700; color: #1a1a1a; font-family: "Noto Sans JP", sans-serif; margin: 0; }
+        .s2-foot { width: 100%; height: var(--led-foot-bar-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 0 2px; }
+        .s2-foot .s2-loc { font-size: 20px; font-weight: 700; color: #1a1a1a; font-family: "Noto Sans JP", sans-serif; margin: 0; }
         .s2-zone-top { width: 100%; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .s2-zone-mid { width: 100%; height: 70px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .s2-zone-bot { width: 100%; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -838,7 +913,7 @@
             display: flex; align-items: baseline; justify-content: center; gap: 1px;
             max-width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box;
         }
-        .s2-num { font-size: 34px; font-weight: 800; color: #ebebeb; line-height: var(--signage-text-lh); font-family: "Inter", sans-serif; }
+        .s2-num { font-size: 52px; font-weight: 800; color: #ebebeb; line-height: var(--signage-text-lh); font-family: "Inter", sans-serif; }
         .s2-dir-text {
             font-size: 20px; font-weight: 800; color: #ebebeb; line-height: 1.15;
             font-family: "Noto Sans JP", sans-serif; max-width: 100%; overflow: hidden;
@@ -853,15 +928,15 @@
         .s1-wbgt-track, .s2-meta-track, .fc-lv-track, .t3-guid-track { will-change: transform; }
         #scene2 { overflow: hidden; position: relative; }
         #scene2.active { display: block; }
-        /* シーン2: 128×128 = 上32 + 中72 + 白下帯24（他シーンと同じ） */
-        .s2-scroll-wrap { width: 512px; height: 104px; overflow: hidden; position: relative; z-index: 1; }
-        #scene2 .s2-panel, #scene2 .s2-panel-data { height: 104px; }
-        #scene2 .s2-bar-label { font-size: 20px; line-height: 1.05; letter-spacing: 0.2px; }
+        /* シーン2: 128×128 = 上32 + 中64 + 白下帯32（他シーンと同じ） */
+        .s2-scroll-wrap { width: 512px; height: var(--led-col-main-h); overflow: hidden; position: relative; z-index: 1; }
+        #scene2 .s2-panel, #scene2 .s2-panel-data { height: var(--led-col-main-h); }
+        #scene2 .s2-bar-label { font-size: 24px; line-height: 1.05; letter-spacing: 0.2px; }
         #scene2 .s2-panel-compact .s2-bar-label { letter-spacing: 0; }
         #scene2 [data-s2="tmaxmin"] .s2-body { padding-left: 4px; padding-right: 4px; }
-        #scene2 .s2-num { font-size: 34px; }
-        #scene2 .s2-dir-text.dir-val { font-size: 30px; }
-        #scene2 .s2-unit { font-size: 14px; }
+        #scene2 .s2-num { font-size: 52px; }
+        #scene2 .s2-dir-text.dir-val { font-size: 44px; }
+        #scene2 .s2-unit { font-size: 18px; }
         /* 最高/最低: 白角丸ボックス内に赤(最高)・青(最低) */
         .s2-tmaxmin-wrap {
             display: inline-flex; align-items: flex-end; justify-content: center;
@@ -882,20 +957,20 @@
         .s2-tmaxmin-num {
             font-family: "Inter", sans-serif; font-weight: 800;
             line-height: var(--signage-text-lh);
-            font-size: 36px;
+            font-size: 46px;
         }
         .s2-tmax-pill .s2-tmaxmin-num { color: #d10000; }
         .s2-tmin-pill .s2-tmaxmin-num { color: #1a5fb4; }
         .s2-tmaxmin-sep {
             font-family: "Inter", sans-serif; font-weight: 800;
             line-height: var(--signage-text-lh);
-            font-size: 36px;
+            font-size: 46px;
             color: #1a1a1a; padding: 0 1px;
         }
         .s2-tmaxmin-unit {
             font-family: "Inter", sans-serif; font-weight: 600;
             line-height: 1;
-            font-size: 14px;
+            font-size: 18px;
             color: #1a1a1a; margin-left: 2px;
             align-self: flex-end;
         }
@@ -928,7 +1003,7 @@
         #scene4 .fc-top-bar, #scene4 .fc-body { background: transparent; border: none; position: relative; z-index: 1; }
         .fc-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; letter-spacing: 0.42px; font-family: "Noto Sans JP", sans-serif; }
         #scene4 .fc-bar-label {
-            font-size: 20px;
+            font-size: 24px;
             line-height: 1.05;
             letter-spacing: 0.2px;
             max-width: 124px;
@@ -939,34 +1014,35 @@
             box-sizing: border-box;
         }
         .fc-body {
-            width: 100%; max-width: 128px; height: 72px; max-height: 72px; flex-shrink: 0;
+            width: 100%; max-width: 128px; height: var(--led-col-body-h); max-height: var(--led-col-body-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center; box-sizing: border-box;
             overflow: hidden;
             padding: var(--signage-pad-y-top) 6px var(--signage-pad-y-bot);
         }
-        /* シーン4: 時刻と同型（スクロール104=32+72、下帯24は fc-lv-bar） */
-        #scene4 .fc-panel .col-bg-layer { height: 104px; }
+        /* シーン4: 時刻と同型（スクロール96=32+64、下帯32は fc-lv-bar） */
+        #scene4 .fc-panel .col-bg-layer { height: var(--led-col-main-h); }
         #scene4 .fc-panel .col-bg-foot { display: none; }
         .fc-wbgt {
             display: inline-flex; align-items: baseline; justify-content: center; gap: 2px;
-            max-width: 112px; text-align: center; white-space: nowrap; overflow: hidden;
+            max-width: 114px; text-align: center; white-space: nowrap; overflow: hidden;
             line-height: var(--signage-text-lh); color: #ebebeb;
         }
         .fc-wbgt-num {
-            font-size: 44px; font-weight: 800; font-variant-numeric: tabular-nums;
+            font-size: 52px; font-weight: 800; font-variant-numeric: tabular-nums;
             font-family: "Inter", sans-serif; letter-spacing: -0.04em;
+            line-height: 1.05;
         }
         .fc-wbgt-unit {
-            font-size: 20px; font-weight: 700; font-family: "Inter", sans-serif;
-            line-height: var(--signage-text-lh); margin-left: 1px;
+            font-size: 24px; font-weight: 700; font-family: "Inter", sans-serif;
+            line-height: 1.05; margin-left: 1px;
         }
         .daily-scene { display: none; overflow: hidden; }
         .d5-track { display: flex; flex-direction: row; width: 1024px; transition: none; gap: 0; }
         .d5-panel { width: 128px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-sizing: border-box; flex-shrink: 0; overflow: hidden; padding: 0; gap: 0; border: none; outline: none; background: transparent; }
-        /* シーン5: 時刻と同型 上32 + 中72 + 下24（列内フッタ） */
+        /* シーン5: 上32 + 中64 + 下32（飾磨準拠フット） */
         #scene5 .d5-panel .s2-top-bar { height: 32px; flex-shrink: 0; }
-        #scene5 .d5-panel .s2-body { height: 72px; flex-shrink: 0; max-width: 128px; }
-        #scene5 .d5-panel .s2-foot { height: 24px; flex-shrink: 0; }
+        #scene5 .d5-panel .s2-body { height: var(--led-col-body-h); flex-shrink: 0; max-width: 128px; overflow: hidden; }
+        #scene5 .d5-panel .s2-foot { height: var(--led-foot-bar-h); flex-shrink: 0; }
         #scene5 .d5-panel .col-bg-foot { display: none; }
         #scene5 .col-bg-host { flex-shrink: 0; }
         /* 列つなぎ目の隙間対策（+1px） */
@@ -976,21 +1052,23 @@
             align-items: center;
             justify-content: center;
             padding: 0 6px;
+            box-sizing: border-box;
         }
         #scene5 .s2-bar-label {
-            font-size: 22px; line-height: 1.05; letter-spacing: 0.2px;
-            max-width: 124px; overflow: hidden; text-overflow: ellipsis;
-            white-space: nowrap; padding: 0 4px; box-sizing: border-box;
+            font-size: 24px; line-height: 1.05; letter-spacing: 0.2px;
+            max-width: 122px; overflow: hidden; text-overflow: ellipsis;
+            white-space: nowrap; padding: 0 3px; box-sizing: border-box;
         }
         #scene5 .d5-weather-row {
             display: inline-flex;
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            gap: 2px;
-            max-width: 118px;
+            gap: 1px;
+            max-width: 116px;
             overflow: hidden;
-            flex-shrink: 0;
+            flex-shrink: 1;
+            min-width: 0;
         }
         #scene5 .d5-body .weather-svg {
             width: 44px; height: 44px;
@@ -1018,8 +1096,8 @@
         #scene5 .d5-panel.col-bg-dark-text .s2-unit {
             color: #000000 !important;
         }
-        #scene5 .d5-body .s2-val { flex-shrink: 0; }
-        #scene5 .d5-body .s2-num { font-size: 38px; }
+        #scene5 .d5-body .s2-val { flex-shrink: 0; gap: 0; }
+        #scene5 .d5-body .s2-num { font-size: 40px; }
         #scene5 .d5-body .s2-unit { font-size: 18px; }
         /* 今日のみ 128×128 枠で強調 — 実DOM（LEDサイネージで ::after が欠ける対策） */
         #scene5 .d5-panel.d5-today-focus {
@@ -1045,7 +1123,7 @@
         #scene5 { overflow: hidden; }
 
         #scene3 { overflow: hidden; position: relative; }
-        /* 512×128: 上バー32 + 本体72 + 白下帯24（現在WBGT指針・シーン4） */
+        /* 512×128: 上バー32 + 本体64 + 白下帯32（現在WBGT指針・シーン4） */
         .t3-shell {
             width: 512px; height: 128px; flex-shrink: 0;
             display: flex; flex-direction: column; overflow: hidden;
@@ -1066,27 +1144,28 @@
             box-sizing: border-box; padding: 0 4px; overflow: hidden;
         }
         .t3-scene-top-bar .t3-lv-label {
-            font-size: 20px; font-weight: 700; letter-spacing: 0.42px;
+            font-size: 22px; font-weight: 700; letter-spacing: 0.2px;
             font-family: "Noto Sans JP", sans-serif; color: #ebebeb;
             white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
             max-width: 120px; text-align: center;
+            line-height: 1;
         }
         .t3-scene-top-bar.col-bg-dark-text .t3-lv-label { color: #000; }
-        /* 上・中・下を 256px モジュールで揃える（従来 32+72+24=128） */
+        /* 上・中・下を 256px モジュールで揃える（32+64+32=128） */
         #scene3 .t3-static-top-bar { display: none !important; }
-        #t3-shell.t3-col-layout-active .t3-pair { height: 104px; }
-        #t3-shell.t3-col-layout-active .t3-col { height: 104px; }
+        #t3-shell.t3-col-layout-active .t3-pair { height: var(--led-col-main-h); }
+        #t3-shell.t3-col-layout-active .t3-col { height: var(--led-col-main-h); }
         #t3-shell.t3-col-layout-active .t3-col-top {
             display: block; height: 32px; max-height: 32px;
         }
         #t3-shell.t3-col-layout-active .t3-scroll-body {
-            height: 72px; max-height: 72px;
+            height: var(--led-col-body-h); max-height: var(--led-col-body-h);
         }
         #t3-shell.t3-col-layout-active .t3-col .col-bg-top { height: 32px; }
-        #t3-shell.t3-col-layout-active .t3-col .col-bg-body { height: 72px; }
+        #t3-shell.t3-col-layout-active .t3-col .col-bg-body { height: var(--led-col-body-h); }
         #t3-shell.t3-top-ha-warning .t3-col-top { background: #70006A !important; }
         #t3-shell.t3-top-ha-special .t3-col-top { background: #000000 !important; }
-        /* 256px列：上32px＋中72pxを同一列にして中心線を共有 */
+        /* 256px列：上32px＋中64pxを同一列にして中心線を共有 */
         .t3-col {
             width: 256px; flex-shrink: 0; box-sizing: border-box;
             display: flex; flex-direction: column; overflow: hidden;
@@ -1104,7 +1183,7 @@
         .t3-top-ha-slot {
             width: 128px; height: 100%; flex: 0 0 128px; box-sizing: border-box;
             display: flex; align-items: center; justify-content: center;
-            padding: 0 4px;
+            padding: 1px 4px;
             overflow: hidden;
         }
         /* 通常時（全WBGT段階）: 128px×4スロット */
@@ -1116,9 +1195,11 @@
         }
         .t3-top-ha-msg {
             display: inline-block; max-width: 120px;
-            font-size: 20px; font-weight: 700; letter-spacing: 0.42px;
+            font-size: 22px; font-weight: 700; letter-spacing: 0.2px;
             font-family: "Noto Sans JP", sans-serif; white-space: nowrap;
-            line-height: 1.15; text-align: center; color: #ebebeb;
+            line-height: 1; text-align: center; color: #ebebeb;
+            overflow: hidden;
+            box-sizing: border-box;
         }
         #t3-shell.t3-top-ha-warning .t3-top-ha-slot,
         #t3-shell.t3-top-ha-special .t3-top-ha-slot {
@@ -1164,22 +1245,22 @@
             max-width: 504px;
         }
         #t3-shell.t3-static-single-view .t3-col:first-child .t3-slot:first-child { width: 512px; }
-        /* 256×72モジュール×2。各256内で同じ文言が256pxシームレスに流れる */
-        .t3-pair { width: 512px; height: 72px; display: flex; flex-direction: row; flex-shrink: 0; }
+        /* 256×64モジュール×2。各256内で同じ文言が256pxシームレスに流れる */
+        .t3-pair { width: 512px; height: var(--led-col-body-h); display: flex; flex-direction: row; flex-shrink: 0; }
         .t3-unit, .t3-col {
-            width: 256px; height: 72px; flex-shrink: 0; box-sizing: border-box;
+            width: 256px; height: var(--led-col-body-h); flex-shrink: 0; box-sizing: border-box;
             display: flex; flex-direction: column; overflow: hidden;
         }
         #scene3 .t3-unit .col-bg-foot, #scene3 .t3-col .col-bg-foot { display: none; }
         #scene3 .t3-guid-bar .s2-meta-slot-flow { overflow: hidden; }
         .t3-guid-bar {
             position: relative; left: auto; bottom: auto;
-            width: 100%; height: 24px; flex-shrink: 0;
+            width: 100%; height: var(--led-foot-bar-h); flex-shrink: 0;
             background: var(--led-foot-bar-bg); overflow: hidden;
             z-index: 2; box-sizing: border-box;
         }
         .t3-scroll-body {
-            width: 100%; height: 72px; flex-shrink: 0;
+            width: 100%; height: var(--led-col-body-h); flex-shrink: 0;
             position: relative; overflow: hidden; box-sizing: border-box;
             padding: 0;
         }
@@ -1195,13 +1276,15 @@
             overflow: hidden;
         }
         .t3-l1, .t3-l2 {
-            line-height: 1.06; font-weight: 900; white-space: nowrap;
+            line-height: 1.04; font-weight: 900; white-space: nowrap;
             letter-spacing: 0.3px; text-align: center;
             font-family: var(--signage-multi-font);
             color: #ebebeb; max-width: 100%; width: 100%;
-            overflow: hidden;
+            overflow: visible;
             box-sizing: border-box;
             display: block;
+            flex-shrink: 0;
+            padding-bottom: 0.06em;
         }
         #scene3 .t3-l1,
         #scene3 .t3-l2 {
@@ -1252,8 +1335,8 @@
             width: 100%; max-width: 240px; box-sizing: border-box;
             flex-shrink: 0;
         }
-        .ha-l1 { font-size: 24px; }
-        .ha-l2 { font-size: 14px; }
+        .ha-l1 { font-size: 36px; }
+        .ha-l2 { font-size: 20px; }
         @keyframes haLineBlink { 0%,60%{opacity:1;} 80%{opacity:0.25;} 100%{opacity:1;} }
         .ha-pair.ha-warning .ha-unit { background: #70006A; }
         .ha-pair.ha-warning .ha-line { background: #FF0000; }
@@ -2040,6 +2123,7 @@
   global.SIGNAGE_CONFIG = {
     logoSrc: './daitetsu_logo.png',
     promoLogoSrc: './daitetsu_wordmark.png',
+    footLogoSrc: './daitetsu_mark.png',
     logoAlt: '大鉄',
     logoPanelBg: '#3a3a3a'
   };
@@ -2275,7 +2359,7 @@
 <script>
 /**
  * 512×128 サイネージ列背景
- * 128×128 列ごと: 上バー 32px / 本体 / 下帯（ストリップ・予報は白24px、WBGT列は区切り線+白22px）
+ * 128×128 列ごと: 上バー 32px / 本体 / 下帯（ストリップ・予報は白32px、WBGT列は区切り線+白26px）
  */
 (function (global) {
     'use strict';
@@ -2342,7 +2426,7 @@
         if (body) body.style.backgroundColor = colors.bgColor;
     }
 
-    /** シーン4モジュール: 上バーは t3-scene-top-bar 側。列背景は本体72px+下帯24pxのみ */
+    /** シーン4モジュール: 上バーは t3-scene-top-bar 側。列背景は本体64px+下帯32pxのみ */
     function applyColorsToT3UnitLayer(layer, colors) {
         if (!layer) return;
         const top = layer.querySelector('.col-bg-top');
@@ -2578,7 +2662,10 @@
     /** 大鉄・奈良: 気象庁の警報・注意報などは出さない（アメダス・天気予報は表示）。熱中症は環境省のみ */
     const SITE_CFG = window.SignageConfig || {};
     const CLOCK_TZ = (SITE_CFG.timeZone || 'Asia/Tokyo');
+    /** Intl 非対応時のみ使用（表示・スケジュールは常に Asia/Tokyo 換算） */
     const JST_OFFSET_MS_ = 9 * 3600000;
+    const JST_WEEKDAY_MAP_ = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    let jstPartsFmt_ = null;
     const NO_JMA_WARN = true;
     const RAIN_HERO_OFF = query.get('rainhero') === '0';
     const RAIN_WHITE_DESIGN = query.get('rainwhite') === '1';
@@ -3004,9 +3091,9 @@
         clearDemoFontBase_();
         try {
             fitS1DateFontSize_();
-            fitS1ClockFontSize_();
+            fitS1ClockFontSize_(true);
             fitFcBarLabelFontSize_();
-            fitFcWbgtFontSize();
+            fitFcWbgtFontSize(true);
             fitScene2BodyText();
             sizeT3TopBandText_();
             sizeT3Text_();
@@ -3015,7 +3102,7 @@
             sizePromoMultiText_();
             sizeS1FootBarText_();
             sizeHeatAlertText_();
-            fitD5PanelText_();
+            fitD5PanelText_(true);
         } catch (err) {
             console.warn('[DemoFontLab] refresh:', err);
         }
@@ -3399,12 +3486,13 @@
     let lastGoodWbgtSlots_ = null;
     let lastSignageBgKey_ = '';
 
+    /* 多言語は 256px×中帯64px に収まる短文（特にベトナム語は長文禁止） */
     const multi = [
-        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", vn:"An toàn: Bổ sung nước", tl:"【Halos ligtas】Uminom ng tubig kung kailangan" },
-        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", vn:"Chú ý: Uống nước thường xuyên", tl:"【Babala】Aktibong uminom ng tubig" },
-        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", vn:"Cảnh báo: Nghỉ ngơi định kỳ", tl:"【Alerto】Magpahinga nang regular" },
-        { jp:"【厳重警戒】激しい作業中止", en:"Severe Warning: Stop intense work", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng", tl:"【Malubhang babala】Itigil ang mabigat na gawain" },
-        { jp:"【危険】作業を直ちに中止", en:"Danger: Stop work immediately", vn:"Nguy hiểm: Dừng công việc ngay", tl:"【Panganib】Itigil agad ang trabaho" }
+        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"Aman: Minum air cukup", fil:"Ligtas: Uminom ng tubig", vn:"An toàn: Uống nước", tl:"Ligtas: Uminom ng tubig" },
+        { jp:"【注意】積極的に水分補給", en:"Caution: Hydrate often", id:"Waspada: Minum air aktif", fil:"Babala: Uminom ng tubig", vn:"Chú ý: Uống nước", tl:"Babala: Uminom ng tubig" },
+        { jp:"【警戒】定期的に休憩", en:"Warning: Take breaks", id:"Siaga: Istirahat rutin", fil:"Alerto: Magpahinga", vn:"Cảnh báo: Nghỉ định kỳ", tl:"Alerto: Magpahinga" },
+        { jp:"【厳重警戒】こまめに休憩・体調確認", en:"Severe: Stop heavy work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil trabaho", vn:"Nghiêm trọng: Ngừng việc nặng", tl:"Malubha: Itigil trabaho" },
+        { jp:"【危険】休憩・水分塩分補給を徹底", en:"Danger: Stop work now", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil trabaho", vn:"Nguy hiểm: Dừng ngay", tl:"Panganib: Itigil trabaho" }
     ];
     const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
     const FC_BAR_LABELS = ['WBGT', '暑さ指数', 'WBGT', '暑さ指数'];
@@ -3412,17 +3500,17 @@
     function fcBarLabelForPanel_(slotIdx) {
         return FC_BAR_LABELS[(slotIdx | 0) % FC_BAR_LABELS.length];
     }
-    const unknownMsg = { jp:"WBGTデータ取得不可", en:"WBGT data unavailable", vn:"Không có dữ liệu WBGT", tl:"Hindi makuha ang datos ng WBGT" };
+    const unknownMsg = { jp:"WBGTデータ取得不可", en:"WBGT unavailable", vn:"Không có WBGT", tl:"Walang datos ng WBGT" };
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
     const T3_WBGT_GUIDE_TIERS = [
-        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '広域的に過去に例のない危険な暑さとなり、人の健康に係る重大な被害が生じるおそれがあります。自分と周りの人の命を守るため、涼しい環境で過ごし、高齢者・こども等が屋内でエアコン等を使い涼しく過ごせているか確認してください。管理者は熱中症対策の徹底を確認し、運動・外出・イベント等の中止・延期・変更（リモートワークを含む）を判断してください。普段の予防行動では不十分な可能性があるため、今一度気を引き締めてください。' },
-        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '気温が著しく高くなることにより、熱中症による健康被害が生ずるおそれがあります。他人事と考えず暑さから身を守り、屋内ではエアコン等で涼しい環境で過ごしましょう。こまめな休憩と水分・塩分補給を行い、高齢者・こども等は特に見守り・声かけをしましょう。涼しい環境以外では運動等を中止しましょう。' },
-        { range: '31以上', color: '赤', title: '危険', guide: '安静時でも熱中症になる危険性が大きい。外出はなるべく避け、運動や作業は原則中止する。' },
-        { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '外出時は炎天下を避け、室内でも室温の上昇に注意する。10～20分おきに水分や塩分を補給し、激しい運動や作業は避ける。' },
-        { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給を行う。激しい運動や作業をする場合には、30分おきくらいに休憩を入れる。' },
-        { range: '21～25未満', color: '水色', title: '注意', guide: '激しい運動や重労働をする場合には、十分注意する。熱中症の兆候に注意し、積極的に水分や塩分を補給する。' },
-        { range: '21未満', color: '青', title: 'ほぼ安全', guide: '熱中症の危険性は少ないが、水分や塩分の補給は必要。' }
+        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '記録的な暑さです。無理をせず、涼しい場所での休憩と水分・塩分補給を最優先にしてください。' },
+        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '危険な暑さです。こまめな休憩と水分・塩分補給を徹底し、体調の変化に注意してください。' },
+        { range: '31以上', color: '赤', title: '危険', guide: '熱中症の危険性が非常に高い状態です。休憩の間隔を短くし、水分・塩分補給と体調確認を徹底してください。' },
+        { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '炎天下を避け、10～20分おきに水分や塩分を補給してください。負荷の高い作業は控えめにしましょう。' },
+        { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給してください。負荷の高い作業では30分おきに休憩を入れましょう。' },
+        { range: '21～25未満', color: '水色', title: '注意', guide: '熱中症の兆候に注意し、こまめに水分や塩分を補給してください。' },
+        { range: '21未満', color: '青', title: 'ほぼ安全', guide: '熱中症の危険性は低い状態です。引き続き水分や塩分の補給を心掛けましょう。' }
     ];
     /* levelIdx 0〜4 → T3_WBGT_GUIDE_TIERS のインデックス（31以上〜21未満） */
     const T3_GUIDE_TIER_BY_LEVEL = [6, 5, 4, 3, 2];
@@ -3496,14 +3584,45 @@
         return ms != null ? ms : Date.now();
     }
     function jstPartsFromMs(ms) {
-        /* 日本標準時（固定 UTC+9）— 端末TZ・Intl非対応でも東京時刻 */
-        const t = ms + JST_OFFSET_MS_;
-        const d = new Date(t);
-        return {
-            year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate(),
-            hour: d.getUTCHours(), minute: d.getUTCMinutes(), second: d.getUTCSeconds(),
-            weekday: d.getUTCDay()
-        };
+        /* 表示・スケジュールは必ず Asia/Tokyo（端末TZが UTC/海外でも JST）。hourCycle: h23 */
+        try {
+            if (!jstPartsFmt_) {
+                jstPartsFmt_ = new Intl.DateTimeFormat('en-CA', {
+                    timeZone: CLOCK_TZ,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    weekday: 'short',
+                    hourCycle: 'h23'
+                });
+            }
+            const parts = Object.fromEntries(
+                jstPartsFmt_.formatToParts(new Date(ms)).map(function (x) { return [x.type, x.value]; })
+            );
+            const wdKey = String(parts.weekday || '').replace(/\.$/, '').slice(0, 3);
+            let hour = Number(parts.hour);
+            if (hour === 24) hour = 0;
+            return {
+                year: Number(parts.year),
+                month: Number(parts.month),
+                day: Number(parts.day),
+                hour: hour,
+                minute: Number(parts.minute),
+                second: Number(parts.second),
+                weekday: JST_WEEKDAY_MAP_[wdKey] != null ? JST_WEEKDAY_MAP_[wdKey] : 0
+            };
+        } catch (_) {
+            const t = ms + JST_OFFSET_MS_;
+            const d = new Date(t);
+            return {
+                year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate(),
+                hour: d.getUTCHours(), minute: d.getUTCMinutes(), second: d.getUTCSeconds(),
+                weekday: d.getUTCDay()
+            };
+        }
     }
     function jstMsFromParts(y, mo, d, h, mi, s) {
         const iso = `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}T` +
@@ -3573,7 +3692,9 @@
         return events.find(e => e.at > fromMs) || null;
     }
     function formatScheduleJst(ms) {
-        return new Date(ms).toLocaleString('ja-JP', { timeZone: CLOCK_TZ, hour12: false });
+        return new Date(ms).toLocaleString('ja-JP', {
+            timeZone: CLOCK_TZ, hour12: false, hourCycle: 'h23'
+        });
     }
     function refreshSignageBg(opts) {
         opts = opts || {};
@@ -3678,7 +3799,7 @@
     syncHeatAlertActiveFromPublished_();
     const HA_UNIT_W = 256;      /* LEDモジュール1枚の幅（1周=256px） */
     const HA_SLOT_W = 256;      /* 1スロット=256px */
-    const HA_L1_MAX = 27;       /* 256px内で見やすく・大きすぎない上限 */
+    const HA_L1_MAX = 40;       /* 256px内で最大化（幅・高さフィット） */
     const HA_L2_RATIO = 0.55;   /* 2段目は1段目の約55% */
     const HA_SCROLL_PX = 1.2;   /* 文字スクロール速度 px/フレーム（ゆっくりめ） */
     const HA_LAPS_BEFORE_SWITCH = 4; /* 256px×4周で次アラートへ */
@@ -4690,7 +4811,7 @@
     }
     const RA_UNIT_W = 256;
     const RA_MARK_W = 52;
-    const RA_L1_MAX = 34;
+    const RA_L1_MAX = 44;
     const RA_L2_RATIO = 0.58;
     const RA_SCROLL_PX = 1.2;
     const RA_LAPS_BEFORE_SWITCH = 4;
@@ -5360,8 +5481,12 @@
     /** null=多言語WBGTの後→大鉄PR第2段 / 'promo'=4日予報の後→大鉄PR第1段 / 's2'=シーン1の後→アメダス */
     let scene4ExitAfter_ = null;
     const SCENE4_LV_LAPS = 1;
-    const SCENE4_LV_SETS = 3;
+    const SCENE4_LV_SETS = 6;
     const SCENE4_LV_SPEED_PX = 0.6;
+    const SCENE4_FOOT_FONT_MAX_PX_ = 16;
+    const SCENE4_FOOT_FONT_MIN_PX_ = 12;
+    const SCENE4_FOOT_LOGO_MAX_H_ = 22;
+    const SCENE4_FOOT_LOGO_MAX_W_ = 200;
     const SCENE5_PANEL_COUNT = 4;
     const SCENE5_LAPS = 1;
     const SCENE5_SCROLL_PX = 0.8;
@@ -5371,10 +5496,10 @@
     const DP_COMPANY_LABEL = '大鉄工業株式会社';
     const DP_BRANCH_LABEL = '土木支店';
     const DP_SITE_LABEL = '奈良高架作業所';
-    const COMPANY_LINE_FONT_START_PX_ = 18;
+    const COMPANY_LINE_FONT_START_PX_ = 22;
     const COMPANY_LINE_FONT_MIN_PX_ = 10;
-    const S1_FOOT_BAR_H_ = 28;
-    const S1_FOOT_FONT_START_PX_ = 16;
+    const S1_FOOT_BAR_H_ = 32;
+    const S1_FOOT_FONT_START_PX_ = 22;
     const S1_FOOT_FONT_MIN_PX_ = 12;
     const DAITETSU_PROMO_MESSAGES = [
         '熱中症のリスク要因　温度28℃以上、湿度75%以上、WBGT値28℃以上は厳重警戒！',
@@ -5444,7 +5569,7 @@
     const DP_TOP_SET_SLOTS = 1;
     const DP_TOP_LAP_PX = DP_BAND_W;
     const DP_TOP_TRACK_SETS = 2; /* 512×2 でシームレス横スクロール */
-    const DP_TOP_FONT_START_PX_ = 28;
+    const DP_TOP_FONT_START_PX_ = 30;
     const DP_BOT_SLOT_W = 128;
     const DP_BOT_SET_SLOTS = 4;
     const DP_BOT_LAP_PX = DP_BOT_SLOT_W * DP_BOT_SET_SLOTS;
@@ -5614,8 +5739,9 @@
     }
     const T3_UNIT_W = 256;
     const T3_USABLE_W_ = T3_UNIT_W - 2;
-    const T3_L1_MAX = 48;
-    const T3_L2_MAX_ = 40;
+    /** 中帯64px・2行(lh1.06)に収まる上限（理論高＋実測で拘束、短文は最大化） */
+    const T3_L1_MAX = 38;
+    const T3_L2_MAX_ = 28;
     const T3_L2_MIN_ = 12;
     /** 1行目:2行目の文字サイズ比（6:4） */
     const T3_L1_RATIO_ = 6;
@@ -5624,14 +5750,23 @@
         return Math.max(T3_L2_MIN_, Math.round(Number(f1) * T3_L2_RATIO_ / T3_L1_RATIO_));
     }
     const T3_SLOT_GAP_PX_ = 0;
-    const T3_INNER_H_ = 72;
+    /** 飾磨準拠: 中帯 64px（旧72は見切れ原因） */
+    const T3_INNER_H_ = 64;
     /** 下側ディセンダー（g,y 等）の見切れ防止余白 */
     const T3_INK_FIT_PAD_ = 2;
-    const T3_INK_BOTTOM_MARGIN_ = 5;
+    const T3_INK_BOTTOM_MARGIN_ = 2;
     /** 中帯フィット用（実描画に合わせて縦を詰める） */
-    const T3_TEXT_LH_FIT_ = 1.06;
+    const T3_TEXT_LH_FIT_ = 1.04;
+    const T3_INK_SLACK_PX_ = 1;
     function t3LineHeightCss_() {
         return String(T3_TEXT_LH_FIT_);
+    }
+    function t3InkH_(fontSizePx) {
+        return Math.ceil(Number(fontSizePx) * T3_TEXT_LH_FIT_) + T3_INK_SLACK_PX_;
+    }
+    function t3PairTheoryH_(f1, f2, hasL1) {
+        const h1 = hasL1 ? t3InkH_(f1) : 0;
+        return h1 + t3InkH_(f2) + T3_SLOT_GAP_PX_;
     }
     function t3IsInkNodeVisible_(n) {
         if (!n || !String(n.textContent || '').trim()) return false;
@@ -5714,8 +5849,16 @@
         if (!ink || !inner) return;
         const inkMid = (ink.top + ink.bottom) / 2;
         const innerMid = (inner.top + inner.bottom) / 2;
-        const dy = Math.round(inkMid - innerMid);
+        let dy = Math.round(inkMid - innerMid);
         if (dy !== 0) signageNudgeUpPx_(slot, dy);
+        /* 中央寄せ後も上/下にはみ出す場合は枠内へ押し戻す */
+        const ink2 = t3InkTopBottomPx_([msg]);
+        if (!ink2) return;
+        if (ink2.top < inner.top) signageNudgeUpPx_(slot, Math.round(ink2.top - inner.top));
+        const ink3 = t3InkTopBottomPx_([msg]);
+        if (ink3 && ink3.bottom > inner.bottom) {
+            signageNudgeUpPx_(slot, Math.round(ink3.bottom - inner.bottom));
+        }
     }
     function t3PackSlotInkTop_(bodyClip, slot) {
         if (!bodyClip || !slot) return;
@@ -5780,17 +5923,28 @@
     }
     function t3GrowPairToFillH_(el1, el2, f1, f2, usableH, maxW, lh) {
         const hasL1 = t3IsInkNodeVisible_(el1);
+        const t1 = hasL1 ? String(el1.textContent || '') : '';
+        const t2 = String(el2.textContent || '');
+        const family = '"Noto Sans", "Noto Sans JP", sans-serif';
+        const widthOk_ = function (n1, n2) {
+            if (hasL1 && s2TextW_(t1, t3FitFontPx_(n1), '900', family) > maxW) return false;
+            if (s2TextW_(t2, t3FitFontPx_(n2), '900', family) > maxW) return false;
+            el1.style.fontSize = t3FitFontPx_(n1) + 'px';
+            el2.style.fontSize = t3FitFontPx_(n2) + 'px';
+            el1.style.lineHeight = lh;
+            el2.style.lineHeight = lh;
+            if (el1.scrollWidth > 0 && el1.scrollWidth > maxW) return false;
+            if (el2.scrollWidth > 0 && el2.scrollWidth > maxW) return false;
+            return true;
+        };
         let b1 = f1;
         let b2 = f2;
         while (hasL1 && b1 < T3_L1_MAX) {
             const n1 = b1 + 1;
             const n2 = t3L2FromL1_(n1);
             if (n2 > T3_L2_MAX_ || n2 >= n1) break;
-            el1.style.fontSize = t3FitFontPx_(n1) + 'px';
-            el2.style.fontSize = t3FitFontPx_(n2) + 'px';
-            el1.style.lineHeight = lh;
-            el2.style.lineHeight = lh;
-            if (el1.scrollWidth > maxW || el2.scrollWidth > maxW) break;
+            if (t3PairTheoryH_(n1, n2, true) > usableH) break;
+            if (!widthOk_(n1, n2)) break;
             const ink = t3InkBoundsPx_([el1, el2]);
             if (ink > usableH) break;
             b1 = n1;
@@ -5799,13 +5953,16 @@
         if (!hasL1) {
             while (b2 < T3_L2_MAX_) {
                 const nf = b2 + 1;
-                el2.style.fontSize = t3FitFontPx_(nf) + 'px';
-                el2.style.lineHeight = lh;
-                if (el2.scrollWidth > maxW) break;
+                if (t3PairTheoryH_(T3_L2_MIN_, nf, false) > usableH) break;
+                if (!widthOk_(T3_L2_MIN_, nf)) break;
                 if (t3InkBoundsPx_([el2]) > usableH) break;
                 b2 = nf;
             }
         }
+        el1.style.fontSize = t3FitFontPx_(b1) + 'px';
+        el2.style.fontSize = t3FitFontPx_(b2) + 'px';
+        el1.style.lineHeight = lh;
+        el2.style.lineHeight = lh;
         return { f1: b1, f2: b2 };
     }
     /** 2行目の縦位置微調整（px、負で上へ） */
@@ -5815,9 +5972,9 @@
         '0:0': { l1: 0, l2: 1, y: 0 },
         '0:1': { l1: 0, l2: 1, y: 0 },
         '0:2': { l1: 0, l2: 1, y: 0 },
-        '0:3': { l1: 20, l2: 0, y: 0 },
-        '1:2': { l1: 6, l2: 0, y: 0 },
-        '1:3': { l1: 6, l2: 0, y: 0 }
+        '0:3': { l1: 4, l2: 0, y: 0 },
+        '1:2': { l1: 2, l2: 0, y: 0 },
+        '1:3': { l1: 2, l2: 0, y: 0 }
     };
     function getT3FontExtra_(levelIdx, langIdx, line) {
         if (isDemoFontLab_()) return getDemoT3FontExtra_(levelIdx, langIdx, line);
@@ -5852,9 +6009,6 @@
             n.style.transform = dy ? ('translateY(' + dy + 'px)') : '';
         });
     }
-    function t3InkH_(fontSizePx) {
-        return Math.ceil(fontSizePx * T3_TEXT_LH_FIT_);
-    }
     function t3FitFontPx_(basePx) {
         const px = Number(basePx) || 0;
         if (!isDemoFontLab_()) return px;
@@ -5865,7 +6019,10 @@
     const T3_SCROLL_PX = 0.8;
     const T3_TOP_HA_W_NORMAL = 128;
     const T3_TOP_HA_W_ALERT = 256;
-    const T3_TOP_HA_FONT_MAX = 20;
+    /** 上帯32px内に収める（幅・高さフィットで最大化） */
+    const T3_TOP_HA_FONT_MAX = 24;
+    const T3_TOP_HA_FONT_MIN = 11;
+    const T3_TOP_HA_INNER_H_ = 30;
     /* 多言語WBGT(s3): 各言語1周（256px）→ 日・英・越・タガログで合計4周 */
     const T3_LAPS_PER_LANG = 1;
     const T3_LAPS_BEFORE_SWITCH = T3_LAPS_PER_LANG;
@@ -5874,8 +6031,13 @@
     let t3Messages_ = [];
     let t3Flow_ = null;
     const SCENE_W = 512;
-    /** コンテンツ間: 512px 横スライド（native640 でも同一 — 瞬切替のチラつきを防ぐ） */
-    const SCENE_SLIDE_MS = 500;
+    /**
+     * シーン切替（飾磨最新準拠）:
+     * 右から流入する横スライドはやめ、その場で切替（チラつきは非表示→表示で抑える）。
+     * 大鉄PR内のフェーズ切替だけ横スライドを残す（PROMO_PHASE_SLIDE_MS）。
+     */
+    const SCENE_SLIDE_MS = 0;
+    const PROMO_PHASE_SLIDE_MS = 450;
     /** LED向け: 整数px + translate3d でサブピクセルずれ・境目のチラつきを抑える */
     function scrollPx_(x) {
         return Math.round(x);
@@ -5903,8 +6065,12 @@
     let sceneSlideAnimId = null;
     let scene2AnimId = null;
     let clockIntervalId = null;
+    let clockBackupIntervalId = null;
+    let clockTickWallMs_ = 0;
 
-    const timeSync = { baseUtcMs: null, perfAtSync: 0, source: '' };
+    const timeSync = { baseUtcMs: null, clientAtSync: 0, source: '' };
+    /** 表示は日本標準時（Asia/Tokyo）。内部時刻はこの間隔でネット再同期 */
+    const CLOCK_SYNC_INTERVAL_MS = 60000;
     const JP_WD_SHORT_ = ['日', '月', '火', '水', '木', '金', '土'];
     function formatClockHmJst_(ms) {
         const p = jstPartsFromMs(ms);
@@ -5918,33 +6084,66 @@
 
     function getSyncedUtcMs() {
         if (timeSync.baseUtcMs == null) return null;
-        return timeSync.baseUtcMs + (performance.now() - timeSync.perfAtSync);
+        return timeSync.baseUtcMs + (Date.now() - timeSync.clientAtSync);
     }
     function applySyncedUtcMs(utcMs, source) {
-        if (!Number.isFinite(utcMs)) return;
+        if (!Number.isFinite(utcMs)) return false;
         timeSync.baseUtcMs = utcMs;
-        timeSync.perfAtSync = performance.now();
+        timeSync.clientAtSync = Date.now();
         if (source) timeSync.source = source;
+        return true;
     }
     function utcMsWithRtt(serverUtcMs, t0, t1) {
         if (!Number.isFinite(serverUtcMs)) return NaN;
         return serverUtcMs + (t1 - t0) / 2;
     }
-    function utcMsFromOpenMeteoTime(iso) {
+    /** dateTime にタイムゾーンが無い場合は必ず +09:00（JST）として UTC ms へ */
+    function parseDateTimeAssumeJst_(iso) {
         let s = String(iso || '').trim();
         if (!s) return NaN;
-        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += '+09:00';
+        s = s.replace(' ', 'T');
+        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) {
+            s = s.replace(/\.\d+$/, '') + '+09:00';
+        }
         return Date.parse(s);
     }
+    function utcMsFromOpenMeteoTime(iso) {
+        return parseDateTimeAssumeJst_(iso);
+    }
+    function pad2Clock_(n) {
+        return String(n == null ? 0 : n).padStart(2, '0');
+    }
+    /** timeapi.io Asia/Tokyo 応答を UTC ms に変換（オフセット無し日時は必ず +09:00） */
     function parseTimeApiIoJson(json) {
         if (!json || typeof json !== 'object') return NaN;
-        if (json.dateTime) {
-            const s = String(json.dateTime).trim();
-            if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
-            return Date.parse(s.replace(/\.\d+$/, '') + '+09:00');
+        if (json.year != null && json.month != null && json.day != null && json.hour != null) {
+            const iso = `${json.year}-${pad2Clock_(json.month)}-${pad2Clock_(json.day)}T` +
+                `${pad2Clock_(json.hour)}:${pad2Clock_(json.minute)}:${pad2Clock_(json.seconds)}` +
+                `.${String(json.milliSeconds || 0).padStart(3, '0')}+09:00`;
+            const ms = Date.parse(iso);
+            if (Number.isFinite(ms)) return ms;
         }
-        if (json.year == null) return NaN;
-        return Date.UTC(json.year, json.month - 1, json.day, json.hour - 9, json.minute, json.seconds, json.milliSeconds || 0);
+        if (json.dateTime) return parseDateTimeAssumeJst_(json.dateTime);
+        return NaN;
+    }
+    async function fetchUtcMsFromCloudflare() {
+        const urls = ['https://www.cloudflare.com/cdn-cgi/trace', 'https://one.one.one.one/cdn-cgi/trace'];
+        for (let i = 0; i < urls.length; i++) {
+            const t0 = performance.now();
+            const res = await fetch(urls[i], { cache: 'no-store' });
+            const t1 = performance.now();
+            if (!res.ok) continue;
+            const text = await res.text();
+            const m = text.match(/(?:^|\n)ts=([0-9]+(?:\.[0-9]+)?)/);
+            let serverUtcMs = NaN;
+            if (m) serverUtcMs = Math.round(parseFloat(m[1]) * 1000);
+            if (!Number.isFinite(serverUtcMs)) {
+                const dateHdr = res.headers.get('Date');
+                if (dateHdr) serverUtcMs = Date.parse(dateHdr);
+            }
+            if (Number.isFinite(serverUtcMs)) return utcMsWithRtt(serverUtcMs, t0, t1);
+        }
+        throw new Error('Cloudflare time unavailable');
     }
     async function fetchUtcMsFromTimeApiIo() {
         const t0 = performance.now();
@@ -5965,6 +6164,7 @@
         let serverUtcMs = NaN;
         if (typeof json.unixtime === 'number') serverUtcMs = json.unixtime * 1000;
         else if (json.utc_datetime) serverUtcMs = Date.parse(json.utc_datetime);
+        else if (json.datetime) serverUtcMs = parseDateTimeAssumeJst_(json.datetime);
         if (!Number.isFinite(serverUtcMs)) throw new Error('worldtimeapi parse');
         return utcMsWithRtt(serverUtcMs, t0, t1);
     }
@@ -5986,24 +6186,13 @@
         }
         throw new Error('NICT unavailable');
     }
-    async function fetchUtcMsFromJmaLatest() {
-        const t0 = performance.now();
-        const res = await fetch(JMA_LATEST_TIME_URL, JMA_FETCH_HEADERS);
-        const t1 = performance.now();
-        if (!res.ok) throw new Error('jma-latest HTTP ' + res.status);
-        const text = (await res.text()).trim();
-        let serverUtcMs = NaN;
-        if (text.endsWith('+09:00')) serverUtcMs = Date.parse(text);
-        else serverUtcMs = Date.parse(text.replace(/\.\d+$/, '') + '+09:00');
-        if (!Number.isFinite(serverUtcMs)) throw new Error('jma-latest parse');
-        return utcMsWithRtt(serverUtcMs, t0, t1);
-    }
-    const TIME_SYNC_TIMEOUT_MS_ = 4000;
+    /** NICT HTTP は停止方向のため Cloudflare を優先。JMAアメダス最新時刻は壁時計ではないので使わない */
+    const TIME_SYNC_TIMEOUT_MS_ = 8000;
     const TIME_SYNC_CHAIN = [
+        { name: 'Cloudflare', fetch: fetchUtcMsFromCloudflare },
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo },
-        { name: 'jma-amedas', fetch: fetchUtcMsFromJmaLatest },
-        { name: 'NICT', fetch: fetchUtcMsFromNict },
-        { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi }
+        { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi },
+        { name: 'NICT', fetch: fetchUtcMsFromNict }
     ];
     function fetchWithTimeout_(promise, ms, label) {
         return Promise.race([
@@ -6022,19 +6211,23 @@
                 const utcMs = await fetchWithTimeout_(src.fetch(), TIME_SYNC_TIMEOUT_MS_, src.name);
                 if (Number.isFinite(utcMs)) {
                     applySyncedUtcMs(utcMs, src.name);
-                    console.log('[Time sync]', src.name, Math.round(performance.now() - t0) + 'ms');
+                    console.log('[Clock] synced via', src.name, Math.round(performance.now() - t0) + 'ms');
                     return true;
                 }
             } catch (e) { console.warn('Time sync [' + src.name + ']:', e.message || e); }
         }
-        console.warn('[Time sync] 全ソース失敗', Math.round(performance.now() - t0) + 'ms — 端末時計を継続利用');
+        console.warn('[Clock] 全ソース失敗', Math.round(performance.now() - t0) + 'ms — 端末時計を継続利用（表示は Asia/Tokyo）');
         return false;
     }
-    /** WBGT実況数値・時刻: 同一 Inter 800 / 112×67px 内で最大化 */
-    const FC_WBGT_NUM_MIN_PX_ = 32;
-    const FC_WBGT_NUM_MAX_PX_ = 56;
-    const FC_WBGT_NUM_FIT_W_ = 112;
+    /** WBGT実況数値・時刻: 中帯内で最大化（canvas計測・見切れ防止） */
+    const FC_WBGT_NUM_MIN_PX_ = 38;
+    const FC_WBGT_NUM_MAX_PX_ = 54;
+    const FC_WBGT_NUM_FIT_W_ = 114;
+    const FC_WBGT_NUM_FIT_H_ = 58;
     const S1_CLOCK_FIT_SAMPLES_ = ['23:59', '08:08', '00:00', '14:36', '11:11'];
+    /** 時刻フォント: 計測中の大→小チラつき防止用キャッシュ */
+    let s1ClockFontPx_ = null;
+    let s1ClockFitKey_ = '';
     function signageWbgtNumTargetPx_() {
         const num = document.querySelector('#scene4 .fc-wbgt-num');
         if (!num) return null;
@@ -6048,7 +6241,8 @@
     function s1ClockPaintW_(el) {
         return Math.ceil(Math.max(el.scrollWidth, el.getBoundingClientRect().width));
     }
-    function fitS1ClockFontSize_() {
+    /** 時刻数値: 計測中は非表示、最終サイズのみ適用（シーン切替時の大→小チラつき防止） */
+    function fitS1ClockFontSize_(force) {
         const probe = document.querySelector('#scene1 .panel-clock .clock-hm');
         if (!probe) return;
         let liveT = '';
@@ -6057,10 +6251,11 @@
         if (hEl && mEl) liveT = hEl.textContent + ':' + mEl.textContent;
         else liveT = (probe.textContent || '').trim();
         const body = probe.closest('.s1-body');
-        const maxClockH = body ? signageInnerHeightPx_(body, 67) : 67;
+        const maxClockH = body ? signageInnerHeightPx_(body, 59) : 59;
         const lh = signageLineHeightCss_();
+        const clocks = document.querySelectorAll('#scene1 .panel-clock .clock-hm');
         const setAll = function (fz) {
-            document.querySelectorAll('#scene1 .panel-clock .clock-hm').forEach(function (el) {
+            clocks.forEach(function (el) {
                 el.style.fontSize = fz + 'px';
                 el.style.fontWeight = '800';
                 el.style.fontFamily = '"Inter", sans-serif';
@@ -6069,30 +6264,52 @@
                 el.style.maxWidth = FC_WBGT_NUM_FIT_W_ + 'px';
             });
         };
+        const restoreLive_ = function () {
+            clocks.forEach(function (el) {
+                setClockHmOnEl_(el, liveT || '00:00');
+            });
+        };
+        const targetPx = signageWbgtNumTargetPx_();
+        const fitKey = String(targetPx != null ? Math.round(targetPx) : 'max') + '|' + maxClockH;
+        if (!force && s1ClockFontPx_ != null && s1ClockFitKey_ === fitKey) {
+            setAll(s1ClockFontPx_);
+            restoreLive_();
+            return;
+        }
         const widthSamples = S1_CLOCK_FIT_SAMPLES_.slice();
         if (liveT && widthSamples.indexOf(liveT) < 0) widthSamples.push(liveT);
-        const targetPx = signageWbgtNumTargetPx_();
         let best = FC_WBGT_NUM_MIN_PX_;
         const startPx = targetPx != null
             ? Math.min(FC_WBGT_NUM_MAX_PX_, Math.max(FC_WBGT_NUM_MIN_PX_, Math.round(targetPx)))
             : FC_WBGT_NUM_MAX_PX_;
-        for (let fz = startPx; fz >= FC_WBGT_NUM_MIN_PX_; fz--) {
-            setAll(fz);
-            let fits = true;
-            for (let si = 0; si < widthSamples.length; si++) {
-                setClockHmOnEl_(probe, widthSamples[si]);
-                if (s1ClockPaintW_(probe) > FC_WBGT_NUM_FIT_W_) {
-                    fits = false;
-                    break;
-                }
-            }
-            const tooTall = s1ClockInkH_(fz) > maxClockH;
-            if (fits && !tooTall) { best = fz; break; }
-        }
-        setAll(best);
-        document.querySelectorAll('#scene1 .panel-clock .clock-hm').forEach(function (el) {
-            setClockHmOnEl_(el, liveT || '00:00');
+        const prevVis = [];
+        clocks.forEach(function (el, i) {
+            prevVis[i] = el.style.visibility;
+            el.style.visibility = 'hidden';
         });
+        try {
+            for (let fz = startPx; fz >= FC_WBGT_NUM_MIN_PX_; fz--) {
+                setAll(fz);
+                let fits = true;
+                for (let si = 0; si < widthSamples.length; si++) {
+                    setClockHmOnEl_(probe, widthSamples[si]);
+                    if (s1ClockPaintW_(probe) > FC_WBGT_NUM_FIT_W_) {
+                        fits = false;
+                        break;
+                    }
+                }
+                const tooTall = s1ClockInkH_(fz) > maxClockH;
+                if (fits && !tooTall) { best = fz; break; }
+            }
+            s1ClockFontPx_ = best;
+            s1ClockFitKey_ = fitKey;
+            setAll(best);
+            restoreLive_();
+        } finally {
+            clocks.forEach(function (el, i) {
+                el.style.visibility = prevVis[i] || '';
+            });
+        }
     }
     function fitS1DateFontSize_() {
         const probe = document.querySelector('#scene1 .panel-clock .s1-bar-label');
@@ -6103,7 +6320,7 @@
                 el.style.fontSize = fz + 'px';
             });
         };
-        let fz = 20;
+        let fz = 26;
         setAll(fz);
         let guard = 40;
         while (guard-- > 0 && probe.scrollWidth > maxW && fz > 13) {
@@ -6121,7 +6338,7 @@
         const h = s.slice(0, i);
         const m = s.slice(i + 1);
         el.innerHTML = '<span class="clock-h">' + h + '</span>' +
-            '<span class="clock-sep" aria-hidden="true">:</span>' +
+            '<span class="clock-sep" aria-hidden="true"></span>' +
             '<span class="clock-m">' + m + '</span>';
     }
     function updateClock() {
@@ -6137,13 +6354,25 @@
     }
     function startClockTicker() {
         if (clockIntervalId != null) { clearTimeout(clockIntervalId); clockIntervalId = null; }
+        if (clockBackupIntervalId != null) { clearInterval(clockBackupIntervalId); clockBackupIntervalId = null; }
+        clockTickWallMs_ = Date.now();
         function tick() {
+            const wallNow = Date.now();
+            if (wallNow - clockTickWallMs_ > 5000) {
+                if (timeSync.baseUtcMs != null) {
+                    applySyncedUtcMs(timeSync.baseUtcMs + (wallNow - clockTickWallMs_), timeSync.source);
+                }
+            }
+            clockTickWallMs_ = wallNow;
             try { updateClock(); } catch (err) { console.warn('Clock tick:', err); }
-            const ms = getSyncedUtcMs();
-            const base = ms != null ? ms : Date.now();
+            const syncMs = getSyncedUtcMs();
+            const base = syncMs != null ? syncMs : Date.now();
             clockIntervalId = setTimeout(tick, Math.max(50, 1000 - (base % 1000)));
         }
         tick();
+        clockBackupIntervalId = setInterval(function () {
+            try { updateClock(); } catch (err) { console.warn('Clock backup:', err); }
+        }, 1000);
     }
     function degToCompassJa(deg) {
         if (!Number.isFinite(deg)) return '--';
@@ -6174,7 +6403,7 @@
                 el.style.fontSize = fz + 'px';
             });
         };
-        let fz = 20;
+        let fz = 26;
         setAll(fz);
         let guard = 40;
         while (guard-- > 0 && probe.scrollWidth > maxW && fz > 13) {
@@ -6183,70 +6412,141 @@
         }
     }
     /** WBGT数値: 計測中は非表示にし、最終サイズだけ一度だけ適用（大→小のチラつき防止） */
+    let fcWbgtFontPx_ = null;
+    let fcWbgtUnitPx_ = null;
+    function applyFcWbgtFontSizes_(numPx, unitPx) {
+        document.querySelectorAll('#scene4 .fc-wbgt').forEach(function (wrap) {
+            const num = wrap.querySelector('.fc-wbgt-num');
+            const unit = wrap.querySelector('.fc-wbgt-unit');
+            if (num) {
+                num.style.fontSize = numPx + 'px';
+                num.style.lineHeight = signageLineHeightCss_();
+            }
+            if (unit) {
+                unit.style.fontSize = unitPx + 'px';
+                unit.style.lineHeight = signageLineHeightCss_();
+            }
+        });
+    }
     function fitNumUnitInBox_(wrap, num, unit, opts) {
         if (!num || !wrap) return opts.minSz || 32;
         const maxW = opts.maxW;
         const maxH = opts.maxH != null ? opts.maxH : 9999;
         const minSz = opts.minSz || 28;
-        const maxSz = opts.maxSz || 56;
+        const maxSz = opts.maxSz || 40;
         const unitMin = opts.unitMin || 12;
-        const unitRatio = opts.unitRatio != null ? opts.unitRatio : 0.36;
-        const prevVis = wrap.style.visibility;
-        wrap.style.visibility = 'hidden';
+        const unitRatio = opts.unitRatio != null ? opts.unitRatio : 0.5;
+        const family = 'Inter, sans-serif';
         let lo = minSz;
         let hi = maxSz;
         let best = minSz;
-        try {
-            num.style.lineHeight = signageLineHeightCss_();
-            if (unit) unit.style.lineHeight = signageLineHeightCss_();
-            while (lo <= hi) {
-                const mid = Math.floor((lo + hi) / 2);
-                num.style.fontSize = mid + 'px';
-                if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(mid * unitRatio)) + 'px';
-                const inkH = Math.ceil(wrap.getBoundingClientRect().height);
-                if (wrap.scrollWidth <= maxW && inkH <= maxH) {
-                    best = mid;
-                    lo = mid + 1;
-                } else {
-                    hi = mid - 1;
-                }
+        const text = String(num.textContent || '');
+        const unitText = unit ? String(unit.textContent || '') : '';
+        while (lo <= hi) {
+            const mid = Math.floor((lo + hi) / 2);
+            const unitSz = Math.max(unitMin, Math.round(mid * unitRatio));
+            const gap = unitText ? 2 : 0;
+            const totalW = s2TextW_(text, mid, '800', family) +
+                (unitText ? gap + s2TextW_(unitText, unitSz, '700', family) : 0);
+            const inkH = Math.max(signageInkHeightPx_(mid), unitText ? signageInkHeightPx_(unitSz) : 0);
+            if (totalW <= maxW && inkH <= maxH) {
+                best = mid;
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
             }
-            num.style.fontSize = best + 'px';
-            if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(best * unitRatio)) + 'px';
-            num.style.lineHeight = signageLineHeightCss_();
-            if (unit) unit.style.lineHeight = signageLineHeightCss_();
-        } finally {
-            wrap.style.visibility = prevVis || '';
+        }
+        num.style.fontSize = best + 'px';
+        num.style.lineHeight = signageLineHeightCss_();
+        if (unit) {
+            unit.style.fontSize = Math.max(unitMin, Math.round(best * unitRatio)) + 'px';
+            unit.style.lineHeight = signageLineHeightCss_();
         }
         return best;
     }
-    function fitFcWbgtFontSize() {
-        document.querySelectorAll('#scene4 .fc-wbgt').forEach(function (wrap) {
-            fitNumUnitInBox_(wrap, wrap.querySelector('.fc-wbgt-num'), wrap.querySelector('.fc-wbgt-unit'), {
-                maxW: FC_WBGT_NUM_FIT_W_, maxH: S2_BODY_INNER_H_,
-                minSz: FC_WBGT_NUM_MIN_PX_, maxSz: FC_WBGT_NUM_MAX_PX_,
-                unitMin: 12, unitRatio: 0.36
+    function fitFcWbgtFontSize(force) {
+        const wraps = document.querySelectorAll('#scene4 .fc-wbgt');
+        if (!wraps.length) return;
+        const unitRatio = 0.45;
+        const unitMin = 16;
+        if (!force && fcWbgtFontPx_ != null) {
+            applyFcWbgtFontSizes_(fcWbgtFontPx_, fcWbgtUnitPx_ != null
+                ? fcWbgtUnitPx_
+                : Math.max(unitMin, Math.round(fcWbgtFontPx_ * unitRatio)));
+            fitS1ClockFontSize_();
+            return;
+        }
+        try {
+            let best = FC_WBGT_NUM_MAX_PX_;
+            let any = false;
+            wraps.forEach(function (wrap) {
+                const num = wrap.querySelector('.fc-wbgt-num');
+                if (!num || !String(num.textContent || '').trim() || num.textContent === '--') return;
+                const px = fitNumUnitInBox_(wrap, num, wrap.querySelector('.fc-wbgt-unit'), {
+                    maxW: FC_WBGT_NUM_FIT_W_, maxH: FC_WBGT_NUM_FIT_H_,
+                    minSz: FC_WBGT_NUM_MIN_PX_, maxSz: FC_WBGT_NUM_MAX_PX_,
+                    unitMin: unitMin, unitRatio: unitRatio
+                });
+                any = true;
+                if (px < best) best = px;
             });
-        });
-        fitS1ClockFontSize_();
+            if (!any) best = FC_WBGT_NUM_MAX_PX_;
+            const unitPx = Math.max(unitMin, Math.round(best * unitRatio));
+            fcWbgtFontPx_ = best;
+            fcWbgtUnitPx_ = unitPx;
+            applyFcWbgtFontSizes_(best, unitPx);
+        } catch (e) {
+            fcWbgtFontPx_ = 52;
+            fcWbgtUnitPx_ = 24;
+            applyFcWbgtFontSizes_(fcWbgtFontPx_, fcWbgtUnitPx_);
+        }
+        fitS1ClockFontSize_(true);
+    }
+    function setFcWbgtValueOnEl_(el, wbgt) {
+        if (!el) return;
+        if (wbgt == null) {
+            el.textContent = '--';
+            return;
+        }
+        const text = Number(wbgt).toFixed(1);
+        let num = el.querySelector('.fc-wbgt-num');
+        let unit = el.querySelector('.fc-wbgt-unit');
+        if (!num || !unit) {
+            el.innerHTML = formatFcWbgtHtml(wbgt);
+            return;
+        }
+        num.textContent = text;
+        unit.textContent = '℃';
     }
     function updateForecastSlots(slots) {
         const arr = (slots && slots.length) ? slots : [{ wbgt: null, levelIdx: 0, hour: '現在' }];
         const liveSlot = arr[0] || { wbgt: null, levelIdx: 0, hour: '現在' };
-        document.querySelectorAll('#scene4 .fc-track .fc-panel').forEach(function (panel, i) {
-            const slotIdx = i % SCENE4_PANEL_COUNT;
-            const isUnknown = liveSlot.wbgt == null;
-            const wbgtHtml = isUnknown ? '--' : formatFcWbgtHtml(liveSlot.wbgt);
-            panel.className = 'fc-panel fc-slot-' + (slotIdx % 2);
-            panel.querySelectorAll('.fc-bar-label').forEach(function (el) { el.innerText = fcBarLabelForPanel_(slotIdx); });
-            panel.querySelectorAll('.fc-val-live').forEach(function (el) { el.innerHTML = wbgtHtml; });
+        const wraps = document.querySelectorAll('#scene4 .fc-wbgt');
+        const prevVis = [];
+        wraps.forEach(function (wrap, i) {
+            prevVis[i] = wrap.style.visibility;
+            wrap.style.visibility = 'hidden';
         });
-        document.querySelectorAll('#scene4 .fc-wbgt').forEach(function (wrap) {
-            wrap.style.visibility = '';
-        });
-        queueDisplayRefresh_();
-        fitFcBarLabelFontSize_();
-        fitFcWbgtFontSize();
+        try {
+            document.querySelectorAll('#scene4 .fc-track .fc-panel').forEach(function (panel, i) {
+                const slotIdx = i % SCENE4_PANEL_COUNT;
+                const isUnknown = liveSlot.wbgt == null;
+                panel.className = 'fc-panel fc-slot-' + (slotIdx % 2);
+                panel.querySelectorAll('.fc-bar-label').forEach(function (el) { el.innerText = fcBarLabelForPanel_(slotIdx); });
+                panel.querySelectorAll('.fc-val-live').forEach(function (el) {
+                    setFcWbgtValueOnEl_(el, isUnknown ? null : liveSlot.wbgt);
+                });
+            });
+            queueDisplayRefresh_();
+            fitFcBarLabelFontSize_();
+            fcWbgtFontPx_ = null;
+            fcWbgtUnitPx_ = null;
+            fitFcWbgtFontSize(true);
+        } finally {
+            wraps.forEach(function (wrap, i) {
+                wrap.style.visibility = prevVis[i] || '';
+            });
+        }
         lastWbgtSlots = slots;
         syncWbgtLevelFromSlots(slots);
         refreshSignageBg();
@@ -6374,7 +6674,7 @@
         return wbgtConsecutiveFailCount_ >= WBGT_UNAVAILABLE_FAILS;
     }
     /* リロード直後の灰色画面対策: 直前の実測成功値を localStorage に保持。
-       取得失敗が3回連続するまで灰色にせず、直前値を表示し続ける。 */
+       一度成功値があれば取得失敗でも灰色にせず、直前値を表示し続ける（裏で再取得継続）。 */
     const WBGT_CACHE_KEY = 'wbgtCache_' + MOE_WBGT_POINT;
     const WBGT_CACHE_MAX_AGE_MS = 60 * 60 * 1000;
     function saveWbgtCache_(slots) {
@@ -6406,11 +6706,28 @@
     }
     function noteWbgtFetchFailure_() {
         wbgtConsecutiveFailCount_ += 1;
-        console.warn('[WBGT] 取得失敗', wbgtConsecutiveFailCount_, '回目（', WBGT_UNAVAILABLE_FAILS, '回で取得不可）');
+        console.warn('[WBGT] 取得失敗', wbgtConsecutiveFailCount_, '回目（', WBGT_UNAVAILABLE_FAILS, '回で取得不可候補）');
         return wbgtUnavailableThresholdReached_();
+    }
+    /** 直前の実測成功値があれば灰色にせず維持。成功値が無ければ false */
+    function keepLastGoodWbgtDisplay_(reason) {
+        if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) return false;
+        wbgtUnavailable = false;
+        syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
+        updateForecastSlots(lastGoodWbgtSlots_);
+        refreshS1FootBand_();
+        refreshSignageBg();
+        queueDisplayRefresh_();
+        console.log('[WBGT] 直前の成功値を維持', reason || '',
+            lastGoodWbgtSlots_[0] && lastGoodWbgtSlots_[0].wbgt != null
+                ? (lastGoodWbgtSlots_[0].wbgt + '℃')
+                : '');
+        return true;
     }
     function applyWbgtUnavailableToDom_() {
         if (wbgtOffSeason || !wbgtUnavailableThresholdReached_()) return;
+        /* グレース経過後でも、一度成功値があれば「取得不可」に落とさない */
+        if (keepLastGoodWbgtDisplay_('取得継続失敗')) return;
         wbgtUnavailable = true;
         lastSignageBgKey_ = '';
         syncWbgtDependentAlerts_();
@@ -6421,7 +6738,7 @@
         queueDisplayRefresh_();
         refreshSignageBg();
         flushOrSoftDisplayRefresh_();
-        console.warn('[WBGT]', wbgtConsecutiveFailCount_, '回連続取得失敗のため「取得不可」表示');
+        console.warn('[WBGT]', wbgtConsecutiveFailCount_, '回連続取得失敗のため「取得不可」表示（成功値なし）');
     }
     function applyWbgtSlotsToDom(wbgtSlots) {
         if (isDemoFontLab_()) {
@@ -6435,20 +6752,23 @@
             updateForecastSlots(wbgtSlots);
             return true;
         }
-        if (noteWbgtFetchFailure_()) {
-            applyWbgtUnavailableToDom_();
+        /* スロット不正／null: 成功値がある限り時間無制限で直前値を維持（灰色にしない） */
+        if (keepLastGoodWbgtDisplay_('取得失敗')) {
+            noteWbgtFetchFailure_();
             return false;
         }
-        /* 上限未満の失敗: 直前の成功値を維持（取得不可は出さない） */
-        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-            wbgtUnavailable = false;
-            syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-            updateForecastSlots(lastGoodWbgtSlots_);
+        if (noteWbgtFetchFailure_()) {
+            applyWbgtUnavailableToDom_();
         }
         return false;
     }
-    /* 提供期間外: WBGTレベルを無効化し、WBGT表示を全て隠す（該当シーンはループでスキップ） */
+    /* 提供期間外: 成功値が無いときだけ灰色・WBGT非表示。成功値があれば直前値を維持 */
     function applyWbgtOffSeason_() {
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            applyWbgtInSeason_();
+            keepLastGoodWbgtDisplay_('off-season応答');
+            return;
+        }
         wbgtOffSeason = true;
         wbgtUnavailable = false;
         clearWbgtUnavailableGrace_();
@@ -6546,18 +6866,24 @@
             await updateRainNowcastAlert_();
         }
         if (plan.moe) {
-            const wbgtSlots = await fetchWbgtFromMoeApi();
-            if (wbgtSlots === 'offseason') {
-                applyWbgtOffSeason_();
-                moeOk = true;
-            } else {
-                applyWbgtInSeason_();
-                document.querySelectorAll('#scene1 .s1-wbgt-bar').forEach(function (el) {
-                    el.style.display = '';
-                });
-                moeOk = applyWbgtSlotsToDom(wbgtSlots);
+            try {
+                const wbgtSlots = await fetchWbgtFromMoeApi();
+                if (wbgtSlots === 'offseason') {
+                    applyWbgtOffSeason_();
+                    moeOk = true;
+                } else {
+                    applyWbgtInSeason_();
+                    document.querySelectorAll('#scene1 .s1-wbgt-bar').forEach(function (el) {
+                        el.style.display = '';
+                    });
+                    moeOk = applyWbgtSlotsToDom(wbgtSlots);
+                }
+                await updateHeatAlertFromGas_();
+            } catch (e) {
+                console.warn('[取得] WBGT系:', e.message || e);
+                applyWbgtSlotsToDom(null);
+                moeOk = false;
             }
-            await updateHeatAlertFromGas_();
         }
         if (plan.jma) {
             try {
@@ -6795,11 +7121,9 @@
         const res = await fetch(JMA_LATEST_TIME_URL, JMA_FETCH_HEADERS);
         if (!res.ok) throw new Error('JMA latest_time HTTP ' + res.status);
         const text = (await res.text()).trim();
-        let iso = text;
-        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(iso)) iso = iso.replace(/\.\d+$/, '') + '+09:00';
-        const dt = new Date(iso);
-        if (!Number.isFinite(dt.getTime())) throw new Error('JMA latest_time parse');
-        return dt;
+        const ms = parseDateTimeAssumeJst_(text);
+        if (!Number.isFinite(ms)) throw new Error('JMA latest_time parse');
+        return new Date(ms);
     }
     function pickPointBlockObs_(data, exactKey) {
         if (data.temp) return data;
@@ -6853,13 +7177,9 @@
     }
     async function fetchJmaAmedasObservation_() {
         const latest = await fetchJmaLatestTime_();
-        const fmt = new Intl.DateTimeFormat('en-CA', {
-            timeZone: CLOCK_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false
-        });
-        const p = Object.fromEntries(fmt.formatToParts(latest).map(x => [x.type, x.value]));
-        const ymd = `${p.year}${p.month}${p.day}`;
-        const hhmm = `${p.hour}${p.minute}`;
+        const p = jstPartsFromMs(latest.getTime ? latest.getTime() : latest);
+        const ymd = `${p.year}${String(p.month).padStart(2, '0')}${String(p.day).padStart(2, '0')}`;
+        const hhmm = `${String(p.hour).padStart(2, '0')}${String(p.minute).padStart(2, '0')}`;
         const exactKey = `${ymd}${hhmm}00`;
         const blockH = String(Math.floor(Number(p.hour) / 3) * 3).padStart(2, '0');
         /* 気象庁の地点JSON(point)を最優先で使い、項目不足時のみ map を使う */
@@ -6952,41 +7272,91 @@
         scene5SetWidth = SCENE5_PANEL_COUNT * 128;
         d5Conveyor.style.width = `${scene5SetWidth * 2}px`;
     }
-    function fitD5PanelText_() {
-        const maxW = 118;
+    let d5TempFontCache_ = null;
+    /** 128列・左右padding 6px → 実効 116。canvas計測で最大化 */
+    const D5_ROW_MAX_W_ = 116;
+    const D5_LABEL_MAX_W_ = 122;
+    const D5_ROW_GAP_ = 1;
+    function d5MeasureRowW_(iconSz, sepSz, numSz, unitSz, numText, unitText) {
+        const sepW = s2TextW_('/', sepSz, '700', 'Inter, sans-serif');
+        const numW = s2TextW_(String(numText || ''), numSz, '800', 'Inter, sans-serif');
+        const unitW = s2TextW_(String(unitText || '℃'), unitSz, '600', 'Inter, sans-serif');
+        return iconSz + D5_ROW_GAP_ + sepW + D5_ROW_GAP_ + numW + unitW;
+    }
+    function fitD5PanelText_(force) {
+        const rows = document.querySelectorAll('#scene5 .d5-weather-row');
+        if (!rows.length) return;
+        if (!force && d5TempFontCache_) {
+            const c = d5TempFontCache_;
+            document.querySelectorAll('#scene5 .s2-bar-label').forEach(function (el) {
+                el.style.fontSize = c.label + 'px';
+            });
+            rows.forEach(function (row) {
+                const icon = row.querySelector('.weather-svg');
+                const sep = row.querySelector('.d5-sep');
+                const wrap = row.querySelector('.s2-val');
+                const num = wrap && wrap.querySelector('.d5-temp');
+                const unit = wrap && wrap.querySelector('.s2-unit');
+                if (icon) { icon.style.width = c.icon + 'px'; icon.style.height = c.icon + 'px'; }
+                if (sep) sep.style.fontSize = c.sep + 'px';
+                if (num) num.style.fontSize = c.num + 'px';
+                if (unit) unit.style.fontSize = c.unit + 'px';
+            });
+            return;
+        }
+        let labelSz = 24;
         document.querySelectorAll('#scene5 .s2-bar-label').forEach(function (el) {
-            let size = 22;
-            el.style.fontSize = size + 'px';
-            while (size > 14 && el.scrollWidth > maxW) {
-                size -= 1;
-                el.style.fontSize = size + 'px';
-            }
+            const text = el.textContent || '';
+            const size = fitS2TextByMeasure_(text, D5_LABEL_MAX_W_, 28, 14, 24, '700', '"Noto Sans JP", sans-serif');
+            if (size < labelSz) labelSz = size;
         });
-        document.querySelectorAll('#scene5 .d5-weather-row').forEach(function (row) {
+        document.querySelectorAll('#scene5 .s2-bar-label').forEach(function (el) {
+            el.style.fontSize = labelSz + 'px';
+        });
+        let best = { label: labelSz, icon: 44, sep: 30, num: 40, unit: 18 };
+        rows.forEach(function (row) {
+            const wrap = row.querySelector('.s2-val');
+            const num = wrap && wrap.querySelector('.d5-temp');
+            if (!num) return;
+            const unit = wrap.querySelector('.s2-unit');
+            const numText = num.textContent || '';
+            const unitText = unit ? (unit.textContent || '℃') : '℃';
+            let iconSz = 44;
+            let sepSz = 30;
+            let numSz = 40;
+            let unitSz = 18;
+            let guard = 80;
+            while (guard-- > 0 && d5MeasureRowW_(iconSz, sepSz, numSz, unitSz, numText, unitText) > D5_ROW_MAX_W_) {
+                if (numSz > 24) { numSz -= 1; continue; }
+                if (iconSz > 30) { iconSz -= 1; continue; }
+                if (sepSz > 18) { sepSz -= 1; continue; }
+                if (unitSz > 12) { unitSz -= 1; continue; }
+                break;
+            }
+            best = {
+                label: labelSz,
+                icon: Math.min(best.icon, iconSz),
+                sep: Math.min(best.sep, sepSz),
+                num: Math.min(best.num, numSz),
+                unit: Math.min(best.unit, unitSz)
+            };
+        });
+        d5TempFontCache_ = best;
+        rows.forEach(function (row) {
             const icon = row.querySelector('.weather-svg');
             const sep = row.querySelector('.d5-sep');
             const wrap = row.querySelector('.s2-val');
             const num = wrap && wrap.querySelector('.d5-temp');
-            if (!num) return;
-            let iconSz = 44;
-            let sepSz = 30;
-            let numSz = 38;
-            let unitSz = 18;
-            const apply = function () {
-                if (icon) { icon.style.width = iconSz + 'px'; icon.style.height = iconSz + 'px'; }
-                if (sep) sep.style.fontSize = sepSz + 'px';
-                num.style.fontSize = numSz + 'px';
-                const unit = wrap.querySelector('.s2-unit');
-                if (unit) unit.style.fontSize = unitSz + 'px';
-            };
-            apply();
-            let guard = 60;
-            while (guard-- > 0 && row.scrollWidth > maxW) {
-                if (numSz > 26) { numSz -= 1; apply(); continue; }
-                if (iconSz > 32) { iconSz -= 2; apply(); continue; }
-                if (sepSz > 22) { sepSz -= 1; apply(); continue; }
-                if (unitSz > 14) { unitSz -= 1; apply(); continue; }
-                break;
+            const unit = wrap && wrap.querySelector('.s2-unit');
+            if (icon) { icon.style.width = best.icon + 'px'; icon.style.height = best.icon + 'px'; }
+            if (sep) sep.style.fontSize = best.sep + 'px';
+            if (num) {
+                num.style.fontSize = best.num + 'px';
+                num.style.lineHeight = signageLineHeightCss_();
+            }
+            if (unit) {
+                unit.style.fontSize = best.unit + 'px';
+                unit.style.lineHeight = signageLineHeightCss_();
             }
         });
     }
@@ -7015,18 +7385,18 @@
         }
         applyD5TodayFrame_();
         applyD5ForecastTextColors_();
-        fitD5PanelText_();
+        d5TempFontCache_ = null;
+        fitD5PanelText_(true);
     }
     function formatScene2ObsClock_(date) {
         const d = date instanceof Date ? date : new Date(date);
-        const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
-            timeZone: CLOCK_TZ, month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false
-        }).formatToParts(d).map(x => [x.type, x.value]));
+        const p = jstPartsFromMs(d.getTime());
+        const hh = String(p.hour).padStart(2, '0');
+        const mi = String(p.minute).padStart(2, '0');
         return {
-            date: `${Number(p.month)}/${Number(p.day)}`,
-            time: `${p.hour}:${p.minute}`,
-            stamp: `${Number(p.month)}/${Number(p.day)} ${p.hour}:${p.minute}`
+            date: `${p.month}/${p.day}`,
+            time: `${hh}:${mi}`,
+            stamp: `${p.month}/${p.day} ${hh}:${mi}`
         };
     }
     const SCENE2_META_LABELS = {
@@ -7128,16 +7498,16 @@
     const S2_PANEL_W_ = 128;
     const S2_BODY_INNER_W_ = 112;
     const S2_TOP_INNER_W_ = 116;
-    /** 72px中帯 − 上下余白（g,y,p,q の下線切れ防止） */
-    const S2_BODY_INNER_H_ = 67;
-    const S2_NUM_MAX_PX_ = 52;
+    /** 64px中帯 − 上下余白（g,y,p,q の下線切れ防止） */
+    const S2_BODY_INNER_H_ = 59;
+    const S2_NUM_MAX_PX_ = 58;
     /** 最高/最低: 他項目より少し大きく・白ボックス余白込みで計測 */
-    const S2_TMAXMIN_NUM_BOOST_ = 7;
+    const S2_TMAXMIN_NUM_BOOST_ = 8;
     const S2_TMAXMIN_BASE_NUM_ = 34;
     const S2_TMAXMIN_BASE_PAD_X_ = 7;
     const S2_TMAXMIN_BASE_PAD_Y_ = 3;
     const S2_TMAXMIN_BASE_RADIUS_ = 12;
-    const S2_UNIT_SIZE_RATIO_ = 0.34;
+    const S2_UNIT_SIZE_RATIO_ = 0.4;
     let s2MeasureCtx_ = null;
     function s2MeasureCtx() {
         if (!s2MeasureCtx_) {
@@ -7165,7 +7535,7 @@
     }
     function fitS2BarLabel_(label, compact) {
         const text = label.textContent || '';
-        const size = fitS2TextByMeasure_(text, S2_TOP_INNER_W_, 28, compact ? 10 : 12, compact ? 16 : 20, '700', '"Noto Sans JP", sans-serif');
+        const size = fitS2TextByMeasure_(text, S2_TOP_INNER_W_, 28, compact ? 10 : 12, compact ? 20 : 26, '700', '"Noto Sans JP", sans-serif');
         label.style.fontSize = size + 'px';
         label.style.lineHeight = '1.1';
         label.style.maxWidth = S2_TOP_INNER_W_ + 'px';
@@ -7236,7 +7606,7 @@
         const maxW = S2_BODY_INNER_W_;
         const maxH = S2_BODY_INNER_H_;
         const minPx = 20;
-        const maxPx = Math.min(maxH, 52);
+        const maxPx = Math.min(maxH, 58);
         const size = fitS2TextByMeasure_(text, maxW, maxH, minPx, maxPx, '800', '"Noto Sans JP", sans-serif');
         el.style.fontSize = size + 'px';
         el.style.lineHeight = signageLineHeightCss_();
@@ -7335,7 +7705,7 @@
             }
             body.querySelectorAll('.s2-dir-text').forEach(fitS2DirText_);
             body.querySelectorAll('.s2-sub-line').forEach(function (el) {
-                const size = fitS2TextByMeasure_(el.textContent, S2_BODY_INNER_W_, S2_BODY_INNER_H_, 14, 44, '800', 'Inter, sans-serif');
+                const size = fitS2TextByMeasure_(el.textContent, S2_BODY_INNER_W_, S2_BODY_INNER_H_, 14, 56, '800', 'Inter, sans-serif');
                 el.style.fontSize = size + 'px';
                 el.style.lineHeight = signageLineHeightCss_();
             });
@@ -7675,32 +8045,92 @@
     function getFcLvText() {
         return SCENE4_FOOT_ATTR;
     }
-    function buildFcLvMsgHtml(text) {
-        if (footBarUseCompact_(text)) {
-            return `<span class="fc-lv-msg-compact">${escapeS1Html(text)}</span>`;
-        }
-        return `<span class="fc-lv-msg">${buildEvenCharSpans(text, 'fc-lv-ch')}</span>`;
+    function getFcLvLogoSrc_() {
+        const cfg = window.SIGNAGE_CONFIG || {};
+        return cfg.footLogoSrc || cfg.logoSrc || './daitetsu_mark.png';
     }
-    function buildFcLvSetHtml(text) {
-        const msg = buildFcLvMsgHtml(text);
-        if (footBarUseCompact_(text)) {
-            const slot = `<div class="fc-lv-slot fc-lv-slot-wide">${msg}</div>`;
-            return `<div class="fc-lv-set">${slot}</div>`;
+    function buildFcLvLogoHtml_() {
+        const src = getFcLvLogoSrc_();
+        const alt = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoAlt) || '大鉄';
+        return '<img class="fc-lv-logo" src="' + escapeS1Html(src) + '?v=3" alt="' + escapeS1Html(alt) + '">';
+    }
+    function buildFcLvMsgHtml(text) {
+        return '<span class="fc-lv-msg-compact">' + escapeS1Html(text) + '</span>';
+    }
+    /** 文言＋ロゴを1単位。同一幅の単位を並べてシームレスループ */
+    function buildFcLvUnitHtml_(text) {
+        return '<div class="fc-lv-unit">' + buildFcLvMsgHtml(text) + buildFcLvLogoHtml_() + '</div>';
+    }
+    function syncFcLvLapPx_() {
+        if (!fcLvTrack) {
+            scene4FcLvLapPx = SCENE4_LV_LAP_PX;
+            return scene4FcLvLapPx;
         }
-        const slot = buildFootBarSlotHtml(msg, 'fc-lv-slot');
-        return `<div class="fc-lv-set">${slot}${slot}</div>`;
+        const unit = fcLvTrack.querySelector('.fc-lv-unit');
+        if (!unit) {
+            scene4FcLvLapPx = SCENE4_LV_LAP_PX;
+            return scene4FcLvLapPx;
+        }
+        const w = Math.max(unit.scrollWidth, Math.ceil(unit.getBoundingClientRect().width));
+        scene4FcLvLapPx = Math.max(8, Math.round(w));
+        return scene4FcLvLapPx;
+    }
+    function sizeFcLvFootText_() {
+        if (!fcLvTrack) return;
+        const bar = document.querySelector('#scene4 .fc-lv-bar');
+        const maxH = Math.max(12, (bar && bar.clientHeight > 0 ? bar.clientHeight : 32));
+        const msgs = fcLvTrack.querySelectorAll('.fc-lv-msg-compact');
+        const logos = fcLvTrack.querySelectorAll('.fc-lv-logo');
+        if (!msgs.length) return;
+        let fz = SCENE4_FOOT_FONT_MAX_PX_;
+        const apply_ = function (size) {
+            const logoH = Math.min(SCENE4_FOOT_LOGO_MAX_H_, Math.max(16, maxH - 8));
+            msgs.forEach(function (n) {
+                n.style.fontSize = size + 'px';
+                n.style.lineHeight = '1';
+                n.style.fontWeight = '700';
+            });
+            logos.forEach(function (img) {
+                img.style.height = logoH + 'px';
+                img.style.maxHeight = logoH + 'px';
+                img.style.width = 'auto';
+                img.style.maxWidth = SCENE4_FOOT_LOGO_MAX_W_ + 'px';
+                img.style.background = 'transparent';
+            });
+        };
+        apply_(fz);
+        let guard = 40;
+        while (guard-- > 0 && fz > SCENE4_FOOT_FONT_MIN_PX_ && signageInkHeightPx_(fz) > maxH) {
+            fz -= 1;
+            apply_(fz);
+        }
+        syncFcLvLapPx_();
     }
     function buildFcLvTrack(clearTimers) {
         if (!fcLvTrack) return;
         if (clearTimers) clearScene4Timers();
         const text = getFcLvText();
         let html = '';
-        for (let i = 0; i < SCENE4_LV_SETS; i++) html += buildFcLvSetHtml(text);
+        for (let i = 0; i < SCENE4_LV_SETS; i++) html += buildFcLvUnitHtml_(text);
         fcLvTrack.innerHTML = html;
-        const setEl = fcLvTrack.querySelector('.fc-lv-set');
-        scene4FcLvLapPx = setEl ? Math.max(SCENE4_LV_LAP_PX, setEl.offsetWidth) : SCENE4_LV_LAP_PX;
-        applyScrollX_(fcLvTrack, 0);
+        sizeFcLvFootText_();
+        const afterReady_ = function () {
+            sizeFcLvFootText_();
+            syncFcLvLapPx_();
+            scene4FcLvX = wrapScrollX_(scene4FcLvX, scene4FcLvLapPx);
+            applyScrollX_(fcLvTrack, scene4FcLvX);
+        };
+        fcLvTrack.querySelectorAll('.fc-lv-logo').forEach(function (img) {
+            if (img.complete) return;
+            img.addEventListener('load', afterReady_, { once: true });
+            img.addEventListener('error', afterReady_, { once: true });
+        });
+        requestAnimationFrame(function () {
+            afterReady_();
+            requestAnimationFrame(afterReady_);
+        });
         scene4FcLvX = 0;
+        applyScrollX_(fcLvTrack, 0);
     }
     function clearScene4Timers() {
         clearSceneScrollIntroTimer_();
@@ -7775,7 +8205,9 @@
         if (current === nextEl) { onComplete?.(); return; }
         nextEl.style.display = sceneDisplayMode(nextEl);
         nextEl.classList.add('active');
-        if (!current) {
+        /* 飾磨最新: スライドなし（または SCENE_SLIDE_MS<=0）はその場切替 */
+        if (!current || SCENE_SLIDE_MS <= 0) {
+            if (current) hideSceneEl(current);
             applyScrollX_(nextEl, 0);
             nextEl.style.zIndex = '';
             onComplete?.();
@@ -7784,6 +8216,8 @@
         nextEl.style.zIndex = '2';
         applyScrollX_(nextEl, SCENE_W);
         current.style.zIndex = '1';
+        /* 次シーンの再生はスライド開始と同時（飾磨準拠） */
+        onComplete?.();
         const t0 = performance.now();
         function tick() {
             const now = performance.now();
@@ -7799,7 +8233,6 @@
                 hideSceneEl(current);
                 applyScrollX_(nextEl, 0);
                 nextEl.style.zIndex = '';
-                onComplete?.();
             }
         }
         sceneSlideAnimId = setTimeout(tick, 16);
@@ -8259,17 +8692,41 @@
     function sizeT3TopBandText_() {
         const probe = document.querySelector('#scene3 .t3-top-ha-slot .t3-top-ha-msg');
         if (!probe) return;
+        const topBar = document.querySelector('#scene3 .t3-col-top');
         const usableW = getT3TopHaSlotW_() - 8;
+        const usableH = signageInnerHeightPx_(topBar, T3_TOP_HA_INNER_H_);
+        const applyFz_ = function (fz) {
+            document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) {
+                n.style.fontSize = fz + 'px';
+                n.style.lineHeight = '1';
+                n.style.letterSpacing = '0.2px';
+            });
+        };
         let fz = T3_TOP_HA_FONT_MAX;
-        document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
+        applyFz_(fz);
         let guard = 80;
-        while (guard-- > 0 && fz > 8 && probe.scrollWidth > usableW) {
+        while (guard-- > 0 && fz > T3_TOP_HA_FONT_MIN &&
+            (probe.scrollWidth > usableW || signageInkHeightPx_(fz) > usableH)) {
             fz -= 1;
-            document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
+            applyFz_(fz);
         }
-        document.querySelectorAll('#scene3 .t3-col-top').forEach(function (topBar) {
-            topBar.querySelectorAll('.t3-top-ha-slot').forEach(function (slot) {
-                t3PackTopHaSlotInkCenter_(topBar, slot);
+        /* 実描画の見切れも潰す */
+        guard = 40;
+        while (guard-- > 0 && fz > T3_TOP_HA_FONT_MIN && topBar) {
+            let over = false;
+            topBar.querySelectorAll('.t3-top-ha-msg').forEach(function (n) {
+                const ink = t3InkTopBottomPx_([n]);
+                const inner = t3BodyInnerBounds_(topBar);
+                if (!ink || !inner) return;
+                if (ink.top < inner.top - 0.5 || ink.bottom > inner.bottom + 0.5) over = true;
+            });
+            if (!over) break;
+            fz -= 1;
+            applyFz_(fz);
+        }
+        document.querySelectorAll('#scene3 .t3-col-top').forEach(function (bar) {
+            bar.querySelectorAll('.t3-top-ha-slot').forEach(function (slot) {
+                t3PackTopHaSlotInkCenter_(bar, slot);
             });
         });
     }
@@ -8363,9 +8820,10 @@
         if (!probe1 || !probe2) return;
         const bodyEl = document.querySelector('#scene3 .t3-scroll-body');
         const bodyClip = bodyEl || document.querySelector('#scene3 .t3-scroll-body');
-        const usableH = Math.max(8, signageInnerHeightPx_(bodyEl, T3_INNER_H_) - T3_INK_FIT_PAD_);
+        const usableH = Math.max(8, signageInnerHeightPx_(bodyEl, T3_INNER_H_) - T3_INK_FIT_PAD_ - T3_INK_BOTTOM_MARGIN_);
         const lh = t3LineHeightCss_();
-        const gap = T3_SLOT_GAP_PX_;
+        const l1Len = String(probe1.textContent || '').trim().length;
+        probe1.style.display = l1Len ? '' : 'none';
         const setProbes = function (f1, f2) {
             probe1.style.fontSize = t3FitFontPx_(f1) + 'px';
             probe1.style.lineHeight = lh;
@@ -8377,17 +8835,23 @@
                 const l1 = s.querySelector('.t3-l1');
                 const l2 = s.querySelector('.t3-l2');
                 if (!l1 || !l2) return;
-                const maxW = Math.max(8, (s.clientWidth || T3_UNIT_W) - 4);
+                const maxW = Math.max(8, Math.min(T3_USABLE_W_, (s.clientWidth || T3_UNIT_W) - 4));
                 const langIdx = Number(l1.dataset.t3LangIdx);
                 const lv = currentWbgtLevel;
+                const family = '"Noto Sans", "Noto Sans JP", sans-serif';
                 const slotFits = function (f1Try, f2Try) {
+                    const hasL1 = t3IsInkNodeVisible_(l1) || !!String(l1.textContent || '').trim();
+                    if (t3PairTheoryH_(f1Try, f2Try, hasL1) > usableH) return false;
                     l1.style.fontSize = t3FitFontPx_(f1Try) + 'px';
                     l2.style.fontSize = t3FitFontPx_(f2Try) + 'px';
                     l1.style.lineHeight = lh;
                     l2.style.lineHeight = lh;
-                    const okW = (!t3IsInkNodeVisible_(l1) || l1.scrollWidth <= maxW)
-                        && (!t3IsInkNodeVisible_(l2) || l2.scrollWidth <= maxW);
-                    const okH = t3InkBoundsPx_(t3SlotInkNodes_(s)) <= usableH;
+                    const t1 = String(l1.textContent || '');
+                    const t2 = String(l2.textContent || '');
+                    const okW = (!t3IsInkNodeVisible_(l1) || s2TextW_(t1, t3FitFontPx_(f1Try), '900', family) <= maxW)
+                        && (!t3IsInkNodeVisible_(l2) || s2TextW_(t2, t3FitFontPx_(f2Try), '900', family) <= maxW);
+                    const ink = t3InkBoundsPx_(t3SlotInkNodes_(s));
+                    const okH = !ink || ink <= usableH;
                     return okW && okH;
                 };
                 let f1Use = f1;
@@ -8423,27 +8887,35 @@
             });
         };
         function pairInkH_(f1, f2) {
-            return t3InkH_(t3FitFontPx_(f1)) + t3InkH_(t3FitFontPx_(f2)) + gap;
+            return t3PairTheoryH_(f1, f2, !!l1Len);
         }
         function pairFitsInk_(f1, f2) {
+            if (pairInkH_(f1, f2) > usableH) return false;
             setProbes(f1, f2);
             const probeNodes = l1Len ? [probe1, probe2] : [probe2];
-            return t3InkBoundsPx_(probeNodes) <= usableH;
+            const ink = t3InkBoundsPx_(probeNodes);
+            return !ink || ink <= usableH;
         }
         function pairFitsWidth_(f1, f2) {
             setProbes(f1, f2);
-            const maxW = Math.max(8, (slot.clientWidth || T3_UNIT_W) - 4);
-            return probe1.scrollWidth <= maxW && probe2.scrollWidth <= maxW;
+            const maxW = Math.max(8, Math.min(T3_USABLE_W_, (slot.clientWidth || T3_UNIT_W) - 4));
+            const family = '"Noto Sans", "Noto Sans JP", sans-serif';
+            const t1 = String(probe1.textContent || '');
+            const t2 = String(probe2.textContent || '');
+            if (t1 && s2TextW_(t1, t3FitFontPx_(f1), '900', family) > maxW) return false;
+            if (t2 && s2TextW_(t2, t3FitFontPx_(f2), '900', family) > maxW) return false;
+            if (probe1.scrollWidth > 0 && probe1.scrollWidth > maxW) return false;
+            if (probe2.scrollWidth > 0 && probe2.scrollWidth > maxW) return false;
+            return true;
         }
-        const l1Len = String(probe1.textContent || '').trim().length;
-        probe1.style.display = l1Len ? '' : 'none';
         const maxW = Math.max(8, (slot.clientWidth || T3_UNIT_W) - 4);
         let bestF1 = T3_L2_MIN_;
         let bestF2 = T3_L2_MIN_;
         if (!l1Len) {
             for (let f2 = T3_L2_MAX_; f2 >= T3_L2_MIN_; f2--) {
+                if (t3PairTheoryH_(T3_L2_MIN_, f2, false) > usableH) continue;
                 setProbes(T3_L2_MIN_, f2);
-                if (probe2.scrollWidth <= maxW && t3InkBoundsPx_([probe2]) <= usableH) {
+                if (probe2.scrollWidth <= maxW && (!(t3InkBoundsPx_([probe2])) || t3InkBoundsPx_([probe2]) <= usableH)) {
                     bestF2 = f2;
                     break;
                 }
@@ -8451,10 +8923,12 @@
             setProbes(T3_L2_MIN_, bestF2);
             while (bestF2 < T3_L2_MAX_) {
                 const nf = bestF2 + 1;
+                if (t3PairTheoryH_(T3_L2_MIN_, nf, false) > usableH) break;
                 probe2.style.fontSize = t3FitFontPx_(nf) + 'px';
                 probe2.style.lineHeight = lh;
                 if (probe2.scrollWidth > maxW) break;
-                if (t3InkBoundsPx_([probe2]) > usableH) break;
+                const ink = t3InkBoundsPx_([probe2]);
+                if (ink > usableH) break;
                 bestF2 = nf;
             }
         } else {
@@ -8481,7 +8955,7 @@
             if (bodyClip && !isNaN(langIdx) && currentWbgtLevel >= 0) {
                 const y = getT3SlotY_(currentWbgtLevel, langIdx);
                 if (y) signageNudgeUpPx_(s, -y);
-                signageFixDescenderClip_(bodyClip, s, '.t3-l1,.t3-l2', 2);
+                signageFixDescenderClip_(bodyClip, s, '.t3-l1,.t3-l2', 1);
             }
         }
         document.querySelectorAll('#scene3 .t3-slot').forEach(layoutT3Slot_);
@@ -8510,7 +8984,6 @@
         applyT3BandTextColors_();
         sizeT3Text_();
         syncT3StaticSingleView_();
-        requestAnimationFrame(function () { requestAnimationFrame(sizeT3Text_); });
         return true;
     }
     function applyT3TrackX_(tracks, x) {
@@ -8859,9 +9332,9 @@
         const probe = document.querySelector('#scenePromo .dp-mid-txt');
         if (!probe || !mid) return;
         const highEm = isPromoMidHighEm_();
-        const maxH = signageInnerHeightPx_(mid, 67);
+        const maxH = signageInnerHeightPx_(mid, 59);
         const minFz = 14;
-        const maxFz = 58;
+        const maxFz = 64;
         const lh = signageLineHeightCss_();
         const applyAll = function (size) {
             const emPx = Math.round(size * DP_MID_EM_SCALE_HIGH_);
@@ -9102,7 +9575,7 @@
         applyScrollX_(shell, SCENE_W);
         const t0 = performance.now();
         function tick() {
-            const p = Math.min(1, (performance.now() - t0) / SCENE_SLIDE_MS);
+            const p = Math.min(1, (performance.now() - t0) / PROMO_PHASE_SLIDE_MS);
             const eased = p * (2 - p);
             const off = scrollPx_(eased * SCENE_W);
             applyScrollX_(outgoing, -off);
@@ -9276,10 +9749,6 @@
         compactScene2Panels();
         buildScene2MetaTrack(lastAmedasObsTime);
         fitScene2BodyText();
-        scheduleLoopAnim_(function () {
-            fitScene2BodyText();
-            scheduleLoopAnim_(function () { fitScene2BodyText(); });
-        });
         cancelLoopAnim_(scene2AnimId);
         scene2AnimId = null;
         clearSceneScrollIntroTimer_();
@@ -9360,7 +9829,9 @@
         compactScene4Panels();
         refreshSignageBg();
         fitFcBarLabelFontSize_();
-        fitFcWbgtFontSize();
+        fcWbgtFontPx_ = null;
+        fcWbgtUnitPx_ = null;
+        fitFcWbgtFontSize(true);
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
             scheduleDemoStep_(finishScene4);
@@ -9378,11 +9849,13 @@
         applyScrollX_(fcConveyor, 0);
         applyScrollX_(fcLvTrack, 0);
         function animateScene4() {
+            /* 左右カード（WBGT / 暑さ指数）は次コンテンツへ切替わるまで連続で流す */
             x -= SCENE4_SCROLL_PX;
             totalScrolled += SCENE4_SCROLL_PX;
             x = wrapScrollX_(x, scene4SetWidth);
             applyScrollX_(fcConveyor, x);
             scene4FcLvX -= SCENE4_LV_SPEED_PX;
+            if (scene4FcLvLapPx < 8) syncFcLvLapPx_();
             scene4FcLvX = wrapScrollX_(scene4FcLvX, scene4FcLvLapPx);
             applyScrollX_(fcLvTrack, scene4FcLvX);
             if (totalScrolled >= scene4ScrollTotal) {
@@ -9405,7 +9878,9 @@
         scene5AnimId = null;
         clearSceneScrollIntroTimer_();
         compactScene5Panels();
-        fitD5PanelText_();
+        /* 表示中に強制再計測（非表示時キャッシュで℃が見切れるのを防ぐ） */
+        d5TempFontCache_ = null;
+        fitD5PanelText_(true);
         applyD5TodayFrame_();
         applyD5ForecastTextColors_();
         refreshSignageBg();
@@ -9546,21 +10021,34 @@
         clearWbgtUnavailableGrace_();
         wbgtOffSeason = false;
         restoreWbgtCache_();
-        syncTimeFromNetwork().then(function () { updateClock(); });
-        if (!window.__demoLiveFetchInterval) {
-            window.__demoLiveFetchInterval = setInterval(syncTimeFromNetwork, 300000);
-        }
+        /* 時刻同期は onload の ensureDemoClockSync_ 側で実施 */
         if (!window.__demoLiveVisBound) {
             window.__demoLiveVisBound = true;
             document.addEventListener('visibilitychange', function () {
                 if (document.visibilityState === 'visible') {
-                    syncTimeFromNetwork().then(function (ok) { if (ok) updateClock(); });
                     fetchWeatherAndWbgt();
                     updateRainNowcastAlert_();
                 }
             });
         }
         fetchWeatherAndWbgt().finally(scheduleDataRefresh);
+    }
+    /** デモでも起動時・定期でネット時刻同期（表示は常に Asia/Tokyo） */
+    function ensureDemoClockSync_() {
+        syncTimeFromNetwork().then(function (ok) { if (ok) updateClock(); });
+        if (!window.__demoClockSyncInterval) {
+            window.__demoClockSyncInterval = setInterval(function () {
+                syncTimeFromNetwork().then(function (ok) { if (ok) updateClock(); });
+            }, CLOCK_SYNC_INTERVAL_MS);
+        }
+        if (!window.__demoClockVisBound) {
+            window.__demoClockVisBound = true;
+            document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'visible') {
+                    syncTimeFromNetwork().then(function (ok) { if (ok) updateClock(); });
+                }
+            });
+        }
     }
     function ensureDemoWbgtPlaceholder_() {
         if (isDemoFontLab_()) {
@@ -9703,9 +10191,11 @@
             bindDemoStepControls_();
             updateDemoNextBtn_();
             updateDemoFontPanel_();
-            applySyncedUtcMs(Date.now(), 'demo-local');
+            /* リロード直後は端末時刻で即表示（表示は Asia/Tokyo）。続けてネット同期 */
+            applySyncedUtcMs(Date.now(), 'local-first');
             updateClock();
             startClockTicker();
+            ensureDemoClockSync_();
             applyDemoWeatherStatic();
             startDemoLiveDataFetch_();
             if (isDemoFontLab_()) {
@@ -9736,7 +10226,7 @@
         startClockTicker();
         syncTimeFromNetwork().then(function () { updateClock(); });
         refreshSignageBg();
-        /* 初回取得完了まで「取得不可」は出さない。3回連続失敗時のみ applyWbgtUnavailableToDom_ */
+        /* 初回取得完了まで「取得不可」は出さない。成功値が一度も無いときだけ applyWbgtUnavailableToDom_ */
         wbgtUnavailable = false;
         clearWbgtUnavailableGrace_();
         wbgtOffSeason = false;
@@ -9749,7 +10239,7 @@
         } catch (err) {
             console.error('Init display:', err);
         }
-        setInterval(syncTimeFromNetwork, 300000);
+        setInterval(syncTimeFromNetwork, CLOCK_SYNC_INTERVAL_MS);
         /* 取得待ちで止まらないよう、先にループ開始（データは裏で更新） */
         setTimeout(startSequence, 300);
         fetchWeatherAndWbgt().finally(scheduleDataRefresh);
