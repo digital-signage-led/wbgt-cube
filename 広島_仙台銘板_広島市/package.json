@@ -1,0 +1,11 @@
+{
+  "name": "hiroshima-sendai-meiban-city",
+  "version": "1.0.0",
+  "description": "仙台銘板（広島県広島市）WBGT サイネージ（4面 512×128）",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "UNLICENSED",
+  "type": "commonjs"
+}
