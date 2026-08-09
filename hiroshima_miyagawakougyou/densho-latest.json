@@ -7,10 +7,10 @@
       "data_intr_time": 600,
       "data": [
         {
-          "date": "20260810023412",
+          "date": "20260810025412",
           "power_voltage": "12.0",
           "sensu15xx": {
-            "temp": 25.6,
+            "temp": 25.5,
             "cumtemp": 3220.8,
             "humi": 82.0,
             "uv": 0,
@@ -20,7 +20,7 @@
             "rain_1h": 0.0,
             "rain_24h": 0.0,
             "rain_bgn": 0.0,
-            "wind_dir": 275,
+            "wind_dir": 276,
             "wind_dir_str": "西",
             "wind_speed": 0.5,
             "max_wind_speed": 1.0,
