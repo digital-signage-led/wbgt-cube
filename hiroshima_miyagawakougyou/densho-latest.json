@@ -7,28 +7,28 @@
       "data_intr_time": 600,
       "data": [
         {
-          "date": "20260811164412",
+          "date": "20260811173412",
           "power_voltage": "12.0",
           "sensu15xx": {
-            "temp": 30.6,
+            "temp": 28.4,
             "cumtemp": 3249.2,
-            "humi": 45.0,
-            "uv": 1172,
-            "uvi": 3,
-            "illumi": 44609.0,
+            "humi": 50.0,
+            "uv": 47,
+            "uvi": 0,
+            "illumi": 6173.0,
             "rain": 0.0,
             "rain_1h": 0.0,
             "rain_24h": 0.0,
             "rain_bgn": 0.0,
-            "wind_dir": 120,
-            "wind_dir_str": "東南東",
-            "wind_speed": 1.9,
-            "max_wind_speed": 5.6,
-            "wbgt": 26,
-            "wbgt_str": "警戒"
+            "wind_dir": 126,
+            "wind_dir_str": "南東",
+            "wind_speed": 0.8,
+            "max_wind_speed": 3.5,
+            "wbgt": 23,
+            "wbgt_str": "注意"
           },
-          "atmos": 987,
-          "sea_level_pressure": 1002
+          "atmos": 988,
+          "sea_level_pressure": 1003
         }
       ]
     }
