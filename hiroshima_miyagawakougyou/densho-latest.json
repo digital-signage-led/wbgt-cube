@@ -7,15 +7,15 @@
       "data_intr_time": 600,
       "data": [
         {
-          "date": "20260819053412",
+          "date": "20260819055412",
           "power_voltage": "12.0",
           "sensu15xx": {
-            "temp": 23.8,
+            "temp": 23.7,
             "cumtemp": 3463.7,
-            "humi": 92.0,
-            "uv": 4,
+            "humi": 93.0,
+            "uv": 23,
             "uvi": 0,
-            "illumi": 579.0,
+            "illumi": 3055.0,
             "rain": 0.0,
             "rain_1h": 0.0,
             "rain_24h": 0.0,
