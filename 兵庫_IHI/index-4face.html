@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<!-- wbgt-cube-hyogo-ihi-4face / 株式会社IHI WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
-<!-- 同階層: assets/ihi_logo.png（時刻下の下帯） -->
+<!-- wbgt-cube-hyogo-ihi-4face / IHI瀧上特定建設工事共同企業体 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
 <!-- 会場: 兵庫県神戸市東灘区 -->
 <!-- WBGT・AMeDAS 63518（神戸・気象庁/環境省） -->
 <html lang="ja" class="native-640 layout-512">
@@ -10,8 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v1 -->
-    <title>WBGT Signage 4面 - 株式会社IHI</title>
-    <link rel="preload" as="image" href="./assets/ihi_logo.png">
+    <title>WBGT Signage 4面 - IHI瀧上特定建設工事共同企業体</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
 /** 4面 512×128 本番用（layout512 + native640）。localhost は PC 確認用に拡大表示 */
@@ -456,7 +454,7 @@
             font-size: var(--led-foot-site-font); font-weight: 700; color: #1a1a1a; line-height: var(--led-foot-bar-h);
             font-family: "Noto Sans JP", sans-serif;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 196px; flex-shrink: 1;
+            max-width: 244px; flex-shrink: 1;
         }
         .s1-wbgt-msg-slot .s1-wbgt-msg-compact {
             padding: 0 4px; text-align: center;
@@ -1579,9 +1577,9 @@
 
   var cfg = {
     site: {
-      customer: '株式会社IHI',
+      customer: 'IHI瀧上特定建設工事共同企業体',
       rental: '',
-      label: '株式会社IHI',
+      label: 'IHI瀧上特定建設工事共同企業体',
       address: '兵庫県神戸市東灘区',
       locationLabel: '東灘区'
     },
@@ -1615,12 +1613,12 @@
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/ihi_logo.png',
-    logoAlt: '株式会社IHI',
+    logoSrc: '',
+    logoAlt: 'IHI瀧上特定建設工事共同企業体',
     logoPanelBg: '#ffffff',
     logoCorpSrc: '',
     footLogoSrc: '',
-    footBannerSrc: './assets/ihi_logo.png'
+    footBannerSrc: ''
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -1735,7 +1733,7 @@
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
         </div>
-        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/ihi_logo.png" alt="株式会社IHI" decoding="sync" fetchpriority="high"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/ihi_logo.png" alt="株式会社IHI" decoding="sync"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/ihi_logo.png" alt="株式会社IHI" decoding="sync"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div></div></div>
+        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">IHI瀧上特定建設工事共同企業体</span></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">IHI瀧上特定建設工事共同企業体</span></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div><div class="s1-wbgt-set"><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">IHI瀧上特定建設工事共同企業体</span></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div></div></div></div>
     </div>
 
     <div class="scene" id="scene2">
@@ -1832,8 +1830,8 @@
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="" alt="株式会社IHI" decoding="sync" fetchpriority="high">
-                <img class="logo-corp-img" src="" alt="株式会社IHI" decoding="sync">
+                <img class="logo-img" id="signage-logo" src="" alt="IHI瀧上特定建設工事共同企業体" decoding="sync" fetchpriority="high">
+                <img class="logo-corp-img" src="" alt="IHI瀧上特定建設工事共同企業体" decoding="sync">
             </div>
         </div>
     </div>
@@ -4349,7 +4347,7 @@
         }
         const badge = document.getElementById('demo-badge');
         const liveLabel = RAIN_WHITE_DESIGN && !whiteModeForced_()
-            ? ('確認 · ' + (rainWarnMeta.cityName || '株式会社IHI') + ' 発表中 ' + rainWhiteQueue.length + '件')
+            ? ('確認 · ' + (rainWarnMeta.cityName || 'IHI瀧上特定建設工事共同企業体') + ' 発表中 ' + rainWhiteQueue.length + '件')
             : '確認 · 大雨警報';
         if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = liveLabel; }
         else if (badge) { badge.hidden = true; }
@@ -5018,8 +5016,22 @@
         scheduleWbgtUnavailableCheck_();
         return false;
     }
+    /** 直前の成功値があれば灰色・取得不可にせず表示を維持する */
+    function keepLastGoodWbgtDisplay_(reason) {
+        if (!(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))) return false;
+        wbgtUnavailable = false;
+        syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
+        updateForecastSlotsIfAllowed_(lastGoodWbgtSlots_);
+                queueOrRefreshS1FootBar_();
+        refreshSignageBgIfChanged_();
+        queueDisplayRefresh_();
+        if (reason) console.warn('[WBGT]', reason, '— 直前の成功値を維持（取得不可にしない）');
+        return true;
+    }
     function applyWbgtUnavailableToDom_() {
         if (wbgtOffSeason || !wbgtUnavailableGraceElapsed_()) return;
+        /* 一度でも成功値があれば長期灰色（取得不可）にしない */
+        if (keepLastGoodWbgtDisplay_('取得継続失敗')) return;
         wbgtUnavailable = true;
         syncWbgtDependentAlerts_();
         const nullSlot = { wbgt: null, hour: '取得不可' };
@@ -5030,7 +5042,7 @@
         queueOrRefreshS1FootBar_();
         refreshSignageBgIfChanged_(true);
         if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
-        console.warn('[WBGT] 1分以上取得できないため「取得不可」表示');
+        console.warn('[WBGT] 成功値なしで1分以上取得できないため「取得不可」表示');
     }
     function syncWbgtSlotsToDomIfReady_() {
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
@@ -5061,23 +5073,26 @@
             queueDisplayRefresh_();
             return true;
         }
+        /* 失敗時も直前値があれば灰色に落とさない（再取得はスケジュール側で継続） */
+        if (keepLastGoodWbgtDisplay_('取得失敗')) {
+            noteWbgtFetchFailure_();
+            return false;
+        }
         if (noteWbgtFetchFailure_()) {
             applyWbgtUnavailableToDom_();
             return false;
-        }
-        /* 1分以内の失敗: 直前の成功値を維持（取得不可は出さない） */
-        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-            wbgtUnavailable = false;
-            syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-            updateForecastSlotsIfAllowed_(lastGoodWbgtSlots_);
-            queueOrRefreshS1FootBar_();
-            refreshSignageBgIfChanged_();
-            queueDisplayRefresh_();
         }
         return false;
     }
     /* 提供期間外: WBGTレベルを無効化し、WBGT表示を全て隠す（該当シーンはループでスキップ） */
     function applyWbgtOffSeason_() {
+        /* 直前の実測がある間は提供期間外の灰色へ落とさない（誤検知・欠測の一時応答対策） */
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            console.warn('[WBGT] off-season応答だが直前値があるため維持');
+            applyWbgtInSeason_();
+            keepLastGoodWbgtDisplay_('off-season応答');
+            return;
+        }
         wbgtOffSeason = true;
         wbgtUnavailable = false;
         clearWbgtUnavailableGrace_();
@@ -5217,6 +5232,7 @@
                     timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
                 } catch (e) {
                     console.warn('[取得] WBGT系:', e.message || e);
+                    applyWbgtSlotsToDom(null);  // 直前値維持パスを通す
                     moeOk = false;
                 }
             })());
@@ -6048,7 +6064,7 @@
     }
     function sizeS1FootCompanyText_() {
         const maxW = FOOT_BAR_SLOT_W - 12;
-        document.querySelectorAll('#scene1 .s1-foot-co-txt').forEach(function (el) {
+        document.querySelectorAll('#scene1 .s1-foot-co-txt, #scene1 .s1-wbgt-site-label').forEach(function (el) {
             let fz = COMPANY_LINE_FONT_START_PX_;
             el.style.fontSize = fz + 'px';
             let guard = 24;
@@ -6097,7 +6113,7 @@
         return String(cfg.footLogoSrc || cfg.logoSrc || '').trim();
     }
     function buildS1FootBrandHtml_() {
-        const name = getS1SiteFootName_() || '株式会社IHI';
+        const name = getS1SiteFootName_() || 'IHI瀧上特定建設工事共同企業体';
         return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
     }
     function buildS1SiteLogoHtml_() {
@@ -6106,7 +6122,7 @@
         return `<span class="s1-wbgt-logo-wrap"><img class="s1-wbgt-logo" src="${escapeS1Html(logoSrc)}" alt="" decoding="async"></span>`;
     }
     function buildS1FootBannerSvgHtml_(siteName) {
-        const name = siteName || '株式会社IHI';
+        const name = siteName || 'IHI瀧上特定建設工事共同企業体';
         const alt = escapeS1Html(name);
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
         const logoSrc = escapeS1Html(cfg.footLogoSrc || cfg.logoSrc || '');
@@ -6123,7 +6139,10 @@
             return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="${escapeS1Html(bannerSrc)}" alt="${alt}" decoding="async"></div>`;
         }
         const logoHtml = buildS1SiteLogoHtml_();
-        const labelHtml = `<span class="s1-wbgt-site-label">${escapeS1Html(siteName || '株式会社IHI')}</span>`;
+        if (!logoHtml) {
+            return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">${escapeS1Html(siteName || 'IHI瀧上特定建設工事共同企業体')}</span></div>`;
+        }
+        const labelHtml = `<span class="s1-wbgt-site-label">${escapeS1Html(siteName || 'IHI瀧上特定建設工事共同企業体')}</span>`;
         return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-wbgt-site-inner">${logoHtml}${labelHtml}</span></div>`;
     }
     function ensureS1WbgtBarVisible_() {
