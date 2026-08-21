@@ -1,0 +1,11 @@
+{
+  "name": "hiroshima-sato-kogyo-wbgt-signage",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "news:fetch": "node scripts/fetch-homepage-news.mjs",
+    "news:watch": "node scripts/news-watch.mjs",
+    "serve": "node scripts/signage-server.mjs",
+    "start": "node scripts/signage-server.mjs"
+  }
+}
