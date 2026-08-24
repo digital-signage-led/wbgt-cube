@@ -153,6 +153,13 @@
         .content-area { width: 512px; height: 128px; position: relative; overflow: hidden; flex: 0 0 512px; flex-shrink: 0; background: #308DD8; }
         .content-area > .scene-strip-bg { z-index: 0; }
         .content-area > .scene { z-index: 1; will-change: transform; }
+        /* NEWS: 報道ブルー帯（指定レイアウト・色は青系） */
+        .content-area.news-canvas {
+            background: #0B4F9C !important;
+        }
+        .content-area.news-canvas > .scene-strip-bg {
+            display: none !important;
+        }
         .scene {
             position: absolute; top: 0; left: 0; width: 512px; height: 128px;
             display: none; overflow: hidden; box-sizing: border-box;
@@ -163,53 +170,75 @@
         #scene4.active { display: block; }
         #scene5.active { display: block; }
         #sceneLogo.active { display: block; }
-        #sceneNews.active { display: block; }
-        /* ホームページ新着ニュース（横スクロール） */
+        #sceneNews.active { display: block; z-index: 2; }
+        #sceneNews {
+            width: 512px; height: 128px; overflow: hidden;
+            background: #0B4F9C;
+            box-shadow: 0 2px 0 #0B4F9C, 0 -2px 0 #0B4F9C;
+        }
         .news-scroll-wrap {
             width: 512px; height: 128px; overflow: hidden; position: relative; z-index: 1;
-            background: #1a1a1a;
+            background: linear-gradient(180deg, #1A6FC0 0%, #0A3D7A 100%);
+            margin: 0; padding: 0; border: none; outline: none; box-shadow: none;
         }
         .news-track {
             display: flex; flex-direction: row; height: 128px;
             transition: none; gap: 0; will-change: transform; align-items: center;
+            border: none; outline: none; box-shadow: none;
         }
         .news-unit {
             height: 128px; flex-shrink: 0;
             display: flex; flex-direction: row; align-items: center; gap: 20px;
-            padding: 0 48px; box-sizing: border-box; white-space: nowrap;
+            padding: 0 28px; box-sizing: border-box; white-space: nowrap;
+            border: none; outline: none; box-shadow: none;
         }
-        .news-label {
+        .news-badge {
             flex-shrink: 0;
-            font-family: "Inter", "Noto Sans JP", sans-serif;
-            font-size: 22px; font-weight: 800; letter-spacing: 0.12em;
-            color: #ffbe2d; line-height: 1;
+            display: flex; flex-direction: row; align-items: center; gap: 12px;
+            height: 128px;
         }
-        .news-text {
+        .news-badge-logo {
+            display: block; width: 96px; height: 96px; flex: 0 0 96px;
+            object-fit: contain; object-position: center center;
+            background: #ffffff; border-radius: 8px;
+        }
+        .news-badge-label {
+            font-family: "Inter", "Noto Sans JP", sans-serif;
+            font-size: 28px; font-weight: 800; letter-spacing: 0.06em;
+            color: #C8E8F5; line-height: 1.1; white-space: nowrap;
+        }
+        .news-sep {
+            flex-shrink: 0;
             font-family: "Noto Sans JP", sans-serif;
-            font-size: 36px; font-weight: 700; color: #ebebeb; line-height: 1.15;
+            font-size: 22px; font-weight: 800; color: #57B8ED;
+            line-height: 1; margin: 0 4px;
+        }
+        .news-item {
+            flex-shrink: 0;
+            display: flex; flex-direction: row; align-items: center; gap: 16px;
             white-space: nowrap;
         }
-        /* もう一つのコンテンツ: 横長ロゴ（紋章+佐藤工業）を256px単位で右→左に流す＋上下黒帯 */
+        .news-date {
+            flex-shrink: 0;
+            font-family: "Inter", "Noto Sans JP", sans-serif;
+            font-size: 40px; font-weight: 800; color: #8AD0F0;
+            line-height: 1.1; letter-spacing: 0.02em;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum" 1;
+            white-space: nowrap;
+        }
+        .news-title {
+            flex-shrink: 0;
+            font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+            font-size: 48px; font-weight: 800; color: #F0F8FF;
+            line-height: 1.1; letter-spacing: 0.02em;
+            white-space: nowrap;
+            overflow: visible; text-overflow: clip;
+        }
+        /* もう一つのコンテンツ: 横長ロゴ（紋章+佐藤工業）を256px単位で右→左に流す */
         .logo-face-scroll-wrap {
             width: 512px; height: 128px; overflow: hidden; position: relative; z-index: 1;
             background: #ffffff;
-        }
-        .logo-face-matte {
-            position: absolute; left: 0; width: 512px; height: 20px;
-            background: #000000; z-index: 5; pointer-events: none;
-            transition: transform 1s ease-in-out;
-        }
-        .logo-face-matte-top {
-            top: 0;
-            transform: translateY(-100%);
-        }
-        .logo-face-matte-bottom {
-            bottom: 0;
-            transform: translateY(100%);
-        }
-        .logo-face-scroll-wrap.logo-mattes-on .logo-face-matte-top,
-        .logo-face-scroll-wrap.logo-mattes-on .logo-face-matte-bottom {
-            transform: translateY(0);
         }
         .logo-face-track {
             display: flex; flex-direction: row; width: 1024px; height: 128px;
@@ -231,7 +260,7 @@
             width: 128px; max-width: 128px; height: 128px; max-height: 128px;
             flex: 0 0 128px; object-fit: contain; transform: none;
         }
-        /* 横長ロゴ: 面いっぱいに大きく（黒帯は上に被せるだけ） */
+        /* 横長ロゴ: 面いっぱいに大きく */
         .logo-face-img.logo-face-wide {
             width: auto; max-width: none; height: 128px; max-height: 128px;
             transform: scale(1.22);
@@ -2073,9 +2102,7 @@
     </div>
     <div class="scene" id="sceneLogo">
         <div class="logo-face-scroll-wrap" id="logo-face-scroll-wrap">
-            <div class="logo-face-matte logo-face-matte-top" aria-hidden="true"></div>
             <div class="logo-face-track" id="logo-face-track"></div>
-            <div class="logo-face-matte logo-face-matte-bottom" aria-hidden="true"></div>
         </div>
     </div>
     </div>
@@ -3984,9 +4011,14 @@
         if (sceneRainWarn && sceneRainWarn.classList.contains('active') && shouldUseWhiteLayout_() && rainWhiteQueue.length) {
             setRainWarnWhiteBundle_(rainWhiteQueue);
             if (raFlow_) {
+                /* ライブ更新でもスクロール位置を維持（先頭へ飛ばさない） */
                 raFlow_.midBandW = rainWhiteMidW;
-                raFlow_.midBandX = 0;
-                applyRaWhiteMidX_(0);
+                const keepX = wrapScrollX_(globalScrollX_, rainWhiteMidW || RA_WHITE_BAND_W);
+                raFlow_.midBandX = keepX;
+                applyRaWhiteMidX_(keepX);
+                if (typeof applyRaWhiteBandX_ === 'function' && raFlow_.bandX != null) {
+                    applyRaWhiteBandX_(raFlow_.bandX);
+                }
             }
         }
     }
@@ -4437,13 +4469,13 @@
     }
     function finishMainLoopToS1_() {
         if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
-        if (s1) transitionToScene(s1, playScene1);
+        if (s1) transitionToScene(s1, playScene1, true);
     }
     /**
      * ブランド面シーケンス:
      *  開始1秒静止（4面とも正立）→ 正立のまま1周流す → 1秒静止
      *  → 90°ずつ 下/左/上/右 に揃える → 1秒静止 → 回転しながら転がって1周
-     *  → 直後に次コンテンツへ
+     *  → 1秒静止 → 次コンテンツへ
      */
     const BRAND_PANEL_W = 128;
     const BRAND_PANEL_COUNT = 4;
@@ -4452,7 +4484,7 @@
     const BRAND_START_ROT = 0; /* 正立（以前の下向き180の逆） */
     const BRAND_ALIGN_ROTS = [180, 270, 0, 90]; /* 下・左・上・右 */
     const BRAND_ALIGN_STEP_MS = 420;
-    /** 転がったあとの退場フェード（横長ロゴ黒帯と同じ） */
+    /** 転がったあとの退場フェード */
     const BRAND_EXIT_MS = 450;
     let brandSetWidth = BRAND_PANEL_COUNT * BRAND_PANEL_W;
     let brandRightBaseRot_ = 0;
@@ -4514,8 +4546,8 @@
     }
     function finishSceneBrand_() {
         if (demoOnlyLoop_('brand', playSceneBrand)) return;
-        /* 転がった直後 → 素早く次コンテンツへ（待ち・フェードなし） */
-        gotoAfterBrandBlock_();
+        /* 転がったあと1秒静止してから次コンテンツへ */
+        brandHold_(BRAND_HOLD_MS, gotoAfterBrandBlock_);
     }
     function brandFadeOutThen_(fn) {
         const wrap = brandTrack && brandTrack.parentElement;
@@ -4674,8 +4706,7 @@
             go();
             return;
         }
-        if (s1) transitionToScene(s1, playScene1);
-        else if (s2) transitionToScene(s2, playScene2);
+        /* 次先が無いときは先頭へ飛ばさない（再生中の巻き戻り防止） */
     }
     function gotoAfterRainWarnOrScene1_() {
         if (isDemoFullRainLoop_()) {
@@ -5005,7 +5036,6 @@
     const SCENE_LOGO_PANEL_W = 256;
     const SCENE_LOGO_PANEL_COUNT = 2; /* 0–256 / 257–512 に同じ横長ロゴ */
     const SCENE_LOGO_LAPS = 2;
-    const LOGO_MATTE_MS = 1000; /* 黒帯のゆっくり出現／退場 */
     const LOGO_ACTION_HOLD_MS = 1000; /* 各動作の前後で1秒静止 */
     let sceneLogoSetWidth = SCENE_LOGO_PANEL_COUNT * SCENE_LOGO_PANEL_W;
     let sceneLogoAnimId = null;
@@ -5023,6 +5053,8 @@
     const T3_TOP_HA_FONT_MAX = 20;
     const T3_LAPS_BEFORE_SWITCH = 1;
     let t3GuidLapPx = SCENE2_META_LAP_PX;
+    let t3GuidScrollX_ = 0;
+    let t3GuidAnimId = null;
     let t3Messages_ = [];
     let t3Flow_ = null;
     const SCENE_W = 512;
@@ -5038,6 +5070,8 @@
         return (DEMO_SIGNAGE && !DEMO_ONLY) ? DEMO_SCROLL_SPEED_PX : GLOBAL_SCROLL_SPEED_PX;
     }
     let sceneSlideAnimId = null;
+    let sceneSlideFromEl_ = null;
+    let activeSceneEl_ = null;
     let sceneEndHoldTimerId_ = null;
     let scenePostHoldTimerId_ = null;
     /** 全シーン共通スクロール位置（下帯・本体とも継ぎ目でリセットしない） */
@@ -5116,6 +5150,10 @@
             cancelAnimationFrame(sceneSlideAnimId);
             sceneSlideAnimId = null;
         }
+        if (sceneSlideFromEl_ && sceneSlideFromEl_ !== activeSceneEl_) {
+            hideSceneEl(sceneSlideFromEl_);
+        }
+        sceneSlideFromEl_ = null;
     }
     function detectScrollLapCrossed_(prevX, newX) {
         return newX > prevX;
@@ -5129,11 +5167,14 @@
         if (scene5AnimId) { cancelAnimationFrame(scene5AnimId); scene5AnimId = null; }
         if (sceneLogoAnimId) { cancelAnimationFrame(sceneLogoAnimId); sceneLogoAnimId = null; }
         if (logoMatteTimerId_) { clearTimeout(logoMatteTimerId_); logoMatteTimerId_ = null; }
-        if (logoFaceScrollWrap) logoFaceScrollWrap.classList.remove('logo-mattes-on');
         if (sceneNewsAnimId) { cancelAnimationFrame(sceneNewsAnimId); sceneNewsAnimId = null; }
+        if (typeof newsCanvasTimerId_ !== 'undefined' && newsCanvasTimerId_) {
+            clearTimeout(newsCanvasTimerId_); newsCanvasTimerId_ = null;
+        }
         if (sceneBrandAnimId) { cancelAnimationFrame(sceneBrandAnimId); sceneBrandAnimId = null; }
         if (sceneBrandHoldTimerId) { clearTimeout(sceneBrandHoldTimerId); sceneBrandHoldTimerId = null; }
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+        stopT3GuidScroll_();
         if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
         if (raAnimId) { cancelAnimationFrame(raAnimId); raAnimId = null; }
     }
@@ -5820,6 +5861,8 @@
         if (s1) {
             s1.style.display = sceneDisplayMode(s1);
             s1.classList.add('active');
+            activeSceneEl_ = s1;
+            hideOtherScenes_(s1);
         }
         syncWbgtSlotsToDomIfReady_();
         if (typeof SignageBg !== 'undefined') refreshSignageBg();
@@ -5828,10 +5871,7 @@
     }
     function queueDisplayRefresh_() {
         pendingDisplayRefresh = true;
-        if (s3 && s3.classList.contains('active')) {
-            syncScene3Display_(true);
-            return;
-        }
+        /* シーン3を含め、再生中は組み替えを保留（途中ジャンプ防止） */
         if (mainLoopStarted_ && shouldDeferDisplayRefresh_()) return;
     }
     function queueOrRefreshS1FootBar_() {
@@ -5918,7 +5958,8 @@
                     if (plan.forecast && results[1]) {
                         applyJmaDailyForecastToDom(results[1], live.todayMaxTemp, live.todayLiveIcon);
                     }
-                    compactScene2Panels();
+                    /* ループ中は conveyor を作り直さない（途中で先頭へ飛ぶのを防ぐ） */
+                    if (!shouldDeferDisplayRefresh_()) compactScene2Panels();
                     queueDisplayRefresh_();
                     const sWarn = performance.now();
                     await updateRainWarnFromGas_();
@@ -6948,6 +6989,7 @@
         if (scene1SafetyTimerId) clearTimeout(scene1SafetyTimerId);
         scene1SafetyTimerId = setTimeout(function () {
             scene1SafetyTimerId = null;
+            if (activeSceneEl_ !== s1 || sceneSlideAnimId != null) return;
             if (s1 && s1.classList.contains('active')) {
                 console.warn('[Scene1] 安全タイマーで次シーンへ進めます');
                 finishScene1();
@@ -6967,18 +7009,31 @@
         el.style.transform = '';
         el.style.zIndex = '';
     }
+    function hideOtherScenes_(keepA, keepB) {
+        document.querySelectorAll('.content-area .scene.active').forEach(function (el) {
+            if (el !== keepA && el !== keepB) hideSceneEl(el);
+        });
+    }
     function getActiveScene() {
+        if (activeSceneEl_ && activeSceneEl_.classList.contains('active')) return activeSceneEl_;
         return document.querySelector('.content-area .scene.active');
     }
-    function transitionToScene(nextEl, onComplete) {
+    function transitionToScene(nextEl, onComplete, allowRestart) {
         clearSceneEndHoldTimer_();
         clearSceneSlideAnim_();
         clearOutgoingSceneAnims_();
         const current = getActiveScene();
         if (!nextEl) { onComplete?.(); return; }
-        if (current === nextEl) { onComplete?.(); return; }
+        if (current === nextEl) {
+            hideOtherScenes_(nextEl);
+            activeSceneEl_ = nextEl;
+            if (allowRestart) onComplete?.();
+            return;
+        }
         nextEl.style.display = sceneDisplayMode(nextEl);
         nextEl.classList.add('active');
+        hideOtherScenes_(current, nextEl);
+        activeSceneEl_ = nextEl;
         if (!current || SCENE_SLIDE_MS <= 0) {
             if (current) hideSceneEl(current);
             applyScrollX_(nextEl, 0);
@@ -6986,6 +7041,7 @@
             onComplete?.();
             return;
         }
+        sceneSlideFromEl_ = current;
         nextEl.style.zIndex = '2';
         applyScrollX_(nextEl, SCENE_W);
         current.style.zIndex = '1';
@@ -7001,25 +7057,34 @@
                 sceneSlideAnimId = requestAnimationFrame(tick);
             } else {
                 sceneSlideAnimId = null;
+                sceneSlideFromEl_ = null;
                 hideSceneEl(current);
+                hideOtherScenes_(nextEl);
                 applyScrollX_(nextEl, 0);
                 nextEl.style.zIndex = '';
             }
         }
         sceneSlideAnimId = requestAnimationFrame(tick);
     }
-    function showSceneInstant_(nextEl, onComplete) {
+    function showSceneInstant_(nextEl, onComplete, allowRestart) {
         clearSceneEndHoldTimer_();
         clearSceneSlideAnim_();
         clearOutgoingSceneAnims_();
         const current = getActiveScene();
         if (!nextEl) { onComplete?.(); return; }
-        if (current === nextEl) { onComplete?.(); return; }
+        if (current === nextEl) {
+            hideOtherScenes_(nextEl);
+            activeSceneEl_ = nextEl;
+            if (allowRestart) onComplete?.();
+            return;
+        }
         nextEl.style.display = sceneDisplayMode(nextEl);
         nextEl.classList.add('active');
         applyScrollX_(nextEl, 0);
         nextEl.style.zIndex = '';
         if (current) hideSceneEl(current);
+        hideOtherScenes_(nextEl);
+        activeSceneEl_ = nextEl;
         onComplete?.();
     }
     /* 確認ボード: 提供期間外プレビュー行は非表示のまま一定時間待ってループ */
@@ -7047,6 +7112,7 @@
         gotoAfterRainWarnOrScene1_();
     }
     function gotoAfterScene3_() {
+        stopT3GuidScroll_();
         gotoAfterScene3Tail_();
     }
     /* 256×128スロット中央に収まるサイズ（256÷128=2 のパネル内で中央揃え） */
@@ -7239,9 +7305,29 @@
         }
         return SCENE2_META_LAP_PX;
     }
+    function stopT3GuidScroll_() {
+        if (t3GuidAnimId) { cancelAnimationFrame(t3GuidAnimId); t3GuidAnimId = null; }
+    }
+    function applyT3GuidScrollX_(trackEl) {
+        if (!trackEl || !t3GuidLapPx) return;
+        applyScrollX_(trackEl, wrapScrollX_(t3GuidScrollX_, t3GuidLapPx));
+    }
+    /** 白帯は言語切替の静止中も止めず独立スクロール */
+    function startT3GuidScroll_(guidTrack) {
+        stopT3GuidScroll_();
+        if (!guidTrack || !getT3GuideTierForDisplay_()) return;
+        t3GuidLapPx = measureT3GuideLapPx_(guidTrack) || t3GuidLapPx;
+        applyT3GuidScrollX_(guidTrack);
+        function tick() {
+            t3GuidScrollX_ -= getScrollSpeedPx_();
+            applyT3GuidScrollX_(guidTrack);
+            t3GuidAnimId = requestAnimationFrame(tick);
+        }
+        t3GuidAnimId = requestAnimationFrame(tick);
+    }
     function remeasureT3GuideLapPx_(trackEl) {
         t3GuidLapPx = measureT3GuideLapPx_(trackEl);
-        if (trackEl) applyGlobalScroll_(trackEl, t3GuidLapPx);
+        if (trackEl) applyT3GuidScrollX_(trackEl);
     }
     /** 環境省発表または ?heatalert= 指定時のみアラート指針を下帯に出す（フルデモの仮アラートは除く） */
     function isHeatAlertPublishedForGuide_() {
@@ -7710,6 +7796,7 @@
         t3Messages_ = getT3Messages_();
         buildT3GuideTrack();
         const guidTrack = document.getElementById('t3-guid-track');
+        startT3GuidScroll_(guidTrack);
         if (!t3Messages_.length) {
             gotoAfterScene3_();
             return;
@@ -7760,9 +7847,6 @@
                 }
             }
             applyT3TrackX_(tracks, t3Flow_.x);
-            if (guidTrack && getT3GuideTierForDisplay_()) {
-                applyGlobalScroll_(guidTrack, t3GuidLapPx);
-            }
             tickerAnimId = requestAnimationFrame(step);
         }
         runSceneScrollAfterHold_(function () {
@@ -7852,25 +7936,70 @@
         }, LOGO_BEFORE_MULTI_KINDS);
     }
     const SCENE_NEWS_LAPS = 1;
+    /* NEWSは文字が大きく読み取りやすいので、他シーンより少し速く流す */
+    const SCENE_NEWS_SPEED_MULT = 1.05;
     let sceneNewsSetWidth = 512;
     let sceneNewsAnimId = null;
+    let newsCanvasTimerId_ = null;
     function clearSceneNewsTimers_() {
         if (sceneNewsAnimId) { cancelAnimationFrame(sceneNewsAnimId); sceneNewsAnimId = null; }
+        if (newsCanvasTimerId_) { clearTimeout(newsCanvasTimerId_); newsCanvasTimerId_ = null; }
     }
     function buildSceneNewsTrack_() {
         if (!newsTrack || !window.SignageNews) return false;
-        const text = SignageNews.getTickerText('　　／　　');
-        if (!text) return false;
-        const unit = '<div class="news-unit"><span class="news-label">NEWS</span><span class="news-text">'
-            + escapeS1Html(text) + '</span></div>';
-        newsTrack.innerHTML = unit + unit;
+        const items = SignageNews.getItems();
+        if (!items || !items.length) return false;
+        const logoSrc = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoSrc)
+            || './assets/sato_kogyo_logo_stack.png?v=6';
+        function badgeHtml_() {
+            return '<div class="news-badge">'
+                + '<img class="news-badge-logo" src="' + logoSrc + '" alt="佐藤工業" decoding="sync">'
+                + '<span class="news-badge-label">新着情報</span>'
+                + '</div>';
+        }
+        function sepHtml_() {
+            return '<span class="news-sep" aria-hidden="true">●</span>';
+        }
+        function itemHtml_(it) {
+            return '<div class="news-item">'
+                + (it.date ? '<span class="news-date">' + escapeS1Html(it.date) + '</span>' : '')
+                + '<span class="news-title">' + escapeS1Html(it.title) + '</span>'
+                + '</div>';
+        }
+        function setHtml_() {
+            let html = badgeHtml_();
+            for (let i = 0; i < items.length; i++) {
+                html += sepHtml_() + itemHtml_(items[i]);
+            }
+            html += sepHtml_();
+            return '<div class="news-unit">' + html + '</div>';
+        }
+        /* [ロゴ+新着情報] ● [日付 タイトル] ● … を2セットつなげて流す */
+        newsTrack.innerHTML = setHtml_() + setHtml_();
         const first = newsTrack.querySelector('.news-unit');
         sceneNewsSetWidth = Math.max(512, first ? first.offsetWidth : 512);
         newsTrack.style.width = (sceneNewsSetWidth * 2) + 'px';
         applyScrollX_(newsTrack, 0);
         return true;
     }
+    /**
+     * NEWS用キャンバス（青・ストリップ非表示）。
+     * スライド中に先に青へすると前シーンの白帯が一瞬青になるため、
+     * 切替完了後に付与／解除してコンテンツと一緒に変える。
+     */
+    function setNewsCanvasMode_(on, delayMs) {
+        const contentArea = document.querySelector('.content-area');
+        if (newsCanvasTimerId_) { clearTimeout(newsCanvasTimerId_); newsCanvasTimerId_ = null; }
+        const apply = function () {
+            newsCanvasTimerId_ = null;
+            if (contentArea) contentArea.classList.toggle('news-canvas', !!on);
+        };
+        const wait = Math.max(0, Number(delayMs) || 0);
+        if (wait > 0) newsCanvasTimerId_ = setTimeout(apply, wait);
+        else apply();
+    }
     function gotoAfterSceneNews_() {
+        setNewsCanvasMode_(false, SCENE_SLIDE_MS);
         playSceneLogoThen_(function () {
             if (!s3) { gotoAfterScene3_(); return; }
             transitionToScene(s3, playScene3);
@@ -7882,6 +8011,7 @@
             gotoAfterSceneNews_();
             return;
         }
+        setNewsCanvasMode_(true, SCENE_SLIDE_MS);
         const start = function () {
             if (!buildSceneNewsTrack_()) {
                 gotoAfterSceneNews_();
@@ -7891,7 +8021,7 @@
             runSceneScrollAfterHold_(function () {
                 let totalScrolled = 0;
                 const scrollTotal = sceneNewsSetWidth * SCENE_NEWS_LAPS;
-                const speed = getScrollSpeedPx_();
+                const speed = getScrollSpeedPx_() * SCENE_NEWS_SPEED_MULT;
                 function tick() {
                     totalScrolled += speed;
                     applyScrollX_(newsTrack, wrapScrollX_(-totalScrolled, sceneNewsSetWidth));
@@ -8000,38 +8130,15 @@
     function applyLogoFaceSpin_(scrolledPx) {
         /* 横長ロゴ流しではパネル回転なし */
     }
-    function setLogoMattes_(on) {
-        if (!logoFaceScrollWrap) return;
-        if (on) logoFaceScrollWrap.classList.add('logo-mattes-on');
-        else logoFaceScrollWrap.classList.remove('logo-mattes-on');
-    }
-    function clearLogoMatteTimer_() {
+    function clearLogoHoldTimer_() {
         if (logoMatteTimerId_) { clearTimeout(logoMatteTimerId_); logoMatteTimerId_ = null; }
     }
     function logoActionHold_(fn) {
-        clearLogoMatteTimer_();
+        clearLogoHoldTimer_();
         logoMatteTimerId_ = setTimeout(function () {
             logoMatteTimerId_ = null;
             if (typeof fn === 'function') fn();
         }, LOGO_ACTION_HOLD_MS);
-    }
-    function logoMattesOutThen_(fn) {
-        clearLogoMatteTimer_();
-        setLogoMattes_(false);
-        logoMatteTimerId_ = setTimeout(function () {
-            logoMatteTimerId_ = null;
-            if (typeof fn === 'function') fn();
-        }, LOGO_MATTE_MS);
-    }
-    function logoMattesInThen_(fn) {
-        clearLogoMatteTimer_();
-        setLogoMattes_(false);
-        if (logoFaceScrollWrap) void logoFaceScrollWrap.offsetWidth;
-        setLogoMattes_(true);
-        logoMatteTimerId_ = setTimeout(function () {
-            logoMatteTimerId_ = null;
-            if (typeof fn === 'function') fn();
-        }, LOGO_MATTE_MS);
     }
     function playSceneLogo() {
         const kinds = (logoFaceActiveKinds_ && logoFaceActiveKinds_.length)
@@ -8039,12 +8146,11 @@
         if (logoFaceKindIdx_ < 0 || logoFaceKindIdx_ >= kinds.length) logoFaceKindIdx_ = 0;
         const kind = kinds[logoFaceKindIdx_];
         if (!sceneLogo || !ensureLogoFacePanels_(kind)) {
-            setLogoMattes_(false);
             gotoAfterSceneLogo_();
             return;
         }
         if (sceneLogoAnimId) { cancelAnimationFrame(sceneLogoAnimId); sceneLogoAnimId = null; }
-        clearLogoMatteTimer_();
+        clearLogoHoldTimer_();
         applyDisplayRefreshAtSceneEntry_();
         const scrollTotal = sceneLogoSetWidth * SCENE_LOGO_LAPS;
         let totalScrolled = 0;
@@ -8072,11 +8178,7 @@
         }
 
         function afterLogoScroll_() {
-            logoActionHold_(function () {
-                logoMattesOutThen_(function () {
-                    logoActionHold_(goNextLogoOrExit_);
-                });
-            });
+            logoActionHold_(goNextLogoOrExit_);
         }
 
         function animateLogoFace() {
@@ -8094,12 +8196,9 @@
             sceneLogoAnimId = requestAnimationFrame(animateLogoFace);
         }
 
+        /* 入場1秒静止 → 横スクロール → 終了1秒静止 → 次へ */
         logoActionHold_(function () {
-            logoMattesInThen_(function () {
-                logoActionHold_(function () {
-                    sceneLogoAnimId = requestAnimationFrame(animateLogoFace);
-                });
-            });
+            sceneLogoAnimId = requestAnimationFrame(animateLogoFace);
         });
     }
     function playScene2() {
@@ -8406,6 +8505,7 @@
         clearDemoStepTimer_();
         resetLogoRotation();
         [s1, s2, s3, s4, s5, sceneLogo, sceneNews, sceneBrand, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        activeSceneEl_ = null;
         transitionToScene(s1, playScene1);
     }
 
@@ -8471,6 +8571,8 @@
             if (s1) {
                 s1.style.display = sceneDisplayMode(s1);
                 s1.classList.add('active');
+                activeSceneEl_ = s1;
+                hideOtherScenes_(s1);
                 playScene1();
             }
         } catch (err) {
@@ -8485,6 +8587,8 @@
             if (s1) {
                 s1.style.display = sceneDisplayMode(s1);
                 s1.classList.add('active');
+                activeSceneEl_ = s1;
+                hideOtherScenes_(s1);
                 playScene1();
             }
         } finally {
