@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-sasakikensetu-4face / 佐々木建設株式会社 WBGT サイネージ（本番 4面 512×128・ロゴなし） -->
-<!-- 会場: 〒771-0295 徳島県板野郡松茂町 / WBGT・AMeDAS 71106（徳島・気象庁） -->
+<!-- 会場: 〒771-0203 徳島県板野郡北島町中村前須13-9 / WBGT=環境省・天気=気象庁AMeDAS 71106 -->
 <html lang="ja" class="native-640 layout-512">
 <head>
     <meta charset="UTF-8">
@@ -28,17 +28,16 @@
 
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;800;900&family=M+PLUS+Rounded+1c:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap');
         :root {
             --led-foot-bar-bg: #fff9f0;
             --led-foot-bar-h: 28px;
             --led-col-body-h: 68px;
             --led-col-main-h: 100px;
-            --led-foot-font: 18px;
-            --led-foot-site-font: 17px;
-            --led-foot-scroll-font: 20px;
+            --led-foot-font: 15px;
+            --led-foot-site-font: 15px;
         }
-        body { margin: 0; padding: 0; background-color: #308DD8; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
+        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; font-family: "Inter", "Noto Sans JP", sans-serif; }
         .demo-badge {
             position: fixed; top: 0; left: 0; z-index: 9999;
             padding: 4px 10px; background: rgba(0,0,0,0.75); color: #fff;
@@ -92,7 +91,7 @@
             display: block; max-width: 100px; max-height: 100px; width: auto; height: auto;
             object-fit: contain; object-position: center center; margin: 0;
         }
-        .content-area { width: 512px; height: 128px; position: relative; overflow: hidden; flex-shrink: 0; order: 1; background: #308DD8; }
+        .content-area { width: 512px; height: 128px; position: relative; overflow: hidden; flex-shrink: 0; order: 1; background: transparent; }
         .content-area > .scene-strip-bg { z-index: 0; }
         .content-area > .scene { z-index: 1; will-change: transform; }
         .scene {
@@ -189,9 +188,9 @@
         .panel { width: 128px; height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-sizing: border-box; flex-shrink: 0; gap: 4px; border: none; outline: none; background: transparent; }
         .panel-clock { padding: 0; gap: 0; justify-content: flex-start; overflow: hidden; }
         .s1-top-bar { width: 100%; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden; }
-        .s1-bar-label { font-size: 16px; font-weight: 800; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.42px; }
+        .s1-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; font-family: "Noto Sans JP", sans-serif; letter-spacing: 0.42px; }
         #scene1 .panel-clock .s1-bar-label {
-            font-size: 22px;
+            font-size: 20px;
             line-height: 32px;
             letter-spacing: 0.2px;
             max-width: 124px;
@@ -213,8 +212,8 @@
             white-space: nowrap;
             max-width: 124px;
             overflow: hidden;
-            font-size: 48px;
-            font-weight: 900;
+            font-size: 42px;
+            font-weight: 800;
             color: #ebebeb;
             line-height: 1;
             font-variant-numeric: tabular-nums;
@@ -230,21 +229,29 @@
             line-height: 1;
             color: inherit;
         }
-        .clock-hm .clock-colon {
-            flex-shrink: 0;
+        .clock-hm .clock-colon-wrap {
+            position: relative;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            align-self: center;
-            width: 0.34em;
+            width: 0.4em;
             height: 1em;
+            flex-shrink: 0;
+            align-self: center;
+            line-height: 0;
+        }
+        .clock-hm .clock-colon {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, calc(-50% - 0.08em));
             font-size: inherit;
             font-weight: inherit;
             font-family: inherit;
             font-variant-numeric: inherit;
-            line-height: 0;
+            line-height: 1;
             color: inherit;
-            transform: translateY(-0.07em);
+            opacity: 1;
         }
         #scene1, #scene4 { overflow: hidden; position: relative; }
         #scene1.active { display: block; }
@@ -278,33 +285,6 @@
         .s1-wbgt-set.s1-wbgt-set-scroll {
             width: 1024px;
         }
-        .fc-lv-set.fc-lv-set-scroll {
-            width: 1024px;
-        }
-        /* シーン4下帯: 256px×2（作業所名|出典）コの字シームレス512 */
-        #scene4 .fc-lv-bar .fc-lv-slot {
-            width: 256px;
-            max-width: 256px;
-            min-width: 256px;
-            padding: 0 6px;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-        #scene4 .fc-lv-bar .fc-lv-msg-compact {
-            display: block;
-            width: 100%;
-            max-width: 100%;
-            font-size: var(--led-foot-scroll-font);
-            font-weight: 800;
-            color: #1a1a1a;
-            line-height: var(--led-foot-bar-h);
-            white-space: nowrap;
-            overflow: hidden;
-            text-align: center;
-            padding: 0 4px;
-            box-sizing: border-box;
-            font-family: "Noto Sans JP", sans-serif;
-        }
         .s1-wbgt-slot, .fc-lv-slot, .s2-meta-slot {
             width: 256px; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
@@ -322,13 +302,13 @@
         }
         .s1-wbgt-msg-compact, .fc-lv-msg-compact {
             display: block; width: 100%; max-width: 100%;
-            font-size: var(--led-foot-font); font-weight: 800; color: #1a1a1a; line-height: var(--led-foot-bar-h);
-            white-space: nowrap; overflow: hidden;
+            font-size: var(--led-foot-font); font-weight: 700; color: #1a1a1a; line-height: var(--led-foot-bar-h);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             text-align: center; padding: 0 6px; box-sizing: border-box;
         }
         .s2-meta-msg-scroll {
             display: inline-block; white-space: nowrap; line-height: var(--led-foot-bar-h);
-            font-size: var(--led-foot-font); font-weight: 800; color: #1a1a1a;
+            font-size: var(--led-foot-font); font-weight: 700; color: #1a1a1a;
             font-family: "Noto Sans JP", sans-serif; padding: 0 10px;
         }
         .s2-meta-msg-groups {
@@ -346,67 +326,13 @@
             display: flex; flex-direction: row; align-items: stretch;
             box-sizing: border-box;
         }
-        #scene2 .s2-meta-bar .s2-meta-msg-scroll {
-            display: inline-flex; align-items: center;
-            height: var(--led-foot-bar-h); max-height: var(--led-foot-bar-h);
-            line-height: 1.12; overflow: visible; box-sizing: border-box;
-            font-size: var(--led-foot-scroll-font);
-        }
-        /* シーン2下帯: 256px×2（作業所名|計測情報）コの字シームレス512 */
-        #scene2 .s2-meta-bar .s2-meta-set-scroll {
-            width: 1024px;
-        }
-        #scene2 .s2-meta-bar .s2-meta-slot-256 {
-            width: 256px;
-            max-width: 256px;
-            min-width: 256px;
-            padding: 0 6px;
-            overflow: hidden;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #scene2 .s2-meta-bar .s2-meta-msg-compact {
-            display: block;
-            width: 100%;
-            max-width: 100%;
-            font-size: var(--led-foot-scroll-font);
-            font-weight: 800;
-            color: #1a1a1a;
-            line-height: var(--led-foot-bar-h);
-            white-space: nowrap;
-            overflow: hidden;
-            text-align: center;
-            padding: 0 4px;
-            box-sizing: border-box;
-            font-family: "Noto Sans JP", sans-serif;
-        }
-        #scene2 .s2-meta-bar .s2-meta-set-flow {
-            min-width: 0; width: auto;
-        }
-        #scene2 .s2-meta-bar .s2-meta-slot-flow {
-            min-width: 0; width: auto;
-            padding: 0 10px;
-            justify-content: flex-start;
-        }
         .s1-wbgt-slot-wide, .fc-lv-slot-wide, .s2-meta-slot-wide {
             width: 512px; max-width: 512px; flex-shrink: 0;
         }
         .s1-wbgt-ch, .fc-lv-ch {
             display: inline-flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            font-weight: 800; color: #1a1a1a;
-        }
-        .s1-wbgt-ch {
-            width: 15px;
-            font-size: 15px;
-        }
-        #scene4 .fc-lv-bar .fc-lv-ch {
-            width: 1.05em;
-            min-width: 16px;
-            font-size: 20px;
-            font-weight: 800;
+            width: 15px; flex-shrink: 0;
+            font-size: 15px; font-weight: 700; color: #1a1a1a;
         }
         .s1-wbgt-site-slot {
             display: flex; align-items: center; justify-content: center;
@@ -432,9 +358,9 @@
         /* シーン1下帯・社名（1行） */
         .s1-foot-co-txt {
             display: inline-block; flex-shrink: 0; white-space: nowrap; line-height: var(--led-foot-bar-h);
-            max-width: 244px; overflow: hidden;
+            max-width: 244px; overflow: hidden; text-overflow: ellipsis;
             font-family: "Noto Sans JP", sans-serif;
-            font-weight: 800; font-size: var(--led-foot-site-font); letter-spacing: 0.02em;
+            font-weight: 700; font-size: var(--led-foot-site-font); letter-spacing: 0.02em;
             color: #1a1a1a; box-sizing: border-box; text-align: center;
         }
         .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact {
@@ -453,9 +379,9 @@
             display: block; object-fit: contain;
         }
         .s1-wbgt-site-label {
-            font-size: var(--led-foot-site-font); font-weight: 800; color: #1a1a1a; line-height: var(--led-foot-bar-h);
+            font-size: var(--led-foot-site-font); font-weight: 700; color: #1a1a1a; line-height: var(--led-foot-bar-h);
             font-family: "Noto Sans JP", sans-serif;
-            white-space: nowrap; overflow: hidden;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             max-width: 196px; flex-shrink: 1;
         }
         .s1-wbgt-msg-slot .s1-wbgt-msg-compact {
@@ -527,10 +453,10 @@
         #scene2.active { display: block; }
         .s2-scroll-wrap { width: 512px; height: var(--led-col-main-h); overflow: hidden; position: relative; z-index: 1; }
         #scene2 .s2-panel, #scene2 .s2-panel-data { height: var(--led-col-main-h); }
-        #scene2 .s2-bar-label { font-size: 22px; line-height: 1.05; letter-spacing: 0.2px; font-weight: 800; }
-        #scene2 .s2-num { font-size: 50px; font-weight: 900; }
-        #scene2 .s2-dir-text.dir-val { font-size: 36px; font-weight: 900; }
-        #scene2 .s2-unit { font-size: 22px; font-weight: 800; }
+        #scene2 .s2-bar-label { font-size: 20px; line-height: 1.05; letter-spacing: 0.2px; }
+        #scene2 .s2-num { font-size: 40px; }
+        #scene2 .s2-dir-text.dir-val { font-size: 34px; }
+        #scene2 .s2-unit { font-size: 16px; }
         #scene2 .weather-svg { width: 54px; height: 54px; }
         #scene2 .s2-tmax-high, #scene2 .s2-tmax-low { font-size: 40px; }
         #scene2 .s2-tmax-sep { font-size: 40px; font-weight: 800; }
@@ -549,7 +475,7 @@
         #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
         #scene3 .t3-col .col-bg-layer { width: calc(100% + 1px); }
 
-        .forecast-scene:not(.active) { display: none; overflow: hidden; }
+        .forecast-scene { display: none; overflow: hidden; }
         .fc-panel {
             width: 128px; max-width: 128px;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
@@ -560,8 +486,7 @@
         #scene4 .fc-top-bar, #scene4 .fc-body { background: transparent; border: none; position: relative; z-index: 1; }
         .fc-bar-label { font-size: 15px; font-weight: 700; color: #ebebeb; letter-spacing: 0.42px; font-family: "Noto Sans JP", sans-serif; }
         #scene4 .fc-bar-label {
-            font-size: 22px;
-            font-weight: 800;
+            font-size: 20px;
             line-height: 1.05;
             letter-spacing: 0.2px;
             max-width: 124px;
@@ -574,29 +499,25 @@
         .fc-body {
             width: 100%; max-width: 128px; height: var(--led-col-body-h); max-height: var(--led-col-body-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center; box-sizing: border-box;
-            overflow: hidden; padding: 0 4px;
+            overflow: hidden; padding: 0 6px;
         }
         /* シーン4: 時刻と同型（スクロール104=32+72、下帯24は fc-lv-bar） */
         #scene4 .fc-panel .col-bg-layer { height: var(--led-col-main-h); }
         #scene4 .fc-panel .col-bg-foot { display: none; }
         .fc-wbgt {
-            display: inline-flex; align-items: baseline; justify-content: center; gap: 1px;
-            max-width: 100%; width: auto; min-width: 0; text-align: center; white-space: nowrap;
-            overflow: hidden; line-height: 1; color: #ebebeb; box-sizing: border-box;
+            display: inline-flex; align-items: baseline; justify-content: center; gap: 2px;
+            max-width: 112px; text-align: center; white-space: nowrap; overflow: hidden;
+            line-height: 1; color: #ebebeb;
         }
         .fc-wbgt-num {
-            font-size: 40px; font-weight: 900; font-variant-numeric: tabular-nums;
-            font-family: "Inter", sans-serif; letter-spacing: -0.03em;
-            flex-shrink: 1; min-width: 0;
+            font-size: 44px; font-weight: 800; font-variant-numeric: tabular-nums;
+            font-family: "Inter", sans-serif; letter-spacing: -0.04em;
         }
         .fc-wbgt-unit {
-            font-size: 14px; font-weight: 800; font-family: "Inter", sans-serif;
-            line-height: 1; flex-shrink: 0;
+            font-size: 20px; font-weight: 700; font-family: "Inter", sans-serif;
+            line-height: 1; margin-left: 1px;
         }
-        #scene4 .fc-wbgt {
-            max-width: 118px;
-        }
-        .daily-scene:not(.active) { display: none; overflow: hidden; }
+        .daily-scene { display: none; overflow: hidden; }
         .d5-track { display: flex; flex-direction: row; width: 1024px; transition: none; gap: 0; }
         .d5-panel { width: 128px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-sizing: border-box; flex-shrink: 0; overflow: hidden; padding: 0; gap: 0; border: none; outline: none; background: transparent; }
         /* シーン5: 時刻と同型 上32 + 中72 + 下24（列内フッタ） */
@@ -610,10 +531,10 @@
             flex-direction: row;
             align-items: center;
             justify-content: center;
-            padding: 0 4px;
+            padding: 0 6px;
         }
         #scene5 .s2-bar-label {
-            font-size: 24px; line-height: 1.05; letter-spacing: 0.2px; font-weight: 800;
+            font-size: 22px; line-height: 1.05; letter-spacing: 0.2px;
             max-width: 124px; overflow: hidden; text-overflow: ellipsis;
             white-space: nowrap; padding: 0 4px; box-sizing: border-box;
         }
@@ -623,17 +544,16 @@
             align-items: center;
             justify-content: center;
             gap: 2px;
-            max-width: 120px;
-            max-height: var(--led-col-body-h);
+            max-width: 118px;
             overflow: hidden;
             flex-shrink: 0;
         }
         #scene5 .d5-body .weather-svg {
-            width: 64px; height: 64px;
+            width: 44px; height: 44px;
             flex-shrink: 0;
         }
         #scene5 .d5-sep {
-            font-size: 38px;
+            font-size: 30px;
             font-weight: 700;
             line-height: 1;
             flex-shrink: 0;
@@ -654,10 +574,9 @@
         #scene5 .d5-panel.col-bg-dark-text .s2-unit {
             color: #000000 !important;
         }
-        #scene5 .d5-body .s2-val { flex-shrink: 0; align-items: baseline; }
-        #scene5 .d5-body .s2-num { font-size: 60px; line-height: 1; font-weight: 900; }
-        #scene5 .d5-body .s2-unit { font-size: 18px; line-height: 1; font-weight: 700; align-self: flex-end; padding-bottom: 2px; }
-        #scene5 .s2-foot .s2-loc { font-size: 17px; font-weight: 800; }
+        #scene5 .d5-body .s2-val { flex-shrink: 0; }
+        #scene5 .d5-body .s2-num { font-size: 38px; }
+        #scene5 .d5-body .s2-unit { font-size: 18px; }
         /* 今日のみ 128×128 枠で強調 — 実DOM（LEDサイネージで ::after が欠ける対策） */
         #scene5 .d5-panel.d5-today-focus {
             position: relative;
@@ -703,7 +622,7 @@
             box-sizing: border-box; padding: 0 4px; overflow: hidden;
         }
         .t3-scene-top-bar .t3-lv-label {
-            font-size: 22px; font-weight: 800; letter-spacing: 0.42px;
+            font-size: 20px; font-weight: 700; letter-spacing: 0.42px;
             font-family: "Noto Sans JP", sans-serif; color: #ebebeb;
             white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
             max-width: 120px; text-align: center;
@@ -736,7 +655,7 @@
         }
         .t3-top-ha-msg {
             display: inline-block; max-width: 120px;
-            font-size: 22px; font-weight: 800; letter-spacing: 0.42px;
+            font-size: 20px; font-weight: 700; letter-spacing: 0.42px;
             font-family: "Noto Sans JP", sans-serif; white-space: nowrap;
             line-height: 1; text-align: center; color: #ebebeb;
         }
@@ -778,16 +697,7 @@
         #scene3 .t3-guid-bar .s2-meta-msg-scroll {
             display: inline-flex; align-items: center;
             height: var(--led-foot-bar-h); max-height: var(--led-foot-bar-h);
-            line-height: 1.12; overflow: hidden; box-sizing: border-box;
-            font-size: 17px; font-weight: 800; padding: 0 4px;
-        }
-        #scene3 .t3-guid-bar .s2-meta-set-flow {
-            min-width: 0; width: auto;
-        }
-        #scene3 .t3-guid-bar .s2-meta-slot-flow {
-            min-width: 0; width: auto;
-            padding: 0 10px;
-            justify-content: flex-start;
+            line-height: 1.15; overflow: hidden; box-sizing: border-box;
         }
         .t3-scroll-body {
             width: 100%; height: var(--led-col-body-h); flex-shrink: 0;
@@ -802,16 +712,16 @@
         .t3-slot {
             width: 256px; height: 100%; max-height: 100%; flex-shrink: 0; box-sizing: border-box;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 2px; padding: 0 4px; overflow: hidden;
+            gap: 1px; padding: 0 2px; overflow: visible;
         }
         .t3-l1, .t3-l2 {
-            line-height: 1.08; font-weight: 900; white-space: nowrap;
+            line-height: 1.1; font-weight: 900; white-space: nowrap;
             letter-spacing: 0.3px; text-align: center;
             font-family: "Noto Sans JP", "Inter", sans-serif;
-            color: #ebebeb; width: 100%; max-width: 248px;
+            color: #ebebeb; max-width: 252px;
             box-sizing: border-box;
-            overflow: hidden; flex-shrink: 0;
-            height: auto; padding: 0;
+            overflow: visible; flex-shrink: 0;
+            height: auto; padding: 0 0 1px;
         }
         /* --- 熱中症アラート（256×128モジュール×2。各256内で同じ文言が追随して流れる） --- */
         #sceneAlert.active { display: block; }
@@ -1569,12 +1479,14 @@
 <body class="native-640 layout-512">
 <script>
 /**
- * 現場ごとの設定
+ * 現場ごとの設定（GAS は 1 本共通・地点は moe.point で切替）
  *
- * ecs … 環境クラウド WBGT（本案件の主データ源）
- * jma … 気象庁 AMeDAS・4日予報
+ * edam.idNum … 環境クラウド（任意フォールバック・通常は未使用）
+ * moe.gasUrl … 環境省 WBGT + 熱中症アラート用 GAS
+ * moe.alertArea … 熱中症アラート用の府県名
  *
- * moe … 環境省 WBGT（本案件では未使用・ecs.enabled 時は無効）
+ * jma.amedasPoint … 気象庁 AMeDAS（4面・5面共通）
+ * jma.forecastArea … 気象庁予報区域（4面・5面共通）
  */
 (function (global) {
   'use strict';
@@ -1584,48 +1496,38 @@
       customer: '佐々木建設株式会社',
       rental: '',
       label: '佐々木建設株式会社',
-      address: '〒771-0295 徳島県板野郡松茂町'
+      address: '〒771-0203 徳島県板野郡北島町中村前須13-9'
+    },
+    edam: {
+      /* 環境クラウドサービス 08360 幕張メッセ屋外 LoID=2484 */
+      idNum: 2484,
+      loId: 2484,
+      publicId: '08360',
+      sensorLabel: '幕張メッセ屋外',
+      pageUrl: 'https://www2.edam.ne.jp/Public/08360/Sokutei/WBGT',
+      corsProxy: 'https://api.allorigins.win/raw?url='
     },
     moe: {
-      /* 環境省 WBGT（本案件では未使用。ecs.enabled 時は取得しない） */
-      enabled: false,
+      /* 環境省 WBGT 実況・予測 + 熱中症アラート（地点71106＝徳島＝徳島市） */
       gasUrl:
         'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
-      point: '71106',
-      fallbackPoint: '',
-      pointName: '松茂町',
-      alertArea: '徳島県',
-      region: '09',
-      prefecture: '71'
-    },
-    ecs: {
-      /* 老門作業所 現場 WBGT（ECS Cloud）
-       * 公開ページ: LoID=019373 / 機材=暑さ指数
-       * JSON API: /Json/WBGTNumData/1050 */
-      enabled: true,
-      publicUrl: 'https://www.ecs-cloud.ne.jp/Public/08122/Sokutei/WBGT/RN?LoID=019373&KizaiType=ALL',
-      dataId: '1050',
-      loId: '019373',
-      locationLabel: '老門作業所',
-      baseUrl: 'https://www.ecs-cloud.ne.jp',
-      proxyUrl:
-        'https://script.google.com/macros/s/AKfycbw8QiGNbF9xw6UXlhfyu6lhsCJZCuVFc-jkru3NbjT9RR7DkyUP7f-fBtj5nQDOnp22Fw/exec',
-      /* GitHub Pages 等の静的ホストでは ecs-live.json を優先。現場PCは /api/ecs/wbgt（npm start） */
-      liveJson: './assets/ecs-live.json',
-      refreshMs: 30000
+      alertPoint: '71106',
+      pointName: '徳島',
+      alertArea: '徳島県'
     },
     jma: {
+      /* 気象庁 AMeDAS 71106（徳島＝徳島市）・予報区域は県だが下帯表示は取得地点名 */
       amedasPoint: '71106',
+      amedasLabel: '徳島市',
       forecastArea: '360000',
-      forecastLabel: '松茂町',
+      forecastLabel: '徳島市',
       warnArea: '360000',
-      warnCity: '3640100'
+      warnCity: '3640200'
     },
-    geo: { lat: 34.1338, lon: 134.5806 },
+    geo: { lat: 34.1256, lon: 134.5470 },
     timeZone: 'Asia/Tokyo',
-    refreshMs: 30000,
-    footSource: '出典：気象庁データ',
-    footSourceEcs: '出典：環境クラウドサービス・老門作業所'
+    refreshMs: 60000,
+    footSource: '出典：環境省（WBGT）・気象庁（実況・予報）'
   };
 
   global.SignageConfig = cfg;
@@ -1640,6 +1542,7 @@
 })(typeof window !== 'undefined' ? window : global);
 
 </script>
+<script src="edam-wbgt.js"></script>
 <div class="demo-badge" id="demo-badge" hidden>デモ</div>
 <svg style="display: none;">
     <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
@@ -1678,7 +1581,7 @@
         <div class="ra-pair ra-advisory" id="ra-pair">
             <div class="ra-mid-band-wrap" aria-hidden="true"><div class="ra-mid-band-unit"></div><div class="ra-mid-band-unit"></div></div>
             <div class="ra-white-header" aria-hidden="true">
-                <span class="ra-white-area">松茂町の地域で発表されています</span>
+                <span class="ra-white-area">北島町の地域で発表されています</span>
                 <span class="ra-white-time">発表 --/-- --:--</span>
                 <span class="ra-white-what">警報・注意報など</span>
             </div>
@@ -1787,14 +1690,14 @@
     <div class="scene" id="scene4">
         <div class="fc-scroll-wrap">
             <div class="fc-track" id="fc-conveyor">
-                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-0"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
+                <div class="fc-panel fc-slot-1"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
             </div>
         </div>
         <div class="fc-lv-bar"><div class="fc-lv-track" id="fc-lv-track"></div></div>
@@ -1802,14 +1705,14 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">松茂町</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">徳島市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">徳島市</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">徳島市</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">徳島市</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">徳島市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">徳島市</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">徳島市</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">徳島市</div></div></div>
         </div>
     </div>
 
@@ -1880,11 +1783,11 @@
         return row ? { bgColor: row.bgColor, barColor: row.barColor } : UNKNOWN;
     }
 
-    /** displayMode: 'normal' | 'unavailable' | 'offseason' — 濃い灰は unavailable / offseason のみ */
+    /** displayMode: 'normal' | 'unavailable' | 'offseason' — 濃い灰は unavailable のみ。取得待ちは OFF_SEASON */
     function colorsForDisplay(levelIdx, displayMode) {
         if (displayMode === 'offseason') return OFF_SEASON;
         if (displayMode === 'unavailable') return UNKNOWN;
-        if (levelIdx == null || levelIdx < 0) return colorsForLevel(0);
+        if (levelIdx == null || levelIdx < 0) return OFF_SEASON;
         return colorsForLevel(levelIdx);
     }
 
@@ -2044,7 +1947,13 @@
 
     function refreshScene5(levelIdx, displayMode) {
         const dark = isDarkTextForDisplay(levelIdx, displayMode);
-        document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
+        const forecastLv = dark ? levelIdx : 0;
+        const forecastMode = dark ? displayMode : 'normal';
+        document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(panel => {
+            applyStrip(panel, forecastLv, forecastMode);
+            panel.classList.toggle('col-bg-dark-text', dark);
+        });
+        document.querySelectorAll('#scene5 .d5-panel.d5-today-focus').forEach(panel => {
             applyStrip(panel, levelIdx, displayMode);
             panel.classList.toggle('col-bg-dark-text', dark);
         });
@@ -2098,8 +2007,9 @@
     }
 
     function initHosts() {
+        stripPanelBgLayers();
         initSignageLogo_();
-        /* 背景レイヤーは strip しない（更新のたびに黒/灰が見えるのを防ぐ） */
+        /* 背景色は restoreSignageStateCache_ → refreshSignageBg で反映（誤った level 0 を出さない） */
     }
 
     global.SignageBg = {
@@ -2138,23 +2048,17 @@
     const DEMO_ALERT_ONLY = demoParam === 'alert' || query.get('only') === 'alert';  /* アラートのみ流すデモ */
     const DEMO_RAINWARN_ONLY = demoParam === 'rainwarn' || query.get('only') === 'rainwarn';
     const WBGT_ONLY = query.get('wbgtOnly') === '1';
-    /** 大雨警報シーンは出さない */
+    /** 大雨警報シーンは出さない（熱中症アラートは環境省発表時のみ） */
     const SITE_CFG = window.SignageConfig || {};
-    /** 表示時刻は常に日本標準時（JST） */
-    const CLOCK_TZ = 'Asia/Tokyo';
-    const CLOCK_INTL_OPTS_HM_ = { timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' };
-    const CLOCK_INTL_OPTS_DATE_ = { timeZone: CLOCK_TZ, month: 'long', day: 'numeric', weekday: 'short' };
     const NO_JMA_WARN = true;
-    /** 熱中症アラートシーンは出さない（環境省発表時も非表示） */
-    const NO_HEAT_ALERT = true;
     const RAIN_HERO_OFF = query.get('rainhero') === '0';
     const RAIN_WHITE_DESIGN = query.get('rainwhite') === '1';
     /* 3段デザイン案は確認ボードと同じく既定ON（?rainhero=0 で従来レイアウト） */
     const RAIN_HERO_DESIGN = !RAIN_HERO_OFF && !RAIN_WHITE_DESIGN;
     /*
      * 流れる順の表示番号（順序は変えずラベルのみ）
-     *  1 時刻＋WBGT下帯 (s1) → 2 ECS現場計測 (s2) → 3 WBGT表示 (s4)
-     *  → 4 4日予報 (s5) → 5 多言語WBGT (s3) → シーン1へ
+     *  1 時刻＋WBGT下帯 (s1) → 2 アメダス (s2) → 3 4日予報 (s5)
+     *  → 4 多言語WBGT (s3) → 5 WBGT予報 (s4) → 熱中症アラート (alert) → 大雨警報 (rainwarn) → 1へ
      * ?only= は 1〜5 または s1〜s5（旧キー）両対応
      */
     function normalizeOnlyParam_(raw) {
@@ -2162,11 +2066,11 @@
         const v = String(raw).toLowerCase();
         if (v === 'alert') return 'alert';
         if (v === 'rainwarn') return 'rainwarn';
-        const map = { '1': 's1', '2': 's2', '3': 's4', '4': 's5', '5': 's3', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
+        const map = { '1': 's1', '2': 's2', '3': 's5', '4': 's3', '5': 's4', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
         return map[v] || null;
     }
     const SCENE_LABEL_BY_KEY = {
-        s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', alert: '熱中症アラート', rainwarn: '大雨警報'
+        s1: 'シーン1', s2: 'シーン2', s5: 'シーン3', s3: 'シーン4', s4: 'シーン5', alert: '熱中症アラート', rainwarn: '大雨警報'
     };
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
@@ -2183,11 +2087,11 @@
     const T3_LANG_KEYS = ['jp', 'en', 'id', 'fil', 'vn'];
     /** シーン3 多言語: 5段階 × 言語別 目標比率（1段目 / 2段目 px・256×68 内で最大化） */
     const T3_LANG_FONT_SIZES = [
-        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [48, 28], fil: [34, 20] }, /* ほぼ安全 */
-        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [38, 22], fil: [36, 21] }, /* 注意 */
-        { jp: [48, 28], en: [48, 28], id: [38, 22], vn: [48, 28], fil: [38, 22] }, /* 警戒 */
-        { jp: [48, 28], en: [36, 21], id: [32, 19], vn: [28, 16], fil: [32, 19] }, /* 厳重警戒 */
-        { jp: [48, 28], en: [42, 24], id: [36, 21], vn: [47, 27], fil: [44, 25] }  /* 危険 */
+        { jp: [41, 24], en: [41, 24], id: [30, 17], vn: [41, 24], fil: [25, 14] }, /* ほぼ安全 */
+        { jp: [41, 24], en: [41, 24], id: [30, 17], vn: [31, 18], fil: [30, 17] }, /* 注意 */
+        { jp: [41, 24], en: [41, 24], id: [31, 18], vn: [41, 24], fil: [31, 18] }, /* 警戒 */
+        { jp: [41, 24], en: [30, 17], id: [26, 15], vn: [20, 12], fil: [26, 15] }, /* 厳重警戒 */
+        { jp: [41, 24], en: [35, 20], id: [30, 17], vn: [40, 23], fil: [37, 21] }  /* 危険 */
     ];
     let t3LangIdx_ = 0;
     function getT3LangFontSize_(levelIdx, langKey) {
@@ -2301,13 +2205,18 @@
     const DEMO_PREVIEW = (function () {
         const v = (query.get('preview') || '').toLowerCase();
         if (v === '1' || v === 's1') return 's1';
-        if (v === '5' || v === '4' || v === 's3') return 's3';  /* シーン5 多言語WBGT（4=旧表示番号） */
+        if (v === '4' || v === 's3') return 's3';  /* シーン4 多言語WBGT */
         return null;
     })();
     const DEMO_LEVEL_ORDER = [0, 1, 2, 3, 4];
     const DEMO_WBGT_BY_LEVEL = [19.0, 22.0, 26.0, 29.0, 32.0];
     let demoLevelPointer = 0;
-    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '71106';
+    const EDAM_ID_NUM = parseInt(
+        query.get('id') || query.get('LoID') || query.get('loId') ||
+        String((SITE_CFG.edam && SITE_CFG.edam.idNum) || (SITE_CFG.edam && SITE_CFG.edam.loId) || '2484'),
+        10
+    );
+    const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.alertPoint) || '71106';
     const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '徳島県';
     const MOE_POINT_CFG = {
         prefKey: 'tokushima',
@@ -2318,147 +2227,6 @@
     const MOE_WBGT_BACKUP_URL = query.get('moeBackup') || '';
     const MOE_WBGT_FALLBACK_POINT =
         query.get('moeFallback') || (SITE_CFG.moe && SITE_CFG.moe.fallbackPoint) || '';
-    const ECS_CFG = SITE_CFG.ecs || {};
-    const ECS_WBGT_ENABLED = query.get('ecs') !== '0' && ECS_CFG.enabled !== false;
-    const ECS_WBGT_DATA_ID = query.get('ecsDataId') || ECS_CFG.dataId || '';
-    const ECS_WBGT_PROXY_URL = query.get('ecsProxy') || ECS_CFG.proxyUrl || '';
-    /** 環境クラウド有効時は環境省 WBGT を使わない（本案件） */
-    const ECS_ONLY_WBGT = ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID;
-    const USE_MOE_WBGT = !ECS_ONLY_WBGT && query.get('moe') !== '0';
-    const ECS_WBGT_REFRESH_MS = Number(query.get('ecsRefreshMs') || ECS_CFG.refreshMs || SITE_CFG.refreshMs || 30000);
-    function getEcsPollIntervalMs_() {
-        return Math.max(15000, ECS_WBGT_REFRESH_MS);
-    }
-    /** 計測時刻がこれより古い ecs-live.json は「新鮮な本番更新」としては使わない */
-    const ECS_STATIC_MAX_AGE_MS = Number(query.get('ecsStaticMaxAgeMs') || ECS_CFG.staticMaxAgeMs || 600000);
-    /** 本番更新として「新鮮」とみなす最大経過時間（当日かつこの時間以内） */
-    const ECS_DISPLAY_MAX_AGE_MS = Number(query.get('ecsDisplayMaxAgeMs') || ECS_CFG.displayMaxAgeMs || 600000);
-    /** 表示継続の期限なし（最後に取れた値は永遠に画面に残す） */
-    const ECS_DISPLAY_HOLD_MAX_AGE_MS = Number(
-        query.get('ecsDisplayHoldMaxAgeMs') || ECS_CFG.displayHoldMaxAgeMs || Infinity
-    );
-    let ecsUrgentRefreshTimerId_ = null;
-    /** 同時に複数回 ECS API を叩かない（起動時の bootstrap と schedule の重なり防止） */
-    let ecsFetchInFlight_ = null;
-    function isLocalSignageServer_() {
-        if (typeof location === 'undefined') return false;
-        const h = location.hostname;
-        return h === '127.0.0.1' || h === 'localhost' || h === '[::1]' || h === '::1';
-    }
-    function isStaticPagesHost_() {
-        if (typeof location === 'undefined' || isLocalSignageServer_()) return false;
-        const h = location.hostname;
-        return h === 'github.io' || h.slice(-10) === '.github.io' ||
-            h.slice(-14) === '.githubusercontent.com';
-    }
-    function isEcsGasProxyBase_(base) {
-        return /script\.google\.com\/macros\//i.test(String(base || ''));
-    }
-    function buildEcsFetchUrl_(base, dataId) {
-        const b = String(base || '').replace(/\/$/, '');
-        if (!b) return '';
-        const stamp = Date.now();
-        if (isEcsGasProxyBase_(b)) {
-            try {
-                const u = new URL(b);
-                u.searchParams.set('dataId', String(dataId));
-                u.searchParams.set('r', String(stamp));
-                return u.toString();
-            } catch (_) {
-                const sep = b.indexOf('?') >= 0 ? '&' : '?';
-                return b + sep + 'dataId=' + encodeURIComponent(dataId) + '&r=' + stamp;
-            }
-        }
-        return b + '/' + encodeURIComponent(dataId) + '?r=' + stamp;
-    }
-    function ecsWbgtApiUrlsToTry_() {
-        if (!ECS_WBGT_DATA_ID) return [];
-        const urls = [];
-        function pushUrl(base) {
-            const url = buildEcsFetchUrl_(base, ECS_WBGT_DATA_ID);
-            if (url && urls.indexOf(url) < 0) urls.push(url);
-        }
-        if (isLocalSignageServer_()) {
-            if (typeof location !== 'undefined' && /^https?:/.test(location.protocol)) {
-                pushUrl(location.origin + '/api/ecs/wbgt');
-            }
-            pushUrl('http://127.0.0.1:3014/api/ecs/wbgt');
-            if (typeof location !== 'undefined' && location.port && location.port !== '3014' && location.port !== '3000') {
-                pushUrl('http://127.0.0.1:' + location.port + '/api/ecs/wbgt');
-            }
-            pushUrl('http://127.0.0.1:3000/api/ecs/wbgt');
-        }
-        if (ECS_WBGT_PROXY_URL) pushUrl(ECS_WBGT_PROXY_URL);
-        if (!isStaticPagesHost_() && ECS_CFG.baseUrl) {
-            pushUrl(String(ECS_CFG.baseUrl).replace(/\/$/, '') + '/Json/WBGTNumData');
-        }
-        return urls;
-    }
-    function ecsLiveStaticUrl_() {
-        const rel = String(ECS_CFG.liveJson || './assets/ecs-live.json').replace(/^\.\//, '');
-        if (typeof location !== 'undefined' && /^https?:/.test(location.protocol)) {
-            return new URL(rel, location.href).href.split('?')[0] + '?r=' + Date.now();
-        }
-        return './assets/ecs-live.json?r=' + Date.now();
-    }
-    function parseEcsApiRows_(payload) {
-        if (Array.isArray(payload)) return payload;
-        if (payload && Array.isArray(payload.data)) return payload.data;
-        return null;
-    }
-    function commitEcsPayload_(rows, sourceLabel) {
-        const parsed = parseEcsApiRows_(rows);
-        if (!parsed || !parsed.length) throw new Error('ECS empty payload');
-        const snap = parseEcsWbgtRow_(parsed[0]);
-        if (!snap) throw new Error('ECS WBGT parse failed');
-        if (!isEcsSnapshotHoldableForDisplay_(snap)) {
-            throw new Error('ECS data not holdable (wrong day or too old): ' + (snap.time || ''));
-        }
-        lastEcsSnapshot_ = snap;
-        if (!isEcsSnapshotSameDay_(snap)) {
-            console.warn('[WBGT] ECS計測は当日ではないが最後の値として表示', snap.time);
-        } else if (!isEcsSnapshotDisplayable_(snap)) {
-            console.warn('[WBGT] ECS計測はやや古いが表示を更新', snap.time);
-        }
-        const slots = applyEcsSnapshotToSignage_(snap);
-        if (!hasFull4Slots(slots)) throw new Error('ECS WBGT parse failed');
-        clearWbgtUnavailableGrace_();
-        wbgtUnavailable = false;
-        persistSignageStateCache_();
-        if (isEcsStaticFallbackSource_(sourceLabel)) {
-            console.log('[WBGT] ECS現場計測 OK（ecs-live.json）',
-                sourceLabel, snap.time || '', slots[0].wbgt + '℃');
-        } else {
-            console.log('[WBGT] ECS現場計測 OK（本番API）', sourceLabel || '', ECS_CFG.locationLabel || '',
-                snap.time || '', '現在', slots[0].wbgt + '℃');
-        }
-        return slots;
-    }
-    function isEcsStaticFallbackSource_(sourceLabel) {
-        const s = String(sourceLabel || '');
-        return s.indexOf('ecs-live.json') >= 0 || s.indexOf('/assets/ecs-live') >= 0;
-    }
-    async function fetchEcsStaticFallback_() {
-        const url = ecsLiveStaticUrl_();
-        const res = await fetchWithTimeout_(fetch(url, { cache: 'no-store' }), 8000, 'ECS-static');
-        if (!res.ok) throw new Error('ECS static HTTP ' + res.status);
-        return parseEcsApiRows_(JSON.parse(await res.text()));
-    }
-    async function bootstrapEcsData_() {
-        if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID) return null;
-        try {
-            return await fetchWbgtFromEcsApi();
-        } catch (e) {
-            console.warn('[WBGT] ECS bootstrap:', e.message || e);
-            return retainLastEcsSlotsIfPossible_();
-        }
-    }
-    function getFootSourceText_() {
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            return SITE_CFG.footSourceEcs || '出典：環境クラウドサービス・老門作業所';
-        }
-        return SITE_CFG.footSource || SCENE4_FOOT_ATTR;
-    }
     function moePointCodesToTry_() {
         const list = [String(MOE_WBGT_POINT)];
         const fb = MOE_WBGT_FALLBACK_POINT;
@@ -2535,21 +2303,16 @@
     let pendingDisplayRefresh = false;
     /** シーン切替直後のみ表示組み替えを許可（取得中は現在シーンを維持） */
     let sceneEntryRefreshAllowed_ = false;
-    let mainLoopStarted_ = false;
-    let lastS1FootMsg_ = '';
-    let lastFcLvText_ = '';
-    let lastT3GuideText_ = '';
     let lastSignageBgLv_ = null;
     let lastSignageBgMode_ = '';
     let pendingSignageBgRefresh_ = false;
     let pendingSignageBgLv_ = null;
     let pendingSignageBgMode_ = '';
-    let pendingForecastSlotsRefresh_ = false;
-    let pendingScene2MetaEcsSnap_ = null;
     let lastAmedasSnapshot_ = null;
-    const SIGNAGE_STATE_CACHE_KEY = 'cspi2026_signage_state_v3_boot';
-    /** キャッシュ期限なし（最後の環境クラウド表示をリロード後も永遠に復元） */
-    const SIGNAGE_STATE_CACHE_MAX_AGE_MS = Number.POSITIVE_INFINITY;
+    const SIGNAGE_STATE_CACHE_KEY = 'cspi2026_signage_state_v1';
+    /* ローカルキャッシュも1日超は使わない（古い測定値の再表示防止） */
+    const SIGNAGE_STATE_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+    const DATA_MAX_AGE_MS = 24 * 60 * 60 * 1000;
     const MOE_GAS_FETCH_TIMEOUT_MS = 12000;
     const MOE_JSONP_TIMEOUT_MS = 10000;
     /* 環境省WBGTの提供期間外（冬季など）は true。WBGT表示を全て隠す */
@@ -2559,18 +2322,17 @@
     const WBGT_UNAVAILABLE_GRACE_MS = 60000;
     let wbgtFailSinceMs_ = null;
     let lastGoodWbgtSlots_ = null;
-    let lastEcsSnapshot_ = null;
     let wbgtUnavailableTimerId_ = null;
 
     const multi = [
         { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"Aman: Minum air cukup", fil:"Halos ligtas: Uminom ng tubig", vn:"An toàn: Bổ sung nước" },
         { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"Waspada: Minum air aktif", fil:"Babala: Uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
         { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"Siaga: Istirahat rutin", fil:"Alerto: Magpahinga", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
-        { jp:"【厳重警戒】こまめに休憩・体調確認", en:"Severe Warning: Frequent breaks & health checks", id:"Waspada: Istirahat sering & cek kondisi", fil:"Malubha: Madalas na pahinga at suriin ang katawan", vn:"Cảnh báo nghiêm trọng: Nghỉ thường xuyên và kiểm tra sức khỏe" },
-        { jp:"【危険】休憩・水分塩分補給を徹底", en:"Danger: Rest and hydrate thoroughly", id:"Bahaya: Istirahat & asupan air-garam", fil:"Panganib: Magpahinga at uminom ng tubig/asin", vn:"Nguy hiểm: Nghỉ ngơi và bổ sung nước/muối" }
+        { jp:"【厳重警戒】こまめに休憩・体調確認", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
+        { jp:"【危険】休憩・水分塩分補給を徹底", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
     ];
-    const SCENE4_FOOT_ATTR = '出典：環境クラウドサービス・老門作業所';
-    const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
+    const SCENE4_FOOT_ATTR = '出典：環境省（WBGT）・気象庁（実況・予報）';
+    const FC_BAR_LABELS = ['WBGT', '暑さ指数'];
 
     function fcBarLabelForPanel_(index) {
         return FC_BAR_LABELS[index % 2];
@@ -2617,53 +2379,31 @@
     const MOE_ALERT_MINUTE = 3;
 
     function getS1WbgtLevelForDisplay_() {
-        if (ECS_ONLY_WBGT) {
-            /* 環境クラウド: 灰表示を避け、直前値→青(ほぼ安全)でつなぐ */
-            if (currentWbgtLevel >= 0) return currentWbgtLevel;
-            const row = (lastGoodWbgtSlots_ && lastGoodWbgtSlots_[0]) ||
-                (lastWbgtSlots && lastWbgtSlots[0]);
-            if (row && row.wbgt != null) {
-                if (Number.isInteger(row.levelIdx)) return row.levelIdx;
-                return wbgtLevelForSignage_(row.wbgt);
-            }
-            if (lastEcsSnapshot_ && lastEcsSnapshot_.wbgt != null) {
-                return Number.isInteger(lastEcsSnapshot_.levelIdx)
-                    ? lastEcsSnapshot_.levelIdx
-                    : wbgtLevelForSignage_(lastEcsSnapshot_.wbgt);
-            }
-            if (lastSignageBgLv_ != null && lastSignageBgLv_ >= 0) return lastSignageBgLv_;
-            return 0;
-        }
         if (wbgtOffSeason || wbgtUnavailable) return -1;
         if (currentWbgtLevel >= 0) return currentWbgtLevel;
         const row = (lastGoodWbgtSlots_ && lastGoodWbgtSlots_[0]) ||
             (lastWbgtSlots && lastWbgtSlots[0]);
         if (row && row.wbgt != null) {
             if (Number.isInteger(row.levelIdx)) return row.levelIdx;
-            return wbgtLevelForSignage_(row.wbgt);
+            return wbgtLevel(row.wbgt);
         }
         return -1;
     }
     function syncWbgtLevelFromSlots(slots) {
         const row = slots && slots[0];
-        if (!row || (!ECS_ONLY_WBGT && wbgtOffSeason)) {
-            if (ECS_ONLY_WBGT && currentWbgtLevel >= 0) return;
-            currentWbgtLevel = ECS_ONLY_WBGT ? 0 : -1;
+        if (!row || wbgtOffSeason) {
+            currentWbgtLevel = -1;
             return;
         }
         if (row.wbgt == null) {
-            if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            if (!wbgtUnavailable && lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
                 syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-                return;
-            }
-            if (ECS_ONLY_WBGT) {
-                if (currentWbgtLevel < 0) currentWbgtLevel = 0;
                 return;
             }
             currentWbgtLevel = wbgtUnavailable ? -1 : getS1WbgtLevelForDisplay_();
             return;
         }
-        if (!ECS_ONLY_WBGT && wbgtUnavailable) {
+        if (wbgtUnavailable) {
             currentWbgtLevel = -1;
             return;
         }
@@ -2672,14 +2412,9 @@
             currentWbgtLevel = row.levelIdx;
             return;
         }
-        currentWbgtLevel = wbgtLevelForSignage_(row.wbgt);
+        currentWbgtLevel = wbgtLevel(row.wbgt);
     }
     function getSignageDisplayMode_() {
-        if (ECS_ONLY_WBGT) {
-            /* 環境クラウド運用では灰色（取得不可）背景を使わない */
-            wbgtUnavailable = false;
-            return 'normal';
-        }
         if (wbgtOffSeason) return 'offseason';
         if (wbgtUnavailable) return 'unavailable';
         return 'normal';
@@ -2689,7 +2424,7 @@
         if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) return null;
         const row = lastGoodWbgtSlots_[0];
         if (!row || row.wbgt == null) return null;
-        return Number.isInteger(row.levelIdx) ? row.levelIdx : wbgtLevelForSignage_(row.wbgt);
+        return Number.isInteger(row.levelIdx) ? row.levelIdx : wbgtLevel(row.wbgt);
     }
     function getSignageBgLevel_() {
         if (getSignageDisplayMode_() !== 'normal') return -1;
@@ -2699,37 +2434,9 @@
         return stable != null ? stable : -1;
     }
     function resolveSignageBgPaint_(mode, lv) {
-        /* 環境クラウド: 灰・取得不可は出さず、直前色 or ほぼ安全(青) */
-        if (ECS_ONLY_WBGT) {
-            let outLv = lv;
-            if (outLv == null || outLv < 0) {
-                const stable = levelFromLastGoodWbgtSlots_();
-                if (stable != null) outLv = stable;
-                else if (lastSignageBgLv_ != null && lastSignageBgLv_ >= 0) outLv = lastSignageBgLv_;
-                else if (currentWbgtLevel >= 0) outLv = currentWbgtLevel;
-                else outLv = 0;
-            }
-            return { mode: 'normal', lv: outLv };
-        }
-        if (mode === 'unavailable' && ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            const stable = levelFromLastGoodWbgtSlots_();
-            if (stable != null) return { mode: 'normal', lv: stable };
-            if (lastSignageBgLv_ != null && lastSignageBgLv_ >= 0 && lastSignageBgMode_ === 'normal') {
-                return { mode: 'normal', lv: lastSignageBgLv_ };
-            }
-            const disp = getS1WbgtLevelForDisplay_();
-            if (disp >= 0) return { mode: 'normal', lv: disp };
-            if (currentWbgtLevel >= 0) return { mode: 'normal', lv: currentWbgtLevel };
-            return { mode: 'normal', lv: 0 };
-        }
         if (mode === 'normal' && lv < 0) {
             const stable = levelFromLastGoodWbgtSlots_();
             if (stable != null) return { mode: 'normal', lv: stable };
-            if (lastSignageBgLv_ != null && lastSignageBgLv_ >= 0 && lastSignageBgMode_ === 'normal') {
-                return { mode: 'normal', lv: lastSignageBgLv_ };
-            }
-            if (currentWbgtLevel >= 0) return { mode: 'normal', lv: currentWbgtLevel };
-            if (!wbgtOffSeason) return { mode: 'normal', lv: 0 };
         }
         return { mode: mode, lv: lv };
     }
@@ -2796,7 +2503,6 @@
                         events.push({ at: atFc, jma: true, moe: false, nowc: false, forecast: true, label: 'jma-forecast' });
                     }
                 }
-                if (!ECS_ONLY_WBGT) {
                 for (const m of MOE_WBGT_MINUTES) {
                     const at = jstMsFromParts(dp.year, dp.month, dp.day, h, m, 0) + MOE_WBGT_AFTER_SEC * 1000;
                     if (at > fromMs && at <= horizonEnd) {
@@ -2808,7 +2514,6 @@
                     if (atAl > fromMs && atAl <= horizonEnd) {
                         events.push({ at: atAl, jma: false, moe: true, nowc: false, forecast: false, label: 'moe-alert' });
                     }
-                }
                 }
             }
         }
@@ -2822,23 +2527,6 @@
             if (e.label && prev.labels.indexOf(e.label) < 0) prev.labels.push(e.label);
             merged.set(e.at, prev);
         }
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            const step = getEcsPollIntervalMs_();
-            const fcStep = 1800000;
-            for (let t = fromMs + step; t <= horizonEnd; t += step) {
-                const prev = merged.get(t) || { at: t, jma: false, moe: false, nowc: false, forecast: false, labels: [] };
-                prev.moe = true;
-                if (prev.labels.indexOf('ecs-wbgt') < 0) prev.labels.push('ecs-wbgt');
-                merged.set(t, prev);
-            }
-            for (let t = fromMs + fcStep; t <= horizonEnd; t += fcStep) {
-                const prev = merged.get(t) || { at: t, jma: false, moe: false, nowc: false, forecast: false, labels: [] };
-                prev.jma = true;
-                prev.forecast = true;
-                if (prev.labels.indexOf('jma-forecast') < 0) prev.labels.push('jma-forecast');
-                merged.set(t, prev);
-            }
-        }
         return Array.from(merged.values()).sort((a, b) => a.at - b.at);
     }
     function getNextScheduledFetchEvent(fromMs) {
@@ -2846,7 +2534,7 @@
         return events.find(e => e.at > fromMs) || null;
     }
     function formatScheduleJst(ms) {
-        return new Date(ms).toLocaleString('ja-JP', { timeZone: CLOCK_TZ, hourCycle: 'h23' });
+        return new Date(ms).toLocaleString('ja-JP', { timeZone: CLOCK_TZ, hour12: false });
     }
     function refreshSignageBg() {
         if (typeof SignageBg === 'undefined') return;
@@ -2869,30 +2557,14 @@
         }
         SignageBg.refreshScene1(lv, mode);
         SignageBg.refreshScene2(lv, mode);
-        applyD5PanelColors_();
+        SignageBg.refreshScene5(lv, mode);
+        applyD5TodayFrame_();
+        applyD5ForecastTextColors_();
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots || (DEMO_SIGNAGE_ACTIVE ? mockSlotsForDemoLevel(lv) : null));
         if (slots) SignageBg.refreshForecast(slots, mode);
         if (typeof SignageBg.repaintStripHosts_ === 'function') SignageBg.repaintStripHosts_(lv, mode);
-    }
-    function isSignageAnimating_() {
-        return !!(scene1AnimId || scene2AnimId || scene4AnimId || scene5AnimId ||
-            tickerAnimId || s1Flow_ || haFlow_ || t3Flow_ ||
-            scene1SafetyTimerId || scene1HoldTimerId || scene1EndHoldTimerId);
-    }
-    function softRepaintSignageBgDuringLoop_(lv, mode) {
-        if (!mainLoopStarted_ || typeof SignageBg === 'undefined') return;
-        const active = getActiveScene();
-        if (!active) return;
-        if (SignageBg.repaintStripHosts_) SignageBg.repaintStripHosts_(lv, mode);
-        if (active === s1) SignageBg.refreshScene1(lv, mode);
-        else if (active === s2) SignageBg.refreshScene2(lv, mode);
-        else if (active === s4 && lastGoodWbgtSlots_) SignageBg.refreshForecast(lastGoodWbgtSlots_, mode);
-        else if (active === s5) applyD5PanelColors_();
-        else if (active === s3) SignageBg.refreshTicker(lv, mode);
-        lastSignageBgLv_ = lv;
-        lastSignageBgMode_ = mode;
     }
     function refreshSignageBgIfChanged_(force) {
         const rawMode = getSignageDisplayMode_();
@@ -2905,7 +2577,6 @@
             pendingSignageBgRefresh_ = true;
             pendingSignageBgLv_ = lv;
             pendingSignageBgMode_ = mode;
-            softRepaintSignageBgDuringLoop_(lv, mode);
             return;
         }
         lastSignageBgLv_ = lv;
@@ -2973,132 +2644,43 @@
         if (DEMO_SIGNAGE_ACTIVE) return;
         try {
             localStorage.setItem(SIGNAGE_STATE_CACHE_KEY, JSON.stringify({
-                v: 2,
-                point: MOE_WBGT_POINT,
-                ecsDataId: ECS_WBGT_DATA_ID || '',
+                v: 1,
+                point: String(EDAM_ID_NUM),
                 savedAt: Date.now(),
-                wbgtOffSeason: ECS_ONLY_WBGT ? false : !!wbgtOffSeason,
+                wbgtOffSeason: !!wbgtOffSeason,
                 slots: lastGoodWbgtSlots_,
                 level: currentWbgtLevel,
-                signageLevel: (function () {
-                    const bg = getSignageBgLevel_();
-                    if (bg >= 0) return bg;
-                    return currentWbgtLevel >= 0 ? currentWbgtLevel : -1;
-                })(),
-                amedas: lastAmedasSnapshot_,
-                ecs: (lastEcsSnapshot_ && isEcsSnapshotHoldableForDisplay_(lastEcsSnapshot_)) ? lastEcsSnapshot_ : null,
-                jmaForecast: lastJmaForecastCtx_ ? {
-                    forecastJson: lastJmaForecastCtx_.forecastJson,
-                    todayMaxTemp: lastJmaForecastCtx_.todayMaxTemp,
-                    todayLiveIcon: lastJmaForecastCtx_.todayLiveIcon
-                } : null
+                amedas: lastAmedasSnapshot_
             }));
         } catch (_) {}
     }
-    function cacheRestoreHasUsableDisplay_(data, ecsCacheStale) {
-        if (!data) return false;
-        if (data.wbgtOffSeason && !ECS_ONLY_WBGT) return true;
-        if (data.ecs && ECS_WBGT_ENABLED && !ecsCacheStale) return true;
-        if (data.slots && hasFull4Slots(data.slots) && !ecsCacheStale && !(data.ecs && ECS_WBGT_ENABLED)) return true;
-        if (Number.isInteger(data.signageLevel) && data.signageLevel >= 0) return true;
-        if (Number.isInteger(data.level) && data.level >= 0 && !(data.ecs && ECS_WBGT_ENABLED)) return true;
-        if (data.jmaForecast && data.jmaForecast.forecastJson) return true;
-        return !!(data.amedas);
-    }
     function restoreSignageStateCache_() {
         if (DEMO_SIGNAGE_ACTIVE) return false;
-        if (ECS_ONLY_WBGT) enforceEcsWbgtInSeason_();
         try {
             const raw = localStorage.getItem(SIGNAGE_STATE_CACHE_KEY);
             if (!raw) return false;
             const data = JSON.parse(raw);
-            if (!data) return false;
-            if (ECS_ONLY_WBGT) {
-                if (data.ecsDataId && String(data.ecsDataId) !== String(ECS_WBGT_DATA_ID)) return false;
-            } else if (String(data.point) !== String(MOE_WBGT_POINT)) {
-                return false;
-            }
-            if (Number.isFinite(SIGNAGE_STATE_CACHE_MAX_AGE_MS) &&
-                Date.now() - (data.savedAt || 0) > SIGNAGE_STATE_CACHE_MAX_AGE_MS) return false;
-            if (data.wbgtOffSeason && !ECS_ONLY_WBGT) {
+            if (!data || String(data.point) !== String(EDAM_ID_NUM)) return false;
+            if (Date.now() - (data.savedAt || 0) > SIGNAGE_STATE_CACHE_MAX_AGE_MS) return false;
+            if (data.wbgtOffSeason) {
                 wbgtOffSeason = true;
                 wbgtUnavailable = false;
                 currentWbgtLevel = -1;
                 return true;
             }
-            const ecsModeActive = !!(ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID);
-            const ecsCacheStale = ecsModeActive && (!data.ecs || !isEcsSnapshotHoldableForDisplay_(data.ecs));
-            if (ecsModeActive && data.ecs && !isEcsSnapshotSameDay_(data.ecs) && !ecsCacheStale) {
-                console.warn('[WBGT] 保存キャッシュのECS計測は当日ではないが表示を維持', data.ecs.time);
-            } else if (ecsCacheStale) {
-                console.warn('[WBGT] 保存キャッシュのECS計測時刻が古すぎるため再取得します', data.ecs && data.ecs.time);
-            }
-            if (data.slots && hasFull4Slots(data.slots) && !ecsCacheStale && !(data.ecs && ECS_WBGT_ENABLED)) {
+            if (data.slots && hasFull4Slots(data.slots)) {
                 lastGoodWbgtSlots_ = cloneWbgtSlots_(data.slots);
                 lastWbgtSlots = lastGoodWbgtSlots_;
                 wbgtOffSeason = false;
                 wbgtUnavailable = false;
                 syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
                 syncWbgtSlotsToDomIfReady_();
-            } else if (Number.isInteger(data.level) && data.level >= 0 && !(data.ecs && ECS_WBGT_ENABLED)) {
+            } else if (Number.isInteger(data.level) && data.level >= 0) {
                 currentWbgtLevel = data.level;
             }
             if (data.amedas) applyAmedasSnapshot_(data.amedas);
-            if (data.jmaForecast && data.jmaForecast.forecastJson) {
-                lastJmaForecastCtx_ = {
-                    forecastJson: data.jmaForecast.forecastJson,
-                    todayMaxTemp: data.jmaForecast.todayMaxTemp,
-                    todayLiveIcon: data.jmaForecast.todayLiveIcon
-                };
-            }
-            if (data.ecs && ECS_WBGT_ENABLED && !ecsCacheStale) {
-                lastEcsSnapshot_ = data.ecs;
-                wbgtUnavailable = false;
-                wbgtOffSeason = false;
-                applyWbgtInSeason_();
-                const ecsSlots = ecsSnapshotToSlots_(data.ecs);
-                if (ecsSlots) {
-                    lastGoodWbgtSlots_ = cloneWbgtSlots_(ecsSlots);
-                    lastWbgtSlots = lastGoodWbgtSlots_;
-                    syncWbgtLevelFromSlots(ecsSlots);
-                }
-            } else if (Number.isInteger(data.signageLevel) && data.signageLevel >= 0) {
-                currentWbgtLevel = data.signageLevel;
-                wbgtUnavailable = false;
-            }
-            if (ECS_ONLY_WBGT) enforceEcsWbgtInSeason_();
-            return cacheRestoreHasUsableDisplay_(data, ecsCacheStale);
+            return !!(data.slots || data.wbgtOffSeason || Number.isInteger(data.level));
         } catch (_) { return false; }
-    }
-    /** 再読込直後: localStorage 復元分を即座に画面へ反映（ネットワーク待ちしない） */
-    function applyRestoredSignageCacheToDom_() {
-        if (DEMO_SIGNAGE_ACTIVE) return false;
-        let painted = false;
-        const ecsSnap = getEcsSnapshotForDisplay_();
-        if (ecsSnap && ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            applyEcsSnapshotToSignage_(ecsSnap);
-            painted = true;
-        } else if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-            wbgtUnavailable = false;
-            wbgtOffSeason = false;
-            applyWbgtSlotsToDom(lastGoodWbgtSlots_);
-            painted = true;
-        }
-        if (lastJmaForecastCtx_) {
-            refreshJmaForecastOnDom_();
-            painted = true;
-        }
-        if (painted || currentWbgtLevel >= 0) {
-            wbgtUnavailable = false;
-            if (ECS_ONLY_WBGT) wbgtOffSeason = false;
-            refreshSignageBg();
-            buildS1WbgtTrack(false);
-            buildFcLvTrack(false);
-            buildTicker();
-            console.log('[キャッシュ] 最終取得データを表示に反映',
-                ecsSnap ? ('WBGT ' + ecsSnap.wbgt + '℃ ' + (ecsSnap.time || '')) : ('level ' + currentWbgtLevel));
-        }
-        return painted;
     }
 
     const s1 = document.getElementById('scene1');
@@ -3137,12 +2719,12 @@
         if (v === 'both') return ['warning', 'special'];
         return [];
     }
-    let heatAlertActive = NO_HEAT_ALERT ? [] : parseHeatAlertParam_();
+    let heatAlertActive = parseHeatAlertParam_();
     // ?heatalert= 指定時やデモ時は「強制（プレビュー）」。通常運用は環境省の発表で更新。
-    const heatAlertForced = !NO_HEAT_ALERT && (parseHeatAlertParam_().length > 0 || DEMO_SIGNAGE || DEMO_ALERT_ONLY);
-    if (!NO_HEAT_ALERT && !heatAlertActive.length && (DEMO_SIGNAGE || DEMO_ALERT_ONLY)) heatAlertActive = ['warning', 'special'];
+    const heatAlertForced = parseHeatAlertParam_().length > 0 || DEMO_SIGNAGE || DEMO_ALERT_ONLY;
+    if (!heatAlertActive.length && (DEMO_SIGNAGE || DEMO_ALERT_ONLY)) heatAlertActive = ['warning', 'special'];
     const HA_UNIT_W = 256;      /* LEDモジュール1枚の幅 */
-    const HA_L1_MAX = 40;       /* 1段目 最大フォント（256幅に収まる範囲） */
+    const HA_L1_MAX = 34;       /* 1段目 最大フォント（256幅に収まる範囲） */
     const HA_L2_RATIO = 0.58;   /* 2段目は1段目の約58% */
     const HA_SCROLL_PX = 1.2;   /* 文字スクロール速度 px/フレーム（ゆっくりめ） */
     const HA_LAPS_BEFORE_SWITCH = 4; /* 256px×4周で次アラートへ */
@@ -3150,7 +2732,6 @@
     let haFlow_ = null;
     /* 環境省 熱中症警戒アラートを GAS 経由で取得し level を更新 */
     async function updateHeatAlertFromGas_() {
-        if (NO_HEAT_ALERT) return;
         if (WBGT_ONLY) return;
         if (!wbgtNormalDisplay_() && !heatAlertForced) return;
         if (heatAlertForced) return;
@@ -3176,13 +2757,6 @@
             json && json.today ? json.today.label : '', json && json.tomorrow ? json.tomorrow.label : '');
     }
     function applyHeatAlertLevel_(level) {
-        if (NO_HEAT_ALERT) {
-            if (heatAlertActive.length) {
-                heatAlertActive = [];
-                queueDisplayRefresh_();
-            }
-            return;
-        }
         if (!wbgtNormalDisplay_() && !heatAlertForced) {
             heatAlertActive = [];
             queueDisplayRefresh_();
@@ -3359,8 +2933,8 @@
         };
     }
     const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '360000';   /* 徳島県 */
-    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '3640100';  /* 松茂町 */
-    const JMA_WARN_CITY_LABELS = { '3640100': '松茂町', '3640200': '北島町', '360000': '徳島県' };
+    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '3640200';  /* 北島町 */
+    const JMA_WARN_CITY_LABELS = { '3640200': '北島町', '360000': '徳島県' };
     let rainWarnMeta = {
         cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || MOE_POINT_CFG.pointName || '佐々木建設株式会社',
         updatedAt: ''
@@ -3794,14 +3368,16 @@
     }
     function formatRainWarnPublishedAt_(raw) {
         if (!raw) return '発表 --/-- --:--';
-        const s = String(raw).trim();
-        let ms = NaN;
-        if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) ms = Date.parse(s);
-        else if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/.test(s)) ms = Date.parse(s.replace(/\.\d+$/, '') + '+09:00');
-        else ms = Date.parse(s);
-        if (Number.isFinite(ms)) {
-            const p = jstPartsFromMs(ms);
-            return '発表 ' + p.month + '/' + p.day + ' ' + String(p.hour).padStart(2, '0') + ':' + String(p.minute).padStart(2, '0');
+        const s = String(raw);
+        const m = s.match(/(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+        if (m) return '発表 ' + Number(m[2]) + '/' + Number(m[3]) + ' ' + m[4] + ':' + m[5];
+        const d = new Date(raw);
+        if (!isNaN(d.getTime())) {
+            return '発表 ' + d.toLocaleString('ja-JP', {
+                month: 'numeric', day: 'numeric',
+                hour: '2-digit', minute: '2-digit',
+                timeZone: 'Asia/Tokyo'
+            });
         }
         return '発表 ' + s.slice(0, 16);
     }
@@ -4623,9 +4199,7 @@
             applyRaTrackX_(tracks, raFlow_.x);
             raAnimId = requestAnimationFrame(step);
         }
-        runSceneScrollAfterHold_(function () {
-            raAnimId = requestAnimationFrame(step);
-        });
+        raAnimId = requestAnimationFrame(step);
     }
     function playSceneRainWarnStep_(idx) {
         clearDemoStepTimer_();
@@ -4673,36 +4247,20 @@
     const LOGO_ROT_STEP_MS = 420;
 
     function stopLogoSpinInterval() {
-        settleLogoRotation_(LOGO_ROT_STEP_MS);
-    }
-    function snapLogoRotDeg_() {
-        logoRotDeg = Math.round(logoRotDeg / 90) * 90;
-    }
-    function settleLogoRotation_(transitionMs) {
-        if (!logoRotator) return;
-        snapLogoRotDeg_();
-        const ms = transitionMs ?? LOGO_ROT_STEP_MS;
-        logoRotator.style.transition = `transform ${ms}ms ease-in-out`;
-        logoRotator.style.transform = `rotate(${logoRotDeg}deg)`;
+        // 連続回転は使わない（静止 / 90°回転のみ）
     }
     /** 切替時は高速スピンを入れて 90°進める（見た目は +90°） */
     function stepLogo90(transitionMs, withFastSpin) {
         if (!logoRotator) return;
-        logoRotator.style.transition = 'none';
-        snapLogoRotDeg_();
-        logoRotator.style.transform = `rotate(${logoRotDeg}deg)`;
-        void logoRotator.offsetWidth;
         const spinDelta = withFastSpin === false ? 90 : 450;
         logoRotDeg += spinDelta;
-        snapLogoRotDeg_();
-        const ms = transitionMs ?? LOGO_ROT_STEP_MS;
-        logoRotator.style.transition = `transform ${ms}ms ease-in-out`;
+        logoRotator.style.transition = `transform ${transitionMs ?? LOGO_ROT_STEP_MS}ms ease-in-out`;
         logoRotator.style.transform = `rotate(${logoRotDeg}deg)`;
     }
     function resetLogoRotation() {
         logoRotDeg = 0;
         if (!logoRotator) return;
-        logoRotator.style.transition = 'none';
+        logoRotator.style.transition = `transform ${LOGO_ROT_STEP_MS}ms ease-in-out`;
         logoRotator.style.transform = 'rotate(0deg)';
     }
     function beginLogoSceneScroll(panelWidthPx) {
@@ -4714,15 +4272,12 @@
     }
     const FOOT_BAR_SLOT_W = 256;
     const FOOT_BAR_LAP_PX = FOOT_BAR_SLOT_W * 2;
-    const FOOT_BAR_SCROLL_FONT_START_PX_ = 20;
-    const FOOT_BAR_SCROLL_FONT_MIN_PX_ = 12;
-    const FOOT_BAR_SCROLL_FONT_MAX_PX_ = 22;
     const SCENE1_WBGT_LAP_PX = FOOT_BAR_LAP_PX;
     /** 下帯を何周したら次シーンへ進むか */
     const SCENE1_ADVANCE_LAPS = 1;
     const SCENE1_WBGT_SETS = 3;
-    const COMPANY_LINE_FONT_START_PX_ = 18;
-    const COMPANY_LINE_FONT_MIN_PX_ = 10;
+    const COMPANY_LINE_FONT_START_PX_ = 15;
+    const COMPANY_LINE_FONT_MIN_PX_ = 9;
     /** 下帯なし（時刻のみ）のときの表示時間 */
     const SCENE1_CLOCK_HOLD_MS = 10000;
     const SCENE1_WBGT_HOLD_MS = SCENE1_CLOCK_HOLD_MS;
@@ -4747,7 +4302,6 @@
     const SCENE4_PANEL_COUNT = 4;
     const SCENE4_LAPS = 2;
     const SCENE4_SCROLL_PX = 0.8;
-    const SCENE4_FC_LV_SLOT_W = FOOT_BAR_SLOT_W;
     const SCENE4_LV_LAP_PX = FOOT_BAR_LAP_PX;
     let scene4SetWidth = SCENE4_PANEL_COUNT * 128;
     let scene4AnimId = null;
@@ -4761,25 +4315,23 @@
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
     const T3_UNIT_W = 256;
-    const T3_USABLE_W = T3_UNIT_W - 8;
-    const T3_SLOT_GAP = 2;
-    const T3_BODY_VERT_PAD = 2;
-    const T3_LINE_LH_JP = 1.04;
-    const T3_LINE_LH_LATIN = 1.10;
-    const T3_L1_MAX = 62;       /* l1 上限（l1 > l2、l2 は T3_L2_RATIO 倍） */
+    const T3_USABLE_W = T3_UNIT_W - 4;
+    const T3_SLOT_GAP = 1;
+    const T3_LINE_LH_JP = 1;
+    const T3_LINE_LH_LATIN = 1.1;
+    const T3_L1_MAX = 36;       /* l1 上限（l1 > l2、l2 は T3_L2_RATIO 倍） */
     const T3_L2_RATIO = 0.82;
-    const T3_LINE_H = 1.02;
+    const T3_LINE_H = 1.14;
     const T3_SCROLL_PX = 0.8;
     const T3_TOP_HA_W = 256;
-    const T3_TOP_HA_FONT_MAX = 22;
+    const T3_TOP_HA_FONT_MAX = 20;
     const T3_LAPS_BEFORE_SWITCH = 1;
     let t3GuidLapPx = SCENE2_META_LAP_PX;
     let t3Messages_ = [];
     let t3Flow_ = null;
     const SCENE_W = 512;
-    /** シーン切替スライド（次シーンはスライド開始と同時に準備、スクロールは SCENE_SCROLL_HOLD_MS 後） */
+    /** シーン切替スライド（次シーンはスライド開始と同時に再生） */
     const SCENE_SLIDE_MS = 450;
-    const SCENE_SCROLL_HOLD_MS = 1000;
     const GLOBAL_SCROLL_SPEED_PX = 0.75;
     const DEMO_SCROLL_SPEED_PX = 0.5;
     function getScrollSpeedPx_() {
@@ -4810,32 +4362,6 @@
         if (!el || !lapPx) return;
         applyScrollX_(el, wrapScrollX_(globalScrollX_, lapPx));
     }
-    function measureS2MetaFlowLapPx_(trackEl) {
-        if (!trackEl) return SCENE2_META_LAP_PX;
-        const slot = trackEl.querySelector('.s2-meta-slot-flow');
-        if (slot && slot.offsetWidth > 0) return slot.offsetWidth;
-        const setEl = trackEl.querySelector('.s2-meta-set-flow');
-        if (setEl && setEl.offsetWidth > 0) return Math.max(1, Math.floor(setEl.offsetWidth / 2));
-        return SCENE2_META_LAP_PX;
-    }
-    function getScene2MetaLapPx_(trackEl) {
-        const el = trackEl || s2MetaTrack;
-        if (!el) return FOOT_BAR_LAP_PX;
-        if (el.querySelector('.s2-meta-set-scroll')) return FOOT_BAR_LAP_PX;
-        return measureS2MetaFlowLapPx_(el);
-    }
-    function remeasureScene2MetaLapPx_(trackEl) {
-        const el = trackEl || s2MetaTrack;
-        scene2MetaLapPx = getScene2MetaLapPx_(el);
-        applyGlobalScroll_(el, scene2MetaLapPx);
-    }
-    function getFcLvLapPx_() {
-        if (!fcLvTrack) return SCENE4_LV_LAP_PX;
-        const setEl = fcLvTrack.querySelector('.fc-lv-set');
-        if (!setEl) return SCENE4_LV_LAP_PX;
-        if (setEl.classList.contains('fc-lv-set-scroll')) return SCENE4_LV_LAP_PX;
-        return Math.max(SCENE4_LV_LAP_PX, setEl.offsetWidth);
-    }
     function getS1FootLapPx_() {
         if (!s1WbgtTrack) return SCENE1_WBGT_LAP_PX;
         const setEl = s1WbgtTrack.querySelector('.s1-wbgt-set');
@@ -4850,13 +4376,6 @@
             sceneEndHoldTimerId_ = null;
         }
     }
-    function runSceneScrollAfterHold_(fn) {
-        clearSceneEndHoldTimer_();
-        sceneEndHoldTimerId_ = setTimeout(function () {
-            sceneEndHoldTimerId_ = null;
-            fn();
-        }, SCENE_SCROLL_HOLD_MS);
-    }
     function clearSceneSlideAnim_() {
         if (sceneSlideAnimId != null) {
             cancelAnimationFrame(sceneSlideAnimId);
@@ -4867,7 +4386,6 @@
         return newX > prevX;
     }
     function clearOutgoingSceneAnims_() {
-        clearSceneEndHoldTimer_();
         if (scene1AnimId) { cancelAnimationFrame(scene1AnimId); scene1AnimId = null; }
         if (scene2AnimId) { cancelAnimationFrame(scene2AnimId); scene2AnimId = null; }
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
@@ -4882,13 +4400,15 @@
     let clockTickWallMs_ = 0;
 
     const timeSync = { baseUtcMs: null, clientAtSync: 0, source: '' };
+    const CLOCK_TZ = 'Asia/Tokyo';
     /** 表示は時:分のみ。内部時刻はこの間隔でネット再同期（Wi-Fi 前提） */
     const CLOCK_SYNC_INTERVAL_MS = 60000;
-    const clockHmFormatter = new Intl.DateTimeFormat('ja-JP', CLOCK_INTL_OPTS_HM_);
-    const clockSecFormatter = new Intl.DateTimeFormat('ja-JP', {
-        timeZone: CLOCK_TZ, second: 'numeric', hourCycle: 'h23'
+    const clockHmFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
     });
-    const clockDateFormatter = new Intl.DateTimeFormat('ja-JP', CLOCK_INTL_OPTS_DATE_);
+    const clockDateFormatter = new Intl.DateTimeFormat('ja-JP', {
+        timeZone: CLOCK_TZ, month: 'long', day: 'numeric', weekday: 'short', hourCycle: 'h23'
+    });
 
     function getSyncedUtcMs() {
         if (timeSync.baseUtcMs == null) return null;
@@ -4904,30 +4424,27 @@
         if (!Number.isFinite(serverUtcMs)) return NaN;
         return serverUtcMs + (t1 - t0) / 2;
     }
-    /** タイムゾーン無しの日時文字列は JST(+09:00) として UTC ms に変換 */
-    function parsePossiblyJstDateTimeToUtcMs_(raw) {
-        let s = String(raw || '').trim();
-        if (!s) return NaN;
-        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) {
-            s = s.replace(/\.\d+$/, '') + '+09:00';
-        }
-        return Date.parse(s);
-    }
     function utcMsFromOpenMeteoTime(iso) {
-        return parsePossiblyJstDateTimeToUtcMs_(iso);
+        let s = String(iso || '').trim();
+        if (!s) return NaN;
+        if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += '+09:00';
+        return Date.parse(s);
     }
     function parseTimeApiIoJson(json) {
         if (!json || typeof json !== 'object') return NaN;
-        if (json.dateTime) return parsePossiblyJstDateTimeToUtcMs_(json.dateTime);
+        if (json.dateTime) {
+            const s = String(json.dateTime).trim();
+            if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
+            /* タイムゾーン無しは JST（+09:00）として扱う */
+            return Date.parse(s.replace(/\.\d+$/, '') + '+09:00');
+        }
         if (json.year == null) return NaN;
-        /* Asia/Tokyo の壁時計成分 → UTC */
         return Date.UTC(json.year, json.month - 1, json.day, json.hour - 9, json.minute, json.seconds, json.milliSeconds || 0);
     }
     async function fetchUtcMsFromCloudflareTrace() {
         const urls = [
             'https://cloudflare.com/cdn-cgi/trace',
-            'https://1.1.1.1/cdn-cgi/trace',
-            'https://www.cloudflare.com/cdn-cgi/trace'
+            'https://1.1.1.1/cdn-cgi/trace'
         ];
         let lastErr = null;
         for (let i = 0; i < urls.length; i++) {
@@ -4935,18 +4452,18 @@
                 const t0 = performance.now();
                 const res = await fetch(urls[i], { cache: 'no-store' });
                 const t1 = performance.now();
-                if (!res.ok) throw new Error('cloudflare-trace HTTP ' + res.status);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
                 const text = await res.text();
-                const m = text.match(/(?:^|\n)ts=([0-9]+(?:\.[0-9]+)?)/);
-                if (!m) throw new Error('cloudflare-trace parse');
-                const serverUtcMs = Number(m[1]) * 1000;
-                if (!Number.isFinite(serverUtcMs)) throw new Error('cloudflare-trace ts');
+                const m = String(text).match(/(?:^|\n)ts=([0-9]+(?:\.[0-9]+)?)/);
+                if (!m) throw new Error('ts missing');
+                const serverUtcMs = parseFloat(m[1]) * 1000;
+                if (!Number.isFinite(serverUtcMs)) throw new Error('ts parse');
                 return utcMsWithRtt(serverUtcMs, t0, t1);
             } catch (e) {
                 lastErr = e;
             }
         }
-        throw lastErr || new Error('cloudflare-trace unavailable');
+        throw lastErr || new Error('cloudflare trace unavailable');
     }
     async function fetchUtcMsFromTimeApiIo() {
         const t0 = performance.now();
@@ -4967,48 +4484,47 @@
         let serverUtcMs = NaN;
         if (typeof json.unixtime === 'number') serverUtcMs = json.unixtime * 1000;
         else if (json.utc_datetime) serverUtcMs = Date.parse(json.utc_datetime);
-        else if (json.datetime) serverUtcMs = parsePossiblyJstDateTimeToUtcMs_(json.datetime);
         if (!Number.isFinite(serverUtcMs)) throw new Error('worldtimeapi parse');
         return utcMsWithRtt(serverUtcMs, t0, t1);
     }
     async function fetchUtcMsFromNict() {
-        /* NICT HTTP JSON は廃止・404が多いため最終候補のみ */
-        const urls = [
-            'https://3fe5a5f690efc790d4764f1c528a4ebb89fa4168.nict.go.jp/cgi-bin/json',
-            'https://67495dde3b39c2991829589f0101ab7a035eecf5.nict.go.jp/cgi-bin/json',
-            'https://08a08e3a6edef4ba7a0c055a42d8e1ba2597f2b5.nict.go.jp/cgi-bin/json'
-        ];
+        const urls = ['https://ntp-b1.nict.go.jp/cgi-bin/json', 'https://ntp-a1.nict.go.jp/cgi-bin/json'];
         for (const url of urls) {
+            const t0 = performance.now();
+            const res = await fetch(url, { cache: 'no-store' });
+            const t1 = performance.now();
+            if (!res.ok) continue;
+            const dateHdr = res.headers.get('Date');
+            let serverUtcMs = NaN;
             try {
-                const t0 = performance.now();
-                const res = await fetch(url, { cache: 'no-store' });
-                const t1 = performance.now();
-                if (!res.ok) continue;
-                const dateHdr = res.headers.get('Date');
-                let serverUtcMs = NaN;
-                try {
-                    const json = await res.json();
-                    if (json && typeof json.st === 'number') serverUtcMs = json.st * 1000;
-                } catch (_) {}
-                if (!Number.isFinite(serverUtcMs) && dateHdr) serverUtcMs = Date.parse(dateHdr);
-                if (Number.isFinite(serverUtcMs)) return utcMsWithRtt(serverUtcMs, t0, t1);
+                const json = await res.json();
+                if (json && typeof json.st === 'number') serverUtcMs = json.st * 1000;
             } catch (_) {}
+            if (!Number.isFinite(serverUtcMs) && dateHdr) serverUtcMs = Date.parse(dateHdr);
+            if (Number.isFinite(serverUtcMs)) return utcMsWithRtt(serverUtcMs, t0, t1);
         }
         throw new Error('NICT unavailable');
     }
-    /** 時計同期優先順: Cloudflare → timeapi.io → worldtimeapi → NICT */
+    async function fetchUtcMsFromJmaLatest() {
+        const t0 = performance.now();
+        const res = await fetch(JMA_LATEST_TIME_URL, JMA_FETCH_HEADERS);
+        const t1 = performance.now();
+        if (!res.ok) throw new Error('jma-latest HTTP ' + res.status);
+        const text = (await res.text()).trim();
+        let serverUtcMs = NaN;
+        if (text.endsWith('+09:00')) serverUtcMs = Date.parse(text);
+        else serverUtcMs = Date.parse(text.replace(/\.\d+$/, '') + '+09:00');
+        if (!Number.isFinite(serverUtcMs)) throw new Error('jma-latest parse');
+        return utcMsWithRtt(serverUtcMs, t0, t1);
+    }
+    /** JMA latest_time は観測時刻（10分単位）のため時計同期には使わない */
+    /* NICT HTTP JSON は廃止・404のため先頭にしない */
     const TIME_SYNC_CHAIN = [
-        { name: 'cloudflare-trace', fetch: fetchUtcMsFromCloudflareTrace },
+        { name: 'cloudflare', fetch: fetchUtcMsFromCloudflareTrace },
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo },
         { name: 'worldtimeapi', fetch: fetchUtcMsFromWorldTimeApi },
         { name: 'NICT', fetch: fetchUtcMsFromNict }
     ];
-    /** ネットワーク時刻がPC時計とこれ以上ずれる場合は採用しない（誤同期防止） */
-    const TIME_SYNC_MAX_SKEW_MS = 3 * 60 * 1000;
-    function isPlausibleWallClockMs_(utcMs) {
-        if (!Number.isFinite(utcMs)) return false;
-        return Math.abs(utcMs - Date.now()) <= TIME_SYNC_MAX_SKEW_MS;
-    }
     function fetchWithTimeout_(promise, ms, label) {
         return Promise.race([
             promise,
@@ -5021,152 +4537,57 @@
         for (const src of TIME_SYNC_CHAIN) {
             try {
                 const utcMs = await fetchWithTimeout_(src.fetch(), 8000, src.name);
-                if (!Number.isFinite(utcMs)) continue;
-                if (!isPlausibleWallClockMs_(utcMs)) {
-                    console.warn('Time sync [' + src.name + ']: PC時計との差が大きいため無視',
-                        Math.round((utcMs - Date.now()) / 1000) + 's');
-                    continue;
+                if (Number.isFinite(utcMs)) {
+                    applySyncedUtcMs(utcMs, src.name);
+                    console.log('[Time] sync OK via', src.name);
+                    return true;
                 }
-                applySyncedUtcMs(utcMs, src.name);
-                console.log('[Time] synced via', src.name);
-                return true;
             } catch (e) { console.warn('Time sync [' + src.name + ']:', e.message || e); }
         }
-        console.warn('Time sync: 全ソース失敗。PC時計を利用（表示は Asia/Tokyo）');
         applySyncedUtcMs(Date.now(), 'local-fallback');
+        console.warn('Time sync: 全ソース失敗。PC時計を暫定利用（表示は Asia/Tokyo）');
         return false;
-    }
-    function startPeriodicClockSync_() {
-        setInterval(function () {
-            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
-        }, CLOCK_SYNC_INTERVAL_MS);
     }
     function fitS1DateFontSize_() {
         const probe = document.querySelector('#scene1 .panel-clock .s1-bar-label');
         if (!probe) return;
-        fitTextToWidth_(
-            document.querySelectorAll('#scene1 .panel-clock .s1-bar-label'),
-            120, 22, 14, 24
-        );
+        const maxW = 120;
+        const setAll = function (fz) {
+            document.querySelectorAll('#scene1 .panel-clock .s1-bar-label').forEach(function (el) {
+                el.style.fontSize = fz + 'px';
+            });
+        };
+        let fz = 20;
+        setAll(fz);
+        let guard = 40;
+        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 13) {
+            fz -= 1;
+            setAll(fz);
+        }
     }
     function fitClockHmFontSize_() {
         const probe = document.querySelector('#scene1 .panel-clock .clock-hm');
         if (!probe) return;
-        fitTextToWidth_(
-            document.querySelectorAll('#scene1 .panel-clock .time-val'),
-            120, 48, 30, 52
-        );
-    }
-    /** 帯・ラベル共通: 枠内に収まる最大サイズへ（はみ出し・切れ防止） */
-    function fitTextToWidth_(target, maxW, startPx, minPx, maxPx) {
-        const nodes = !target ? [] : (target.length !== undefined && !target.style ? Array.from(target) : [target]);
-        const probe = nodes[0];
-        if (!probe || !maxW) return startPx;
-        let fz = startPx;
-        const apply = function (size) {
-            nodes.forEach(function (n) {
-                if (!n) return;
-                n.style.fontSize = size + 'px';
+        const maxW = 120;
+        const setAll = function (fz) {
+            document.querySelectorAll('#scene1 .panel-clock .time-val').forEach(function (el) {
+                el.style.fontSize = fz + 'px';
             });
         };
-        apply(fz);
-        const cap = maxPx != null ? maxPx : startPx;
-        let grow = 48;
-        while (grow-- > 0 && fz < cap) {
-            apply(fz + 1);
-            if (probe.scrollWidth > maxW) {
-                apply(fz);
-                break;
-            }
-            fz += 1;
-        }
-        let shrink = 64;
-        while (shrink-- > 0 && probe.scrollWidth > maxW && fz > minPx) {
+        let fz = 42;
+        setAll(fz);
+        let guard = 40;
+        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 28) {
             fz -= 1;
-            apply(fz);
+            setAll(fz);
         }
-        return fz;
-    }
-    function fitFcLvFootText_() {
-        const nodes = Array.from(document.querySelectorAll('#scene4 .fc-lv-bar .fc-lv-msg-compact'));
-        if (!nodes.length) return;
-        const maxW = SCENE4_FC_LV_SLOT_W - 12;
-        let probe = nodes[0];
-        nodes.forEach(function (el) {
-            if ((el.textContent || '').length > (probe.textContent || '').length) probe = el;
-        });
-        const fz = fitTextToWidth_(
-            probe, maxW,
-            FOOT_BAR_SCROLL_FONT_START_PX_,
-            FOOT_BAR_SCROLL_FONT_MIN_PX_,
-            FOOT_BAR_SCROLL_FONT_MAX_PX_
-        );
-        nodes.forEach(function (el) {
-            el.style.fontSize = fz + 'px';
-        });
-    }
-    function fitFootBandCompact_() {
-        document.querySelectorAll('.s1-wbgt-msg-compact').forEach(function (el) {
-            const maxW = el.closest('.s1-wbgt-slot-wide') ? 500 : FOOT_BAR_SLOT_W - 12;
-            fitTextToWidth_(el, maxW, 18, 10, 21);
-        });
-    }
-    function fitScene2MetaFootText_() {
-        const nodes = Array.from(document.querySelectorAll('#scene2 .s2-meta-bar .s2-meta-msg-compact'));
-        if (nodes.length) {
-            const maxW = FOOT_BAR_SLOT_W - 12;
-            let probe = nodes[0];
-            nodes.forEach(function (el) {
-                if ((el.textContent || '').length > (probe.textContent || '').length) probe = el;
-            });
-            const fz = fitTextToWidth_(
-                probe, maxW,
-                FOOT_BAR_SCROLL_FONT_START_PX_,
-                FOOT_BAR_SCROLL_FONT_MIN_PX_,
-                FOOT_BAR_SCROLL_FONT_MAX_PX_
-            );
-            nodes.forEach(function (el) {
-                el.style.fontSize = fz + 'px';
-            });
-            return;
-        }
-        document.querySelectorAll('#scene2 .s2-meta-bar .s2-meta-msg-scroll').forEach(function (el) {
-            const bar = el.closest('.s2-meta-bar');
-            const maxH = bar && bar.clientHeight > 0 ? bar.clientHeight - 1 : 27;
-            let fz = FOOT_BAR_SCROLL_FONT_START_PX_;
-            const minFz = FOOT_BAR_SCROLL_FONT_MIN_PX_;
-            const maxFz = FOOT_BAR_SCROLL_FONT_MAX_PX_;
-            const apply = function () {
-                el.style.fontSize = fz + 'px';
-                el.style.lineHeight = maxH + 'px';
-            };
-            apply();
-            while (fz < maxFz) {
-                fz += 1;
-                apply();
-                if (el.scrollHeight > maxH) {
-                    fz -= 1;
-                    apply();
-                    break;
-                }
-            }
-            while (fz > minFz && el.scrollHeight > maxH) {
-                fz -= 1;
-                apply();
-            }
-        });
     }
     function ensureClockHmStructure_(el) {
-        if (el.querySelector('.clock-h') && el.querySelector('.clock-m')) return;
-        let h = '--';
-        let m = '--';
-        const raw = (el.textContent || '').trim();
-        const match = raw.match(/^(\d{1,2}):(\d{2})$/);
-        if (match) {
-            h = match[1];
-            m = match[2];
-        }
-        el.innerHTML = '<span class="clock-h">' + h + '</span><span class="clock-colon" aria-hidden="true">:</span><span class="clock-m">' + m + '</span>';
+        /* 旧点滅コロン（dim/bright）が残っていれば差し替え */
+        if (el.querySelector('.clock-colon-wrap') &&
+            !el.querySelector('.clock-colon-dim') &&
+            !el.querySelector('.clock-colon-bright')) return;
+        el.innerHTML = '<span class="clock-h">--</span><span class="clock-colon-wrap" aria-hidden="true"><span class="clock-colon">:</span></span><span class="clock-m">--</span>';
     }
     function updateClock() {
         let ms = getSyncedUtcMs();
@@ -5216,18 +4637,7 @@
         return dirs[Math.round((((deg % 360) + 360) % 360) / 22.5) % 16];
     }
     function calcWbgt(t, h) { return null; }
-    /** 環境省 WBGT 段階（推定値 est15WG: 21 / 25 / 28 / 31℃） */
     function wbgtLevel(w) { return w >= 31 ? 4 : w >= 28 ? 3 : w >= 25 ? 2 : w >= 21 ? 1 : 0; }
-    /** 環境クラウド機器表示と同じ段階境界（22 / 26 / 29 / 32℃） */
-    function ecsWbgtLevel(w) {
-        const v = Number(w);
-        if (!Number.isFinite(v)) return 0;
-        return v >= 32 ? 4 : v >= 29 ? 3 : v >= 26 ? 2 : v >= 22 ? 1 : 0;
-    }
-    function wbgtLevelForSignage_(w) {
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) return ecsWbgtLevel(w);
-        return wbgtLevel(w);
-    }
     function hasFull4Slots(slots) {
         return Array.isArray(slots) && slots.length >= 4 && slots[0] != null && slots[0].wbgt != null;
     }
@@ -5235,9 +4645,7 @@
         const ms = getSyncedUtcMs();
         if (ms == null) return '';
         try {
-            const parts = new Intl.DateTimeFormat('en-CA', {
-                timeZone: CLOCK_TZ, hour: '2-digit', hourCycle: 'h23'
-            }).formatToParts(new Date(ms));
+            const parts = new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ, hour: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms));
             const hp = parts.find(p => p.type === 'hour');
             return hp ? (Number(hp.value) + '時') : '';
         } catch (e) { return ''; }
@@ -5247,11 +4655,21 @@
         return `<span class="fc-wbgt-num">${Number(wbgt).toFixed(1)}</span><span class="fc-wbgt-unit">℃</span>`;
     }
     function fitFcBarLabelFontSize_() {
-        if (!document.querySelector('#scene4 .fc-bar-label')) return;
-        fitTextToWidth_(
-            document.querySelectorAll('#scene4 .fc-bar-label'),
-            120, 22, 14, 24
-        );
+        const probe = document.querySelector('#scene4 .fc-bar-label');
+        if (!probe) return;
+        const maxW = 120;
+        const setAll = function (fz) {
+            document.querySelectorAll('#scene4 .fc-bar-label').forEach(function (el) {
+                el.style.fontSize = fz + 'px';
+            });
+        };
+        let fz = 20;
+        setAll(fz);
+        let guard = 40;
+        while (guard-- > 0 && probe.scrollWidth > maxW && fz > 13) {
+            fz -= 1;
+            setAll(fz);
+        }
     }
     /** WBGT数値: 計測中は非表示にし、最終サイズだけ一度だけ適用（大→小のチラつき防止） */
     function fitNumUnitInBox_(wrap, num, unit, opts) {
@@ -5272,7 +4690,7 @@
                 const mid = Math.floor((lo + hi) / 2);
                 num.style.fontSize = mid + 'px';
                 if (unit) unit.style.fontSize = Math.max(unitMin, Math.round(mid * unitRatio)) + 'px';
-                if (wrap.scrollWidth <= maxW - 2 && wrap.scrollHeight <= maxH - 1) {
+                if (wrap.scrollWidth <= maxW && wrap.scrollHeight <= maxH) {
                     best = mid;
                     lo = mid + 1;
                 } else {
@@ -5289,53 +4707,18 @@
     function fitFcWbgtFontSize() {
         document.querySelectorAll('#scene4 .fc-wbgt').forEach(function (wrap) {
             fitNumUnitInBox_(wrap, wrap.querySelector('.fc-wbgt-num'), wrap.querySelector('.fc-wbgt-unit'), {
-                maxW: 118, maxH: 60, minSz: 26, maxSz: 44, unitMin: 11, unitRatio: 0.3
+                maxW: 112, maxH: 64, minSz: 32, maxSz: 56, unitMin: 12, unitRatio: 0.36
             });
         });
     }
-    function updateForecastSlotsIfAllowed_(slots) {
-        if (mainLoopStarted_ && shouldDeferDisplayRefresh_()) {
-            pendingForecastSlotsRefresh_ = true;
-            return;
-        }
-        updateForecastSlots(slots);
-    }
-    function flushPendingForecastSlots_() {
-        if (!pendingForecastSlotsRefresh_) return;
-        pendingForecastSlotsRefresh_ = false;
-        const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
-            ? lastGoodWbgtSlots_
-            : (lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
-        if (slots) updateForecastSlots(slots);
-    }
-    function scene4WbgtDomNeedsRefresh_(slots) {
-        const sample = document.querySelector('#scene4 .fc-val-live');
-        if (!sample || !slots || !hasFull4Slots(slots)) return true;
-        const num = sample.querySelector('.fc-wbgt-num');
-        const expected = Number(slots[0].wbgt).toFixed(1);
-        if (!num) {
-            const raw = (sample.textContent || '').trim();
-            return raw === '--' || raw === '' || raw !== expected;
-        }
-        return num.textContent !== expected;
-    }
-    function applyScene4EcsWbgt_(wbgt) {
-        const html = (wbgt == null || !Number.isFinite(Number(wbgt))) ? '--' : formatFcWbgtHtml(wbgt);
-        document.querySelectorAll('#scene4 .fc-val-live').forEach(function (el) { el.innerHTML = html; });
-    }
     function updateForecastSlots(slots) {
-        if (slots && lastWbgtSlots && hasFull4Slots(slots) && hasFull4Slots(lastWbgtSlots) &&
-            wbgtSlotsEqual_(slots, lastWbgtSlots) && !scene4WbgtDomNeedsRefresh_(slots)) {
-            return;
-        }
         const arr = (slots && slots.length) ? slots : [{ wbgt: null, levelIdx: 0, hour: '現在' }];
+        const live = arr[0] || { wbgt: null, levelIdx: 0, hour: '現在' };
+        const isUnknown = live.wbgt == null;
+        const wbgtHtml = isUnknown ? '--' : formatFcWbgtHtml(live.wbgt);
         document.querySelectorAll('#scene4 .fc-track .fc-panel').forEach(function (panel, i) {
-            const slotIdx = i % SCENE4_PANEL_COUNT;
-            const slot = arr[slotIdx] || arr[0];
-            const isUnknown = slot.wbgt == null;
-            const wbgtHtml = isUnknown ? '--' : formatFcWbgtHtml(slot.wbgt);
-            panel.className = 'fc-panel fc-slot-' + (slotIdx % 2);
-            panel.querySelectorAll('.fc-bar-label').forEach(function (el) { el.innerText = fcBarLabelForPanel_(slotIdx); });
+            panel.className = 'fc-panel fc-slot-' + (i % 2);
+            panel.querySelectorAll('.fc-bar-label').forEach(function (el) { el.innerText = fcBarLabelForPanel_(i); });
             panel.querySelectorAll('.fc-val-live').forEach(function (el) { el.innerHTML = wbgtHtml; });
         });
         queueDisplayRefresh_();
@@ -5362,6 +4745,41 @@
         if (!hasFull4Slots(slots)) return false;
         const src = json && json.source;
         return src === 'estimated' || src === 'forecast' || src === 'moe-env.go.jp';
+    }
+    function parseMeasureTimeMs_(raw) {
+        if (raw == null || raw === '') return null;
+        if (raw instanceof Date) {
+            const t = raw.getTime();
+            return Number.isFinite(t) ? t : null;
+        }
+        if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+        const s = String(raw).trim();
+        const m = s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+        if (m) {
+            const utc = Date.UTC(
+                Number(m[1]), Number(m[2]) - 1, Number(m[3]),
+                Number(m[4] || 0) - 9, Number(m[5] || 0), Number(m[6] || 0)
+            );
+            return Number.isFinite(utc) ? utc : null;
+        }
+        const parsed = Date.parse(s);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+    function isMeasureTimeFresh_(raw) {
+        const ms = parseMeasureTimeMs_(raw);
+        if (ms == null) return false;
+        const age = Date.now() - ms;
+        if (age < -60 * 60 * 1000) return false;
+        return age <= DATA_MAX_AGE_MS;
+    }
+    /** 測定時刻が1日以上古い場合は数値を出さない（機材電源OFF後のキャッシュ対策） */
+    function assertMeasureTimeFresh_(raw, label) {
+        if (isMeasureTimeFresh_(raw)) return;
+        const ms = parseMeasureTimeMs_(raw);
+        const when = ms != null
+            ? new Date(ms).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
+            : String(raw || '(なし)');
+        throw new Error((label || 'データ') + 'の測定時刻が1日以上古い（表示停止）: ' + when);
     }
     function normalizeMoeResponse(payload) {
         const rows = Array.isArray(payload) ? payload : (payload?.data || payload?.slots || []);
@@ -5395,368 +4813,11 @@
         if (isMoeJsonWrongPoint_(wbgt)) return false;
         return true;
     }
-    function parseEcsWbgtRow_(row) {
-        if (!row || typeof row !== 'object') return null;
-        const wbgt = normalizeWbgtCelsius(row.Wbgt != null ? row.Wbgt : row.wbgt);
-        if (wbgt == null) return null;
-        const lv = ecsWbgtLevel(wbgt);
-        return {
-            wbgt: wbgt,
-            levelIdx: lv,
-            hour: '現在',
-            temp: row.Kion != null ? Number(row.Kion) : null,
-            globe: row.Koku != null ? Number(row.Koku) : null,
-            humi: row.Shitu != null ? Number(row.Shitu) : null,
-            time: row.Time || null,
-            source: 'ecs-cloud'
-        };
-    }
-    function ecsRowsToSlots_(rows) {
-        const parsed = parseEcsWbgtRow_(Array.isArray(rows) && rows.length ? rows[0] : null);
-        if (!parsed) return null;
-        const slot = { wbgt: parsed.wbgt, levelIdx: parsed.levelIdx, hour: '現在' };
-        return [slot, Object.assign({}, slot), Object.assign({}, slot), Object.assign({}, slot)];
-    }
-    function ecsSnapshotToSlots_(snap) {
-        if (!snap || snap.wbgt == null) return null;
-        const slot = {
-            wbgt: snap.wbgt,
-            levelIdx: Number.isInteger(snap.levelIdx) ? snap.levelIdx : ecsWbgtLevel(snap.wbgt),
-            hour: '現在'
-        };
-        return [slot, Object.assign({}, slot), Object.assign({}, slot), Object.assign({}, slot)];
-    }
-    function applyEcsSnapshotToSignage_(snap) {
-        if (!snap || !ECS_WBGT_ENABLED) return null;
-        if (!isEcsSnapshotHoldableForDisplay_(snap)) {
-            console.warn('[WBGT] 古いECSデータは表示しません', snap.time);
-            return null;
-        }
-        applyEcsSensorToDom_(snap);
-        const slots = ecsSnapshotToSlots_(snap);
-        if (!slots) return null;
-        lastGoodWbgtSlots_ = cloneWbgtSlots_(slots);
-        applyWbgtInSeason_();
-        wbgtOffSeason = false;
-        wbgtUnavailable = false;
-        syncWbgtLevelFromSlots(slots);
-        updateForecastSlotsIfAllowed_(slots);
-        refreshSignageBgIfChanged_();
-        return slots;
-    }
-    function formatEcsSensorNum_(v) {
-        if (v == null || !Number.isFinite(Number(v))) return '';
-        return Number(v).toFixed(1);
-    }
-    function parseEcsTimeAsJstMs_(timeStr) {
-        if (!timeStr) return null;
-        const m = String(timeStr).match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
-        if (!m) return null;
-        const ms = jstMsFromParts(Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6] || 0));
-        return Number.isFinite(ms) ? ms : null;
-    }
-    function formatEcsObsTime_(timeStr) {
-        const ms = parseEcsTimeAsJstMs_(timeStr);
-        if (ms != null) {
-            const p = jstPartsFromMs(ms);
-            return p.year + '/' + p.month + '/' + p.day + ' ' + String(p.hour).padStart(2, '0') + ':' + String(p.minute).padStart(2, '0');
-        }
-        if (!timeStr) return '';
-        return String(timeStr);
-    }
-    function buildEcsScene2MetaText_(obsTimeOrFetching) {
-        const tail = obsTimeOrFetching != null && String(obsTimeOrFetching).trim()
-            ? String(obsTimeOrFetching).trim()
-            : '--';
-        return 'リアルタイム　WBGT・気温・黒球温度・湿度：' + tail;
-    }
-    function getEcsScene2MetaTextForDisplay_() {
-        const snap = getEcsSnapshotForDisplay_() || lastEcsSnapshot_;
-        if (snap && isEcsSnapshotHoldableForDisplay_(snap)) {
-            return buildEcsScene2MetaText_(formatEcsObsTime_(snap.time) || '--');
-        }
-        /* 「取得中」は出さない。値待ちでもリアルタイム表記＋-- で維持 */
-        return buildEcsScene2MetaText_('--');
-    }
-    function ensureEcsScene2MetaFromLastGood_() {
-        if (!s2MetaTrack) return false;
-        const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
-        const metaText = getEcsScene2MetaTextForDisplay_();
-        if (scene2MetaSetHasSeamlessSlots_(s2MetaTrack)) {
-            s2MetaTrack.querySelectorAll('.s2-meta-loc').forEach(function (el) { el.textContent = loc; });
-            s2MetaTrack.querySelectorAll('.s2-meta-data').forEach(function (el) { el.textContent = metaText; });
-            fitScene2MetaFootText_();
-            remeasureScene2MetaLapPx_(s2MetaTrack);
-            return true;
-        }
-        let html = '';
-        for (let i = 0; i < SCENE2_META_SETS; i++) {
-            html += buildScene2MetaScrollSetHtml_(loc, metaText);
-        }
-        s2MetaTrack.innerHTML = html;
-        fitScene2MetaFootText_();
-        remeasureScene2MetaLapPx_(s2MetaTrack);
-        return true;
-    }
-    function ecsRowObsMs_(row) {
-        if (!row) return null;
-        return parseEcsTimeAsJstMs_(row.Time || row.time);
-    }
-    function ecsRowAgeMs_(row) {
-        const obsMs = ecsRowObsMs_(row);
-        if (obsMs == null) return null;
-        return getNowMs() - obsMs;
-    }
-    function ecsRowIsSameJstDay_(row) {
-        const obsMs = ecsRowObsMs_(row);
-        if (obsMs == null) return false;
-        const nowP = jstPartsFromMs(getNowMs());
-        const obsP = jstPartsFromMs(obsMs);
-        return nowP.year === obsP.year && nowP.month === obsP.month && nowP.day === obsP.day;
-    }
-    function ecsRowIsTooStale_(row, maxAgeMs) {
-        if (maxAgeMs == null || !Number.isFinite(maxAgeMs)) return false;
-        const age = ecsRowAgeMs_(row);
-        if (age == null) return true;
-        return age > maxAgeMs;
-    }
-    function ecsSnapshotIsStale_(snap) {
-        return !isEcsSnapshotDisplayable_(snap);
-    }
-    function isEcsSnapshotSameDay_(snap) {
-        if (!snap || !snap.time) return false;
-        return ecsRowIsSameJstDay_({ Time: snap.time });
-    }
-    function isEcsSnapshotDisplayable_(snap) {
-        if (!isEcsSnapshotSameDay_(snap)) return false;
-        return !ecsRowIsTooStale_({ Time: snap.time }, ECS_DISPLAY_MAX_AGE_MS);
-    }
-    function isEcsSnapshotHoldableForDisplay_(snap) {
-        /* 空白防止: 最後に取れた計測値は日付・経過日数に関係なく永遠に表示継続 */
-        return !!(snap && snap.wbgt != null);
-    }
-    function retainLastEcsSlotsIfPossible_() {
-        if (!lastGoodWbgtSlots_ || !hasFull4Slots(lastGoodWbgtSlots_)) return null;
-        const snap = getEcsSnapshotForDisplay_() || lastEcsSnapshot_;
-        if (snap && isEcsSnapshotHoldableForDisplay_(snap)) {
-            syncEcsDisplayFromLastGood_();
-            console.warn('[WBGT] ECS取得失敗 — 直前の表示を維持', snap.time || '');
-            return lastGoodWbgtSlots_;
-        }
-        return null;
-    }
-    function getEcsSnapshotForDisplay_() {
-        if (!lastEcsSnapshot_ || !isEcsSnapshotHoldableForDisplay_(lastEcsSnapshot_)) return null;
-        return lastEcsSnapshot_;
-    }
-    function hasEcsDisplayOnScreen_() {
-        if (getEcsSnapshotForDisplay_()) return true;
-        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) return true;
-        if (ECS_ONLY_WBGT && currentWbgtLevel >= 0) return true;
-        return false;
-    }
-    function syncEcsDisplayFromLastGood_() {
-        const snap = getEcsSnapshotForDisplay_();
-        if (snap) applyEcsSensorToDom_(snap);
-        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-            syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-            refreshSignageBgIfChanged_();
-        }
-    }
-    function scene2MetaSetHasSeamlessSlots_(trackEl) {
-        const set = trackEl && trackEl.querySelector('.s2-meta-set-scroll');
-        if (!set) return false;
-        return set.querySelectorAll('.s2-meta-slot-256').length >= 2;
-    }
-    function patchScene2MetaTrackEcsFetching_() {
-        /* 「取得中」は使わず、直前の環境クラウド表示を維持 */
-        return ensureEcsScene2MetaFromLastGood_();
-    }
-    function buildScene2MetaTrackEcsFetching_() {
-        ensureEcsScene2MetaFromLastGood_();
-    }
-    function clearEcsDisplayFromDom_() {
-        if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID) return;
-        /* 灰色・取得中に落とさず、環境クラウドの直前値を維持 */
-        wbgtUnavailable = false;
-        syncEcsDisplayFromLastGood_();
-        ensureEcsScene2MetaFromLastGood_();
-        if (currentWbgtLevel < 0) currentWbgtLevel = 0;
-        refreshSignageBgIfChanged_(true);
-        fitScene2BodyText();
-    }
-    function scheduleEcsUrgentRefresh_() {
-        if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID || DEMO_SIGNAGE_ACTIVE) return;
-        if (ecsUrgentRefreshTimerId_ != null) clearTimeout(ecsUrgentRefreshTimerId_);
-        const hasFresh = lastEcsSnapshot_ && isEcsSnapshotDisplayable_(lastEcsSnapshot_);
-        const delayMs = hasFresh ? getEcsPollIntervalMs_() : (hasEcsDisplayOnScreen_() ? 10000 : 5000);
-        ecsUrgentRefreshTimerId_ = setTimeout(function () {
-            ecsUrgentRefreshTimerId_ = null;
-            fetchWbgtFromEcsApi().then(function (slots) {
-                if (slots) {
-                    applyWbgtInSeason_();
-                    wbgtUnavailable = false;
-                    applyWbgtSlotsToDom(slots);
-                } else {
-                    retainLastEcsSlotsIfPossible_();
-                }
-            }).catch(function (e) {
-                console.warn('[WBGT] ECS再取得:', e.message || e);
-                retainLastEcsSlotsIfPossible_();
-            }).finally(function () {
-                scheduleEcsUrgentRefresh_();
-            });
-        }, delayMs);
-    }
-    function startEcsAutoRefreshLoop_() {
-        if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID || DEMO_SIGNAGE_ACTIVE) return;
-        scheduleEcsUrgentRefresh_();
-    }
-    async function paintEcsStaticFallbackQuick_() {
-        if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID) return null;
-        if (hasEcsDisplayOnScreen_()) return getEcsSnapshotForDisplay_();
-        try {
-            return await fetchEcsStaticPayload_();
-        } catch (e) {
-            console.warn('[WBGT] 起動時ecs-live.json:', e.message || e);
-            return null;
-        }
-    }
-    function buildScene2EcsPanelHtml_(type) {
-        const spec = {
-            'ecs-wbgt': { label: 'WBGT', cls: 'wbgt-live-val', unit: '℃' },
-            'ecs-temp': { label: '気温', cls: 'temp-val', unit: '℃' },
-            'ecs-globe': { label: '黒球温度', cls: 'globe-val', unit: '℃' },
-            'ecs-humi': { label: '湿度', cls: 'humi-val', unit: '%' }
-        }[type];
-        if (!spec) return '';
-        return '<div class="s2-panel-data s2-strip" data-s2="' + type + '">' +
-            '<div class="s2-top-bar"><span class="s2-bar-label">' + spec.label + '</span></div>' +
-            '<div class="s2-body"><div class="s2-val"><span class="s2-num ' + spec.cls + '"></span>' +
-            '<span class="s2-unit">' + spec.unit + '</span></div></div></div>';
-    }
-    function initScene2EcsMode_() {
-        if (!ECS_WBGT_ENABLED || !ECS_WBGT_DATA_ID || !conveyor) return;
-        const types = ['ecs-wbgt', 'ecs-temp', 'ecs-globe', 'ecs-humi'];
-        let html = '';
-        types.forEach(function (t) { html += buildScene2EcsPanelHtml_(t); });
-        types.forEach(function (t) { html += buildScene2EcsPanelHtml_(t); });
-        conveyor.innerHTML = html;
-        compactScene2Panels();
-    }
-    function buildScene2MetaTrackEcs_(snap) {
-        if (!s2MetaTrack || !snap) return;
-        if (patchScene2MetaTrackEcs_(snap)) return;
-        const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
-        const obsTime = formatEcsObsTime_(snap.time) || '--';
-        const metaText = buildEcsScene2MetaText_(obsTime);
-        let html = '';
-        for (let i = 0; i < SCENE2_META_SETS; i++) {
-            html += buildScene2MetaScrollSetHtml_(loc, metaText);
-        }
-        s2MetaTrack.innerHTML = html;
-        fitScene2MetaFootText_();
-        remeasureScene2MetaLapPx_(s2MetaTrack);
-        requestAnimationFrame(function () {
-            fitScene2MetaFootText_();
-            remeasureScene2MetaLapPx_(s2MetaTrack);
-        });
-    }
-    function patchScene2MetaTrackEcs_(snap) {
-        if (!s2MetaTrack || !snap) return false;
-        if (!scene2MetaSetHasSeamlessSlots_(s2MetaTrack)) return false;
-        const locEls = s2MetaTrack.querySelectorAll('.s2-meta-loc');
-        if (!locEls.length) return false;
-        const loc = ECS_CFG.locationLabel || getSiteLocationLabel_();
-        const obsTime = formatEcsObsTime_(snap.time) || '--';
-        const metaText = buildEcsScene2MetaText_(obsTime);
-        locEls.forEach(function (el) { el.textContent = loc; });
-        s2MetaTrack.querySelectorAll('.s2-meta-data').forEach(function (el) {
-            el.textContent = metaText;
-        });
-        fitScene2MetaFootText_();
-        remeasureScene2MetaLapPx_(s2MetaTrack);
-        return true;
-    }
-    function applyEcsSensorToDom_(snap) {
-        if (!snap || !ECS_WBGT_ENABLED) return;
-        if (!isEcsSnapshotHoldableForDisplay_(snap)) return;
-        if (snap.wbgt != null) {
-            setTextAll('.wbgt-live-val', formatEcsSensorNum_(snap.wbgt));
-            if (!(mainLoopStarted_ && shouldDeferDisplayRefresh_() && s4 && !s4.classList.contains('active'))) {
-                applyScene4EcsWbgt_(snap.wbgt);
-            } else {
-                pendingForecastSlotsRefresh_ = true;
-            }
-        }
-        if (snap.temp != null) setTextAll('.temp-val', formatEcsSensorNum_(snap.temp));
-        if (snap.globe != null) setTextAll('.globe-val', formatEcsSensorNum_(snap.globe));
-        if (snap.humi != null) setTextAll('.humi-val', formatEcsSensorNum_(snap.humi));
-        if (mainLoopStarted_ && getActiveScene()) {
-            if (!patchScene2MetaTrackEcs_(snap)) pendingScene2MetaEcsSnap_ = snap;
-        } else {
-            buildScene2MetaTrackEcs_(snap);
-            pendingScene2MetaEcsSnap_ = null;
-        }
-        fitScene2BodyText();
-    }
-    async function fetchWbgtFromEcsApi() {
-        if (ecsFetchInFlight_) return ecsFetchInFlight_;
-        ecsFetchInFlight_ = fetchWbgtFromEcsApiImpl_().finally(function () {
-            ecsFetchInFlight_ = null;
-        });
-        return ecsFetchInFlight_;
-    }
-    async function fetchEcsStaticPayload_() {
-        const staticRows = await fetchEcsStaticFallback_();
-        if (!staticRows || !staticRows.length) return null;
-        const snap = parseEcsWbgtRow_(staticRows[0]);
-        if (!snap || !isEcsSnapshotHoldableForDisplay_(snap)) return null;
-        return commitEcsPayload_(staticRows, ecsLiveStaticUrl_());
-    }
-    async function fetchWbgtFromEcsApiImpl_() {
-        let lastErr = null;
-        /* ライブAPIを常に優先（古い ecs-live.json で更新が止まるのを防ぐ） */
-        const urls = ecsWbgtApiUrlsToTry_();
-        for (let i = 0; i < urls.length; i++) {
-            const url = urls[i];
-            try {
-                const res = await fetchWithTimeout_(fetch(url, { cache: 'no-store', mode: 'cors' }), 5000, 'ECS');
-                if (!res.ok) throw new Error('ECS HTTP ' + res.status);
-                const rows = parseEcsApiRows_(JSON.parse(await res.text()));
-                if (!rows || !rows.length) throw new Error('ECS empty payload');
-                return commitEcsPayload_(rows, url);
-            } catch (e) {
-                lastErr = e;
-                console.warn('[WBGT] ECS API取得失敗:', url, e.message || e);
-            }
-        }
-        /* API失敗時のみ同梱 ecs-live.json → メモリの直前値 */
-        try {
-            const staticSlots = await fetchEcsStaticPayload_();
-            if (staticSlots) {
-                console.log('[WBGT] ECS現場計測 OK（ecs-live.json・フォールバック）');
-                return staticSlots;
-            }
-        } catch (e) {
-            lastErr = e;
-            console.warn('[WBGT] ecs-live.json:', e.message || e);
-        }
-        const retained = retainLastEcsSlotsIfPossible_();
-        if (retained) return retained;
-        throw lastErr || new Error('ECS fetch failed');
-    }
-    async function fetchWbgtData_() {
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            return fetchWbgtFromEcsApi();
-        }
-        if (!USE_MOE_WBGT) return null;
-        return fetchWbgtFromMoeApi();
-    }
     function parseMoeJson_(json) {
         if (!isUsableMoeWbgtPayload_(json)) {
             throw new Error('WBGT payload rejected (point/fallback mismatch)');
         }
+        assertMeasureTimeFresh_(json && json.updatedAt, '環境省');
         const slots = normalizeMoeResponse(json);
         if (!isTrustedMoePayload(json, slots)) throw new Error('untrusted source: ' + ((json && json.source) || 'unknown'));
         console.log('[WBGT] 環境省データ取得 OK', json.pointName || json.point || '', json.updatedAt || '', '現在', slots[0].wbgt + '℃');
@@ -5842,15 +4903,27 @@
         persistSignageStateCache_();
     }
     function noteWbgtFetchFailure_() {
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) return false;
         if (wbgtFailSinceMs_ == null) wbgtFailSinceMs_ = getNowMs();
         if (wbgtUnavailableGraceElapsed_()) return true;
         scheduleWbgtUnavailableCheck_();
         return false;
     }
+    /** 直前の成功値があれば灰色・取得不可にせず表示を維持する */
+    function keepLastGoodWbgtDisplay_(reason) {
+        if (!(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))) return false;
+        wbgtUnavailable = false;
+        syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
+        updateForecastSlots(lastGoodWbgtSlots_);
+                queueOrRefreshS1FootBar_();
+        refreshSignageBgIfChanged_();
+        queueDisplayRefresh_();
+        if (reason) console.warn('[WBGT]', reason, '— 直前の成功値を維持（取得不可にしない）');
+        return true;
+    }
     function applyWbgtUnavailableToDom_() {
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) return;
         if (wbgtOffSeason || !wbgtUnavailableGraceElapsed_()) return;
+        /* 一度でも成功値があれば長期灰色（取得不可）にしない */
+        if (keepLastGoodWbgtDisplay_('取得継続失敗')) return;
         wbgtUnavailable = true;
         syncWbgtDependentAlerts_();
         const nullSlot = { wbgt: null, hour: '取得不可' };
@@ -5861,19 +4934,15 @@
         queueOrRefreshS1FootBar_();
         refreshSignageBgIfChanged_(true);
         if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
-        console.warn('[WBGT] 1分以上取得できないため「取得不可」表示');
+        console.warn('[WBGT] 成功値なしで1分以上取得できないため「取得不可」表示');
     }
     function syncWbgtSlotsToDomIfReady_() {
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && !hasEcsDisplayOnScreen_()) {
-            if (!(mainLoopStarted_ && getActiveScene())) clearEcsDisplayFromDom_();
-            return false;
-        }
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
-        if (!slots || (!ECS_ONLY_WBGT && wbgtOffSeason)) return false;
+        if (!slots || wbgtOffSeason) return false;
         syncWbgtLevelFromSlots(slots);
-        updateForecastSlotsIfAllowed_(slots);
+        updateForecastSlots(slots);
         queueOrRefreshS1FootBar_();
         refreshSignageBgIfChanged_();
         return true;
@@ -5888,39 +4957,30 @@
             }
             noteWbgtFetchSuccess_(wbgtSlots);
             syncWbgtLevelFromSlots(wbgtSlots);
-            updateForecastSlotsIfAllowed_(wbgtSlots);
+            updateForecastSlots(wbgtSlots);
             queueOrRefreshS1FootBar_();
             refreshSignageBgIfChanged_();
-            if (!shouldDeferDisplayRefresh_()) queueDisplayRefresh_();
+            queueDisplayRefresh_();
             return true;
+        }
+        /* 失敗時も直前値があれば灰色に落とさない（再取得はスケジュール側で継続） */
+        if (keepLastGoodWbgtDisplay_('取得失敗')) {
+            noteWbgtFetchFailure_();
+            return false;
         }
         if (noteWbgtFetchFailure_()) {
             applyWbgtUnavailableToDom_();
             return false;
         }
-        /* 1分以内の失敗: 直前の成功値を維持（取得不可は出さない） */
-        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-            wbgtUnavailable = false;
-            syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-            updateForecastSlotsIfAllowed_(lastGoodWbgtSlots_);
-            queueOrRefreshS1FootBar_();
-            refreshSignageBgIfChanged_();
-            if (!shouldDeferDisplayRefresh_()) queueDisplayRefresh_();
-        }
         return false;
     }
     /* 提供期間外: WBGTレベルを無効化し、WBGT表示を全て隠す（該当シーンはループでスキップ） */
-    function enforceEcsWbgtInSeason_() {
-        if (!ECS_ONLY_WBGT) return;
-        if (wbgtOffSeason) {
-            console.log('[WBGT] ECS現場モード: オフシーズン判定を無効化（環境省の季節運用は適用しません）');
-        }
-        wbgtOffSeason = false;
-        applyWbgtInSeason_();
-    }
     function applyWbgtOffSeason_() {
-        if (ECS_ONLY_WBGT) {
-            enforceEcsWbgtInSeason_();
+        /* 直前の実測がある間は提供期間外の灰色へ落とさない（誤検知・欠測の一時応答対策） */
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            console.warn('[WBGT] off-season応答だが直前値があるため維持');
+            applyWbgtInSeason_();
+            keepLastGoodWbgtDisplay_('off-season応答');
             return;
         }
         wbgtOffSeason = true;
@@ -5954,16 +5014,13 @@
     }
     function shouldDeferDisplayRefresh_() {
         if (!isMainLoopPlaying_()) return false;
-        if (sceneEntryRefreshAllowed_) return false;
-        return true;
+        return !sceneEntryRefreshAllowed_;
     }
     function queueDisplayRefresh_() {
         pendingDisplayRefresh = true;
         if (s3 && s3.classList.contains('active')) {
             syncScene3Display_(true);
-            return;
         }
-        if (mainLoopStarted_ && shouldDeferDisplayRefresh_()) return;
     }
     function queueOrRefreshS1FootBar_() {
         if (shouldDeferDisplayRefresh_()) {
@@ -5976,9 +5033,7 @@
         if (!pendingDisplayRefresh && !force) return;
         if (!force && shouldDeferDisplayRefresh_()) return;
         pendingDisplayRefresh = false;
-        flushPendingForecastSlots_();
         refreshS1WbgtFootBar_(false);
-        fitFootBandCompact_();
         if (lastAmedasObsTime) buildScene2MetaTrack(lastAmedasObsTime);
         buildTicker();
         buildFcLvTrack(false);
@@ -6018,49 +5073,25 @@
             jobs.push((async function () {
                 const sWbgt = performance.now();
                 try {
-                    if (ECS_ONLY_WBGT) {
-                        applyWbgtInSeason_();
-                        wbgtOffSeason = false;
-                        try {
-                            const ecsSlots = await fetchWbgtFromEcsApi();
-                            timings['WBGT(ECS)'] = Math.round(performance.now() - sWbgt);
-                            if (ecsSlots && hasFull4Slots(ecsSlots)) {
-                                moeOk = applyWbgtSlotsToDom(ecsSlots);
-                            } else if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-                                syncWbgtSlotsToDomIfReady_();
-                                moeOk = true;
-                            } else {
-                                moeOk = false;
-                            }
-                        } catch (e) {
-                            console.warn('[WBGT] ECS取得:', e.message || e);
-                            moeOk = !!(lastGoodWbgtSlots_ && syncWbgtSlotsToDomIfReady_());
+                    const wbgtSlots = await fetchWbgtFromMoeApi();
+                    timings['WBGT(環境省)'] = Math.round(performance.now() - sWbgt);
+                    if (wbgtSlots === 'offseason') {
+                        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+                            console.log('[WBGT] off-season応答 — 更新中は直前値を維持');
+                            applyWbgtInSeason_();
+                            syncWbgtSlotsToDomIfReady_();
+                            moeOk = true;
+                        } else {
+                            applyWbgtOffSeason_();
+                            moeOk = true;
                         }
                     } else {
-                        const wbgtSlots = await fetchWbgtData_();
-                        timings['WBGT(GAS)'] = Math.round(performance.now() - sWbgt);
-                        if (wbgtSlots === 'offseason') {
-                            if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-                                console.log('[WBGT] off-season応答 — 更新中は直前値を維持');
-                                applyWbgtInSeason_();
-                                syncWbgtSlotsToDomIfReady_();
-                                moeOk = true;
-                            } else {
-                                applyWbgtOffSeason_();
-                                moeOk = true;
-                            }
-                        } else {
-                            applyWbgtInSeason_();
-                            moeOk = applyWbgtSlotsToDom(wbgtSlots);
-                        }
-                        if (USE_MOE_WBGT) {
-                            const sAlert = performance.now();
-                            await updateHeatAlertFromGas_();
-                            timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
-                        }
+                        applyWbgtInSeason_();
+                        moeOk = applyWbgtSlotsToDom(wbgtSlots);
                     }
                 } catch (e) {
                     console.warn('[取得] WBGT系:', e.message || e);
+                    applyWbgtSlotsToDom(null);  // 直前値維持パスを通す
                     moeOk = false;
                 }
             })());
@@ -6077,7 +5108,6 @@
                     const live = applyJmaAmedasToDom(obs, latest);
                     if (plan.forecast && results[1]) {
                         applyJmaDailyForecastToDom(results[1], live.todayMaxTemp, live.todayLiveIcon);
-                        console.log('[天気予報] 気象庁4日予報を更新しました');
                     }
                     compactScene2Panels();
                     queueDisplayRefresh_();
@@ -6099,7 +5129,7 @@
         const deferNote = shouldDeferDisplayRefresh_() ? ' · ループ中のため表示組み替えは保留' : '';
         console.log('[取得] ' + tag + ' 合計 ' + total + 'ms', timings, deferNote.trim());
         queueDisplayRefresh_();
-        if (!shouldDeferDisplayRefresh_() && !getActiveScene()) flushDisplayRefresh_(false);
+        if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
         lastFetchFail = (plan.jma && !jmaOk) || (plan.moe && !moeOk);
         return !lastFetchFail;
         } finally {
@@ -6146,7 +5176,6 @@
         }
     }
     function applyMoeAlertFromJson_(alertJson) {
-        if (NO_HEAT_ALERT) return;
         if (WBGT_ONLY || heatAlertForced) return;
         if (!wbgtNormalDisplay_() && !heatAlertForced) return;
         if (!alertJson || alertJson.source !== 'moe-alert') {
@@ -6158,54 +5187,39 @@
             alertJson.today ? alertJson.today.label : '', alertJson.tomorrow ? alertJson.tomorrow.label : '');
     }
     async function fetchWbgtFromMoeApi() {
-        if (!USE_MOE_WBGT) return null;
         if (!MOE_WBGT_API_URL) {
-            console.error('[WBGT] moe.gasUrl 未設定 — HTML 内の SignageConfig を確認してください');
+            console.error('[WBGT] 環境省 GAS URL が未設定です');
             return null;
         }
-        const bases = [MOE_WBGT_API_URL, MOE_WBGT_BACKUP_URL].filter((u, i, a) => u && a.indexOf(u) === i);
-        const pointCodes = moePointCodesToTry_();
-        let alertApplied = false;
-        let sawOffSeason = false;
-        for (let pi = 0; pi < pointCodes.length; pi++) {
-            const pointCode = pointCodes[pi];
-            const urls = [];
-            bases.forEach(function (base) {
-                const wbgtUrl = appendMoePointToUrl(base, pointCode);
-                const bundleUrl = appendMoeBundleToUrl(base, pointCode);
-                if (wbgtUrl && urls.indexOf(wbgtUrl) < 0) urls.push(wbgtUrl);
-                if (bundleUrl && urls.indexOf(bundleUrl) < 0) urls.push(bundleUrl);
-            });
-            for (const url of urls) {
+        try {
+            const points = moePointCodesToTry_();
+            let lastErr = null;
+            for (let i = 0; i < points.length; i++) {
                 try {
-                    const raw = await fetchMoeJsonFromGasUrl_(url);
-                    const unpacked = unpackMoeGasResponse_(raw);
-                    if (!unpacked || !unpacked.wbgt) continue;
-                    if (unpacked.alert) {
-                        applyMoeAlertFromJson_(unpacked.alert);
-                        alertApplied = true;
+                    const url = appendMoeBundleToUrl(MOE_WBGT_API_URL, points[i]);
+                    const json = await fetchMoeJsonFromGasUrl_(url);
+                    const packed = unpackMoeGasResponse_(json);
+                    if (!packed) throw new Error('bundle empty');
+                    if (packed.alert) applyMoeAlertFromJson_(packed.alert);
+                    else if (MOE_WBGT_API_URL) await updateHeatAlertFromGas_();
+                    if (packed.wbgt && (packed.wbgt.source === 'off-season' || packed.wbgt.inService === false)) {
+                        return 'offseason';
                     }
-                    const wbgt = unpacked.wbgt;
-                    if (!isUsableMoeWbgtPayload_(wbgt)) {
-                        console.warn('[WBGT] 徳島以外/代替地点データを破棄', wbgt.point, wbgt.dataVia || '');
-                        continue;
+                    if (packed.wbgt) {
+                        const slots = parseMoeJson_(packed.wbgt);
+                        return slots;
                     }
-                    if (wbgt.source === 'off-season' || wbgt.inService === false) {
-                        sawOffSeason = true;
-                        console.log('[WBGT] 徳島(71106)にデータなし');
-                        continue;
-                    }
-                    return parseMoeJson_(wbgt);
-                } catch (e) { console.warn('[環境省] GAS取得失敗:', e.message || e); }
+                    throw new Error('no wbgt in bundle');
+                } catch (e) {
+                    lastErr = e;
+                }
             }
+            throw lastErr || new Error('MOE fetch failed');
+        } catch (e) {
+            console.warn('[WBGT] 環境省取得失敗:', e.message || e);
+            if (MOE_WBGT_API_URL) await updateHeatAlertFromGas_();
+            return null;
         }
-        if (!alertApplied) await updateHeatAlertFromGas_();
-        if (sawOffSeason) {
-            console.log('[WBGT] 全地点でデータなし（WBGT非表示）');
-            return 'offseason';
-        }
-        console.warn('[WBGT] 取得失敗: GAS URL と SignageConfig の moe.gasUrl を確認してください');
-        return null;
     }
     function setTextAll(selector, text) {
         document.querySelectorAll(selector).forEach(el => { el.innerText = text; });
@@ -6345,7 +5359,6 @@
     }
     const D5_REL_LABELS = ['今日', '明日', '明後日', '明々後日'];
     const D5_FORECAST_INDICES = [0, 1, 2, 3];
-    let lastJmaForecastCtx_ = null;
     function applyD5BarLabels_() {
         for (let day = 0; day < SCENE5_PANEL_COUNT; day++) {
             document.querySelectorAll(`.d5-day-${day} .s2-bar-label`).forEach(function (el) {
@@ -6364,29 +5377,6 @@
         frame.setAttribute('aria-hidden', 'true');
         panel.appendChild(frame);
     }
-    /** 4日予報の各列: ECS現場は全列を現在WBGT段階色、それ以外は今日のみ現在段階・他日は注意/警戒時のみ同色 */
-    function getD5PanelWbgtLevel_(dayIndex, todayLv, mode) {
-        if (ECS_ONLY_WBGT) return todayLv;
-        if (dayIndex === 0) return todayLv;
-        const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
-            ? SignageBg.isDarkTextForDisplay(todayLv, mode)
-            : (mode === 'normal' && (todayLv === 1 || todayLv === 2));
-        return dark ? todayLv : 0;
-    }
-    function applyD5PanelColors_() {
-        const mode = getSignageDisplayMode_();
-        const todayLv = mode === 'normal' ? getSignageBgLevel_() : -1;
-        if (typeof SignageBg !== 'undefined' && SignageBg.applyStrip) {
-            for (let day = 0; day < SCENE5_PANEL_COUNT; day++) {
-                const panelLv = getD5PanelWbgtLevel_(day, todayLv, mode);
-                document.querySelectorAll('#scene5 .d5-day-' + day).forEach(function (panel) {
-                    SignageBg.applyStrip(panel, panelLv, mode);
-                });
-            }
-        }
-        applyD5ForecastTextColors_();
-        applyD5TodayFrame_();
-    }
     function applyD5TodayFrame_() {
         const mode = getSignageDisplayMode_();
         const lv = mode === 'normal' ? getSignageBgLevel_() : -1;
@@ -6399,16 +5389,15 @@
     /** 全列: 注意・警戒は黒、それ以外は白（「/」・気温・日付ラベル） */
     function applyD5ForecastTextColors_() {
         const mode = getSignageDisplayMode_();
-        const todayLv = mode === 'normal' ? getSignageBgLevel_() : -1;
-        document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
-            const dayMatch = panel.className.match(/\bd5-day-(\d)\b/);
-            const dayIdx = dayMatch ? Number(dayMatch[1]) : 0;
-            const panelLv = getD5PanelWbgtLevel_(dayIdx, todayLv, mode);
-            const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
-                ? SignageBg.isDarkTextForDisplay(panelLv, mode)
-                : (mode === 'normal' && (panelLv === 1 || panelLv === 2));
+        const bgLv = mode === 'normal' ? getSignageBgLevel_() : -1;
+        const dark = (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay)
+            ? SignageBg.isDarkTextForDisplay(bgLv, mode)
+            : (mode === 'normal' && (bgLv === 1 || bgLv === 2));
+        const c = dark ? '#000000' : '#ebebeb';
+        document.querySelectorAll('#scene5 .d5-panel:not(.d5-today-focus)').forEach(function (panel) {
             panel.classList.toggle('col-bg-dark-text', dark);
-            const c = dark ? '#000000' : '#ebebeb';
+        });
+        document.querySelectorAll('#scene5 .d5-panel').forEach(function (panel) {
             panel.querySelectorAll('.s2-bar-label, .d5-sep, .d5-temp, .s2-unit').forEach(function (n) {
                 n.style.color = c;
             });
@@ -6420,13 +5409,14 @@
         d5Conveyor.style.width = `${scene5SetWidth * 2}px`;
     }
     function fitD5PanelText_() {
-        const maxW = 120;
-        const maxH = 68;
+        const maxW = 118;
         document.querySelectorAll('#scene5 .s2-bar-label').forEach(function (el) {
-            fitTextToWidth_(el, maxW, 24, 14, 26);
-        });
-        document.querySelectorAll('#scene5 .s2-foot .s2-loc').forEach(function (el) {
-            fitTextToWidth_(el, 118, 17, 11, 19);
+            let size = 22;
+            el.style.fontSize = size + 'px';
+            while (size > 14 && el.scrollWidth > maxW) {
+                size -= 1;
+                el.style.fontSize = size + 'px';
+            }
         });
         document.querySelectorAll('#scene5 .d5-weather-row').forEach(function (row) {
             const icon = row.querySelector('.weather-svg');
@@ -6434,9 +5424,9 @@
             const wrap = row.querySelector('.s2-val');
             const num = wrap && wrap.querySelector('.d5-temp');
             if (!num) return;
-            let iconSz = 64;
-            let sepSz = 40;
-            let numSz = 60;
+            let iconSz = 44;
+            let sepSz = 30;
+            let numSz = 38;
             let unitSz = 18;
             const apply = function () {
                 if (icon) { icon.style.width = iconSz + 'px'; icon.style.height = iconSz + 'px'; }
@@ -6445,30 +5435,13 @@
                 const unit = wrap.querySelector('.s2-unit');
                 if (unit) unit.style.fontSize = unitSz + 'px';
             };
-            const overflows = function () {
-                return row.scrollWidth > maxW || row.scrollHeight > maxH;
-            };
             apply();
-            let growGuard = 24;
-            while (growGuard-- > 0) {
-                const prev = { iconSz: iconSz, sepSz: sepSz, numSz: numSz, unitSz: unitSz };
-                if (numSz < 64) numSz += 1;
-                else if (iconSz < 68) iconSz += 1;
-                else if (sepSz < 44) sepSz += 1;
-                else break;
-                apply();
-                if (overflows()) {
-                    iconSz = prev.iconSz; sepSz = prev.sepSz; numSz = prev.numSz; unitSz = prev.unitSz;
-                    apply();
-                    break;
-                }
-            }
             let guard = 60;
-            while (guard-- > 0 && overflows()) {
-                if (unitSz > 12) { unitSz -= 1; apply(); continue; }
-                if (numSz > 30) { numSz -= 1; apply(); continue; }
-                if (iconSz > 38) { iconSz -= 2; apply(); continue; }
-                if (sepSz > 26) { sepSz -= 1; apply(); continue; }
+            while (guard-- > 0 && row.scrollWidth > maxW) {
+                if (numSz > 26) { numSz -= 1; apply(); continue; }
+                if (iconSz > 32) { iconSz -= 2; apply(); continue; }
+                if (sepSz > 22) { sepSz -= 1; apply(); continue; }
+                if (unitSz > 14) { unitSz -= 1; apply(); continue; }
                 break;
             }
         });
@@ -6477,7 +5450,6 @@
         const weekly = Array.isArray(forecastJson) ? forecastJson[1] : null;
         const series = weekly && weekly.timeSeries;
         if (!Array.isArray(series)) return;
-        lastJmaForecastCtx_ = { forecastJson: forecastJson, todayMaxTemp: todayMaxTemp, todayLiveIcon: todayLiveIcon };
         let tempsMax = null;
         let weatherCodes = null;
         for (const block of series) {
@@ -6497,17 +5469,9 @@
             document.querySelectorAll(`.d5-day-${day} .d5-temp`).forEach(el => { el.innerText = tempStr; });
             document.querySelectorAll(`.d5-day-${day} .d5-weather-use`).forEach(el => el.setAttribute('href', icon));
         }
-        applyD5PanelColors_();
+        applyD5TodayFrame_();
+        applyD5ForecastTextColors_();
         fitD5PanelText_();
-        persistSignageStateCache_();
-    }
-    function refreshJmaForecastOnDom_() {
-        if (!lastJmaForecastCtx_) return;
-        applyJmaDailyForecastToDom(
-            lastJmaForecastCtx_.forecastJson,
-            lastJmaForecastCtx_.todayMaxTemp,
-            lastJmaForecastCtx_.todayLiveIcon
-        );
     }
     function formatScene2ObsClock_(date) {
         const d = date instanceof Date ? date : new Date(date);
@@ -6550,54 +5514,28 @@
             return `<span class="s2-meta-group">${escapeS1Html(g.labels + '：' + g.text)}</span>`;
         }).join('');
     }
-    function buildScene2MetaSlotsHtml_(loc, metaText) {
-        const locSlot = '<div class="s2-meta-slot s2-meta-slot-256"><span class="s2-meta-msg-compact s2-meta-loc">' +
-            escapeS1Html(loc) + '</span></div>';
-        const dataSlot = '<div class="s2-meta-slot s2-meta-slot-256"><span class="s2-meta-msg-compact s2-meta-data">' +
-            escapeS1Html(metaText) + '</span></div>';
-        return locSlot + dataSlot;
-    }
-    function buildScene2MetaScrollSetHtml_(loc, metaText) {
-        const slots = buildScene2MetaSlotsHtml_(loc, metaText);
-        return '<div class="s2-meta-set s2-meta-set-scroll">' + slots + slots + '</div>';
-    }
-    function buildScene2MetaFlowSetHtml_(slot) {
-        return '<div class="s2-meta-set s2-meta-set-flow">' + slot + slot + '</div>';
-    }
     function buildScene2MetaSetHtml(obs) {
-        const loc = getSiteLocationLabel_();
-        const groups = buildScene2MetaGroups_(obs);
-        const metaLine = groups.map(function (g) { return g.labels + '：' + g.text; }).join('　');
-        return buildScene2MetaScrollSetHtml_(loc, metaLine);
+        const inner = buildScene2MetaGroupsHtml_(obs);
+        const msg = `<span class="s2-meta-msg-scroll s2-meta-msg-groups">${inner}</span>`;
+        const slot = `<div class="s2-meta-slot s2-meta-slot-flow">${msg}</div>`;
+        return `<div class="s2-meta-set s2-meta-set-flow">${slot}</div>`;
     }
     function buildScene2MetaTrack(latest) {
         if (!s2MetaTrack) return;
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            const ecsSnap = getEcsSnapshotForDisplay_();
-            if (ecsSnap) {
-                buildScene2MetaTrackEcs_(ecsSnap);
-            } else {
-                buildScene2MetaTrackEcsFetching_();
-            }
-            return;
-        }
         const when = latest || lastAmedasObsTime || (getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date());
         const obs = formatScene2ObsClock_(when);
         const groups = buildScene2MetaGroups_(obs);
         if (!groups.length) {
             s2MetaTrack.innerHTML = '';
-            scene2MetaLapPx = FOOT_BAR_LAP_PX;
+            scene2MetaLapPx = SCENE2_META_LAP_PX;
             return;
         }
         let html = '';
         for (let i = 0; i < SCENE2_META_SETS; i++) html += buildScene2MetaSetHtml(obs);
         s2MetaTrack.innerHTML = html;
-        fitScene2MetaFootText_();
-        remeasureScene2MetaLapPx_(s2MetaTrack);
-        requestAnimationFrame(function () {
-            fitScene2MetaFootText_();
-            remeasureScene2MetaLapPx_(s2MetaTrack);
-        });
+        const set = s2MetaTrack.querySelector('.s2-meta-set-flow');
+        scene2MetaLapPx = set ? Math.max(SCENE2_META_LAP_PX, set.offsetWidth) : SCENE2_META_LAP_PX;
+        applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
     }
     function applyJmaAmedasToDom(obs, latest) {
         if (latest) lastAmedasObsTime = latest instanceof Date ? latest : new Date(latest);
@@ -6614,10 +5552,8 @@
         const minT = amedasFieldValue(obs.minTemp);
         const gust = amedasFieldValue(obs.gust);
 
-        if (!(ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID)) {
-            setTextAll('.temp-val', temp != null ? String(Math.round(Number(temp))) : '');
-            setTextAll('.humi-val', humi != null ? String(Math.round(Number(humi))) : '');
-        }
+        setTextAll('.temp-val', temp != null ? String(Math.round(Number(temp))) : '');
+        setTextAll('.humi-val', humi != null ? String(Math.round(Number(humi))) : '');
         setTextAll('.rain-val', p10 != null ? Number(p10).toFixed(1) : '');
         setTextAll('.pres-val', pres != null ? String(Math.round(Number(pres))) : '');
         const windDirTxt = wdir != null ? jmaWindDirFromCode(wdir) : '';
@@ -6634,14 +5570,12 @@
 
         if (shouldDeferDisplayRefresh_()) {
             queueDisplayRefresh_();
-        } else if (!(ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID)) {
+        } else {
             buildScene2MetaTrack(lastAmedasObsTime);
         }
         fitScene2BodyText();
         captureAmedasSnapshot_(obs, latest);
         persistSignageStateCache_();
-        const ecsSnapLive = getEcsSnapshotForDisplay_();
-        if (ecsSnapLive) applyEcsSensorToDom_(ecsSnapLive);
 
         return {
             todayMaxTemp: maxT != null ? Number(maxT) : (temp != null ? Number(temp) : null),
@@ -6651,12 +5585,23 @@
     function fitScene2BodyText() {
         const maxW = 116;
         document.querySelectorAll('#scene2 .s2-bar-label').forEach(el => {
-            fitTextToWidth_(el, maxW, 22, 14, 24);
+            let size = 20;
+            const minSize = 14;
+            el.style.fontSize = size + 'px';
+            while (size > minSize && el.scrollWidth > maxW) {
+                size -= 1;
+                el.style.fontSize = size + 'px';
+            }
         });
         document.querySelectorAll('#scene2 .s2-dir-text').forEach(el => {
-            const start = el.classList.contains('dir-val') ? 36 : 22;
-            const min = el.classList.contains('dir-val') ? 24 : 14;
-            fitTextToWidth_(el, maxW, start, min, start + 4);
+            let size = 20;
+            let minSize = 14;
+            if (el.classList.contains('dir-val')) { size = 34; minSize = 24; }
+            el.style.fontSize = size + 'px';
+            while (size > minSize && el.scrollWidth > maxW) {
+                size -= 1;
+                el.style.fontSize = size + 'px';
+            }
         });
         document.querySelectorAll('#scene2 .s2-tmaxmin-card').forEach(card => {
             const hi = card.querySelector('.tmaxmax-val');
@@ -6684,36 +5629,16 @@
                 el.style.fontSize = size + 'px';
             }
         });
-        const ecsWraps = document.querySelectorAll('#scene2 .s2-val');
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && ecsWraps.length) {
-            const ecsOpts = { maxW: 116, maxH: 64, minSz: 36, maxSz: 62, unitMin: 14, unitRatio: 0.36 };
-            let unified = ecsOpts.maxSz;
-            ecsWraps.forEach(function (wrap) {
-                const num = wrap.querySelector('.s2-num');
-                const unit = wrap.querySelector('.s2-unit');
-                if (!num) return;
-                unified = Math.min(unified, fitNumUnitInBox_(wrap, num, unit, ecsOpts));
-            });
-            ecsWraps.forEach(function (wrap) {
-                const num = wrap.querySelector('.s2-num');
-                const unit = wrap.querySelector('.s2-unit');
-                if (!num) return;
-                num.style.fontSize = unified + 'px';
-                if (unit) unit.style.fontSize = Math.max(ecsOpts.unitMin, Math.round(unified * ecsOpts.unitRatio)) + 'px';
-            });
-        } else {
-        ecsWraps.forEach(wrap => {
+        document.querySelectorAll('#scene2 .s2-val').forEach(wrap => {
             const num = wrap.querySelector('.s2-num');
-            const unit = wrap.querySelector('.s2-unit');
             if (!num) return;
-            let size = 44;
+            let size = 40;
             num.style.fontSize = size + 'px';
-            while (size > 26 && wrap.scrollWidth > maxW) {
+            while (size > 24 && wrap.scrollWidth > maxW) {
                 size -= 1;
                 num.style.fontSize = size + 'px';
             }
         });
-        }
     }
     /* 気象庁アメダス: 9項目を固定順でスクロール（10分ごと更新） */
     function compactScene2Panels() {
@@ -6875,7 +5800,7 @@
         return rainNowcastAlert && rainNowcastAlert.messageJp ? rainNowcastAlert.messageJp : '';
     }
     function getWbgtOnlyMessageJp() {
-        if (!ECS_ONLY_WBGT && wbgtOffSeason) return '';
+        if (wbgtOffSeason) return '';
         if (wbgtUnavailable) return unknownMsg.jp;
         const lv = getS1WbgtLevelForDisplay_();
         if (lv < 0) return '';
@@ -6883,7 +5808,7 @@
     }
     /* 下帯: 1分以上取得不可のときだけ「取得不可」。それ以外は直前値のWBGT文言＋雨タグ */
     function getS1WbgtMessageJp() {
-        if (!ECS_ONLY_WBGT && wbgtOffSeason) return '';
+        if (wbgtOffSeason) return '';
         if (wbgtUnavailable) return unknownMsg.jp;
         const lv = getS1WbgtLevelForDisplay_();
         const rain = getRainAlertMessageJp();
@@ -6893,7 +5818,7 @@
         return rain || wbgt;
     }
     function hasS1WbgtFootMessage_() {
-        if (!ECS_ONLY_WBGT && wbgtOffSeason) return false;
+        if (wbgtOffSeason) return false;
         return !!String(getS1WbgtMessageJp() || '').trim();
     }
     /* 下帯: WBGT取得不可時は「取得不可」。提供期間外は地点名で白帯を維持 */
@@ -6904,25 +5829,33 @@
         const site = SITE_CFG.site || {};
         return site.rental || site.customer || '';
     }
-    function getSiteLocationLabel_() {
-        if (ECS_CFG.locationLabel) return ECS_CFG.locationLabel;
-        if (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) return SITE_CFG.jma.forecastLabel;
-        if (SITE_CFG.site && SITE_CFG.site.label) return SITE_CFG.site.label;
-        return '松茂町';
-    }
     function buildS1FootCompanyHtml_() {
         const name = getS1SiteCustomerName_();
         if (!name) return '';
         return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
     }
     function sizeS1FootCompanyText_() {
+        const maxW = FOOT_BAR_SLOT_W - 12;
         document.querySelectorAll('#scene1 .s1-foot-co-txt').forEach(function (el) {
-            fitTextToWidth_(el, FOOT_BAR_SLOT_W - 12, COMPANY_LINE_FONT_START_PX_, COMPANY_LINE_FONT_MIN_PX_, 21);
+            let fz = COMPANY_LINE_FONT_START_PX_;
+            el.style.fontSize = fz + 'px';
+            let guard = 24;
+            while (guard-- > 0 && fz > COMPANY_LINE_FONT_MIN_PX_ && el.scrollWidth > maxW) {
+                fz -= 1;
+                el.style.fontSize = fz + 'px';
+            }
         });
     }
     function sizeS1FootWbgtText_() {
+        const maxW = FOOT_BAR_SLOT_W - 12;
         document.querySelectorAll('#scene1 .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact').forEach(function (el) {
-            fitTextToWidth_(el, FOOT_BAR_SLOT_W - 12, COMPANY_LINE_FONT_START_PX_, 10, 21);
+            let fz = COMPANY_LINE_FONT_START_PX_;
+            el.style.fontSize = fz + 'px';
+            let guard = 24;
+            while (guard-- > 0 && fz > 8 && el.scrollWidth > maxW) {
+                fz -= 1;
+                el.style.fontSize = fz + 'px';
+            }
         });
     }
     function buildS1FootWbgtSlotHtml_(msgText) {
@@ -7015,45 +5948,34 @@
         const slot = buildFootBarSlotHtml(msg, 's1-wbgt-slot');
         return `<div class="s1-wbgt-set">${slot}${slot}</div>`;
     }
-    function getFcLvSlotTexts_() {
-        const loc = (ECS_CFG.locationLabel || getSiteLocationLabel_() || '').trim();
-        const src = getFootSourceText_();
-        return [loc || src, src || loc];
+    function getFcLvText() {
+        return SCENE4_FOOT_ATTR;
     }
-    function getFcLvTrackKey_() {
-        return getFcLvSlotTexts_().join('\u0001');
+    function buildFcLvMsgHtml(text) {
+        if (footBarUseCompact_(text)) {
+            return `<span class="fc-lv-msg-compact">${escapeS1Html(text)}</span>`;
+        }
+        return `<span class="fc-lv-msg">${buildEvenCharSpans(text, 'fc-lv-ch')}</span>`;
     }
-    function buildFcLvSlotHtml_(text) {
-        return `<div class="fc-lv-slot"><span class="fc-lv-msg-compact">${escapeS1Html(text)}</span></div>`;
-    }
-    function buildFcLvSetHtml() {
-        const texts = getFcLvSlotTexts_();
-        let slots = '';
-        texts.forEach(function (t) { slots += buildFcLvSlotHtml_(t); });
-        return `<div class="fc-lv-set fc-lv-set-scroll">${slots}${slots}</div>`;
+    function buildFcLvSetHtml(text) {
+        const msg = buildFcLvMsgHtml(text);
+        if (footBarUseCompact_(text)) {
+            const slot = `<div class="fc-lv-slot fc-lv-slot-wide">${msg}</div>`;
+            return `<div class="fc-lv-set">${slot}</div>`;
+        }
+        const slot = buildFootBarSlotHtml(msg, 'fc-lv-slot');
+        return `<div class="fc-lv-set">${slot}${slot}</div>`;
     }
     function buildFcLvTrack(clearTimers) {
         if (!fcLvTrack) return;
-        const trackKey = getFcLvTrackKey_();
-        if (trackKey === lastFcLvText_ && fcLvTrack.querySelector('.fc-lv-set')) {
-            if (clearTimers) clearScene4Timers();
-            fitFcLvFootText_();
-            applyGlobalScroll_(fcLvTrack, getFcLvLapPx_());
-            return;
-        }
-        lastFcLvText_ = trackKey;
         if (clearTimers) clearScene4Timers();
+        const text = getFcLvText();
         let html = '';
-        for (let i = 0; i < SCENE4_LV_SETS; i++) html += buildFcLvSetHtml();
+        for (let i = 0; i < SCENE4_LV_SETS; i++) html += buildFcLvSetHtml(text);
         fcLvTrack.innerHTML = html;
-        fitFcLvFootText_();
-        scene4FcLvLapPx = getFcLvLapPx_();
+        const setEl = fcLvTrack.querySelector('.fc-lv-set');
+        scene4FcLvLapPx = setEl ? Math.max(SCENE4_LV_LAP_PX, setEl.offsetWidth) : SCENE4_LV_LAP_PX;
         applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
-        requestAnimationFrame(function () {
-            fitFcLvFootText_();
-            scene4FcLvLapPx = getFcLvLapPx_();
-            applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
-        });
     }
     function clearScene4Timers() {
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
@@ -7062,20 +5984,12 @@
     function refreshS1WbgtFootBar_(resetTransform) {
         if (!s1WbgtTrack) return;
         const text = getS1WbgtMessageJp();
-        if (text === lastS1FootMsg_ && s1WbgtTrack.querySelector('.s1-wbgt-set')) {
-            applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
-            const bar = document.querySelector('#scene1 .s1-wbgt-bar');
-            if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
-            return;
-        }
-        lastS1FootMsg_ = text;
         let html = '';
         for (let i = 0; i < SCENE1_WBGT_SETS; i++) html += buildS1WbgtSetHtml(text);
         s1WbgtTrack.innerHTML = html;
         applyGlobalScroll_(s1WbgtTrack, getS1FootLapPx_());
         sizeS1FootCompanyText_();
         sizeS1FootWbgtText_();
-        fitFootBandCompact_();
         const bar = document.querySelector('#scene1 .s1-wbgt-bar');
         if (bar) bar.style.display = hasS1WbgtFootMessage_() ? 'block' : 'none';
     }
@@ -7101,9 +6015,8 @@
     }
     function sceneDisplayMode(el) {
         if (!el) return 'block';
-        if (el.id === 'scene3') return 'flex';
         if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
-        if (el.id === 'scene1') return 'block';
+        if (el.id === 'scene1' || el.id === 'scene3') return 'block';
         return 'flex';
     }
     function hideSceneEl(el) {
@@ -7124,7 +6037,6 @@
         if (!nextEl) { onComplete?.(); return; }
         if (current === nextEl) { onComplete?.(); return; }
         nextEl.style.display = sceneDisplayMode(nextEl);
-        if (nextEl.id === 'scene3') nextEl.style.flexDirection = 'column';
         nextEl.classList.add('active');
         if (!current || SCENE_SLIDE_MS <= 0) {
             if (current) hideSceneEl(current);
@@ -7169,7 +6081,7 @@
         if (!s2) return;
         transitionToScene(s2, playScene2);
     }
-    /* シーン3（多言語WBGT）の後 → シーン1 */
+    /* シーン3の後 → シーン5(WBGT予報) → アラート → 警報 → シーン1 */
     function gotoAfterScene3Tail_() {
         if (WBGT_ONLY) { finishMainLoopToS1_(); return; }
         if (wbgtNormalDisplay_() && heatAlertActive.length && sceneAlert) {
@@ -7180,6 +6092,10 @@
         gotoAfterRainWarnOrScene1_();
     }
     function gotoAfterScene3_() {
+        if (!wbgtOffSeason && s4) {
+            transitionToScene(s4, playScene4);
+            return;
+        }
         gotoAfterScene3Tail_();
     }
     /* 256×128スロット中央に収まるサイズ（256÷128=2 のパネル内で中央揃え） */
@@ -7196,18 +6112,6 @@
         let f1 = Math.min(HA_L1_MAX, Math.floor((usableH - 2) / (1 + HA_L2_RATIO)));
         let f2 = Math.max(10, Math.round(f1 * HA_L2_RATIO));
         setAll(f1, f2);
-        let grow = 48;
-        while (grow-- > 0 && f1 < HA_L1_MAX) {
-            const nf1 = f1 + 1;
-            const nf2 = Math.max(10, Math.round(nf1 * HA_L2_RATIO));
-            setAll(nf1, nf2);
-            if (probe.scrollWidth > usableW) {
-                setAll(f1, f2);
-                break;
-            }
-            f1 = nf1;
-            f2 = nf2;
-        }
         let g = 120;
         while (probe.scrollWidth > usableW && f1 > 8 && g-- > 0) {
             f1 -= 1;
@@ -7304,9 +6208,7 @@
             applyHaTrackX_(tracks, haFlow_.x);
             haAnimId = requestAnimationFrame(step);
         }
-        runSceneScrollAfterHold_(function () {
-            haAnimId = requestAnimationFrame(step);
-        });
+        haAnimId = requestAnimationFrame(step);
     }
     function startAlertOnlyDemo_() {
         resetLogoRotation();
@@ -7333,7 +6235,7 @@
     }
     /* シーン3（多言語枠）: 日・英・インドネシア・フィリピン・ベトナム */
     function getT3Messages_() {
-        if (!ECS_ONLY_WBGT && wbgtOffSeason) return [];
+        if (wbgtOffSeason) return [];
         if (wbgtUnavailable) {
             const all = T3_LANG_KEYS.map(function (key) { return splitT3Message_(unknownMsg[key]); });
             if (DEMO_T3_LANG_IDX >= 0 && DEMO_T3_LANG_IDX < all.length) return [all[DEMO_T3_LANG_IDX]];
@@ -7353,10 +6255,19 @@
         const group = '<span class="s2-meta-group">' + escapeS1Html(text) + '</span>';
         const msg = '<span class="s2-meta-msg-scroll s2-meta-msg-groups">' + group + '</span>';
         const slot = '<div class="s2-meta-slot s2-meta-slot-flow">' + msg + '</div>';
-        return buildScene2MetaFlowSetHtml_(slot);
+        return '<div class="s2-meta-set s2-meta-set-flow">' + slot + slot + '</div>';
     }
     function measureT3GuideLapPx_(trackEl) {
-        return measureS2MetaFlowLapPx_(trackEl);
+        if (!trackEl) return SCENE2_META_LAP_PX;
+        const slot = trackEl.querySelector('.s2-meta-slot-flow');
+        if (slot && slot.offsetWidth > 0) {
+            return Math.max(SCENE2_META_LAP_PX, slot.offsetWidth);
+        }
+        const setEl = trackEl.querySelector('.s2-meta-set-flow');
+        if (setEl && setEl.offsetWidth > 0) {
+            return Math.max(SCENE2_META_LAP_PX, Math.floor(setEl.offsetWidth / 2));
+        }
+        return SCENE2_META_LAP_PX;
     }
     function remeasureT3GuideLapPx_(trackEl) {
         t3GuidLapPx = measureT3GuideLapPx_(trackEl);
@@ -7364,7 +6275,6 @@
     }
     /** 環境省発表または ?heatalert= 指定時のみアラート指針を下帯に出す（フルデモの仮アラートは除く） */
     function isHeatAlertPublishedForGuide_() {
-        if (NO_HEAT_ALERT) return false;
         if (parseHeatAlertParam_().length > 0) return true;
         if (heatAlertForced) return false;
         return heatAlertActive.length > 0;
@@ -7384,12 +6294,6 @@
         const bar = document.querySelector('#scene3 .t3-guid-bar');
         if (!el) return;
         const tier = getT3GuideTierForDisplay_();
-        const text = tier ? t3GuideTierText_(tier) : '';
-        if (text === lastT3GuideText_ && el.querySelector('.s2-meta-set-flow')) {
-            if (bar) bar.style.display = text ? '' : 'none';
-            return;
-        }
-        lastT3GuideText_ = text;
         if (!tier) {
             el.innerHTML = '';
             if (bar) bar.style.display = 'none';
@@ -7397,6 +6301,7 @@
             return;
         }
         if (bar) bar.style.display = '';
+        const text = t3GuideTierText_(tier);
         let html = '';
         for (let i = 0; i < SCENE2_META_SETS; i++) html += buildT3GuideSetHtml_(text);
         el.innerHTML = html;
@@ -7423,16 +6328,6 @@
         const usableW = T3_TOP_HA_W - 8;
         let fz = T3_TOP_HA_FONT_MAX;
         document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
-        let grow = 40;
-        while (grow-- > 0 && fz < T3_TOP_HA_FONT_MAX + 2 && probe.scrollWidth <= usableW) {
-            fz += 1;
-            document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
-            if (probe.scrollWidth > usableW) {
-                fz -= 1;
-                document.querySelectorAll('#scene3 .t3-top-ha-msg').forEach(function (n) { n.style.fontSize = fz + 'px'; });
-                break;
-            }
-        }
         let guard = 80;
         while (guard-- > 0 && fz > 8 && probe.scrollWidth > usableW) {
             fz -= 1;
@@ -7469,7 +6364,7 @@
         });
     }
     function getScene3WbgtLevel_() {
-        if (!ECS_ONLY_WBGT && (wbgtOffSeason || wbgtUnavailable)) return -1;
+        if (wbgtOffSeason || wbgtUnavailable) return -1;
         return getS1WbgtLevelForDisplay_();
     }
     /** シーン3: レベル名・列色・多言語文・下帯指針を同一 WBGT レベルで一括更新 */
@@ -7488,16 +6383,11 @@
         const staticTopBar = document.querySelector('#scene3 .t3-static-top-bar');
         const alertTop = getT3HeatAlertTopForDisplay_();
         if (staticTopBar) {
-            if (alertTop) {
-                staticTopBar.classList.remove('col-bg-dark-text');
-            } else if (typeof SignageBg !== 'undefined' && SignageBg.isDarkTextForDisplay) {
-                staticTopBar.classList.toggle('col-bg-dark-text', SignageBg.isDarkTextForDisplay(lv, mode));
-            }
+            staticTopBar.classList.remove('col-bg-dark-text');
         }
         if (!alertTop) {
             const lvLabel = (wbgtUnavailable || lv < 0) ? '--' : levelNames[lv];
             document.querySelectorAll('#scene3 .t3-lv-static').forEach(function (n) { n.textContent = lvLabel; });
-            fitTextToWidth_(document.querySelectorAll('#scene3 .t3-lv-static'), 120, 22, 14, 24);
         }
         buildT3GuideTrack();
         if (s3 && s3.classList.contains('active') && t3Messages_.length) {
@@ -7507,48 +6397,21 @@
             setT3Lang_(idx);
         }
     }
-    function t3UsableBodyH_(bodyEl) {
-        const h = bodyEl && bodyEl.clientHeight > 0 ? bodyEl.clientHeight : 68;
-        return Math.max(24, h - T3_BODY_VERT_PAD);
-    }
-    function t3LineInkH_(node) {
-        if (!node || !String(node.textContent || '').trim()) return 0;
-        const cs = window.getComputedStyle(node);
-        const fs = parseFloat(cs.fontSize) || 0;
-        let lhPx = parseFloat(cs.lineHeight);
-        if (!Number.isFinite(lhPx)) lhPx = fs * 1.1;
-        const bleed = fs > 0 ? Math.ceil(fs * 0.10) : 0;
-        const rect = node.getBoundingClientRect();
-        return Math.ceil(Math.max(lhPx, node.offsetHeight, node.scrollHeight, rect.height)) + bleed;
-    }
     function t3LineBoxH_(node) {
-        return t3LineInkH_(node);
+        const fs = parseFloat(window.getComputedStyle(node).fontSize) || 0;
+        const slack = fs > 0 ? Math.ceil(fs * 0.16) : 0;
+        const rect = node.getBoundingClientRect();
+        return Math.ceil(Math.max(node.offsetHeight, node.scrollHeight, rect.height)) + slack;
     }
-    function t3SlotClipsHoriz_(slot) {
-        if (!slot) return false;
-        const slotR = slot.getBoundingClientRect();
-        const pad = 1;
+    function t3SlotClipsVert_(slot, bodyEl) {
+        if (!slot || !bodyEl) return false;
+        const bodyR = bodyEl.getBoundingClientRect();
+        const pad = 2;
         let clips = false;
         slot.querySelectorAll('.t3-l1, .t3-l2').forEach(function (n) {
             if (!String(n.textContent || '').trim()) return;
             const r = n.getBoundingClientRect();
-            if (r.left < slotR.left + pad || r.right > slotR.right - pad) clips = true;
-        });
-        return clips;
-    }
-    function t3SlotClips_(slot, bodyEl) {
-        return t3SlotClipsVert_(slot, bodyEl) || t3SlotClipsHoriz_(slot);
-    }
-    function t3SlotClipsVert_(slot, bodyEl) {
-        const box = slot || bodyEl;
-        if (!box) return false;
-        const boxR = box.getBoundingClientRect();
-        const pad = 1;
-        let clips = false;
-        (slot || box).querySelectorAll('.t3-l1, .t3-l2').forEach(function (n) {
-            if (!String(n.textContent || '').trim()) return;
-            const r = n.getBoundingClientRect();
-            if (r.top < boxR.top + pad || r.bottom > boxR.bottom - pad) clips = true;
+            if (r.top < bodyR.top + pad || r.bottom > bodyR.bottom - pad) clips = true;
         });
         return clips;
     }
@@ -7568,24 +6431,15 @@
         nodes.forEach(function (n) {
             n.style.transform = '';
             n.style.transformOrigin = 'center center';
-            let sw = n.scrollWidth;
+            const sw = n.scrollWidth;
             if (sw > maxW && sw > 0) {
-                n.style.transform = 'scaleX(' + (maxW / sw).toFixed(4) + ')';
-            }
-            let guard = 8;
-            while (guard-- > 0) {
-                const rw = n.getBoundingClientRect().width;
-                if (rw <= maxW + 0.5) break;
-                sw = n.scrollWidth || rw;
-                if (sw <= 0) break;
                 n.style.transform = 'scaleX(' + (maxW / sw).toFixed(4) + ')';
             }
         });
     }
     function t3LineFitsWidth_(node, maxW) {
         if (!node || !String(node.textContent || '').trim()) return true;
-        if (node.scrollWidth <= maxW) return true;
-        return node.getBoundingClientRect().width <= maxW + 0.5;
+        return node.scrollWidth <= maxW;
     }
     function t3LineHeightForLang_(langKey) {
         return langKey === 'jp' ? T3_LINE_LH_JP : T3_LINE_LH_LATIN;
@@ -7593,12 +6447,13 @@
     function applyT3LineStyle_(nodes, fontPx, langKey) {
         if (!nodes || !nodes.length) return;
         const lh = t3LineHeightForLang_(langKey);
+        const padB = langKey === 'jp' ? 0 : 1;
         nodes.forEach(function (n) {
             n.style.lineHeight = String(lh);
             n.style.height = 'auto';
             n.style.minHeight = '0';
             n.style.maxHeight = 'none';
-            n.style.paddingBottom = '0';
+            n.style.paddingBottom = padB + 'px';
             n.style.overflow = 'visible';
         });
     }
@@ -7608,11 +6463,12 @@
     }
     function t3SeedFonts_(fixed, hasL1, langKey, usableH, gap) {
         const lh = t3LineHeightForLang_(langKey);
+        const padB = langKey === 'jp' ? 0 : 1;
         const ratio = t3RatioFromFixed_(fixed, hasL1);
         if (!hasL1) {
-            return { f1: 0, f2: Math.max(8, Math.floor(usableH / lh)) };
+            return { f1: 0, f2: Math.max(8, Math.floor((usableH - padB) / lh)) };
         }
-        const budget = usableH - gap;
+        const budget = usableH - gap - padB * 2;
         const f1 = Math.max(8, Math.floor(budget / (lh * (1 + ratio))));
         return { f1: f1, f2: Math.max(8, Math.round(f1 * ratio)) };
     }
@@ -7621,83 +6477,58 @@
             t3TextBlockH_(probe1, probe2, hasL1, gap) <= usableH;
         const w1 = hasL1 && probe1 && !t3LineFitsWidth_(probe1, usableW);
         const w2 = probe2 && !t3LineFitsWidth_(probe2, usableW);
-        return vertOk && !w1 && !w2 && !t3SlotClipsHoriz_(slot);
-    }
-    function t3SetAllFontSizes_(f1, f2, langKey) {
-        document.querySelectorAll('#scene3 .t3-l1').forEach(function (n) {
-            n.style.fontSize = (f1 > 0 ? f1 : 0) + 'px';
-            n.style.transform = '';
-        });
-        document.querySelectorAll('#scene3 .t3-l2').forEach(function (n) {
-            n.style.fontSize = f2 + 'px';
-            n.style.transform = '';
-        });
-        applyT3LineStyle_(document.querySelectorAll('#scene3 .t3-l1'), f1, langKey);
-        applyT3LineStyle_(document.querySelectorAll('#scene3 .t3-l2'), f2, langKey);
-    }
-    function t3TextMeasuresFit_(slot, bodyEl, probe1, probe2, hasL1, usableW, usableH, gap) {
-        fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l1'), usableW);
-        fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l2'), usableW);
-        if (t3SlotClips_(slot, bodyEl)) return false;
-        return !t3TextOverflows_(probe1, probe2, hasL1, usableW, usableH, gap);
-    }
-    function t3FinalizeTextFit_(f1, f2, hasL1, langKey, l2Ratio) {
-        const slot = document.querySelector('#scene3 .t3-slot');
-        const bodyEl = document.querySelector('#scene3 .t3-scroll-body');
-        if (!slot || !bodyEl) return;
-        const usableW = T3_USABLE_W;
-        const usableH = t3UsableBodyH_(bodyEl);
-        const gap = T3_SLOT_GAP;
-        const ratio = l2Ratio != null ? l2Ratio : T3_L2_RATIO;
-        const l2Min = 14;
-        const capL2_ = function (a, b) {
-            const maxL2 = Math.max(l2Min, a - 2);
-            return Math.max(l2Min, Math.min(b, maxL2));
-        };
-        const probe1 = slot.querySelector('.t3-l1');
-        const probe2 = slot.querySelector('.t3-l2');
-        const fits_ = function () {
-            return t3TextMeasuresFit_(slot, bodyEl, probe1, probe2, hasL1, usableW, usableH, gap);
-        };
-        t3SetAllFontSizes_(f1, f2, langKey);
-        let growGuard = 64;
-        while (growGuard-- > 0) {
-            const nextF1 = hasL1 ? f1 + 1 : 0;
-            const nextF2 = hasL1 ? capL2_(nextF1, Math.round(nextF1 * ratio)) : f2 + 1;
-            if (hasL1 && nextF1 > T3_L1_MAX) break;
-            if (!hasL1 && nextF2 > T3_L1_MAX) break;
-            t3SetAllFontSizes_(nextF1, nextF2, langKey);
-            if (!fits_()) {
-                t3SetAllFontSizes_(f1, f2, langKey);
-                break;
-            }
-            f1 = nextF1;
-            f2 = nextF2;
-        }
-        fits_();
-        let clipGuard = 120;
-        while (clipGuard-- > 0 && !fits_()) {
-            if (hasL1 && f1 > 8) {
-                f1 -= 1;
-                f2 = capL2_(f1, Math.round(f1 * ratio));
-            } else if (f2 > l2Min) {
-                f2 -= 1;
-            } else {
-                break;
-            }
-            t3SetAllFontSizes_(f1, f2, langKey);
-        }
-        fits_();
+        return vertOk && !w1 && !w2;
     }
     function applyT3FixedFontSizes_(fixed, hasL1, langKey) {
         const bodyEl = document.querySelector('#scene3 .t3-scroll-body');
         const slot = document.querySelector('#scene3 .t3-slot');
         if (!bodyEl || !slot) return;
-        const usableH = t3UsableBodyH_(bodyEl);
+        const usableW = T3_USABLE_W;
+        const usableH = bodyEl.clientHeight > 0 ? bodyEl.clientHeight : 68;
         const gap = T3_SLOT_GAP;
         const ratio = t3RatioFromFixed_(fixed, hasL1);
+        let f1, f2;
         const seeded = t3SeedFonts_(fixed, hasL1, langKey, usableH, gap);
-        t3FinalizeTextFit_(seeded.f1, seeded.f2, hasL1, langKey, ratio);
+        f1 = seeded.f1;
+        f2 = seeded.f2;
+        const setSizes = function (sz1, sz2) {
+            document.querySelectorAll('#scene3 .t3-l1').forEach(function (n) {
+                n.style.fontSize = (sz1 > 0 ? sz1 : 0) + 'px';
+                n.style.transform = '';
+            });
+            document.querySelectorAll('#scene3 .t3-l2').forEach(function (n) {
+                n.style.fontSize = sz2 + 'px';
+                n.style.transform = '';
+            });
+            applyT3LineStyle_(document.querySelectorAll('#scene3 .t3-l1'), sz1, langKey);
+            applyT3LineStyle_(document.querySelectorAll('#scene3 .t3-l2'), sz2, langKey);
+        };
+        setSizes(f1, f2);
+        const probe1 = slot.querySelector('.t3-l1');
+        const probe2 = slot.querySelector('.t3-l2');
+        let guard = 96;
+        while (guard-- > 0) {
+            const tryF1 = hasL1 ? f1 + 1 : 0;
+            const tryF2 = hasL1 ? Math.max(8, Math.round(tryF1 * ratio)) : f2 + 1;
+            setSizes(tryF1, tryF2);
+            if (!t3FontsFit_(slot, bodyEl, probe1, probe2, hasL1, gap, usableW, usableH)) break;
+            f1 = tryF1;
+            f2 = tryF2;
+        }
+        setSizes(f1, f2);
+        guard = 64;
+        while (guard-- > 0) {
+            if (t3FontsFit_(slot, bodyEl, probe1, probe2, hasL1, gap, usableW, usableH)) break;
+            if (hasL1 && f1 > 8) {
+                f1 -= 1;
+                f2 = Math.max(8, Math.round(f1 * ratio));
+            } else if (f2 > 8) {
+                f2 -= 1;
+            } else {
+                break;
+            }
+            setSizes(f1, f2);
+        }
     }
     function sizeT3Text_(langIdx) {
         const slot = document.querySelector('#scene3 .t3-slot');
@@ -7710,7 +6541,16 @@
         const levelIdx = getS1WbgtLevelForDisplay_();
         const hasL1 = String(probe1.textContent || '').trim().length > 0;
         const setAll = function (f1, f2) {
-            t3SetAllFontSizes_(f1, f2, langKey);
+            document.querySelectorAll('#scene3 .t3-l1').forEach(function (n) {
+                n.style.fontSize = (f1 > 0 ? f1 : 0) + 'px';
+                n.style.transform = '';
+            });
+            document.querySelectorAll('#scene3 .t3-l2').forEach(function (n) {
+                n.style.fontSize = f2 + 'px';
+                n.style.transform = '';
+            });
+            applyT3LineStyle_(document.querySelectorAll('#scene3 .t3-l1'), f1, langKey);
+            applyT3LineStyle_(document.querySelectorAll('#scene3 .t3-l2'), f2, langKey);
         };
         const fixed = (levelIdx >= 0 && langKey) ? getT3LangFontSize_(levelIdx, langKey) : null;
         if (fixed) {
@@ -7719,9 +6559,9 @@
         }
         const usableW = T3_USABLE_W;
         const bodyEl = document.querySelector('#scene3 .t3-scroll-body');
-        const usableH = t3UsableBodyH_(bodyEl);
+        const usableH = bodyEl && bodyEl.clientHeight > 0 ? bodyEl.clientHeight : 68;
         const gap = T3_SLOT_GAP;
-        const l2Min = 14;
+        const l2Min = 18;
         const capL2_ = function (f1, f2) {
             const maxL2 = Math.max(l2Min, f1 - 3);
             return Math.max(l2Min, Math.min(f2, maxL2));
@@ -7735,7 +6575,6 @@
                 setAll(0, f2);
             }
             fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l2'), usableW);
-            t3FinalizeTextFit_(0, f2, false, langKey, T3_L2_RATIO);
             return;
         }
         let f1 = Math.min(T3_L1_MAX, Math.floor((usableH - gap) / (T3_LINE_H * (1 + T3_L2_RATIO))));
@@ -7758,42 +6597,38 @@
             }
             setAll(f1, f2);
         }
-        t3FinalizeTextFit_(f1, f2, hasL1, langKey, T3_L2_RATIO);
+        fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l1'), usableW);
+        fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l2'), usableW);
+        let clipGuard = 80;
+        while (clipGuard-- > 0 && t3SlotClipsVert_(slot, bodyEl)) {
+            if (hasL1 && f1 > 8) {
+                f1 -= 1;
+                f2 = capL2_(f1, Math.round(f1 * T3_L2_RATIO));
+            } else if (f2 > l2Min) {
+                f2 -= 1;
+            } else {
+                break;
+            }
+            setAll(f1, f2);
+            fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l1'), usableW);
+            fitT3LineScale_(document.querySelectorAll('#scene3 .t3-l2'), usableW);
+        }
     }
     function sizeT3GuideText_() {
         const bar = document.querySelector('#scene3 .t3-guid-bar');
-        const probe = document.querySelector('#scene3 .t3-guid-bar .s2-meta-msg-scroll');
+        const probe = document.querySelector('#scene3 .t3-guid-bar .s2-meta-group');
         if (!bar || !probe) return;
         const barH = bar.clientHeight > 0 ? bar.clientHeight : 28;
-        const maxH = barH - 1;
         const targets = document.querySelectorAll('#scene3 .t3-guid-bar .s2-meta-msg-scroll');
-        let fz = 17;
-        const minFz = 11;
-        const maxFz = 20;
-        const applyGuide_ = function () {
-            targets.forEach(function (n) {
-                n.style.fontSize = fz + 'px';
-                n.style.lineHeight = maxH + 'px';
-            });
-        };
-        const clipsGuide_ = function () {
-            const barR = bar.getBoundingClientRect();
-            const r = probe.getBoundingClientRect();
-            return r.top < barR.top + 1 || r.bottom > barR.bottom - 1 || probe.scrollHeight > maxH;
-        };
-        applyGuide_();
-        while (fz < maxFz) {
-            fz += 1;
-            applyGuide_();
-            if (clipsGuide_()) {
-                fz -= 1;
-                applyGuide_();
-                break;
-            }
-        }
-        while (fz > minFz && clipsGuide_()) {
+        let fz = 13;
+        targets.forEach(function (n) {
+            n.style.fontSize = fz + 'px';
+            n.style.lineHeight = barH + 'px';
+        });
+        let guard = 24;
+        while (guard-- > 0 && fz > 9 && probe.offsetHeight > barH) {
             fz -= 1;
-            applyGuide_();
+            targets.forEach(function (n) { n.style.fontSize = fz + 'px'; });
         }
     }
     function setT3Lang_(idx) {
@@ -7833,17 +6668,12 @@
     }
     function playScene3() {
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
-        enforceEcsWbgtInSeason_();
         if (wbgtOffSeason) {
             if (previewOffSeasonHold_('s3', playScene3)) return;
             gotoAfterScene3_();
             return;
         }
         applyDisplayRefreshAtSceneEntry_();
-        if (s3) {
-            s3.style.display = 'flex';
-            s3.style.flexDirection = 'column';
-        }
         buildTicker();
         applyPendingSignageBgAtScene_();
         t3Messages_ = getT3Messages_();
@@ -7897,9 +6727,7 @@
             }
             tickerAnimId = requestAnimationFrame(step);
         }
-        runSceneScrollAfterHold_(function () {
-            tickerAnimId = requestAnimationFrame(step);
-        });
+        tickerAnimId = requestAnimationFrame(step);
     }
     function playScene1() {
         const advanceToken = scene1AdvanceToken + 1;
@@ -7948,10 +6776,7 @@
                 }
                 scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
             }
-            runSceneScrollAfterHold_(function () {
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
-            });
+            scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
         } else {
             s1Flow_ = null;
             scene1HoldTimerId = setTimeout(function () {
@@ -7961,16 +6786,11 @@
             }, SCENE1_CLOCK_HOLD_MS);
         }
     }
-    /* シーン2の次はシーン3（WBGT表示・環境クラウド現場値） */
+    /* シーン2の次はシーン3（4日予報） */
     function gotoSceneAfterScene2_() {
-        if (!s4) { gotoSceneAfterScene4_(); return; }
-        transitionToScene(s4, playScene4);
-    }
-    /* シーン3（WBGT表示）の次はシーン4（4日予報） */
-    function gotoSceneAfterScene4_() {
         transitionToScene(s5, playScene5);
     }
-    /* シーン4（4日予報）の次はシーン5（多言語WBGT） */
+    /* シーン5（4日予報）の次はシーン3（多言語WBGT） */
     function gotoSceneAfterScene5_() {
         if (!s3) { gotoAfterScene3_(); return; }
         transitionToScene(s3, playScene3);
@@ -7979,19 +6799,8 @@
         applyDisplayRefreshAtSceneEntry_();
         applyPendingSignageBgAtScene_();
         compactScene2Panels();
-        if (pendingScene2MetaEcsSnap_ && isEcsSnapshotHoldableForDisplay_(pendingScene2MetaEcsSnap_)) {
-            buildScene2MetaTrackEcs_(pendingScene2MetaEcsSnap_);
-            pendingScene2MetaEcsSnap_ = null;
-        } else {
-            buildScene2MetaTrack(lastAmedasObsTime);
-        }
-        remeasureScene2MetaLapPx_(s2MetaTrack);
-        fitScene2MetaFootText_();
+        buildScene2MetaTrack(lastAmedasObsTime);
         fitScene2BodyText();
-        requestAnimationFrame(function () {
-            fitScene2MetaFootText_();
-            remeasureScene2MetaLapPx_(s2MetaTrack);
-        });
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
@@ -8004,7 +6813,6 @@
             return;
         }
         let totalScrolled = 0;
-        scene2MetaLapPx = getScene2MetaLapPx_(s2MetaTrack);
         applyGlobalScroll_(s2MetaTrack, scene2MetaLapPx);
         applyGlobalScroll_(conveyor, scene2SetWidth);
         conveyor.style.transition = 'none';
@@ -8022,17 +6830,14 @@
             }
             scene2AnimId = requestAnimationFrame(animateScene2);
         }
-        runSceneScrollAfterHold_(function () {
-            scene2AnimId = requestAnimationFrame(animateScene2);
-        });
+        scene2AnimId = requestAnimationFrame(animateScene2);
     }
     function finishScene4() {
         clearScene4Timers();
         if (demoOnlyLoop_('s4', playScene4)) return;
-        gotoSceneAfterScene4_();
+        gotoAfterScene3Tail_();
     }
     function playScene4() {
-        enforceEcsWbgtInSeason_();
         applyDisplayRefreshAtSceneEntry_();
         clearScene4Timers();
         if (wbgtOffSeason) {
@@ -8042,24 +6847,14 @@
         }
         if (!lastWbgtSlots && DEMO_SIGNAGE_ACTIVE && currentWbgtLevel >= 0) {
             updateForecastSlots(mockSlotsForDemoLevel(currentWbgtLevel));
-        } else if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            const ecsSnap = getEcsSnapshotForDisplay_();
-            if (ecsSnap) applyEcsSnapshotToSignage_(ecsSnap);
-            else syncEcsDisplayFromLastGood_();
-            syncWbgtSlotsToDomIfReady_();
         } else {
             syncWbgtSlotsToDomIfReady_();
         }
         buildFcLvTrack(false);
-        scene4FcLvLapPx = getFcLvLapPx_();
         compactScene4Panels();
         applyPendingSignageBgAtScene_();
         fitFcBarLabelFontSize_();
         fitFcWbgtFontSize();
-        requestAnimationFrame(function () {
-            fitFcWbgtFontSize();
-            fitFcLvFootText_();
-        });
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
             scheduleDemoStep_(finishScene4);
@@ -8087,18 +6882,16 @@
             }
             scene4AnimId = requestAnimationFrame(animateScene4);
         }
-        runSceneScrollAfterHold_(function () {
-            scene4AnimId = requestAnimationFrame(animateScene4);
-        });
+        scene4AnimId = requestAnimationFrame(animateScene4);
     }
     function playScene5() {
         if (!s5 || !d5Conveyor) { gotoSceneAfterScene5_(); return; }
         if (scene5AnimId) cancelAnimationFrame(scene5AnimId);
         applyDisplayRefreshAtSceneEntry_();
         compactScene5Panels();
-        refreshJmaForecastOnDom_();
         fitD5PanelText_();
-        applyD5PanelColors_();
+        applyD5TodayFrame_();
+        applyD5ForecastTextColors_();
         applyPendingSignageBgAtScene_();
         stepLogo90(420, true);
         if (isFullDemoStep_()) {
@@ -8117,6 +6910,11 @@
             advanceGlobalScroll_(getScrollSpeedPx_());
             totalScrolled += getScrollSpeedPx_();
             applyGlobalScroll_(d5Conveyor, scene5SetWidth);
+            if (logoRotator) {
+                logoRotDeg += (GLOBAL_SCROLL_SPEED_PX / 128) * 90;
+                logoRotator.style.transition = 'none';
+                logoRotator.style.transform = `rotate(${logoRotDeg}deg)`;
+            }
             if (totalScrolled >= scene5ScrollTotal) {
                 scene5AnimId = null;
                 stopLogoSpinInterval();
@@ -8126,9 +6924,7 @@
             }
             scene5AnimId = requestAnimationFrame(animateScene5);
         }
-        runSceneScrollAfterHold_(function () {
-            scene5AnimId = requestAnimationFrame(animateScene5);
-        });
+        scene5AnimId = requestAnimationFrame(animateScene5);
     }
     function mockSlotsForDemoLevel(levelIdx) {
         const w = DEMO_WBGT_BY_LEVEL[levelIdx];
@@ -8165,7 +6961,7 @@
     }
     function applyReviewEnv_() {
         applyRainPreviewFromParam_();
-        if (DEMO_WBGT_OFF && !ECS_ONLY_WBGT) {
+        if (DEMO_WBGT_OFF) {
             applyWbgtOffSeason_();
             buildS1WbgtTrack(false);
             buildTicker();
@@ -8186,18 +6982,6 @@
             buildTicker();
             buildS1WbgtTrack(false);
             buildFcLvTrack(false);
-            return;
-        }
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            if (hasEcsDisplayOnScreen_()) {
-                applyWbgtInSeason_();
-                wbgtUnavailable = false;
-                const ecsSnap = getEcsSnapshotForDisplay_();
-                if (ecsSnap) applyEcsSnapshotToSignage_(ecsSnap);
-                else syncEcsDisplayFromLastGood_();
-                return;
-            }
-            clearEcsDisplayFromDom_();
             return;
         }
         wbgtOffSeason = false;
@@ -8263,27 +7047,14 @@
             badge.hidden = true;
         }
         resetLogoRotation();
-        function launchOnlyScene_() {
-            switch (DEMO_ONLY) {
-                case 's1': showOnlyScene_(s1, playScene1); break;
-                case 's2': showOnlyScene_(s2, playScene2); break;
-                case 's3': showOnlyScene_(s3, playScene3); break;
-                case 's4': showOnlyScene_(s4, playScene4); break;
-                case 's5': showOnlyScene_(s5, playScene5); break;
-                default: break;
-            }
+        switch (DEMO_ONLY) {
+            case 's1': showOnlyScene_(s1, playScene1); break;
+            case 's2': showOnlyScene_(s2, playScene2); break;
+            case 's3': showOnlyScene_(s3, playScene3); break;
+            case 's4': showOnlyScene_(s4, playScene4); break;
+            case 's5': showOnlyScene_(s5, playScene5); break;
+            default: break;
         }
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && !lastGoodWbgtSlots_) {
-            bootstrapEcsData_().then(function (slots) {
-                if (slots) {
-                    applyWbgtInSeason_();
-                    applyWbgtSlotsToDom(slots);
-                }
-                launchOnlyScene_();
-            }).catch(function () { launchOnlyScene_(); });
-            return;
-        }
-        launchOnlyScene_();
     }
     function startPreviewDemo_(sceneKey) {
         applyDemoLevel(DEMO_LEVEL_ORDER[1]);  /* 注意（黄）で見やすく */
@@ -8318,89 +7089,14 @@
         transitionToScene(s1, playScene1);
     }
 
-    let signageBootDone_ = false;
-    let signageUiPrimed_ = false;
-    function signageImmediateBoot_() {
-        if (signageBootDone_ || DEMO_SIGNAGE_ACTIVE) return;
-        try {
-            try { localStorage.removeItem('cspi2026_signage_state_v1'); } catch (e) {}
-            applySyncedUtcMs(Date.now(), 'boot-fallback');
-            const cacheRestored = restoreSignageStateCache_();
-            enforceEcsWbgtInSeason_();
-            initScene2EcsMode_();
-            if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
-            updateClock();
-            startClockTicker();
-            if (cacheRestored) {
-                applyRestoredSignageCacheToDom_();
-                signageUiPrimed_ = true;
-            }
-            if (s1) {
-                s1.style.display = sceneDisplayMode(s1);
-                s1.classList.add('active');
-            }
-            signageBootDone_ = true;
-        } catch (err) {
-            console.error('[起動] 同期ブート:', err);
-            try { updateClock(); startClockTicker(); } catch (_) {}
-        }
-    }
-    function primeSignageUiOnce_() {
-        if (signageUiPrimed_) return;
-        try {
-            syncWbgtSlotsToDomIfReady_();
-            refreshSignageBgIfChanged_(true);
-            buildS1WbgtTrack(false);
-            buildFcLvTrack(false);
-            buildTicker();
-            signageUiPrimed_ = true;
-        } catch (err) {
-            console.error('Init display:', err);
-        }
-    }
-    function applyEcsBootstrapSlots_(slots) {
-        if (!slots) return false;
-        applyWbgtInSeason_();
-        wbgtUnavailable = false;
-        applyWbgtSlotsToDom(slots);
-        refreshSignageBgIfChanged_(true);
-        if (!signageUiPrimed_) {
-            buildS1WbgtTrack(false);
-            signageUiPrimed_ = true;
-        } else {
-            refreshS1WbgtFootBar_(false);
-        }
-        return true;
-    }
-
     window.onload = async function() {
-        if (!signageBootDone_) signageImmediateBoot_();
-        if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID && !DEMO_SIGNAGE_ACTIVE) {
-            /* 空白防止: まず ecs-live / キャッシュを即表示 → ライブAPIで自動更新し続ける */
-            paintEcsStaticFallbackQuick_().then(function (staticSlots) {
-                if (staticSlots) applyEcsBootstrapSlots_(staticSlots);
-            }).catch(function () {});
-            bootstrapEcsData_().then(function (ecsBootSlots) {
-                if (ecsBootSlots) {
-                    applyEcsBootstrapSlots_(ecsBootSlots);
-                } else if (!hasEcsDisplayOnScreen_()) {
-                    clearEcsDisplayFromDom_();
-                } else {
-                    syncEcsDisplayFromLastGood_();
-                }
-            }).catch(function () {
-                if (hasEcsDisplayOnScreen_()) syncEcsDisplayFromLastGood_();
-            }).finally(function () {
-                startEcsAutoRefreshLoop_();
-            });
-        } else if (hasEcsDisplayOnScreen_()) {
-            const ecsSnap = getEcsSnapshotForDisplay_();
-            if (ecsSnap) applyEcsSnapshotToSignage_(ecsSnap);
-            else syncEcsDisplayFromLastGood_();
-        } else if (ECS_WBGT_ENABLED && ECS_WBGT_DATA_ID) {
-            clearEcsDisplayFromDom_();
-        }
-        const forecastLocLabel = (SITE_CFG.jma && SITE_CFG.jma.forecastLabel) || '松茂町';
+        restoreSignageStateCache_();
+        if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
+        const forecastLocLabel = query.get('forecastLoc')
+            || (SITE_CFG.jma && SITE_CFG.jma.forecastLabel)
+            || (SITE_CFG.jma && SITE_CFG.jma.amedasLabel)
+            || (SITE_CFG.moe && SITE_CFG.moe.pointName)
+            || '徳島市';
         document.querySelectorAll('#scene5 .s2-loc').forEach(function (el) {
             el.textContent = forecastLocLabel;
         });
@@ -8410,7 +7106,7 @@
             logoEl.src = logoCfg.logoSrc;
             logoEl.alt = logoCfg.logoAlt || '';
         }
-        if (DEMO_ALERT_ONLY && !NO_HEAT_ALERT) {
+        if (DEMO_ALERT_ONLY) {
             setTimeout(startAlertOnlyDemo_, 300);
             return;
         }
@@ -8419,11 +7115,13 @@
             return;
         }
         if (DEMO_SIGNAGE_ACTIVE) {
-            await syncTimeFromNetwork().catch(function () {});
-            if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'demo-local');
+            applySyncedUtcMs(Date.now(), 'demo-local');
             updateClock();
             startClockTicker();
-            startPeriodicClockSync_();
+            setInterval(function () {
+                syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+            }, CLOCK_SYNC_INTERVAL_MS);
+            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
             applyDemoWeatherStatic();
             if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') {
                 startPreviewDemo_(DEMO_PREVIEW);
@@ -8437,64 +7135,51 @@
             setTimeout(startSequence, 500);
             return;
         }
-        await syncTimeFromNetwork().catch(function () {});
         updateClock();
-        if (!signageBootDone_) startClockTicker();
+        startClockTicker();
+        /* 初回取得完了まで「取得不可」は出さない。色はキャッシュ復元または pending（誤った level 0 を出さない） */
         if (!wbgtOffSeason) wbgtUnavailable = false;
-        if (!signageUiPrimed_) {
-            primeSignageUiOnce_();
-        } else {
-            try {
-                refreshS1WbgtFootBar_(false);
-            } catch (err) {
-                console.warn('Init ticker:', err);
-            }
+        try {
+            syncWbgtSlotsToDomIfReady_();
+            refreshSignageBgIfChanged_(true);
+            buildTicker();
+            buildS1WbgtTrack(false);
+            buildFcLvTrack(false);
+        } catch (err) {
+            console.error('Init display:', err);
         }
-        startPeriodicClockSync_();
+        setInterval(function () {
+            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+        }, CLOCK_SYNC_INTERVAL_MS);
+        syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
         /* 初回取得を待ってからループ開始（濃い灰の時間を短く・更新の重なりを防ぐ） */
-        if (ECS_ONLY_WBGT) {
-            wbgtOffSeason = false;
-            wbgtUnavailable = false;
-        }
-        var mainLoopStartedLocal_ = false;
+        var mainLoopStarted_ = false;
         function beginMainLoop_() {
-            if (mainLoopStartedLocal_) return;
-            mainLoopStartedLocal_ = true;
+            if (mainLoopStarted_) return;
             mainLoopStarted_ = true;
+            startSequence();
             scheduleDataRefresh();
-            const active = getActiveScene();
-            const midPlay = isSignageAnimating_();
-            if (!midPlay) {
-                if (!active) {
-                    startSequence();
-                } else if (active === s1 && !scene1SafetyTimerId && !scene1AnimId && !s1Flow_) {
-                    playScene1();
-                }
-            }
             updateRainNowcastAlert_().then(function () {
                 queueDisplayRefresh_();
                 if (!shouldDeferDisplayRefresh_()) flushDisplayRefresh_(false);
             });
         }
-        if (s1 && !s1.classList.contains('active')) {
+        if (s1) {
             s1.style.display = sceneDisplayMode(s1);
             s1.classList.add('active');
             updateClock();
         }
         Promise.race([
             runScheduledFetch({ jma: true, moe: true, nowc: false, forecast: true, labels: ['起動'] }),
-            new Promise(function (resolve) { setTimeout(resolve, 8000); })
+            new Promise(function (resolve) { setTimeout(resolve, 3500); })
         ]).finally(beginMainLoop_);
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
                 syncTimeFromNetwork().then(function() { updateClock(); startClockTicker(); }).catch(function() { startClockTicker(); });
                 startBackgroundFetch_({ jma: true, moe: true, nowc: true, forecast: true, labels: ['復帰'] });
-                startEcsAutoRefreshLoop_();
             }
         });
     };
-
-    signageImmediateBoot_();
 
 
 </script>
