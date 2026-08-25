@@ -11,9 +11,9 @@
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v2 — Asia/Tokyo 表示 / CF→timeapi→worldtimeapi→NICT / naive dateTime=+09:00 -->
     <title>WBGT Signage 5面 - 大阪・梅田（デジタルサイネージ）</title>
-    <link rel="preload" as="image" href="./assets/ds_logo.png?v=5">
-    <link rel="preload" as="image" href="./assets/ds_logo.png?v=5">
-    <link rel="preload" as="image" href="./assets/ds_logo.png?v=5">
+    <link rel="preload" as="image" href="./assets/ds_logo.png?v=6">
+    <link rel="preload" as="image" href="./assets/ds_logo.png?v=6">
+    <link rel="preload" as="image" href="./assets/ds_logo.png?v=6">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
 /** 5面 640×128 本番用（コンテンツ512 + ロゴ128）。?layout512=1 で4面確認可。localhost は PC 確認用に拡大表示 */
@@ -157,7 +157,7 @@
         .logo-panel {
             width: 128px; height: 128px; display: flex; align-items: center; justify-content: center;
             flex: 0 0 128px; flex-shrink: 0; overflow: hidden; position: relative;
-            background: #ffffff;
+            background: transparent;
             isolation: isolate;
             contain: paint;
         }
@@ -178,6 +178,8 @@
             display: block; width: 120px; max-width: 120px; height: 120px; max-height: 120px;
             object-fit: contain; object-position: center center; margin: 0;
             flex: 0 0 auto; background: transparent;
+            transform-origin: center center;
+            will-change: transform;
         }
         .logo-corp-img {
             display: block; width: 108px; max-width: 108px; height: auto; max-height: 18px;
@@ -237,7 +239,7 @@
         .news-badge-logo {
             display: block; width: 96px; height: 96px; flex: 0 0 96px;
             object-fit: contain; object-position: center center;
-            background: #ffffff; border-radius: 0;
+            background: transparent; border-radius: 0;
             box-sizing: border-box;
         }
         .news-badge-label {
@@ -273,40 +275,43 @@
             white-space: nowrap;
             overflow: visible; text-overflow: clip;
         }
-        /* もう一つのコンテンツ: 球体ロゴを256px単位で右→左に流す */
+        /* ロゴ面: 球体ロゴを128px単位で右→左に流す（4面） */
         .logo-face-scroll-wrap {
             width: 512px; height: 128px; overflow: hidden; position: relative; z-index: 1;
-            background: #ffffff;
+            background: transparent;
         }
         .logo-face-track {
             display: flex; flex-direction: row; width: 1024px; height: 128px;
             transition: none; gap: 0; will-change: transform;
         }
         .logo-face-panel {
-            width: 256px; height: 128px; flex: 0 0 256px; flex-shrink: 0;
+            width: 128px; height: 128px; flex: 0 0 128px; flex-shrink: 0;
             box-sizing: border-box; display: flex; align-items: center; justify-content: center;
-            background: #ffffff; overflow: hidden; padding: 0;
+            background: transparent; overflow: hidden; padding: 0;
         }
         .logo-face-img {
-            display: block; width: 256px; max-width: 256px; height: 128px; max-height: 128px;
+            display: block; width: 120px; max-width: 120px; height: 120px; max-height: 120px;
             object-fit: contain; object-position: center center; margin: 0;
+            transform-origin: center center;
+            will-change: transform;
         }
-        /* 紋章単体: 256パネル内に128×2で隙間なく並べる */
+        /* 紋章: 128パネルに1つ */
         .logo-face-panel.logo-face-panel-crest {
             justify-content: center; gap: 0;
         }
         .logo-face-img.logo-face-crest {
-            width: 128px; max-width: 128px; height: 128px; max-height: 128px;
-            flex: 0 0 128px; object-fit: contain;
+            width: 120px; max-width: 120px; height: 120px; max-height: 120px;
+            flex: 0 0 120px; object-fit: contain;
             transform: none; transform-origin: center center;
             will-change: transform;
         }
-        /* 横長枠: 球体ロゴを中央に大きく */
+        /* 球体ロゴ（旧 wide）も128枠に1つ・回転対象 */
         .logo-face-img.logo-face-wide {
             width: 120px; max-width: 120px; height: 120px; max-height: 120px;
             object-fit: contain; object-position: center center;
             transform: none;
             transform-origin: center center;
+            will-change: transform;
         }
 
         /* 1つ目コンテンツ: CSPI CUBE風ブランド面（128×4 + 右端ロゴ128） */
@@ -314,7 +319,7 @@
         #sceneBrand.active { display: block; }
         .brand-scroll-wrap {
             width: 512px; height: 128px; overflow: hidden; position: relative; z-index: 1;
-            background: #ffffff;
+            background: transparent;
             opacity: 1;
             transition: opacity 0.45s ease-in-out;
         }
@@ -328,7 +333,7 @@
         .brand-panel {
             width: 128px; height: 128px; flex: 0 0 128px; flex-shrink: 0;
             box-sizing: border-box; display: flex; align-items: center; justify-content: center;
-            background: #ffffff; overflow: hidden; position: relative;
+            background: transparent; overflow: hidden; position: relative;
         }
         .brand-inner {
             display: flex; align-items: center; justify-content: center;
@@ -733,7 +738,7 @@
         #scene2 .s2-logo-panel {
             width: 128px; height: 128px !important; max-height: 128px;
             flex: 0 0 128px; padding: 0; gap: 0;
-            background: #ffffff !important;
+            background: transparent !important;
             position: relative; z-index: 2;
             box-sizing: border-box; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
@@ -743,13 +748,15 @@
         #scene2 .s2-logo-panel .s2-foot { display: none !important; }
         #scene2 .s2-logo-panel .s2-body {
             width: 128px; height: 128px; max-height: 128px;
-            padding: 0; background: #ffffff !important;
+            padding: 0; background: transparent !important;
             display: flex; align-items: center; justify-content: center;
         }
         #scene2 .s2-logo-panel .s2-logo-face-img {
             display: block; width: 120px; height: 120px;
             object-fit: contain; object-position: center center;
             background: transparent;
+            transform-origin: center center;
+            will-change: transform;
         }
         #scene2 .s2-meta-bar { z-index: 12; }
         /* 白帯は本体と同幅128枠。1〜9に文字、10（ロゴ）は空＝被らない */
@@ -818,7 +825,7 @@
         #scene4 .fc-logo-panel {
             width: 128px; height: 128px !important; max-height: 128px;
             flex: 0 0 128px; padding: 0; gap: 0;
-            background: #ffffff !important;
+            background: transparent !important;
             position: relative; z-index: 2;
             box-sizing: border-box; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
@@ -830,6 +837,8 @@
             display: block; width: 120px; height: 120px;
             object-fit: contain; object-position: center center;
             background: transparent;
+            transform-origin: center center;
+            will-change: transform;
         }
         #scene4 .fc-lv-bar { z-index: 12; }
         #scene4 .fc-lv-set.fc-lv-set-sync {
@@ -874,7 +883,7 @@
         #scene5 .d5-panel .col-bg-foot { display: none; }
         #scene5 .d5-logo-panel {
             width: 128px; height: 128px; flex: 0 0 128px;
-            background: #ffffff !important;
+            background: transparent !important;
             display: flex; align-items: center; justify-content: center;
             padding: 0; gap: 0; overflow: hidden;
         }
@@ -887,6 +896,8 @@
             display: block; width: 120px; height: 120px;
             object-fit: contain; object-position: center center;
             background: transparent;
+            transform-origin: center center;
+            will-change: transform;
         }
         #scene5 .col-bg-host { flex-shrink: 0; }
         #scene5 .col-bg-layer { width: calc(100% + 1px); }
@@ -1904,19 +1915,19 @@
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/ds_logo.png?v=5',
+    logoSrc: './assets/ds_logo.png?v=6',
     logoAlt: 'デジタルサイネージ株式会社',
-    logoWideSrc: './assets/ds_logo.png?v=5',
+    logoWideSrc: './assets/ds_logo.png?v=6',
     /* コンテンツ内128ロゴ枠（シーン2/4/5）: 正方形・黒背景球体マーク */
-    logoPanelSrc: './assets/ds_logo.png?v=5',
-    logoPanelBg: '#ffffff',
+    logoPanelSrc: './assets/ds_logo.png?v=6',
+    logoPanelBg: 'transparent',
     logoCorpSrc: '',
     footLogoSrc: '',
     /* 下帯は画像ではなく社名テキスト（デジタルサイネージ株式会社） */
     footBannerSrc: '',
     news: {
       enabled: false,
-      logoSrc: './assets/ds_logo.png?v=5',
+      logoSrc: './assets/ds_logo.png?v=6',
       apiUrl: '/api/news',
       url: './data/news.json',
       remoteUrl: '',
@@ -2058,7 +2069,7 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/ds_logo.png?v=5" alt="デジタルサイネージ株式会社" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/ds_logo.png?v=6" alt="デジタルサイネージ株式会社" decoding="sync"></div></div>
             <div class="s2-panel s2-strip" data-s2="weather"><div class="s2-top-bar"><span class="s2-bar-label">天気</span></div><div class="s2-body"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div></div>
             <div class="s2-panel-data s2-strip" data-s2="temp"><div class="s2-top-bar"><span class="s2-bar-label">気温</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num temp-val"></span><span class="s2-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="rain"><div class="s2-top-bar"><span class="s2-bar-label">降水量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain-val"></span><span class="s2-unit">mm</span></div></div></div>
@@ -2068,7 +2079,7 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/ds_logo.png?v=5" alt="デジタルサイネージ株式会社" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/ds_logo.png?v=6" alt="デジタルサイネージ株式会社" decoding="sync"></div></div>
         </div>
         </div>
         <div class="s2-meta-bar"><div class="s2-meta-track" id="s2-meta-track"></div></div>
@@ -2081,12 +2092,12 @@
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/ds_logo.png?v=5" alt="デジタルサイネージ株式会社" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/ds_logo.png?v=6" alt="デジタルサイネージ株式会社" decoding="sync"></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/ds_logo.png?v=5" alt="デジタルサイネージ株式会社" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/ds_logo.png?v=6" alt="デジタルサイネージ株式会社" decoding="sync"></div>
             </div>
         </div>
         <div class="fc-lv-bar"><div class="fc-lv-track" id="fc-lv-track"></div></div>
@@ -2098,12 +2109,12 @@
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北区梅田</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北区梅田</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北区梅田</div></div></div>
-            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/ds_logo.png?v=5" alt="デジタルサイネージ株式会社" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/ds_logo.png?v=6" alt="デジタルサイネージ株式会社" decoding="sync"></div>
             <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北区梅田</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北区梅田</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北区梅田</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">北区梅田</div></div></div>
-            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/ds_logo.png?v=5" alt="デジタルサイネージ株式会社" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/ds_logo.png?v=6" alt="デジタルサイネージ株式会社" decoding="sync"></div>
         </div>
     </div>
 
@@ -2157,7 +2168,7 @@
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="./assets/ds_logo.png?v=5" alt="デジタルサイネージ株式会社" decoding="sync" fetchpriority="high">
+                <img class="logo-img" id="signage-logo" src="./assets/ds_logo.png?v=6" alt="デジタルサイネージ株式会社" decoding="sync" fetchpriority="high">
                 <img class="logo-corp-img" src="" alt="デジタルサイネージ株式会社" decoding="sync">
             </div>
         </div>
@@ -2337,7 +2348,8 @@
             if (panel.classList.contains('s2-logo-panel') || panel.getAttribute('data-s2') === 'logo') {
                 panel.querySelectorAll('.col-bg-layer').forEach(function (el) { el.remove(); });
                 panel.classList.remove('col-bg-host', 'col-bg-dark-text', 'wbgt-off-season', 'wbgt-unavailable');
-                panel.style.backgroundColor = '#ffffff';
+                const colors = colorsForDisplay(levelIdx, displayMode);
+                panel.style.backgroundColor = colors.bgColor;
                 return;
             }
             applyStrip(panel, levelIdx, displayMode);
@@ -2361,7 +2373,8 @@
             if (panel.classList.contains('fc-logo-panel') || panel.getAttribute('data-fc') === 'logo') {
                 panel.querySelectorAll('.col-bg-layer').forEach(function (el) { el.remove(); });
                 panel.classList.remove('col-bg-host', 'col-bg-dark-text', 'wbgt-off-season', 'wbgt-unavailable');
-                panel.style.backgroundColor = '#ffffff';
+                const colors = colorsForDisplay(levelIdx, mode);
+                panel.style.backgroundColor = colors.bgColor;
                 return;
             }
             applyStrip(panel, levelIdx, mode);
@@ -2376,7 +2389,8 @@
             if (panel.classList.contains('d5-logo-panel') || panel.getAttribute('data-d5') === 'logo') {
                 panel.querySelectorAll('.col-bg-layer').forEach(function (el) { el.remove(); });
                 panel.classList.remove('col-bg-host', 'col-bg-dark-text', 'wbgt-off-season', 'wbgt-unavailable');
-                panel.style.backgroundColor = '#ffffff';
+                const colors = colorsForDisplay(levelIdx, displayMode);
+                panel.style.backgroundColor = colors.bgColor;
                 return;
             }
             if (panel.classList.contains('d5-today-focus')) {
@@ -2404,7 +2418,7 @@
         applySceneStripBg(content, levelIdx, displayMode);
     }
 
-    /** 右端 128×128（513以降）: WBGT色は使わず固定背景 */
+    /** 右端 128×128（513以降）: 透過ロゴをWBGT本体色の上に載せる */
     function initSignageLogo_() {
         const img = document.getElementById('signage-logo') || document.querySelector('.logo-img');
         const cfg = global.SIGNAGE_CONFIG;
@@ -2418,7 +2432,12 @@
         panel.querySelectorAll('.col-bg-layer').forEach(function (el) { el.remove(); });
         panel.classList.remove('col-bg-host', 'col-bg-dark-text', 'wbgt-off-season', 'wbgt-unavailable');
         const cfg = global.SIGNAGE_CONFIG || {};
-        panel.style.backgroundColor = cfg.logoPanelBg || '#ffffff';
+        if (cfg.logoPanelBg && cfg.logoPanelBg !== 'transparent') {
+            panel.style.backgroundColor = cfg.logoPanelBg;
+            return;
+        }
+        const colors = colorsForDisplay(levelIdx, displayMode);
+        panel.style.backgroundColor = colors.bgColor;
     }
 
     function refreshAll(currentLevelIdx, displayMode) {
@@ -4526,9 +4545,10 @@
     }
     /**
      * ブランド面シーケンス:
-     *  開始1秒静止（4面とも正立）→ 正立のまま1周流す → 1秒静止
+     *  開始1秒静止 → 回転しながら1周流す → 1秒静止
      *  → 90°ずつ 下/左/上/右 に揃える → 1秒静止 → 回転しながら転がって1周
      *  → 1秒静止 → 次コンテンツへ
+     *  右端ロゴ（5面目）もコンテンツと同じく最初から回転連動
      */
     const BRAND_PANEL_W = 128;
     const BRAND_PANEL_COUNT = 4;
@@ -4548,7 +4568,7 @@
     function ensureBrandPanels_() {
         if (!brandTrack) return false;
         const crestSrc = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoSrc)
-            || './assets/ds_logo.png?v=5';
+            || './assets/ds_logo.png?v=6';
         const htmlCrest = brandCrestHtml_(crestSrc);
         /* 開始は4面とも正立 */
         brandRightBaseRot_ = 0;
@@ -4561,8 +4581,12 @@
         brandTrack.innerHTML = html;
         brandSetWidth = BRAND_PANEL_COUNT * BRAND_PANEL_W;
         brandTrack.style.width = (brandSetWidth * 2) + 'px';
-        if (brandTrack.parentElement) brandTrack.parentElement.style.background = '#ffffff';
+        if (brandTrack.parentElement) brandTrack.parentElement.style.background = 'transparent';
         return true;
+    }
+    function applyBrandRightLogo_(deg, transitionMs) {
+        logoRotDeg = deg;
+        applyLogoTransform_(transitionMs > 0 ? transitionMs : 0);
     }
     function applyBrandAbsoluteRots_(rots, transitionMs) {
         document.querySelectorAll('#brand-track .brand-panel').forEach(function (panel, i) {
@@ -4575,8 +4599,10 @@
                 : 'none';
             inner.style.transform = 'rotate(' + rot + 'deg)';
         });
+        /* 右端（5面目）も先頭面と同じ向きで連動 */
+        applyBrandRightLogo_(rots[0], transitionMs);
     }
-    /** spinDeg: 各面は data-rot + spinDeg（負=反時計）。右端ロゴは連動しない */
+    /** spinDeg: 各面は data-rot + spinDeg（負=反時計）。右端ロゴも同じだけ回す */
     function applyBrandSpin_(spinDeg) {
         document.querySelectorAll('#brand-track .brand-panel').forEach(function (panel) {
             const base = parseInt(panel.getAttribute('data-rot') || '0', 10) || 0;
@@ -4585,6 +4611,7 @@
             inner.style.transition = 'none';
             inner.style.transform = 'rotate(' + (base + spinDeg) + 'deg)';
         });
+        applyBrandRightLogo_(brandRightBaseRot_ + spinDeg, 0);
     }
     /** 各面を時計回り90°ずつ目標向きへ1ステップ進める。完了なら null */
     function brandAlignStepRots_(fromRots, toRots) {
@@ -4650,7 +4677,8 @@
         if (sceneBrandHoldTimerId) { clearTimeout(sceneBrandHoldTimerId); sceneBrandHoldTimerId = null; }
         applyDisplayRefreshAtSceneEntry_();
         applyLogoFaceKindToRightPanel_('sato');
-        resetLogoRotation(); /* ブランド面中は右端ロゴを正立固定 */
+        brandRightBaseRot_ = 0;
+        resetLogoRotation();
         applyScrollX_(brandTrack, 0);
         brandTrack.style.transition = 'none';
         if (brandTrack.parentElement) {
@@ -4663,18 +4691,22 @@
             return;
         }
 
-        function scrollStartFacingLap_(doneFn) {
+        /* 最初の1周から回転しながら流す（正立固定はしない） */
+        function scrollStartSpinningLap_(doneFn) {
             let totalScrolled = 0;
             const scrollTotal = brandSetWidth * BRAND_LAPS;
             const speed = getScrollSpeedPx_();
             function tick() {
                 totalScrolled += speed;
+                const spinDeg = -(totalScrolled / BRAND_PANEL_W) * 90;
                 applyScrollX_(brandTrack, wrapScrollX_(-totalScrolled, brandSetWidth));
-                applyBrandAbsoluteRots_(startRots, 0);
+                applyBrandSpin_(spinDeg);
                 if (totalScrolled >= scrollTotal) {
                     sceneBrandAnimId = null;
                     applyScrollX_(brandTrack, wrapScrollX_(-scrollTotal, brandSetWidth));
+                    /* 1周＝360°で正立に戻し、揃えフェーズへ */
                     applyBrandAbsoluteRots_(startRots, 0);
+                    brandRightBaseRot_ = 0;
                     doneFn();
                     return;
                 }
@@ -4689,6 +4721,7 @@
                 const next = brandAlignStepRots_(cur, BRAND_ALIGN_ROTS);
                 if (!next) {
                     applyBrandAbsoluteRots_(BRAND_ALIGN_ROTS, 0);
+                    brandRightBaseRot_ = BRAND_ALIGN_ROTS[0];
                     doneFn();
                     return;
                 }
@@ -4705,6 +4738,7 @@
             const segMs = (BRAND_PANEL_W / sp) * (1000 / 60);
             let segIdx = 0;
             let segT0 = 0;
+            brandRightBaseRot_ = BRAND_ALIGN_ROTS[0];
             function animateBrand(now) {
                 if (!segT0) segT0 = now;
                 let t = (now - segT0) / segMs;
@@ -4732,9 +4766,9 @@
             sceneBrandAnimId = requestAnimationFrame(animateBrand);
         }
 
-        /* 開始1秒静止 → 正立のまま1周 → 1秒静止 → 90°揃え → 1秒静止 → 転がる → 終了1秒静止 */
+        /* 開始1秒静止 → 回転しながら1周 → 1秒静止 → 90°揃え → 1秒静止 → 転がる → 終了1秒静止 */
         brandHold_(BRAND_HOLD_MS, function () {
-            scrollStartFacingLap_(function () {
+            scrollStartSpinningLap_(function () {
                 brandHold_(BRAND_HOLD_MS, function () {
                     alignToStagger_(function () {
                         brandHold_(BRAND_HOLD_MS, function () {
@@ -5021,14 +5055,22 @@
         /* noop — CSPI CUBE 準拠はスクロール／スライド連動 */
     }
     function applyLogoTransform_(animateMs) {
-        if (!logoRotator) return;
         if (document.body.classList.contains('layout-512')) return;
-        if (animateMs > 0) {
-            logoRotator.style.transition = 'transform ' + animateMs + 'ms linear';
-        } else {
-            logoRotator.style.transition = 'none';
+        const transition = animateMs > 0
+            ? ('transform ' + animateMs + 'ms linear')
+            : 'none';
+        const rot = 'rotate(' + logoRotDeg + 'deg)';
+        if (logoRotator) {
+            logoRotator.style.transition = transition;
+            logoRotator.style.transform = rot;
         }
-        logoRotator.style.transform = 'rotate(' + logoRotDeg + 'deg)';
+        /* シーン内ロゴ（気象・予報の末尾枠）も右端と同じ角度で回転 */
+        document.querySelectorAll(
+            '.s2-logo-face-img, .fc-logo-face-img, .d5-logo-face-img'
+        ).forEach(function (img) {
+            img.style.transition = transition;
+            img.style.transform = rot;
+        });
     }
     function resetLogoRotation() {
         logoRotDeg = 0;
@@ -5036,13 +5078,13 @@
     }
     /**
      * 512以降ロゴ: コンテンツが左へ流れる／シーンが右→左スライドするとき
-     * 128px につき 90° 時計回り。スライド 512px = ちょうど 1 回転。
+     * 128px につき 90° 反時計回り（流れる方向と揃える）。
      */
     function tickLogoScrollSync(scrollPx, panelWidthPx) {
         if (!logoRotator || !scrollPx) return;
         if (document.body.classList.contains('layout-512')) return;
         const w = panelWidthPx > 0 ? panelWidthPx : LOGO_ROT_PANEL_W;
-        logoRotDeg += (scrollPx / w) * 90;
+        logoRotDeg -= (scrollPx / w) * 90;
         applyLogoTransform_(0);
     }
     function getLogoRotStepMs_() {
@@ -5051,7 +5093,7 @@
     }
     function nudgeLogo90Seamless_() {
         if (!logoRotator || document.body.classList.contains('layout-512')) return;
-        logoRotDeg += 90;
+        logoRotDeg -= 90;
         applyLogoTransform_(getLogoRotStepMs_());
     }
     /** 互換API — 通常はスライド／スクロール連動のみ（二重回転を避ける） */
@@ -5108,8 +5150,8 @@
     const SCENE5_SCROLL_PX = 0.8;
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
-    const SCENE_LOGO_PANEL_W = 256;
-    const SCENE_LOGO_PANEL_COUNT = 2; /* 0–256 / 257–512 に同じ横長ロゴ */
+    const SCENE_LOGO_PANEL_W = 128;
+    const SCENE_LOGO_PANEL_COUNT = 4; /* 512を128×4、各面に球体ロゴ1つ */
     const SCENE_LOGO_LAPS = 6; /* スロット風に十分回す周回数 */
     const LOGO_ACTION_HOLD_MS = 1000; /* 各動作の前後で1秒静止 */
     /* スロット風: 最高速約1秒 → 減速して停止 */
@@ -6644,7 +6686,7 @@
     /* 気象庁アメダス: 9項目のあと128×128ロゴ1枚（10分ごと更新） */
     function scene2LogoPanelHtml_() {
         const cfg = window.SIGNAGE_CONFIG || {};
-        const src = cfg.logoPanelSrc || cfg.logoSrc || './assets/ds_logo.png?v=5';
+        const src = cfg.logoPanelSrc || cfg.logoSrc || './assets/ds_logo.png?v=6';
         return '<div class="s2-panel s2-logo-panel" data-s2="logo">'
             + '<div class="s2-body"><img class="s2-logo-face-img" src="' + src
             + '" alt="デジタルサイネージ株式会社" decoding="sync"></div></div>';
@@ -7136,7 +7178,7 @@
             const off = eased * SCENE_W;
             const slideDelta = off - slideLogoPrevOff;
             slideLogoPrevOff = off;
-            /* CSPI CUBE: 右→左スライド 512px = ロゴ1回転（時計回り） */
+            /* 右→左スライド時: ロゴは反時計回りで連動 */
             tickLogoScrollSync(slideDelta, LOGO_ROT_PANEL_W);
             applyScrollX_(current, -off);
             applyScrollX_(nextEl, SCENE_W - off);
@@ -8041,7 +8083,7 @@
         const newsCfg = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.news) || {};
         const logoSrc = newsCfg.logoSrc
             || (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.logoSrc)
-            || './assets/ds_logo.png?v=5';
+            || './assets/ds_logo.png?v=6';
         function badgeHtml_() {
             return '<div class="news-badge">'
                 + '<img class="news-badge-logo" src="' + logoSrc + '" alt="デジタルサイネージ株式会社" decoding="sync">'
@@ -8132,13 +8174,13 @@
         const alt = cfg.logoAlt || 'デジタルサイネージ株式会社';
         if (kind === 'crest') {
             return {
-                src: cfg.logoSrc || './assets/ds_logo.png?v=5',
+                src: cfg.logoSrc || './assets/ds_logo.png?v=6',
                 alt: alt,
                 cls: 'logo-face-crest'
             };
         }
         return {
-            src: cfg.logoWideSrc || './assets/ds_logo.png?v=5',
+            src: cfg.logoWideSrc || './assets/ds_logo.png?v=6',
             alt: alt,
             cls: 'logo-face-wide'
         };
@@ -8147,7 +8189,8 @@
         const one = getLogoFaceKindDef_(kind);
         const defs = [];
         for (let i = 0; i < SCENE_LOGO_PANEL_COUNT; i++) {
-            defs.push({ src: one.src, alt: i === 0 ? one.alt : '', cls: one.cls, dual: kind === 'crest' });
+            /* 128枠にロゴ1つ（旧256枠の dual は使わない） */
+            defs.push({ src: one.src, alt: i === 0 ? one.alt : '', cls: one.cls, dual: false });
         }
         return defs;
     }
@@ -8155,7 +8198,7 @@
         const logoEl = document.getElementById('signage-logo');
         if (!logoEl) return;
         const cfg = window.SIGNAGE_CONFIG || {};
-        const src = cfg.logoSrc || './assets/ds_logo.png?v=5';
+        const src = cfg.logoSrc || './assets/ds_logo.png?v=6';
         const alt = cfg.logoAlt || 'デジタルサイネージ株式会社';
         if (logoEl.getAttribute('src') !== src) logoEl.src = src;
         logoEl.alt = alt;
@@ -8208,23 +8251,16 @@
     }
     function applyLogoFaceSpin_(scrolledPx, kind) {
         if (!logoFaceTrack) return;
-        /* crest（円形ロゴ）: 128px 進むごとに 90° 回転＝スロット風 */
-        if (kind === 'crest') {
-            const deg = -((scrolledPx / 128) * 90);
-            logoFaceTrack.querySelectorAll('.logo-face-img.logo-face-crest').forEach(function (img) {
-                img.style.transition = 'none';
-                img.style.transform = 'rotate(' + deg + 'deg)';
-            });
-            return;
-        }
-        /* wide: 横流しのみ（回転なし） */
-        logoFaceTrack.querySelectorAll('.logo-face-img.logo-face-crest').forEach(function (img) {
-            img.style.transform = '';
+        /* 128px 進むごとに 90° 回転（crest / wide とも） */
+        const deg = -((scrolledPx / SCENE_LOGO_PANEL_W) * 90);
+        logoFaceTrack.querySelectorAll('.logo-face-img').forEach(function (img) {
+            img.style.transition = 'none';
+            img.style.transform = 'rotate(' + deg + 'deg)';
         });
     }
     function resetLogoFaceCrestSpin_() {
         if (!logoFaceTrack) return;
-        logoFaceTrack.querySelectorAll('.logo-face-img.logo-face-crest').forEach(function (img) {
+        logoFaceTrack.querySelectorAll('.logo-face-img').forEach(function (img) {
             img.style.transition = 'none';
             img.style.transform = 'rotate(0deg)';
         });
@@ -8319,7 +8355,7 @@
                     sceneLogoAnimId = null;
                     applyScrollX_(logoFaceTrack, wrapScrollX_(-scrollTotal, lap));
                     applyLogoFaceSpin_(scrollTotal, kind);
-                    if (kind === 'crest') resetLogoFaceCrestSpin_();
+                    resetLogoFaceCrestSpin_();
                     stopLogoSpinInterval();
                     afterLogoScroll_();
                     return;
