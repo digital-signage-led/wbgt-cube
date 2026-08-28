@@ -2941,7 +2941,7 @@
      *  1 時刻＋WBGT下帯 (s1) → 2 気象観測＋末尾紋章 (s2)
      *  → ブランド面 → 天野産業PR
      *  → 3 WBGT表示 (s4) → 4 4日予報 (s5)
-     *  → 横長ロゴ → 5 多言語WBGT (s3) → 社章＋小虎黒帯2周 → シーン1へ
+     *  → 横長ロゴ → 5 多言語WBGT (s3) → シーン1へ
      * ?only= は 1〜5 または s1〜s5（旧キー）両対応
      */
     function normalizeOnlyParam_(raw) {
@@ -2984,32 +2984,26 @@
     function shouldShowDemoBadge_() {
         return !DEMO_EMBED && !NATIVE_640;
     }
-    const T3_LANG_KEYS = ['jp', 'en', 'id', 'fil', 'vn'];
-    /** シーン3 多言語: 5段階 × 言語別 目標比率（1段目 / 2段目 px・256×68 内で最大化） */
+    const T3_LANG_KEYS = ['jp'];
+    /** シーン3 日本語: 5段階 × 1段目 / 2段目 px（256×68 内で最大化） */
     const T3_LANG_FONT_SIZES = [
-        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [48, 28], fil: [34, 20] }, /* ほぼ安全 */
-        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [38, 22], fil: [36, 21] }, /* 注意 */
-        { jp: [48, 28], en: [48, 28], id: [38, 22], vn: [48, 28], fil: [38, 22] }, /* 警戒 */
-        { jp: [48, 28], en: [36, 21], id: [32, 19], vn: [28, 16], fil: [32, 19] }, /* 厳重警戒 */
-        { jp: [48, 28], en: [42, 24], id: [36, 21], vn: [47, 27], fil: [44, 25] }  /* 危険 */
+        { jp: [48, 28] }, /* ほぼ安全 */
+        { jp: [48, 28] }, /* 注意 */
+        { jp: [48, 28] }, /* 警戒 */
+        { jp: [48, 28] }, /* 厳重警戒 */
+        { jp: [48, 28] }  /* 危険 */
     ];
     let t3LangIdx_ = 0;
     function getT3LangFontSize_(levelIdx, langKey) {
         const row = T3_LANG_FONT_SIZES[levelIdx];
         if (!row || !langKey) return null;
-        const pair = row[langKey] || row.en;
+        const pair = row[langKey] || row.jp;
         if (!pair || pair.length < 2) return null;
         return { l1: pair[0], l2: pair[1] };
     }
     const DEMO_T3_LANG_IDX = (function () {
         const v = (query.get('t3lang') || '').toLowerCase();
-        const map = {
-            jp: 0, '0': 0,
-            en: 1, '1': 1,
-            id: 2, '2': 2,
-            fil: 3, ph: 3, tl: 3, '3': 3,
-            vn: 4, '4': 4
-        };
+        const map = { jp: 0, '0': 0 };
         return map[v] != null ? map[v] : -1;
     })();
     const DEMO_LEVEL_FIXED = (function () {
@@ -3241,11 +3235,11 @@
     let wbgtUnavailableTimerId_ = null;
 
     const multi = [
-        { jp:"【ほぼ安全】適宜水分補給", en:"Safe: Stay hydrated", id:"Aman: Minum air cukup", fil:"Halos ligtas: Uminom ng tubig", vn:"An toàn: Bổ sung nước" },
-        { jp:"【注意】積極的に水分補給", en:"Caution: Actively hydrate", id:"Waspada: Minum air aktif", fil:"Babala: Uminom ng tubig", vn:"Chú ý: Uống nước thường xuyên" },
-        { jp:"【警戒】定期的に休憩", en:"Warning: Take regular breaks", id:"Siaga: Istirahat rutin", fil:"Alerto: Magpahinga", vn:"Cảnh báo: Nghỉ ngơi định kỳ" },
-        { jp:"【厳重警戒】こまめに休憩・体調確認", en:"Severe Warning: Stop intense work", id:"Waspada: Hentikan kerja berat", fil:"Malubha: Itigil ang trabaho", vn:"Cảnh báo nghiêm trọng: Ngừng làm việc nặng" },
-        { jp:"【危険】休憩・水分塩分補給を徹底", en:"Danger: Stop work immediately", id:"Bahaya: Hentikan kerja", fil:"Panganib: Itigil ang trabaho", vn:"Nguy hiểm: Dừng công việc ngay" }
+        { jp:"【ほぼ安全】適宜水分補給" },
+        { jp:"【注意】積極的に水分補給" },
+        { jp:"【警戒】定期的に休憩" },
+        { jp:"【厳重警戒】こまめに休憩・体調確認" },
+        { jp:"【危険】休憩・水分塩分補給を徹底" }
     ];
     const SCENE4_FOOT_ATTR = '出典：気象庁・環境省データ';
     const FC_BAR_LABELS = ['暑さ指数', 'WBGT'];
@@ -3254,11 +3248,7 @@
         return FC_BAR_LABELS[index % 2];
     }
     const unknownMsg = {
-        jp: "WBGTデータ取得不可",
-        en: "WBGT data unavailable",
-        id: "WBGT: Tidak tersedia",
-        fil: "WBGT: Hindi makuha",
-        vn: "Không có dữ liệu WBGT"
+        jp: "WBGTデータ取得不可"
     };
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
@@ -5793,7 +5783,7 @@
     const T3_SCROLL_PX = 0.8;
     const T3_TOP_HA_W = 256;
     const T3_TOP_HA_FONT_MAX = 20;
-    const T3_LAPS_BEFORE_SWITCH = 1;
+    const T3_LAPS_BEFORE_SWITCH = 2;
     let t3GuidLapPx = SCENE2_META_LAP_PX;
     let t3GuidScrollX_ = 0;
     let t3GuidAnimId = null;
@@ -7974,7 +7964,7 @@
         if (!s2) return;
         transitionToScene(s2, playScene2);
     }
-    /* シーン3（多言語WBGT）の後 → 社章＋小虎黒帯2周 → シーン1 */
+    /* シーン3（多言語WBGT）の後 → シーン1 */
     function gotoAfterScene3Tail_() {
         if (WBGT_ONLY) { finishMainLoopToS1_(); return; }
         if (wbgtNormalDisplay_() && heatAlertActive.length && sceneAlert) {
@@ -7986,10 +7976,6 @@
     }
     function gotoAfterScene3_() {
         stopT3GuidScroll_();
-        if (sceneKoto) {
-            transitionToScene(sceneKoto, playSceneKoto);
-            return;
-        }
         gotoAfterScene3Tail_();
     }
     /* 256×128スロット中央に収まるサイズ（256÷128=2 のパネル内で中央揃え） */
@@ -8146,7 +8132,7 @@
         if (colon) return { l1: colon[1].trim(), l2: colon[2].trim() };
         return { l1: '', l2: s };
     }
-    /* シーン3（多言語枠）: 日・英・インドネシア・フィリピン・ベトナム */
+    /* シーン3: 日本語のみ（2周） */
     function getT3Messages_() {
         if (wbgtOffSeason) return [];
         if (wbgtUnavailable) {
