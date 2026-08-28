@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-okayama-mizushima-amano-5face / 岡山・水島市（天野産業）WBGT サイネージ（本番 5面 640×128・右端ロゴ128） -->
-<!-- 同階層: assets/amano_char128.png（右端L・末尾128＝キャラ切り抜き／白透過） / amano_crest.png（ブランド面の円形「天」） -->
+<!-- 同階層: assets/amano_char128.png / pair / sit / stand / wbgt128（右端L・時刻以降は5〜8秒でランダム切替） / amano_crest.png（ブランド面の円形「天」） -->
 <!-- 会場: 岡山県水島市（34°31'30"N 133°44'24"E）／工事名: 水島港水島地区泊地（-14m）浚渫工事（その2） -->
 <!-- WBGT・AMeDAS 66446（倉敷・気象庁/環境省）／補完 66408（岡山）／警報 倉敷市 3320200 -->
 <html lang="ja" class="native-640">
@@ -11,14 +11,17 @@
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v2 — Asia/Tokyo 表示 / CF→timeapi→worldtimeapi→NICT / naive dateTime=+09:00 -->
     <title>WBGT Signage 5面 - 岡山・水島市（天野産業）</title>
-    <link rel="preload" as="image" href="./assets/amano_char128.png?v=1">
-    <link rel="preload" as="image" href="./assets/amano_char128_308DD8.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_char128.png?v=2">
+    <link rel="preload" as="image" href="./assets/amano_wbgt128.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_pair128.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_sit128.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_stand128.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_walk128.png?v=2">
-    <link rel="preload" as="image" href="./assets/amano_check.png?v=2">
-    <link rel="preload" as="image" href="./assets/amano_koto.png?v=1">
-    <link rel="preload" as="image" href="./assets/amano_pr.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_char128_308DD8.png?v=2">
+    <link rel="preload" as="image" href="./assets/amano_char128_FFD92D.png?v=2">
+    <link rel="preload" as="image" href="./assets/amano_char128_FFBE2D.png?v=2">
+    <link rel="preload" as="image" href="./assets/amano_char128_FF7E00.png?v=2">
+    <link rel="preload" as="image" href="./assets/amano_char128_D61914.png?v=2">
     <link rel="preload" as="image" href="./assets/amano_crest.png?v=3">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
@@ -169,14 +172,23 @@
             flex: 0 0 128px; flex-shrink: 0; overflow: hidden; position: relative;
             background: transparent;
             z-index: 5;
+            transform: none !important;
         }
         /* 実機はPNG透過が白になるため、パネル同色焼き込み画像を正立表示 */
         .logo-rotator {
             width: 128px; height: 128px; flex-shrink: 0; position: relative; z-index: 1;
             display: flex; align-items: center; justify-content: center;
-            transform: none !important;
+            transform-origin: center center;
+            transition: none !important;
             overflow: hidden;
             background: transparent;
+        }
+        .logo-rotator.logo-char-spin {
+            animation: logo-char-slow-spin 20s linear infinite;
+        }
+        @keyframes logo-char-slow-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         .logo-stack {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -185,6 +197,10 @@
             overflow: hidden;
             transform: none;
             transform-origin: center center;
+        }
+        .logo-panel .logo-stack:not(.logo-popping):not(.logo-pop-hidden):not(.logo-weather-float):not(.logo-weather-pop):not(.logo-clock-float) {
+            transform: none !important;
+            animation: none !important;
         }
         .logo-panel.logo-pop-host,
         .logo-panel.logo-pop-host .logo-rotator,
@@ -203,7 +219,19 @@
             70% { transform: scale(0.95); animation-timing-function: cubic-bezier(0.33, 1.2, 0.4, 1); }
             100% { transform: scale(1); }
         }
-        /* 天気シーンの右端：ゆっくり浮遊 → 3秒後に一度だけタメ＋ポンッ → 再浮遊 */
+        /* 時刻シーンの右端：回転なし・正立のままふわふわ */
+        .logo-panel.logo-clock-host,
+        .logo-panel.logo-clock-host .logo-rotator,
+        .logo-panel.logo-clock-host .logo-stack {
+            overflow: visible;
+        }
+        .logo-stack.logo-clock-float {
+            animation: logo-clock-float 3.2s ease-in-out infinite;
+        }
+        @keyframes logo-clock-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
         .logo-panel.logo-weather-host,
         .logo-panel.logo-weather-host .logo-rotator,
         .logo-panel.logo-weather-host .logo-stack {
@@ -230,8 +258,9 @@
             display: block !important; width: var(--led-logo-size); max-width: var(--led-logo-size); height: var(--led-logo-size); max-height: var(--led-logo-size);
             object-fit: contain; object-position: center center; margin: 0;
             flex: 0 0 auto; background: transparent;
+            transform: none !important;
             transform-origin: center center;
-            will-change: transform;
+            transition: none !important;
             border-radius: 0;
             clip-path: none;
             visibility: visible !important;
@@ -356,8 +385,7 @@
         .logo-face-img {
             display: block; width: 128px; max-width: 128px; height: 128px; max-height: 128px;
             object-fit: fill; object-position: center center; margin: 0;
-            transform-origin: center center;
-            will-change: transform;
+            transform: none !important; transform-origin: center center;
             background: transparent;
         }
         .logo-face-panel.logo-face-panel-crest {
@@ -2140,8 +2168,8 @@
     logoAlt: '天野産業株式会社',
     logoWideSrc: './assets/amano_crest.png?v=3',
     /* コンテンツ内128：キャラ切り抜き。回転ロゴと同じ絵を最後に流す */
-    logoPanelSrc: './assets/amano_char128.png?v=1',
-    mascotSrc: './assets/amano_char128.png?v=1',
+    logoPanelSrc: './assets/amano_char128.png?v=2',
+    mascotSrc: './assets/amano_char128.png?v=2',
     walkSrc: './assets/amano_walk128.png?v=2',
     checkSrc: './assets/amano_check.png?v=2',
     kotoSrc: './assets/amano_koto.png?v=1',
@@ -2302,7 +2330,6 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-extra-panel" data-s2="walk"><img class="s2-extra-img" src="./assets/amano_walk128.png?v=2" alt="テントラくん・アマトラちゃん" decoding="sync"></div>
             <div class="s2-panel s2-strip" data-s2="weather"><div class="s2-top-bar"><span class="s2-bar-label">天気</span></div><div class="s2-body"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div></div>
             <div class="s2-panel-data s2-strip" data-s2="temp"><div class="s2-top-bar"><span class="s2-bar-label">気温</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num temp-val"></span><span class="s2-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="rain"><div class="s2-top-bar"><span class="s2-bar-label">降水量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain-val"></span><span class="s2-unit">mm</span></div></div></div>
@@ -2312,7 +2339,6 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-extra-panel" data-s2="walk"><img class="s2-extra-img" src="./assets/amano_walk128.png?v=2" alt="テントラくん・アマトラちゃん" decoding="sync"></div>
         </div>
         </div>
         <div class="s2-meta-bar"><div class="s2-meta-track" id="s2-meta-track"></div></div>
@@ -2331,12 +2357,10 @@
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-extra-panel" data-fc="walk"><img class="fc-extra-img" src="./assets/amano_walk128.png?v=2" alt="テントラくん・アマトラちゃん" decoding="sync"></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-extra-panel" data-fc="walk"><img class="fc-extra-img" src="./assets/amano_walk128.png?v=2" alt="テントラくん・アマトラちゃん" decoding="sync"></div>
             </div>
         </div>
         <div class="fc-lv-bar"><div class="fc-lv-track" id="fc-lv-track"></div></div>
@@ -2348,12 +2372,10 @@
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">水島市</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">水島市</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">水島市</div></div></div>
-            <div class="d5-panel d5-extra-panel" data-d5="walk"><img class="d5-extra-img" src="./assets/amano_walk128.png?v=2" alt="テントラくん・アマトラちゃん" decoding="sync"></div>
             <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">水島市</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">水島市</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">水島市</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">水島市</div></div></div>
-            <div class="d5-panel d5-extra-panel" data-d5="walk"><img class="d5-extra-img" src="./assets/amano_walk128.png?v=2" alt="テントラくん・アマトラちゃん" decoding="sync"></div>
         </div>
     </div>
 
@@ -2413,7 +2435,7 @@
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="./assets/amano_char128.png?v=1" alt="天野産業株式会社" decoding="sync" fetchpriority="high">
+                <img class="logo-img" id="signage-logo" src="./assets/amano_char128.png?v=2" alt="天野産業株式会社" decoding="sync" fetchpriority="high">
                 <img class="logo-corp-img" src="" alt="天野産業株式会社" decoding="sync">
             </div>
         </div>
@@ -2693,16 +2715,16 @@
         '55A5E6': './assets/amano_crest_55A5E6.png?v=3'
     };
     const CIRCLE_BAKE_FILES_ = {
-        'D61914': './assets/amano_char128_D61914.png?v=1',
-        'FF7E00': './assets/amano_char128_FF7E00.png?v=1',
-        'FFBE2D': './assets/amano_char128_FFBE2D.png?v=1',
-        'FFD92D': './assets/amano_char128_FFD92D.png?v=1',
-        '308DD8': './assets/amano_char128_308DD8.png?v=1',
-        '2A2A2A': './assets/amano_char128_2A2A2A.png?v=1',
-        '484848': './assets/amano_char128_484848.png?v=1',
-        'FF9A38': './assets/amano_char128_FF9A38.png?v=1',
-        'E94540': './assets/amano_char128_E94540.png?v=1',
-        '55A5E6': './assets/amano_char128_55A5E6.png?v=1'
+        'D61914': './assets/amano_char128_D61914.png?v=2',
+        'FF7E00': './assets/amano_char128_FF7E00.png?v=2',
+        'FFBE2D': './assets/amano_char128_FFBE2D.png?v=2',
+        'FFD92D': './assets/amano_char128_FFD92D.png?v=2',
+        '308DD8': './assets/amano_char128_308DD8.png?v=2',
+        '2A2A2A': './assets/amano_char128_2A2A2A.png?v=2',
+        '484848': './assets/amano_char128_484848.png?v=2',
+        'FF9A38': './assets/amano_char128_FF9A38.png?v=2',
+        'E94540': './assets/amano_char128_E94540.png?v=2',
+        '55A5E6': './assets/amano_char128_55A5E6.png?v=2'
     };
     function normalizeBakeHex_(bgColor) {
         const h = String(bgColor || '#308DD8').replace('#', '').toUpperCase();
@@ -2723,15 +2745,17 @@
         });
         return best;
     }
-    const SPHERE_LOGO_URL_ = './assets/amano_char128.png?v=1';
+    const SPHERE_LOGO_URL_ = './assets/amano_char128.png?v=2';
+    const WBGT_LOGO_URL_ = './assets/amano_wbgt128.png?v=1';
     const PAIR_LOGO_URL_ = './assets/amano_pair128.png?v=1';
-    const STAND_LOGO_URL_ = './assets/amano_stand128.png?v=1';
     const SIT_LOGO_URL_ = './assets/amano_sit128.png?v=1';
-    let rightLogoSet_ = 'char'; /* char=通常 / pair=ロゴ面 / stand=予報 / sit=最後 / crest=ブランド面（円形「天」） */
+    const STAND_LOGO_URL_ = './assets/amano_stand128.png?v=1';
+    let rightLogoSet_ = 'char';
     function circleBakeUrl_(bgColor) {
-        if (rightLogoSet_ === 'stand') return STAND_LOGO_URL_;
+        if (rightLogoSet_ === 'wbgt') return WBGT_LOGO_URL_;
         if (rightLogoSet_ === 'pair') return PAIR_LOGO_URL_;
         if (rightLogoSet_ === 'sit') return SIT_LOGO_URL_;
+        if (rightLogoSet_ === 'stand') return STAND_LOGO_URL_;
         if (rightLogoSet_ === 'crest') {
             const crestKey = normalizeBakeHex_(bgColor);
             return LOGO_BAKE_FILES_[crestKey] || LOGO_BAKE_FILES_['308DD8'] || './assets/amano_crest.png?v=3';
@@ -2740,7 +2764,11 @@
         return CIRCLE_BAKE_FILES_[key] || CIRCLE_BAKE_FILES_['308DD8'] || SPHERE_LOGO_URL_;
     }
     function setRightLogoSet_(kind) {
-        rightLogoSet_ = (kind === 'pair' || kind === 'stand' || kind === 'sit' || kind === 'crest') ? kind : 'char';
+        if (kind === 'wbgt' || kind === 'pair' || kind === 'sit' || kind === 'stand' || kind === 'crest' || kind === 'char') {
+            rightLogoSet_ = kind;
+        } else {
+            rightLogoSet_ = 'char';
+        }
         applyCircleLogos_();
     }
     function applyCircleLogos_() {
@@ -2752,6 +2780,9 @@
             img.style.opacity = '1';
             img.style.background = 'transparent';
             img.style.backgroundColor = 'transparent';
+            if (!(img.id === 'signage-logo' || (img.classList.contains('logo-img') && img.closest && img.closest('.logo-panel')))) {
+                img.style.setProperty('transform', 'none', 'important');
+            }
             if (img.getAttribute('src') !== url) img.src = url;
             img.setAttribute('data-circle-bg', logoBakeBg_ || 'circle');
         });
@@ -2911,7 +2942,8 @@
         applyForecast,
         applySceneStripBg,
         repaintStripHosts_,
-        setRightLogoSet: setRightLogoSet_
+        setRightLogoSet: setRightLogoSet_,
+        getRightLogoSet: function () { return rightLogoSet_; }
     };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -2939,9 +2971,8 @@
     /*
      * 流れる順
      *  1 時刻＋WBGT下帯 (s1) → 2 気象観測＋末尾紋章 (s2)
-     *  → ブランド面 → 天野産業PR
      *  → 3 WBGT表示 (s4) → 4 4日予報 (s5)
-     *  → 横長ロゴ → 5 多言語WBGT (s3) → シーン1へ
+     *  → 5 日本語WBGT (s3) → シーン1へ
      * ?only= は 1〜5 または s1〜s5（旧キー）両対応
      */
     function normalizeOnlyParam_(raw) {
@@ -5021,21 +5052,39 @@
         }
         return true;
     }
-    function applyBrandRightLogo_(deg, transitionMs) {
-        logoRotDeg = deg;
-        const transition = transitionMs > 0
-            ? ('transform ' + transitionMs + 'ms linear')
-            : 'none';
-        const rot = 'rotate(' + deg + 'deg)';
-        const rightImg = document.getElementById('signage-logo') || document.querySelector('.logo-img');
-        if (rightImg) {
-            rightImg.style.transition = transition;
-            rightImg.style.transform = rot;
-        }
+    let logoRotAccumPx_ = 0;
+    let logoRotSnapDeg_ = 0;
+    function lockRightLogoUpright_() {
+        applyLogoSnapTransform_();
+    }
+    function isCharRightLogo_() {
+        return typeof SignageBg !== 'undefined' && SignageBg.getRightLogoSet && SignageBg.getRightLogoSet() === 'char';
+    }
+    let rightLogoSceneId_ = '';
+    function isScene1LogoActive_() {
+        if (rightLogoSceneId_) return rightLogoSceneId_ === 'scene1';
+        return !!(s1 && s1.classList.contains('active'));
+    }
+    function applyLogoSnapTransform_() {
         if (logoRotator) {
-            logoRotator.style.transition = 'none';
-            logoRotator.style.transform = 'none';
+            if (isScene1LogoActive_() || !isCharRightLogo_()) {
+                logoRotator.classList.remove('logo-char-spin');
+                logoRotator.style.setProperty('transition', 'none', 'important');
+                logoRotator.style.setProperty('transform', 'rotate(0deg)', 'important');
+            } else if (!logoRotator.classList.contains('logo-char-spin')) {
+                logoRotator.style.removeProperty('transform');
+                logoRotator.style.removeProperty('transition');
+                logoRotator.classList.add('logo-char-spin');
+            }
         }
+        const rightImg = document.getElementById('signage-logo') || document.querySelector('.logo-panel .logo-img');
+        if (rightImg) {
+            rightImg.style.setProperty('transition', 'none', 'important');
+            rightImg.style.setProperty('transform', 'none', 'important');
+        }
+    }
+    function applyBrandRightLogo_(deg, transitionMs) {
+        applyLogoSnapTransform_();
     }
     function applyBrandAbsoluteRots_(rots, transitionMs) {
         document.querySelectorAll('#brand-track .brand-panel').forEach(function (panel, i) {
@@ -5097,10 +5146,6 @@
         }, BRAND_EXIT_MS);
     }
     function gotoAfterBrandBlock_() {
-        if (scenePr) {
-            transitionToScene(scenePr, playScenePr);
-            return;
-        }
         gotoAfterPrScene_();
     }
     function gotoAfterPrScene_() {
@@ -5270,18 +5315,12 @@
             });
         });
     }
-    /** 各コンテンツのあと: ロゴ面を流してから次へ（kinds省略時は横長のみ） */
+    /** 各コンテンツのあと: ロゴ面は出さない */
     let afterLogoNext_ = null;
     let logoFaceActiveKinds_ = null;
     function playSceneLogoThen_(nextFn, kinds) {
         afterLogoNext_ = typeof nextFn === 'function' ? nextFn : null;
-        if (DEMO_ONLY || !sceneLogo) {
-            gotoAfterSceneLogo_();
-            return;
-        }
-        logoFaceActiveKinds_ = (kinds && kinds.length) ? kinds : LOGO_FACE_KINDS;
-        logoFaceKindIdx_ = 0;
-        showSceneInstant_(sceneLogo, playSceneLogo);
+        gotoAfterSceneLogo_();
     }
     function gotoAfterSceneLogo_() {
         applyLogoFaceKindToRightPanel_('sato');
@@ -5546,38 +5585,10 @@
         /* noop — CSPI CUBE 準拠はスクロール／スライド連動 */
     }
     function applyLogoTransform_(animateMs) {
-        if (document.body.classList.contains('layout-512')) return;
-        const rot = 'rotate(' + logoRotDeg + 'deg)';
-        if (logoRotator) {
-            logoRotator.style.transition = 'none';
-            logoRotator.style.transform = 'none';
-        }
-        document.querySelectorAll('.s2-logo-face-img, .fc-logo-face-img, .d5-logo-face-img').forEach(function (img) {
-            img.style.transition = 'none';
-            img.style.transform = rot;
-        });
-        /* ブランド／ロゴ面は専用スピン。天気の右端L面は正立のまま（連続回転しない） */
-        const dedicated = (activeSceneEl_ && (activeSceneEl_ === sceneBrand || activeSceneEl_ === sceneLogo));
-        if (!dedicated) {
-            const rightImg = document.getElementById('signage-logo') || document.querySelector('.logo-img');
-            if (rightImg) {
-                rightImg.style.transition = 'none';
-                if (activeSceneEl_ && activeSceneEl_.id === 'scene2') {
-                    rightImg.style.transform = 'rotate(0deg)';
-                } else {
-                    rightImg.style.transform = rot;
-                }
-            }
-        }
+        applyLogoSnapTransform_();
     }
     function resetLogoRotation() {
-        logoRotDeg = 0;
-        applyLogoTransform_(0);
-        const rightImg = document.getElementById('signage-logo') || document.querySelector('.logo-img');
-        if (rightImg) {
-            rightImg.style.transition = 'none';
-            rightImg.style.transform = 'rotate(0deg)';
-        }
+        lockRightLogoUpright_();
     }
     let logoPopTimerId_ = null;
     function clearLogoPopIn_() {
@@ -5590,39 +5601,21 @@
         if (stack) stack.classList.remove('logo-popping', 'logo-pop-hidden');
         if (panel) panel.classList.remove('logo-pop-host');
     }
-    /* 時刻シーンの右端キャラ：0 → 110% → 95% → 100%、約0.5秒のポンッ */
-    function playScene1LogoPop_(afterSlide) {
+    function clearScene1LogoFloat_() {
+        const stack = document.querySelector('.logo-panel .logo-stack');
+        const panel = document.querySelector('.logo-panel');
+        if (stack) stack.classList.remove('logo-clock-float');
+        if (panel) panel.classList.remove('logo-clock-host');
+    }
+    /* 時刻シーンの右端：回転せずふわふわ浮遊 */
+    function playScene1LogoFloat_() {
         const stack = document.querySelector('.logo-panel .logo-stack');
         const panel = document.querySelector('.logo-panel');
         if (!stack) return;
-        if (logoPopTimerId_ != null) {
-            clearTimeout(logoPopTimerId_);
-            logoPopTimerId_ = null;
-        }
-        stack.classList.remove('logo-popping');
-        stack.classList.add('logo-pop-hidden');
-        if (panel) panel.classList.add('logo-pop-host');
-        function kick() {
-            if (!s1 || !s1.classList.contains('active')) return;
-            stack.classList.remove('logo-pop-hidden');
-            void stack.offsetWidth;
-            stack.classList.add('logo-popping');
-            const onEnd = function (ev) {
-                if (ev && ev.animationName && ev.animationName !== 'logo-pop-in') return;
-                stack.removeEventListener('animationend', onEnd);
-                stack.classList.remove('logo-popping');
-                if (panel) panel.classList.remove('logo-pop-host');
-            };
-            stack.addEventListener('animationend', onEnd);
-        }
-        if (afterSlide) {
-            logoPopTimerId_ = setTimeout(function () {
-                logoPopTimerId_ = null;
-                kick();
-            }, SCENE_SLIDE_MS);
-        } else {
-            kick();
-        }
+        clearLogoPopIn_();
+        if (panel) panel.classList.add('logo-clock-host');
+        stack.classList.add('logo-clock-float');
+        applyLogoSnapTransform_();
     }
     const SCENE2_LOGO_POP_MS = 3000;
     let scene2LogoTimerId_ = null;
@@ -5638,12 +5631,7 @@
         if (stack) stack.classList.remove('logo-weather-float', 'logo-weather-pop');
         if (panel) panel.classList.remove('logo-weather-host');
         if (had) {
-            logoRotDeg = 0;
-            const rightImg = document.getElementById('signage-logo') || document.querySelector('.logo-panel .logo-img');
-            if (rightImg) {
-                rightImg.style.transition = 'none';
-                rightImg.style.transform = 'rotate(0deg)';
-            }
+            applyLogoSnapTransform_();
         }
     }
     /* 天気の右端：正立のまま小さく浮遊 → 3秒後に一度だけタメ＋ポンッ → 再浮遊 */
@@ -5684,14 +5672,14 @@
         }
     }
     /**
-     * 左へ流れるとき 128px につき 90° 時計回り（ころころ転がる）
+     * 右端L面: 128px進むごとに 90° へ即座に切替（途中角度は出さない）
      */
     function tickLogoScrollSync(scrollPx, panelWidthPx) {
-        if (!scrollPx) return;
         if (document.body.classList.contains('layout-512')) return;
         const w = panelWidthPx > 0 ? panelWidthPx : LOGO_ROT_PANEL_W;
-        logoRotDeg += (scrollPx / w) * 90;
-        applyLogoTransform_(0);
+        const x = typeof globalScrollX_ === 'number' ? globalScrollX_ : 0;
+        logoRotSnapDeg_ = (Math.floor(Math.abs(x) / w) * 90) % 360;
+        applyLogoSnapTransform_();
     }
     function getLogoRotStepMs_() {
         const sp = typeof getScrollSpeedPx_ === 'function' ? getScrollSpeedPx_() : 0.75;
@@ -5729,7 +5717,7 @@
     const SCENE2_WEATHER_COUNT = 9;
     const MASCOT_PANEL_W = 128;
     const EXTRA_PANEL_W = 128;
-    const EXTRA_PANEL_COUNT = 1; /* コンテンツに続く画像は1面 */
+    const EXTRA_PANEL_COUNT = 1; /* 天気・WBGT・予報の末尾に歩きキャラ128 */
     const CHECK_PANEL_W = 768; /* ギンガム横断幕（256×3）※末尾では使わない */
     function contentTailWidth_() {
         return EXTRA_PANEL_COUNT * EXTRA_PANEL_W;
@@ -6336,9 +6324,25 @@
     }
     function compactScene4Panels() {
         if (!fcConveyor) return;
-        scene4SetWidth = 4 * 128 + contentTailWidth_();
-        fcConveyor.style.width = `${scene4SetWidth * 2}px`;
+        const data = Array.from(fcConveyor.children).filter(function (p) {
+            return !p.classList.contains('fc-logo-panel')
+                && !p.classList.contains('fc-mascot-panel')
+                && !isExtraContentPanel_(p);
+        });
+        const n = Math.max(1, Math.floor(data.length / 2) || 4);
+        const set = data.slice(0, n);
+        let setHtml = '';
+        set.forEach(function (p) { setHtml += p.outerHTML; });
+        setHtml += extraContentPairHtml_('fc');
+        fcConveyor.innerHTML = setHtml + setHtml;
+        scene4SetWidth = n * 128 + contentTailWidth_();
+        fcConveyor.style.width = (scene4SetWidth * 2) + 'px';
         scene4FcLvLapPx = scene4SetWidth;
+        if (typeof SignageBg !== 'undefined' && SignageBg.initHosts) SignageBg.initHosts();
+        if (typeof SignageBg !== 'undefined' && SignageBg.refreshForecast) {
+            const mode = typeof getSignageDisplayMode_ === 'function' ? getSignageDisplayMode_() : 'normal';
+            SignageBg.refreshForecast(lastWbgtSlots || lastGoodWbgtSlots_, mode);
+        }
     }
     function normalizeWbgtCelsius(raw) {
         if (raw === null || raw === undefined || raw === '') return null;
@@ -7065,8 +7069,27 @@
     }
     function compactScene5Panels() {
         if (!d5Conveyor) return;
-        scene5SetWidth = 4 * 128 + contentTailWidth_();
-        d5Conveyor.style.width = `${scene5SetWidth * 2}px`;
+        const data = Array.from(d5Conveyor.children).filter(function (p) {
+            return !p.classList.contains('d5-logo-panel')
+                && !p.classList.contains('d5-mascot-panel')
+                && !isExtraContentPanel_(p);
+        });
+        const n = Math.max(1, Math.floor(data.length / 2) || SCENE5_DAY_COUNT);
+        const set = data.slice(0, n);
+        let setHtml = '';
+        set.forEach(function (p) { setHtml += p.outerHTML; });
+        setHtml += extraContentPairHtml_('d5');
+        d5Conveyor.innerHTML = setHtml + setHtml;
+        scene5SetWidth = n * 128 + contentTailWidth_();
+        d5Conveyor.style.width = (scene5SetWidth * 2) + 'px';
+        if (typeof SignageBg !== 'undefined' && SignageBg.initHosts) SignageBg.initHosts();
+        if (typeof SignageBg !== 'undefined' && SignageBg.refreshScene5) {
+            const lv = typeof getSignageBgLevel_ === 'function' ? getSignageBgLevel_() : 0;
+            const mode = typeof getSignageDisplayMode_ === 'function' ? getSignageDisplayMode_() : 'normal';
+            SignageBg.refreshScene5(lv, mode);
+        }
+        applyD5TodayFrame_();
+        applyD5ForecastTextColors_();
     }
     function fitD5PanelText_() {
         const maxW = 120;
@@ -7360,7 +7383,7 @@
     }
     function scene2MascotPanelHtml_() {
         const cfg = window.SIGNAGE_CONFIG || {};
-        const src = cfg.mascotSrc || './assets/amano_char128.png?v=1';
+        const src = cfg.mascotSrc || './assets/amano_char128.png?v=2';
         return '<div class="s2-panel s2-mascot-panel" data-s2="mascot">'
             + '<img class="s2-mascot-img" src="' + src + '" alt="" decoding="sync"></div>';
     }
@@ -7842,34 +7865,71 @@
         if (activeSceneEl_ && activeSceneEl_.classList.contains('active')) return activeSceneEl_;
         return document.querySelector('.content-area .scene.active');
     }
-    function applyRightLogoForSceneEl_(el) {
-        let kind = 'char';
-        if (el && el.id === 'sceneLogo') kind = 'pair';
-        else if (el && el.id === 'scene5') kind = 'stand';
-        else if (el && el.id === 'scene3') kind = 'sit';
-        else if (el && el.id === 'sceneBrand') kind = 'crest';
-        else if (el && el.id === 'scenePr') kind = 'crest';
+    const RIGHT_LOGO_RAND_KINDS_ = ['char', 'wbgt', 'pair', 'sit', 'stand'];
+    const RIGHT_LOGO_RAND_SECS_ = [5, 6, 7, 8];
+    let rightLogoRandTimerId_ = null;
+    let rightLogoRandActive_ = false;
+    function pickRightLogoRandKind_() {
+        const cur = (typeof SignageBg !== 'undefined' && SignageBg.getRightLogoSet)
+            ? SignageBg.getRightLogoSet()
+            : '';
+        const pool = RIGHT_LOGO_RAND_KINDS_.filter(function (k) { return k !== cur; });
+        const src = pool.length ? pool : RIGHT_LOGO_RAND_KINDS_;
+        return src[Math.floor(Math.random() * src.length)];
+    }
+    function pickRightLogoRandMs_() {
+        return RIGHT_LOGO_RAND_SECS_[Math.floor(Math.random() * RIGHT_LOGO_RAND_SECS_.length)] * 1000;
+    }
+    function applyRightLogoKind_(kind) {
         if (typeof SignageBg !== 'undefined' && SignageBg.setRightLogoSet) {
             SignageBg.setRightLogoSet(kind);
         }
-        if (el && el.id === 'scene1') {
-            const stack = document.querySelector('.logo-panel .logo-stack');
-            const panel = document.querySelector('.logo-panel');
-            if (stack) {
-                stack.classList.remove('logo-popping');
-                stack.classList.add('logo-pop-hidden');
-            }
-            if (panel) panel.classList.add('logo-pop-host');
-        } else {
-            clearLogoPopIn_();
+        applyLogoSnapTransform_();
+    }
+    function stopRightLogoRandom_() {
+        rightLogoRandActive_ = false;
+        if (rightLogoRandTimerId_ != null) {
+            clearTimeout(rightLogoRandTimerId_);
+            rightLogoRandTimerId_ = null;
         }
+    }
+    function tickRightLogoRandom_() {
+        rightLogoRandTimerId_ = null;
+        if (!rightLogoRandActive_) return;
+        applyRightLogoKind_(pickRightLogoRandKind_());
+        rightLogoRandTimerId_ = setTimeout(tickRightLogoRandom_, pickRightLogoRandMs_());
+    }
+    function startRightLogoRandom_() {
+        if (document.body.classList.contains('layout-512')) return;
+        if (rightLogoRandActive_) return;
+        rightLogoRandActive_ = true;
+        applyRightLogoKind_(pickRightLogoRandKind_());
+        rightLogoRandTimerId_ = setTimeout(tickRightLogoRandom_, pickRightLogoRandMs_());
+    }
+    function applyRightLogoForSceneEl_(el) {
+        rightLogoSceneId_ = el && el.id ? el.id : '';
+        if (el && (el.id === 'sceneAlert' || el.id === 'sceneRainWarn')) {
+            stopRightLogoRandom_();
+            clearScene1LogoFloat_();
+            lockRightLogoUpright_();
+            clearLogoPopIn_();
+            clearScene2LogoMotion_();
+            return;
+        }
+        if (el && el.id === 'scene1') {
+            stopRightLogoRandom_();
+            applyRightLogoKind_('char');
+            clearLogoPopIn_();
+            clearScene2LogoMotion_();
+            playScene1LogoFloat_();
+            return;
+        }
+        startRightLogoRandom_();
+        clearLogoPopIn_();
+        clearScene1LogoFloat_();
+        lockRightLogoUpright_();
         if (el && el.id === 'scene2') {
-            logoRotDeg = 0;
-            const rightImg = document.getElementById('signage-logo') || document.querySelector('.logo-panel .logo-img');
-            if (rightImg) {
-                rightImg.style.transition = 'none';
-                rightImg.style.transform = 'rotate(0deg)';
-            }
+            applyLogoSnapTransform_();
         } else {
             clearScene2LogoMotion_();
         }
@@ -7903,16 +7963,11 @@
         applyScrollX_(nextEl, SCENE_W);
         current.style.zIndex = '1';
         onComplete?.();
-        let slideLogoPrevOff = 0;
         const t0 = performance.now();
         function tick(now) {
             const p = Math.min(1, (now - t0) / SCENE_SLIDE_MS);
             const eased = p * (2 - p);
             const off = eased * SCENE_W;
-            const slideDelta = off - slideLogoPrevOff;
-            slideLogoPrevOff = off;
-            /* 右→左スライド時: ロゴは時計回りで連動 */
-            tickLogoScrollSync(slideDelta, LOGO_ROT_PANEL_W);
             applyScrollX_(current, -off);
             applyScrollX_(nextEl, SCENE_W - off);
             if (p < 1) {
@@ -8725,7 +8780,7 @@
         applyPendingSignageBgAtScene_();
         updateClock();
         stepLogo90(420, true);
-        playScene1LogoPop_(!!sceneSlideFromEl_);
+        playScene1LogoFloat_();
         const showWbgtFoot = hasS1WbgtFootMessage_();
         setS1FootBarVisible_(showWbgtFoot);
         scheduleScene1SafetyAdvance_();
@@ -8780,19 +8835,11 @@
             }, SCENE1_CLOCK_HOLD_MS);
         }
     }
-    /* シーン2の次 → 横断幕画像のみ2周 → ブランド面 */
+    /* シーン2の次 → WBGT（横断幕・ブランド面・PRは出さない） */
     function gotoSceneAfterScene2_() {
-        if (sceneCheck) {
-            transitionToScene(sceneCheck, playSceneCheck);
-            return;
-        }
         gotoAfterCheckScene_();
     }
     function gotoAfterCheckScene_() {
-        if (sceneBrand) {
-            transitionToScene(sceneBrand, playSceneBrand);
-            return;
-        }
         gotoAfterBrandBlock_();
     }
     const SCENE_CHECK_LAPS = 2;
@@ -8895,7 +8942,7 @@
     function gotoSceneAfterScene4_() {
         transitionToScene(s5, playScene5);
     }
-    /* シーン4（4日予報）の次 → ニュース（任意）→ 横長ロゴ → シーン5（多言語WBGT） */
+    /* シーン4（4日予報）の次 → ニュース（任意）→ シーン5（日本語WBGT） */
     function isNewsSceneEnabled_() {
         const n = (window.SIGNAGE_CONFIG && window.SIGNAGE_CONFIG.news) || {};
         return n.enabled !== false;
@@ -9107,12 +9154,11 @@
     }
     function applyLogoFaceSpin_(scrolledPx, kind) {
         if (!logoFaceTrack) return;
-        const deg = (scrolledPx / SCENE_LOGO_PANEL_W) * 90;
         logoFaceTrack.querySelectorAll('.logo-face-img').forEach(function (img) {
             img.style.transition = 'none';
-            img.style.transform = 'rotate(' + deg + 'deg)';
+            img.style.transform = 'none';
         });
-        applyBrandRightLogo_(deg, 0);
+        applyBrandRightLogo_(0, 0);
     }
     function resetLogoFaceCrestSpin_() {
         if (!logoFaceTrack) return;
@@ -9573,7 +9619,7 @@
             logoEl.style.visibility = 'visible';
             logoEl.style.opacity = '1';
             logoEl.onerror = function () {
-                logoEl.src = './assets/amano_char128.png?v=1';
+                logoEl.src = './assets/amano_char128.png?v=2';
             };
         }
         ensureLogoFacePanels_();
