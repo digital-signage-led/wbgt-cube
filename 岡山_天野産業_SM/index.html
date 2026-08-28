@@ -11,17 +11,17 @@
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v2 — Asia/Tokyo 表示 / CF→timeapi→worldtimeapi→NICT / naive dateTime=+09:00 -->
     <title>WBGT Signage 5面 - 岡山・水島市（天野産業）</title>
-    <link rel="preload" as="image" href="./assets/amano_char128.png?v=3">
+    <link rel="preload" as="image" href="./assets/amano_clock128.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_clock128_308DD8.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_clock128_FFD92D.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_clock128_FFBE2D.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_clock128_FF7E00.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_clock128_D61914.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_wbgt128.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_pair128.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_sit128.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_stand128.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_walk128.png?v=2">
-    <link rel="preload" as="image" href="./assets/amano_char128_308DD8.png?v=3">
-    <link rel="preload" as="image" href="./assets/amano_char128_FFD92D.png?v=3">
-    <link rel="preload" as="image" href="./assets/amano_char128_FFBE2D.png?v=3">
-    <link rel="preload" as="image" href="./assets/amano_char128_FF7E00.png?v=3">
-    <link rel="preload" as="image" href="./assets/amano_char128_D61914.png?v=3">
     <link rel="preload" as="image" href="./assets/amano_crest.png?v=3">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
@@ -2168,7 +2168,7 @@
     logoAlt: '天野産業株式会社',
     logoWideSrc: './assets/amano_crest.png?v=3',
     /* コンテンツ内128：キャラ切り抜き。回転ロゴと同じ絵を最後に流す */
-    logoPanelSrc: './assets/amano_char128.png?v=3',
+    logoPanelSrc: './assets/amano_clock128.png?v=1',
     mascotSrc: './assets/amano_char128.png?v=3',
     walkSrc: './assets/amano_walk128.png?v=2',
     checkSrc: './assets/amano_check.png?v=2',
@@ -2435,7 +2435,7 @@
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="./assets/amano_char128.png?v=3" alt="天野産業株式会社" decoding="sync" fetchpriority="high">
+                <img class="logo-img" id="signage-logo" src="./assets/amano_clock128.png?v=1" alt="天野産業株式会社" decoding="sync" fetchpriority="high">
                 <img class="logo-corp-img" src="" alt="天野産業株式会社" decoding="sync">
             </div>
         </div>
@@ -2715,16 +2715,16 @@
         '55A5E6': './assets/amano_crest_55A5E6.png?v=3'
     };
     const CIRCLE_BAKE_FILES_ = {
-        'D61914': './assets/amano_char128_D61914.png?v=3',
-        'FF7E00': './assets/amano_char128_FF7E00.png?v=3',
-        'FFBE2D': './assets/amano_char128_FFBE2D.png?v=3',
-        'FFD92D': './assets/amano_char128_FFD92D.png?v=3',
-        '308DD8': './assets/amano_char128_308DD8.png?v=3',
-        '2A2A2A': './assets/amano_char128_2A2A2A.png?v=3',
-        '484848': './assets/amano_char128_484848.png?v=3',
-        'FF9A38': './assets/amano_char128_FF9A38.png?v=3',
-        'E94540': './assets/amano_char128_E94540.png?v=3',
-        '55A5E6': './assets/amano_char128_55A5E6.png?v=3'
+        'D61914': './assets/amano_clock128_D61914.png?v=1',
+        'FF7E00': './assets/amano_clock128_FF7E00.png?v=1',
+        'FFBE2D': './assets/amano_clock128_FFBE2D.png?v=1',
+        'FFD92D': './assets/amano_clock128_FFD92D.png?v=1',
+        '308DD8': './assets/amano_clock128_308DD8.png?v=1',
+        '2A2A2A': './assets/amano_clock128_2A2A2A.png?v=1',
+        '484848': './assets/amano_clock128_484848.png?v=1',
+        'FF9A38': './assets/amano_clock128_FF9A38.png?v=1',
+        'E94540': './assets/amano_clock128_E94540.png?v=1',
+        '55A5E6': './assets/amano_clock128_55A5E6.png?v=1'
     };
     function normalizeBakeHex_(bgColor) {
         const h = String(bgColor || '#308DD8').replace('#', '').toUpperCase();
@@ -2745,7 +2745,7 @@
         });
         return best;
     }
-    const SPHERE_LOGO_URL_ = './assets/amano_char128.png?v=3';
+    const SPHERE_LOGO_URL_ = './assets/amano_clock128.png?v=1';
     const WBGT_LOGO_URL_ = './assets/amano_wbgt128.png?v=1';
     const PAIR_LOGO_URL_ = './assets/amano_pair128.png?v=1';
     const SIT_LOGO_URL_ = './assets/amano_sit128.png?v=1';
@@ -5634,42 +5634,9 @@
             applyLogoSnapTransform_();
         }
     }
-    /* 天気の右端：正立のまま小さく浮遊 → 3秒後に一度だけタメ＋ポンッ → 再浮遊 */
+    /* 浮遊は時刻面の立ち絵ロゴのみ。天気面では動かさない */
     function playScene2LogoMotion_(afterSlide) {
-        const stack = document.querySelector('.logo-panel .logo-stack');
-        const panel = document.querySelector('.logo-panel');
-        if (!stack) return;
         clearScene2LogoMotion_();
-        function beginFloat() {
-            if (!s2 || !s2.classList.contains('active')) return;
-            if (panel) panel.classList.add('logo-weather-host');
-            stack.classList.remove('logo-weather-pop');
-            stack.classList.add('logo-weather-float');
-            scene2LogoTimerId_ = setTimeout(function () {
-                scene2LogoTimerId_ = null;
-                if (!s2 || !s2.classList.contains('active')) return;
-                stack.classList.remove('logo-weather-float');
-                void stack.offsetWidth;
-                stack.classList.add('logo-weather-pop');
-                const onEnd = function (ev) {
-                    if (ev && ev.animationName && ev.animationName !== 'logo-weather-pop') return;
-                    stack.removeEventListener('animationend', onEnd);
-                    if (!s2 || !s2.classList.contains('active')) return;
-                    stack.classList.remove('logo-weather-pop');
-                    void stack.offsetWidth;
-                    stack.classList.add('logo-weather-float');
-                };
-                stack.addEventListener('animationend', onEnd);
-            }, SCENE2_LOGO_POP_MS);
-        }
-        if (afterSlide) {
-            scene2LogoTimerId_ = setTimeout(function () {
-                scene2LogoTimerId_ = null;
-                beginFloat();
-            }, SCENE_SLIDE_MS);
-        } else {
-            beginFloat();
-        }
     }
     /**
      * 右端L面: 128px進むごとに 90° へ即座に切替（途中角度は出さない）
@@ -7927,12 +7894,8 @@
         startRightLogoRandom_();
         clearLogoPopIn_();
         clearScene1LogoFloat_();
+        clearScene2LogoMotion_();
         lockRightLogoUpright_();
-        if (el && el.id === 'scene2') {
-            applyLogoSnapTransform_();
-        } else {
-            clearScene2LogoMotion_();
-        }
     }
     function transitionToScene(nextEl, onComplete, allowRestart) {
         applyRightLogoForSceneEl_(nextEl);
@@ -9297,7 +9260,6 @@
         fitScene2BodyText();
         if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
         stepLogo90(420, true);
-        playScene2LogoMotion_(!!sceneSlideFromEl_);
         if (isFullDemoStep_()) {
             scheduleDemoStep_(gotoSceneAfterScene2_);
             return;
@@ -9621,7 +9583,7 @@
             logoEl.style.visibility = 'visible';
             logoEl.style.opacity = '1';
             logoEl.onerror = function () {
-                logoEl.src = './assets/amano_char128.png?v=3';
+                logoEl.src = './assets/amano_clock128.png?v=1';
             };
         }
         ensureLogoFacePanels_();
