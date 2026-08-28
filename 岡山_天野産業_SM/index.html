@@ -18,9 +18,9 @@
     <link rel="preload" as="image" href="./assets/amano_clock128_FF7E00.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_clock128_D61914.png?v=1">
     <link rel="preload" as="image" href="./assets/amano_wbgt128.png?v=1">
-    <link rel="preload" as="image" href="./assets/amano_pair128.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_pair128.png?v=2">
     <link rel="preload" as="image" href="./assets/amano_sit128.png?v=1">
-    <link rel="preload" as="image" href="./assets/amano_stand128.png?v=1">
+    <link rel="preload" as="image" href="./assets/amano_stand128.png?v=2">
     <link rel="preload" as="image" href="./assets/amano_walk128.png?v=2">
     <link rel="preload" as="image" href="./assets/amano_crest.png?v=3">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
@@ -255,9 +255,11 @@
             100% { transform: translateY(0) scale(1); }
         }
         .logo-img {
-            display: block !important; width: var(--led-logo-size); max-width: var(--led-logo-size); height: var(--led-logo-size); max-height: var(--led-logo-size);
-            object-fit: contain; object-position: center center; margin: 0;
-            flex: 0 0 auto; background: transparent;
+            display: block !important;
+            width: 128px !important; min-width: 128px !important; max-width: 128px !important;
+            height: 128px !important; min-height: 128px !important; max-height: 128px !important;
+            object-fit: fill !important; object-position: center center; margin: 0;
+            flex: 0 0 128px; background: transparent;
             transform: none !important;
             transform-origin: center center;
             transition: none !important;
@@ -265,6 +267,12 @@
             clip-path: none;
             visibility: visible !important;
             opacity: 1 !important;
+        }
+        /* 512以降：90°スナップ。128枠いっぱいに表示 */
+        .logo-panel.logo-snap-host,
+        .logo-panel.logo-snap-host .logo-rotator,
+        .logo-panel.logo-snap-host .logo-stack {
+            overflow: hidden;
         }
         .logo-corp-img {
             display: block; width: 108px; max-width: 108px; height: auto; max-height: 18px;
@@ -2747,9 +2755,9 @@
     }
     const SPHERE_LOGO_URL_ = './assets/amano_clock128.png?v=1';
     const WBGT_LOGO_URL_ = './assets/amano_wbgt128.png?v=1';
-    const PAIR_LOGO_URL_ = './assets/amano_pair128.png?v=1';
+    const PAIR_LOGO_URL_ = './assets/amano_pair128.png?v=2';
     const SIT_LOGO_URL_ = './assets/amano_sit128.png?v=1';
-    const STAND_LOGO_URL_ = './assets/amano_stand128.png?v=1';
+    const STAND_LOGO_URL_ = './assets/amano_stand128.png?v=2';
     let rightLogoSet_ = 'char';
     function circleBakeUrl_(bgColor) {
         if (rightLogoSet_ === 'wbgt') return WBGT_LOGO_URL_;
@@ -5054,27 +5062,34 @@
     }
     let logoRotAccumPx_ = 0;
     let logoRotSnapDeg_ = 0;
+    let rightLogoSceneId_ = '';
     function lockRightLogoUpright_() {
         applyLogoSnapTransform_();
     }
-    function isCharRightLogo_() {
-        return typeof SignageBg !== 'undefined' && SignageBg.getRightLogoSet && SignageBg.getRightLogoSet() === 'char';
-    }
-    let rightLogoSceneId_ = '';
     function isScene1LogoActive_() {
         if (rightLogoSceneId_) return rightLogoSceneId_ === 'scene1';
         return !!(s1 && s1.classList.contains('active'));
     }
+    function getRightLogoKind_() {
+        return (typeof SignageBg !== 'undefined' && SignageBg.getRightLogoSet)
+            ? SignageBg.getRightLogoSet()
+            : 'char';
+    }
+    function isSnapRightLogo_() {
+        return !isScene1LogoActive_();
+    }
     function applyLogoSnapTransform_() {
+        const panel = document.querySelector('.logo-panel');
+        if (panel) panel.classList.toggle('logo-snap-host', isSnapRightLogo_());
         if (logoRotator) {
-            if (isScene1LogoActive_() || !isCharRightLogo_()) {
-                logoRotator.classList.remove('logo-char-spin');
+            logoRotator.classList.remove('logo-char-spin');
+            if (isSnapRightLogo_()) {
+                const deg = ((logoRotSnapDeg_ % 360) + 360) % 360;
+                logoRotator.style.setProperty('transition', 'none', 'important');
+                logoRotator.style.setProperty('transform', 'rotate(' + deg + 'deg)', 'important');
+            } else {
                 logoRotator.style.setProperty('transition', 'none', 'important');
                 logoRotator.style.setProperty('transform', 'rotate(0deg)', 'important');
-            } else if (!logoRotator.classList.contains('logo-char-spin')) {
-                logoRotator.style.removeProperty('transform');
-                logoRotator.style.removeProperty('transition');
-                logoRotator.classList.add('logo-char-spin');
             }
         }
         const rightImg = document.getElementById('signage-logo') || document.querySelector('.logo-panel .logo-img');
@@ -5639,10 +5654,14 @@
         clearScene2LogoMotion_();
     }
     /**
-     * 右端L面: 128px進むごとに 90° へ即座に切替（途中角度は出さない）
+     * 右端L面: 切替は5〜8秒の共通タイマー。スクロールでは角度を上書きしない
      */
     function tickLogoScrollSync(scrollPx, panelWidthPx) {
         if (document.body.classList.contains('layout-512')) return;
+        if (typeof rightLogoRandActive_ !== 'undefined' && rightLogoRandActive_) {
+            applyLogoSnapTransform_();
+            return;
+        }
         const w = panelWidthPx > 0 ? panelWidthPx : LOGO_ROT_PANEL_W;
         const x = typeof globalScrollX_ === 'number' ? globalScrollX_ : 0;
         logoRotSnapDeg_ = (Math.floor(Math.abs(x) / w) * 90) % 360;
@@ -7847,6 +7866,9 @@
     function pickRightLogoRandMs_() {
         return RIGHT_LOGO_RAND_SECS_[Math.floor(Math.random() * RIGHT_LOGO_RAND_SECS_.length)] * 1000;
     }
+    function snapRightLogo90_() {
+        logoRotSnapDeg_ = (logoRotSnapDeg_ + 90) % 360;
+    }
     function applyRightLogoKind_(kind) {
         if (typeof SignageBg !== 'undefined' && SignageBg.setRightLogoSet) {
             SignageBg.setRightLogoSet(kind);
@@ -7863,6 +7885,7 @@
     function tickRightLogoRandom_() {
         rightLogoRandTimerId_ = null;
         if (!rightLogoRandActive_) return;
+        snapRightLogo90_();
         applyRightLogoKind_(pickRightLogoRandKind_());
         rightLogoRandTimerId_ = setTimeout(tickRightLogoRandom_, pickRightLogoRandMs_());
     }
