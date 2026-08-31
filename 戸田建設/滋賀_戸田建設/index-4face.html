@@ -2747,11 +2747,12 @@
     /* 風・気温（毎時50分頃）: 10分枠の :50 + 120秒待ち = 毎時 :52 取得 */
     const JMA_FORECAST_HOURS = [5, 11, 17];                    /* 天気予報の主な更新時刻帯 */
     const JMA_FORECAST_MINUTE = 5;
-    /* 環境省 WBGT（est15WG）・熱中症アラート */
+    /* 環境省 WBGT（est15WG） */
     const MOE_WBGT_MINUTES = [0, 15, 30, 45];
     const MOE_WBGT_AFTER_SEC = 120;
-    const MOE_ALERT_HOURS = [5, 10, 14, 17];
-    const MOE_ALERT_MINUTE = 3;
+    /* 気象庁 警報・注意報（東近江市）。アメダスより30秒早く取得して独立枠にする */
+    const JMA_WARN_MINUTES = [0, 10, 20, 30, 40, 50];
+    const JMA_WARN_AFTER_SEC = 60;
 
     function getS1WbgtLevelForDisplay_() {
         if (wbgtOffSeason || wbgtUnavailable) return -1;
@@ -2889,24 +2890,25 @@
                 for (const m of MOE_WBGT_MINUTES) {
                     const at = jstMsFromParts(dp.year, dp.month, dp.day, h, m, 0) + MOE_WBGT_AFTER_SEC * 1000;
                     if (at > fromMs && at <= horizonEnd) {
-                        events.push({ at, jma: false, moe: true, nowc: false, forecast: false, label: 'moe-wbgt' });
+                        events.push({ at, jma: false, moe: true, nowc: false, forecast: false, warn: false, label: 'moe-wbgt' });
                     }
                 }
-                if (MOE_ALERT_HOURS.includes(h)) {
-                    const atAl = jstMsFromParts(dp.year, dp.month, dp.day, h, MOE_ALERT_MINUTE, 0);
-                    if (atAl > fromMs && atAl <= horizonEnd) {
-                        events.push({ at: atAl, jma: false, moe: true, nowc: false, forecast: false, label: 'moe-alert' });
+                for (const m of JMA_WARN_MINUTES) {
+                    const at = jstMsFromParts(dp.year, dp.month, dp.day, h, m, 0) + JMA_WARN_AFTER_SEC * 1000;
+                    if (at > fromMs && at <= horizonEnd) {
+                        events.push({ at, jma: false, moe: false, nowc: false, forecast: false, warn: true, label: 'jma-warn' });
                     }
                 }
             }
         }
         const merged = new Map();
         for (const e of events) {
-            const prev = merged.get(e.at) || { at: e.at, jma: false, moe: false, nowc: false, forecast: false, labels: [] };
+            const prev = merged.get(e.at) || { at: e.at, jma: false, moe: false, nowc: false, forecast: false, warn: false, labels: [] };
             prev.jma = prev.jma || e.jma;
             prev.moe = prev.moe || e.moe;
             prev.nowc = prev.nowc || e.nowc;
             prev.forecast = prev.forecast || e.forecast;
+            prev.warn = prev.warn || e.warn;
             if (e.label && prev.labels.indexOf(e.label) < 0) prev.labels.push(e.label);
             merged.set(e.at, prev);
         }
@@ -4072,7 +4074,7 @@
         return i >= 0 ? i + 1 : 0;
     }
     function applyRainWarnLevel_(level, kinds, warnJson) {
-        if (WBGT_ONLY || NO_JMA_WARN) {
+        if (WBGT_ONLY || (NO_JMA_WARN && !DEMO_RAINWARN_ONLY)) {
             rainWarnActive = [];
             rainWarnKindActive = ['rain'];
             queueDisplayRefresh_();
@@ -4113,7 +4115,7 @@
         return JMA_LEVEL_KIND_ORDER.warning.filter(function (k) { return found[k]; });
     }
     async function updateRainWarnFromGas_() {
-        if (WBGT_ONLY || NO_JMA_WARN) return;
+        if (WBGT_ONLY) return;
         if (!wbgtNormalDisplay_() && !rainWarnForced && !whiteModeForced_()) {
             applyRainWarnLevel_('none', null);
             return;
@@ -4205,7 +4207,7 @@
         return best;
     }
     async function updateRainWarnFromJmaDirect_() {
-        if (WBGT_ONLY || NO_JMA_WARN) return;
+        if (WBGT_ONLY) return;
         try {
             const [wRes, pRes] = await Promise.all([
                 fetch('https://www.jma.go.jp/bosai/warning/data/warning/' + JMA_WARN_AREA + '.json', { cache: 'no-store' }),
@@ -4652,17 +4654,21 @@
             sceneRainWarn.classList.add('active');
             sceneRainWarn.style.transform = 'translateX(0px)';
         }
-        if (RAIN_WHITE_DESIGN && !whiteModeForced_()) {
-            await updateRainWarnFromGas_();
+        await updateRainWarnFromGas_();
+        if (!rainWarnActive.length && !rainWhiteHasActive_()) {
+            rainWarnActive = RAIN_WARN_ORDER.slice();
+            rainWarnKindActive = JMA_L3_KIND_ORDER.slice();
         }
         const badge = document.getElementById('demo-badge');
-        const liveLabel = RAIN_WHITE_DESIGN && !whiteModeForced_()
-            ? ('確認 · ' + (rainWarnMeta.cityName || '東近江市') + ' 発表中 ' + rainWhiteQueue.length + '件')
+        const liveCount = rainWhiteQueue && rainWhiteQueue.length;
+        const liveLabel = liveCount
+            ? ('確認 · ' + (rainWarnMeta.cityName || '東近江市') + ' 発表中 ' + liveCount + '件')
             : '確認 · 大雨警報';
         if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = liveLabel; }
         else if (badge) { badge.hidden = true; }
-        if (!DEMO_EMBED) document.title = RAIN_WHITE_DESIGN && !whiteModeForced_() ? '気象警報 実データ' : '大雨警報 デモ';
+        if (!DEMO_EMBED) document.title = liveCount ? '気象警報 実データ' : '大雨警報 デモ';
         playSceneRainWarn(0);
+        scheduleDataRefresh();
     }
     let logoRotDeg = 0;
     const LOGO_ROT_STEP_MS = 420;
@@ -5602,7 +5608,7 @@
         scheduledFetchInFlight_ = true;
         try {
         const plan = Object.assign(
-            { jma: true, moe: true, nowc: true, forecast: true, labels: ['fetch'] },
+            { jma: true, moe: true, nowc: true, forecast: true, warn: false, labels: ['fetch'] },
             event || {}
         );
         const tAll = performance.now();
@@ -5655,9 +5661,6 @@
                     }
                     if (!shouldDeferDisplayRefresh_()) compactScene2Panels();
                     queueDisplayRefresh_();
-                    const sWarn = performance.now();
-                    await updateRainWarnFromGas_();
-                    timings['大雨警報'] = Math.round(performance.now() - sWarn);
                     jmaOk = true;
                 } catch (error) {
                     console.error('JMA fetch error:', error);
@@ -5665,6 +5668,13 @@
                 } finally {
                     timings['気象庁'] = Math.round(performance.now() - s);
                 }
+            })());
+        }
+        if (plan.warn) {
+            jobs.push((async function () {
+                const s = performance.now();
+                try { await updateRainWarnFromGas_(); }
+                finally { timings['気象庁警報'] = Math.round(performance.now() - s); }
             })());
         }
         await Promise.all(jobs);
@@ -5685,7 +5695,7 @@
         if (lastFetchFail) {
             console.warn('[Schedule] 取得失敗のため', FETCH_RETRY_MS / 1000, '秒後に再試行');
             dataRefreshTimerId = setTimeout(async function() {
-                await runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['retry'] });
+                await runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, warn: true, labels: ['retry'] });
                 scheduleDataRefresh();
             }, FETCH_RETRY_MS);
             return;
@@ -6282,7 +6292,7 @@
     }
     async function fetchWeatherAndWbgt(opts) {
         const plan = Object.assign(
-            { jma: true, moe: true, nowc: true, forecast: true, labels: ['manual'] },
+            { jma: true, moe: true, nowc: true, forecast: true, warn: true, labels: ['manual'] },
             opts || {}
         );
         return runScheduledFetch(plan);
@@ -8357,7 +8367,7 @@
         startNetworkClockSync_();
         try {
             await Promise.race([
-                runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['起動'] }),
+                runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, warn: true, labels: ['起動'] }),
                 new Promise(function (resolve) { setTimeout(resolve, 3500); })
             ]);
             if (s1) {
@@ -8388,7 +8398,7 @@
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
                 syncTimeFromNetwork().then(function () { updateClock(); startClockTicker(); }).catch(function () { startClockTicker(); });
-                startBackgroundFetch_({ jma: true, moe: true, nowc: true, forecast: true, labels: ['復帰'] });
+                startBackgroundFetch_({ jma: true, moe: true, nowc: true, forecast: true, warn: true, labels: ['復帰'] });
             }
         });
     };

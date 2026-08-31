@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ロゴ確認 · 戸田建設サイネージ</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; padding: 24px;
+      font-family: "Segoe UI", "Hiragino Sans", Meiryo, sans-serif;
+      background: #1a1a1a; color: #f2f2f2;
+    }
+    h1 { font-size: 20px; margin: 0 0 8px; }
+    p { margin: 0 0 20px; color: #aaa; font-size: 14px; }
+    .grid { display: grid; gap: 16px; max-width: 960px; }
+    .card {
+      background: #2a2a2a; border-radius: 10px; padding: 16px;
+      border: 1px solid #3a3a3a;
+    }
+    .card.used { border-color: #2d8f4e; }
+    .card.unused { border-color: #b45309; }
+    .meta { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-bottom: 12px; }
+    .tag {
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    }
+    .tag.ok { background: #14532d; color: #bbf7d0; }
+    .tag.no { background: #7c2d12; color: #fed7aa; }
+    .name { font-weight: 700; }
+    .file { font-size: 12px; color: #888; }
+    .where { font-size: 13px; color: #ccc; margin-bottom: 12px; }
+    .stage {
+      background: #fff; border-radius: 6px; min-height: 140px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; overflow: hidden;
+    }
+    .stage.dark { background: #0f5c2e; }
+    .stage img { max-width: 100%; max-height: 160px; object-fit: contain; }
+    .links { margin-top: 28px; display: grid; gap: 8px; }
+    .links a { color: #7dd3fc; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>ロゴ確認（使用状況）</h1>
+  <p>白背景はアセットそのものの見え方確認用です。サイネージ上の配色とは別です。</p>
+  <div class="grid">
+    <section class="card used">
+      <div class="meta">
+        <span class="tag ok">使用中</span>
+        <span class="name">横型ロックアップ</span>
+        <span class="file">toda_lockup_yoko.png</span>
+      </div>
+      <div class="where">シーン1 下帯（「喜び」を実現する企業グループ ＋ 戸田建設）</div>
+      <div class="stage"><img src="./assets/toda_lockup_yoko.png?v=1" alt="lockup yoko"></div>
+    </section>
+    <section class="card used">
+      <div class="meta">
+        <span class="tag ok">使用中</span>
+        <span class="name">Build the Culture 横型</span>
+        <span class="file">toda_bct_yoko.png</span>
+      </div>
+      <div class="where">ブランドシーン（横スクロール）</div>
+      <div class="stage"><img src="./assets/toda_bct_yoko.png?v=2" alt="bct yoko"></div>
+    </section>
+    <section class="card unused">
+      <div class="meta">
+        <span class="tag no">未使用</span>
+        <span class="name">Build the Culture 縦型</span>
+        <span class="file">toda_bct_tate.png</span>
+      </div>
+      <div class="where">preloadのみ。シーンには未配置</div>
+      <div class="stage"><img src="./assets/toda_bct_tate.png?v=2" alt="bct tate"></div>
+    </section>
+    <section class="card used">
+      <div class="meta">
+        <span class="tag ok">使用中</span>
+        <span class="name">縦型マーク ＋ 戸田建設</span>
+        <span class="file">toda_mark_tate.png</span>
+      </div>
+      <div class="where">ロゴ流し / 5面右パネル</div>
+      <div class="stage"><img src="./assets/toda_mark_tate.png?v=4" alt="mark tate"></div>
+    </section>
+    <section class="card used">
+      <div class="meta">
+        <span class="tag ok">使用中</span>
+        <span class="name">ECO FIRST</span>
+        <span class="file">eco_first.png</span>
+      </div>
+      <div class="where">エコニュース・ティッカー内</div>
+      <div class="stage dark"><img src="./assets/eco_first.png?v=3" alt="eco first"></div>
+    </section>
+  </div>
+  <div class="links">
+    <strong>実機プレビュー（通常以外）</strong>
+    <a href="./index-4face.html?only=special">特別パート一式（ブランド→エコ→ロゴ）</a>
+    <a href="./index-4face.html?only=brand">ブランドのみ</a>
+    <a href="./index-4face.html?only=eco">エコニュースのみ</a>
+    <a href="./index-4face.html?only=logo">戸田ロゴのみ</a>
+    <a href="./index-4face.html?only=s1">シーン1（下帯ロックアップ）</a>
+  </div>
+</body>
+</html>
