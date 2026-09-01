@@ -6995,14 +6995,19 @@
     const ECO_SCROLL_MULT = 1.35;
     const ECO_NEWS_MAX = 3;
     const TODA_NEWS_PAGE = 'https://www.toda.co.jp/news/';
-    const ECO_NEWS_LOCAL = './assets/eco-news.json';
+    const ECO_NEWS_CACHE_KEY_ = 'todaEcoNews.official.v1';
+    const ECO_NEWS_REFRESH_MS_ = 15 * 60 * 1000;
+    const ECO_NEWS_FETCH_TIMEOUT_MS_ = 12000;
     const ECO_NEWS_FALLBACK_ = [
-        { id: '20260824_006317', date: '2026.08.24', title: '施設管理クラウド「RAKU-PLAT」β版有償トライアルを開始', url: 'https://www.toda.co.jp/news/2026/20260824_006317.html' },
-        { id: '20260820_006329', date: '2026.08.20', title: '野外音楽フェスティバル「SPACE SHOWER SWEET LOVE SHOWER 2026」へ初協賛', url: 'https://www.toda.co.jp/news/2026/20260820_006329.html' },
-        { id: '20260819_006326', date: '2026.08.19', title: '「五島洋上ウィンドファーム」「TODA BUILDING」など計4件が「日建連表彰2026」を受賞', url: 'https://www.toda.co.jp/news/2026/20260819_006326.html' }
+        { id: '20260831_006325', date: '2026.08.31', title: '浮体式洋上風力発電の普及拡大に向けて「完全非火薬の海底岩盤破砕技術」の確立を目指す', url: 'https://www.toda.co.jp/news/2026/20260831_006325.html' },
+        { id: '20260828_006333', date: '2026.08.28', title: 'Built Environment 領域に特化したグローバルVC ファンド 『Zacua Ventures Fund Ⅱ』へ出資（日本企業初）', url: 'https://www.toda.co.jp/news/2026/20260828_006333.html' },
+        { id: '20260827_006332', date: '2026.08.27', title: '東北公益文科大学と産学連携に関する包括協定を締結', url: 'https://www.toda.co.jp/news/2026/20260827_006332.html' }
     ];
     let ecoNewsItems_ = ECO_NEWS_FALLBACK_.slice();
     let ecoSetWidth_ = 512;
+    let ecoNewsInFlight_ = null;
+    let ecoNewsLastFetchMs_ = 0;
+    let ecoNewsLiveOk_ = false;
     function stripHtmlText_(html) {
         const d = document.createElement('div');
         d.innerHTML = String(html || '');
@@ -7043,8 +7048,9 @@
             const title = stripHtmlText_(titleEl ? titleEl.innerHTML : '');
             const date = dateEl ? String(dateEl.textContent || '').trim() : '';
             if (!title || !date) continue;
-            if (href && /\.pdf(\?|$)/i.test(href)) continue;
-            out.push({ id: href || title, date: date, title: title, url: href || TODA_NEWS_PAGE });
+            if (/PDF/i.test(title) || (href && /\.pdf(\?|$)/i.test(href))) continue;
+            const abs = href && /^https?:/i.test(href) ? href : (href ? new URL(href, TODA_NEWS_PAGE).href : TODA_NEWS_PAGE);
+            out.push({ id: abs || title, date: date, title: title, url: abs });
         }
         return out;
     }
@@ -7061,6 +7067,7 @@
                 if (d) { date = d[1]; break; }
             }
             if (!title || !date) continue;
+            if (/PDF/i.test(title)) continue;
             out.push({ id: title, date: date, title: title, url: TODA_NEWS_PAGE });
         }
         return out;
@@ -7070,30 +7077,106 @@
         if (String(text).indexOf('cmn-news__article') !== -1) return parseTodaNewsHtml_(text);
         return parseTodaNewsMarkdown_(text);
     }
+    function fetchTextWithTimeout_(url, timeoutMs) {
+        const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timer = setTimeout(function () {
+            if (ctrl) try { ctrl.abort(); } catch (_) {}
+        }, timeoutMs || ECO_NEWS_FETCH_TIMEOUT_MS_);
+        return fetch(url, { cache: 'no-store', mode: 'cors', signal: ctrl ? ctrl.signal : undefined })
+            .then(function (r) {
+                if (!r.ok) throw new Error('status ' + r.status);
+                return r.text();
+            })
+            .finally(function () { clearTimeout(timer); });
+    }
+    function extractProxyNewsText_(text) {
+        const t = String(text || '').trim();
+        if (t.charAt(0) === '{') {
+            try {
+                const j = JSON.parse(t);
+                if (j && typeof j.contents === 'string') return j.contents;
+                if (j && Array.isArray(j.items)) return j;
+            } catch (_) {}
+        }
+        return text;
+    }
     function fetchTodaNewsText_() {
-        const urls = [TODA_NEWS_PAGE, 'https://r.jina.ai/http://www.toda.co.jp/news/'];
+        const urls = [
+            TODA_NEWS_PAGE,
+            'https://r.jina.ai/https://www.toda.co.jp/news/',
+            'https://r.jina.ai/http://www.toda.co.jp/news/',
+            'https://api.allorigins.win/raw?url=' + encodeURIComponent(TODA_NEWS_PAGE),
+            'https://api.allorigins.win/get?url=' + encodeURIComponent(TODA_NEWS_PAGE),
+            'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(TODA_NEWS_PAGE)
+        ];
         function tryAt(i) {
             if (i >= urls.length) return Promise.reject(new Error('toda news'));
-            return fetch(urls[i], { cache: 'no-store' })
-                .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); return r.text(); })
+            return fetchTextWithTimeout_(urls[i], ECO_NEWS_FETCH_TIMEOUT_MS_)
                 .then(function (text) {
-                    const items = parseTodaNewsText_(text);
+                    const body = extractProxyNewsText_(text);
+                    const items = Array.isArray(body) ? normalizeEcoNewsItems_(body) : parseTodaNewsText_(body);
                     if (!items.length) throw new Error('empty');
+                    console.log('[ニュース] 公式サイト取得 OK', items.length + '件');
                     return items;
                 })
-                .catch(function () { return tryAt(i + 1); });
+                .catch(function (err) {
+                    console.warn('[ニュース] 経路失敗', i + 1, err && err.message ? err.message : err);
+                    return tryAt(i + 1);
+                });
         }
         return tryAt(0);
     }
-    function refreshEcoNews_() {
-        return fetchTodaNewsText_()
-            .then(function (items) { applyEcoNewsItems_(items); })
+    function readCachedEcoNews_() {
+        try {
+            const raw = localStorage.getItem(ECO_NEWS_CACHE_KEY_);
+            if (!raw) return null;
+            const json = JSON.parse(raw);
+            const items = normalizeEcoNewsItems_(json && json.items);
+            return items.length ? items : null;
+        } catch (_) { return null; }
+    }
+    function writeCachedEcoNews_(items) {
+        try {
+            localStorage.setItem(ECO_NEWS_CACHE_KEY_, JSON.stringify({
+                savedAt: Date.now(),
+                source: TODA_NEWS_PAGE,
+                items: items
+            }));
+        } catch (_) {}
+    }
+    function seedEcoNewsFromCache_() {
+        const cached = readCachedEcoNews_();
+        if (cached) {
+            ecoNewsItems_ = cached;
+            ecoNewsLiveOk_ = true;
+        }
+    }
+    function refreshEcoNews_(force) {
+        const now = Date.now();
+        if (!force && ecoNewsInFlight_) return ecoNewsInFlight_;
+        if (!force && ecoNewsLastFetchMs_ && (now - ecoNewsLastFetchMs_) < 60000) {
+            return Promise.resolve(ecoNewsItems_);
+        }
+        ecoNewsInFlight_ = fetchTodaNewsText_()
+            .then(function (items) {
+                applyEcoNewsItems_(items);
+                if (ecoNewsItems_ && ecoNewsItems_.length) {
+                    writeCachedEcoNews_(ecoNewsItems_);
+                    ecoNewsLiveOk_ = true;
+                    ecoNewsLastFetchMs_ = Date.now();
+                }
+            })
             .catch(function () {
-                return fetch(ECO_NEWS_LOCAL + '?t=' + Date.now(), { cache: 'no-store' })
-                    .then(function (r) { if (!r.ok) throw new Error('eco local'); return r.json(); })
-                    .then(function (json) { applyEcoNewsItems_(json && json.items ? json.items : json); })
-                    .catch(function () { /* keep fallback */ });
-            });
+                const cached = readCachedEcoNews_();
+                if (cached) {
+                    applyEcoNewsItems_(cached);
+                    console.warn('[ニュース] 公式取得失敗。前回取得分を表示');
+                } else {
+                    console.warn('[ニュース] 公式サイトに接続できません');
+                }
+            })
+            .finally(function () { ecoNewsInFlight_ = null; });
+        return ecoNewsInFlight_;
     }
     function buildEcoFlowTrack_() {
         const track = document.getElementById('eco-flow');
@@ -7169,6 +7252,9 @@
         applyDisplayRefreshAtSceneEntry_();
         applyPendingSignageBgAtScene_();
         stepLogo90(420, true);
+        if (!ecoNewsLiveOk_ || (Date.now() - ecoNewsLastFetchMs_) > ECO_NEWS_REFRESH_MS_) {
+            refreshEcoNews_(true);
+        }
         const setW = buildEcoFlowTrack_();
         const track = document.getElementById('eco-flow');
         if (!track || !setW) {
@@ -8351,8 +8437,9 @@
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
         applySiteLocationLabels_();
         paintBootSplash_();
-        refreshEcoNews_();
-        setInterval(refreshEcoNews_, 60 * 60 * 1000);
+        seedEcoNewsFromCache_();
+        refreshEcoNews_(true);
+        setInterval(function () { refreshEcoNews_(true); }, ECO_NEWS_REFRESH_MS_);
         const logoEl = document.getElementById('signage-logo');
         const logoCfg = window.SIGNAGE_CONFIG;
         if (logoEl && logoCfg && logoCfg.logoSrc) {
@@ -8428,6 +8515,7 @@
             if (document.visibilityState === 'visible') {
                 syncTimeFromNetwork().then(function () { updateClock(); startClockTicker(); }).catch(function () { startClockTicker(); });
                 startBackgroundFetch_({ jma: true, moe: true, nowc: true, forecast: true, labels: ['復帰'] });
+                refreshEcoNews_(true);
             }
         });
     };
