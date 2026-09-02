@@ -10,7 +10,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- clock: jst-network-v2 / 表示・同期は常に Asia/Tokyo（端末TZ非依存） -->
+    <!-- clock: jst-network-v5 — Asia/Tokyo 表示 / CF→timeapi→worldtimeapi→NICT / naive dateTime=+09:00 / demoも同期 / hourCycle h23 / 端末TZ非依存 -->
     <title>WBGT Signage 4面 - 鈴中工業 金城ふ頭埋立地用地整備工事</title>
     <link rel="preload" as="image" href="./assets/suzunaka_foot_lockup.png?v=1">
     <link rel="preload" as="image" href="./assets/suzunaka_logo.png?v=2">
@@ -306,12 +306,13 @@
         #scene1.active { display: block; }
         .fc-scroll-wrap {
             width: 512px; height: 128px; flex-shrink: 0;
-            overflow: hidden; position: relative; z-index: 1;
+            overflow: hidden; position: absolute; left: 0; top: 0; z-index: 13;
+            background: transparent;
         }
         .fc-track {
-            display: flex; flex-direction: row; width: 1024px; transition: none; gap: 0;
+            display: flex; flex-direction: row; width: 1280px; transition: none; gap: 0;
         }
-        .fc-track .fc-panel {
+        .fc-track .fc-panel:not(.fc-logo-panel) {
             width: 128px; height: var(--led-col-main-h); max-height: var(--led-col-main-h);
         }
         .scene1-state { display: none; width: 512px; height: var(--led-col-main-h); flex-direction: row; flex-shrink: 0; }
@@ -320,6 +321,11 @@
         .s1-wbgt-bar, .fc-lv-bar, .s2-meta-bar {
             position: absolute; left: 0; bottom: 0; width: 512px; height: var(--led-foot-bar-h);
             background: var(--led-foot-bar-bg); overflow: hidden; z-index: 12; box-sizing: border-box;
+        }
+        /* シーン2・4: 帯の地色は枠ごと。ロゴ列は透明＝ロゴが白帯を覆う */
+        #scene2 .s2-meta-bar,
+        #scene4 .fc-lv-bar {
+            background: transparent;
         }
         #scene1.active .s1-wbgt-bar { display: block; }
         .s1-wbgt-track, .fc-lv-track, .s2-meta-track {
@@ -338,7 +344,7 @@
         .s1-wbgt-slot, .fc-lv-slot, .s2-meta-slot {
             width: 256px; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            box-sizing: border-box;
+            box-sizing: border-box; overflow: hidden;
         }
         .s1-wbgt-slot-left,
         .s1-wbgt-slot-right {
@@ -429,7 +435,7 @@
         }
         .s1-wbgt-banner-svg {
             display: block; height: 26px; width: auto; max-width: 252px;
-            overflow: visible; flex-shrink: 0;
+            overflow: hidden; flex-shrink: 0;
         }
         /* シーン1下帯・社名（1行） */
         .s1-foot-co-txt {
@@ -524,7 +530,7 @@
             font-family: "Inter", sans-serif;
         }
 
-        .conveyor-track { display: flex; flex-direction: row; width: 2304px; transition: none; gap: 0; }
+        .conveyor-track { display: flex; flex-direction: row; width: 2560px; transition: none; gap: 0; }
         #scene2 { overflow: hidden; position: relative; }
         #scene2.active { display: block; }
         /* 気象9面は本文高。末尾ロゴだけ128×128（その列の白帯を覆う） */
@@ -534,14 +540,20 @@
             background: transparent;
         }
         #scene2 { height: 128px; }
-        #scene2 .s2-panel, #scene2 .s2-panel-data { height: var(--led-col-main-h); }
+        #scene2 .s2-panel:not(.s2-logo-panel), #scene2 .s2-panel-data {
+            height: var(--led-col-main-h);
+            position: relative;
+            z-index: 1;
+        }
         #scene2 .s2-logo-panel {
             width: 128px !important; min-width: 128px !important; max-width: 128px !important;
-            height: 128px !important; max-height: 128px;
-            flex: 0 0 128px !important; padding: 0; gap: 0;
+            height: 128px !important; min-height: 128px !important; max-height: 128px !important;
+            flex: 0 0 128px !important; padding: 0; gap: 0; margin: 0;
             background: #ffffff !important;
-            position: relative; z-index: 2;
+            position: relative; z-index: 0;
             box-sizing: border-box; overflow: hidden;
+            contain: paint;
+            clip-path: inset(0);
             display: flex; align-items: center; justify-content: center;
         }
         #scene2 .s2-logo-panel .col-bg-layer { display: none !important; }
@@ -572,6 +584,7 @@
             height: var(--led-foot-bar-h);
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; padding: 0 3px; box-sizing: border-box;
+            background: var(--led-foot-bar-bg);
         }
         #scene2 .s2-meta-slot.s2-meta-slot-logo { background: transparent; }
         #scene2 .s2-meta-slot-panel .s2-meta-panel-txt {
@@ -597,9 +610,12 @@
         #scene1 .col-bg-top, #scene1 .col-bg-body, #scene1 .col-bg-foot { width: 100%; }
         #scene2 .col-bg-host { flex-shrink: 0; }
         #scene2 .col-bg-layer { width: calc(100% + 1px); }
+        #scene2 .s2-panel:has(+ .s2-logo-panel) .col-bg-layer,
+        #scene2 .s2-panel-data:has(+ .s2-logo-panel) .col-bg-layer { width: 100%; }
         #scene2 .col-bg-top, #scene2 .col-bg-body, #scene2 .col-bg-foot { width: 100%; }
         #scene4 .col-bg-host { flex-shrink: 0; }
         #scene4 .fc-panel .col-bg-layer { width: calc(100% + 1px); }
+        #scene4 .fc-panel:has(+ .fc-logo-panel) .col-bg-layer { width: 100%; }
         #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
         #scene3 .t3-col .col-bg-layer { width: calc(100% + 1px); }
 
@@ -633,13 +649,19 @@
         #scene4 { height: 128px; }
         #scene4 .fc-panel .col-bg-layer { height: var(--led-col-main-h); }
         #scene4 .fc-panel .col-bg-foot { display: none; }
+        #scene4 .fc-panel:not(.fc-logo-panel) {
+            position: relative;
+            z-index: 1;
+        }
         #scene4 .fc-logo-panel {
             width: 128px !important; min-width: 128px !important; max-width: 128px !important;
-            height: 128px !important; max-height: 128px;
-            flex: 0 0 128px !important; padding: 0; gap: 0;
+            height: 128px !important; min-height: 128px !important; max-height: 128px !important;
+            flex: 0 0 128px !important; padding: 0; gap: 0; margin: 0;
             background: #ffffff !important;
-            position: relative; z-index: 2;
+            position: relative; z-index: 0;
             box-sizing: border-box; overflow: hidden;
+            contain: paint;
+            clip-path: inset(0);
             display: flex; align-items: center; justify-content: center;
         }
         #scene4 .fc-logo-panel .col-bg-layer { display: none !important; }
@@ -661,6 +683,7 @@
             height: var(--led-foot-bar-h);
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; box-sizing: border-box; padding: 0 6px;
+            background: var(--led-foot-bar-bg);
         }
         #scene4 .fc-lv-slot.fc-lv-slot-logo {
             width: 128px; flex: 0 0 128px; min-width: 128px; max-width: 128px;
@@ -687,12 +710,20 @@
         }
         .daily-scene { display: none; overflow: hidden; }
         .d5-track { display: flex; flex-direction: row; width: 1280px; transition: none; gap: 0; align-items: flex-start; }
+        #scene5 .d5-panel:not(.d5-logo-panel) {
+            position: relative;
+            z-index: 1;
+        }
         #scene5 .d5-logo-panel {
             width: 128px !important; min-width: 128px !important; max-width: 128px !important;
-            height: 128px; flex: 0 0 128px !important;
+            height: 128px !important; min-height: 128px !important; max-height: 128px !important;
+            flex: 0 0 128px !important;
             background: #ffffff !important;
             display: flex; align-items: center; justify-content: center;
-            padding: 0; gap: 0; overflow: hidden; box-sizing: border-box;
+            padding: 0; gap: 0; margin: 0; overflow: hidden; box-sizing: border-box;
+            position: relative; z-index: 0;
+            contain: paint;
+            clip-path: inset(0);
         }
         #scene5 .d5-logo-panel .col-bg-layer { display: none !important; }
         #scene5 .d5-logo-panel .s2-top-bar,
@@ -710,9 +741,13 @@
         #scene5 .d5-panel .s2-top-bar { height: 32px; flex-shrink: 0; }
         #scene5 .d5-panel .s2-body { height: var(--led-col-body-h); flex-shrink: 0; max-width: 128px; }
         #scene5 .d5-panel .s2-foot { height: var(--led-foot-bar-h); flex-shrink: 0; }
+        #scene5 .d5-panel:not(.d5-logo-panel) .s2-foot {
+            background: var(--led-foot-bar-bg);
+        }
         #scene5 .d5-panel .col-bg-foot { display: none; }
         #scene5 .col-bg-host { flex-shrink: 0; }
         #scene5 .col-bg-layer { width: calc(100% + 1px); }
+        #scene5 .d5-panel:has(+ .d5-logo-panel) .col-bg-layer { width: 100%; }
         #scene5 .d5-body {
             flex-direction: row;
             align-items: center;
@@ -767,7 +802,7 @@
         /* 今日のみ 128×128 枠で強調 — 実DOM（LEDサイネージで ::after が欠ける対策） */
         #scene5 .d5-panel.d5-today-focus {
             position: relative;
-            z-index: 2;
+            z-index: 1;
             box-shadow: none;
         }
         #scene5 .d5-today-frame {
@@ -2631,6 +2666,14 @@
     const MOE_ALERT_MINUTE = 3;
 
     function getS1WbgtLevelForDisplay_() {
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
+            if (currentWbgtLevel >= 0) return currentWbgtLevel;
+            const good = lastGoodWbgtSlots_[0];
+            if (good && good.wbgt != null) {
+                if (Number.isInteger(good.levelIdx)) return good.levelIdx;
+                return wbgtLevel(good.wbgt);
+            }
+        }
         if (wbgtOffSeason || wbgtUnavailable) return -1;
         if (currentWbgtLevel >= 0) return currentWbgtLevel;
         const row = (lastGoodWbgtSlots_ && lastGoodWbgtSlots_[0]) ||
@@ -2667,6 +2710,7 @@
         currentWbgtLevel = wbgtLevel(row.wbgt);
     }
     function getSignageDisplayMode_() {
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) return 'normal';
         if (wbgtOffSeason) return 'offseason';
         if (wbgtUnavailable) return 'unavailable';
         return 'normal';
@@ -2698,6 +2742,7 @@
     }
     /** WBGT非依存コンテンツなし — 取得不可・提供期間外は警報・アラートを出さない */
     function wbgtNormalDisplay_() {
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) return true;
         return !wbgtOffSeason && !wbgtUnavailable;
     }
     function syncWbgtDependentAlerts_() {
@@ -2915,12 +2960,6 @@
             const data = JSON.parse(raw);
             if (!data || String(data.point) !== String(MOE_WBGT_POINT)) return false;
             if (Date.now() - (data.savedAt || 0) > SIGNAGE_STATE_CACHE_MAX_AGE_MS) return false;
-            if (data.wbgtOffSeason) {
-                wbgtOffSeason = true;
-                wbgtUnavailable = false;
-                currentWbgtLevel = -1;
-                return true;
-            }
             if (data.slots && hasFull4Slots(data.slots)) {
                 lastGoodWbgtSlots_ = cloneWbgtSlots_(data.slots);
                 lastWbgtSlots = lastGoodWbgtSlots_;
@@ -2928,6 +2967,11 @@
                 wbgtUnavailable = false;
                 syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
                 syncWbgtSlotsToDomIfReady_();
+            } else if (data.wbgtOffSeason) {
+                wbgtOffSeason = true;
+                wbgtUnavailable = false;
+                currentWbgtLevel = -1;
+                return true;
             } else if (Number.isInteger(data.level) && data.level >= 0) {
                 currentWbgtLevel = data.level;
             }
@@ -4727,6 +4771,7 @@
     const timeSync = { baseUtcMs: null, clientAtSync: 0, source: '' };
     /** 表示は日本標準時（Asia/Tokyo）。内部時刻はこの間隔でネット再同期 */
     const CLOCK_SYNC_INTERVAL_MS = 60000;
+    let clockSyncIntervalId_ = null;
     const clockHmFormatter = new Intl.DateTimeFormat('en-GB', {
         timeZone: CLOCK_TZ, hour: '2-digit', minute: '2-digit', hour12: false, hourCycle: 'h23'
     });
@@ -4752,6 +4797,22 @@
     function pad2Clock_(n) {
         return String(n == null ? 0 : n).padStart(2, '0');
     }
+    /** タイムゾーン無し dateTime は必ず +09:00 として UTC ms に変換（端末TZ非依存） */
+    function parseDateTimeAssumeJst_(raw) {
+        let s = String(raw == null ? '' : raw).trim();
+        if (!s) return NaN;
+        s = s.replace(/\//g, '-').replace(' ', 'T');
+        if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(s)) {
+            const ms = Date.parse(s);
+            return Number.isFinite(ms) ? ms : NaN;
+        }
+        s = s.replace(/\.\d+$/, '');
+        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) s += 'T00:00:00';
+        if (!/T\d{1,2}:\d{2}/.test(s)) return NaN;
+        if (!/T\d{2}:\d{2}:\d{2}$/.test(s) && /T\d{1,2}:\d{2}$/.test(s)) s += ':00';
+        const ms = Date.parse(s + '+09:00');
+        return Number.isFinite(ms) ? ms : NaN;
+    }
     /** timeapi.io Asia/Tokyo 応答を UTC ms に変換（オフセット無し日時は必ず +09:00） */
     function parseTimeApiIoJson_(json) {
         if (!json || typeof json !== 'object') return NaN;
@@ -4762,11 +4823,8 @@
             const ms = Date.parse(iso);
             if (Number.isFinite(ms)) return ms;
         }
-        if (json.dateTime) {
-            const s = String(json.dateTime).trim();
-            if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
-            return Date.parse(s.replace(/\.\d+$/, '') + '+09:00');
-        }
+        if (json.dateTime) return parseDateTimeAssumeJst_(json.dateTime);
+        if (json.date_time) return parseDateTimeAssumeJst_(json.date_time);
         return NaN;
     }
     async function fetchUtcMsFromCloudflare_() {
@@ -4776,27 +4834,37 @@
             const res = await fetch(urls[i], { cache: 'no-store' });
             const t1 = performance.now();
             if (!res.ok) continue;
+            const dateHdr = res.headers.get('Date');
             const text = await res.text();
             const m = text.match(/(?:^|\n)ts=([0-9]+(?:\.[0-9]+)?)/);
             let serverUtcMs = NaN;
             if (m) serverUtcMs = Math.round(parseFloat(m[1]) * 1000);
-            if (!Number.isFinite(serverUtcMs)) {
-                const dateHdr = res.headers.get('Date');
-                if (dateHdr) serverUtcMs = Date.parse(dateHdr);
-            }
+            if (!Number.isFinite(serverUtcMs) && dateHdr) serverUtcMs = Date.parse(dateHdr);
             if (Number.isFinite(serverUtcMs)) return utcMsWithRtt_(serverUtcMs, t0, t1);
         }
         throw new Error('Cloudflare time unavailable');
     }
     async function fetchUtcMsFromTimeApiIo_() {
-        const t0 = performance.now();
-        const res = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia%2FTokyo', { cache: 'no-store' });
-        const t1 = performance.now();
-        if (!res.ok) throw new Error('timeapi.io HTTP ' + res.status);
-        const json = await res.json();
-        const serverUtcMs = parseTimeApiIoJson_(json);
-        if (!Number.isFinite(serverUtcMs)) throw new Error('timeapi.io parse');
-        return utcMsWithRtt_(serverUtcMs, t0, t1);
+        const endpoints = [
+            'https://timeapi.io/api/Time/current/zone?timeZone=Asia%2FTokyo',
+            'https://timeapi.io/api/time/current/zone?timeZone=Asia%2FTokyo'
+        ];
+        let lastErr = null;
+        for (let i = 0; i < endpoints.length; i++) {
+            try {
+                const t0 = performance.now();
+                const res = await fetch(endpoints[i], { cache: 'no-store' });
+                const t1 = performance.now();
+                if (!res.ok) throw new Error('timeapi.io HTTP ' + res.status);
+                const json = await res.json();
+                const serverUtcMs = parseTimeApiIoJson_(json);
+                if (!Number.isFinite(serverUtcMs)) throw new Error('timeapi.io parse');
+                return utcMsWithRtt_(serverUtcMs, t0, t1);
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+        throw lastErr || new Error('timeapi.io unavailable');
     }
     async function fetchUtcMsFromWorldTimeApi_() {
         const t0 = performance.now();
@@ -4807,6 +4875,7 @@
         let serverUtcMs = NaN;
         if (typeof json.unixtime === 'number') serverUtcMs = json.unixtime * 1000;
         else if (json.utc_datetime) serverUtcMs = Date.parse(json.utc_datetime);
+        else if (json.datetime) serverUtcMs = parseDateTimeAssumeJst_(json.datetime);
         if (!Number.isFinite(serverUtcMs)) throw new Error('worldtimeapi parse');
         return utcMsWithRtt_(serverUtcMs, t0, t1);
     }
@@ -4828,7 +4897,11 @@
         }
         throw new Error('NICT unavailable');
     }
-    /** NICT HTTP は停止方向のため Cloudflare を優先。表示は常に Asia/Tokyo */
+    /**
+     * ネット時刻同期の優先順（NICT HTTP JSON は 404 のため先頭にしない）
+     * Cloudflare → timeapi.io(Asia/Tokyo) → worldtimeapi → NICT
+     * 表示は常に Asia/Tokyo + hourCycle h23（端末TZ=UTCでも JST）
+     */
     const TIME_SYNC_CHAIN = [
         { name: 'Cloudflare', fetch: fetchUtcMsFromCloudflare_ },
         { name: 'timeapi.io', fetch: fetchUtcMsFromTimeApiIo_ },
@@ -4844,20 +4917,28 @@
         ]);
     }
     async function syncTimeFromNetwork() {
-        for (const src of TIME_SYNC_CHAIN) {
+        for (let i = 0; i < TIME_SYNC_CHAIN.length; i++) {
+            const src = TIME_SYNC_CHAIN[i];
             try {
                 const utcMs = await fetchWithTimeout_(src.fetch(), 8000, src.name);
                 if (Number.isFinite(utcMs)) {
                     applySyncedUtcMs(utcMs, src.name);
-                    console.log('[Clock] synced via', src.name);
+                    try {
+                        const p = jstPartsFromMs(utcMs);
+                        console.log(
+                            '[時刻同期] OK ' + src.name + ' → JST ' +
+                            p.year + '-' + pad2Clock_(p.month) + '-' + pad2Clock_(p.day) + ' ' +
+                            pad2Clock_(p.hour) + ':' + pad2Clock_(p.minute) + ':' + pad2Clock_(p.second)
+                        );
+                    } catch (eLog) {}
                     return true;
                 }
-            } catch (e) { console.warn('Time sync [' + src.name + ']:', e.message || e); }
+            } catch (e) {
+                console.warn('Time sync [' + src.name + ']:', e.message || e);
+            }
         }
-        /* 一度も同期できていないときだけローカル時刻へフォールバック（表示は常に Asia/Tokyo） */
-        if (timeSync.baseUtcMs == null) {
-            applySyncedUtcMs(Date.now(), 'local-fallback');
-        }
+        /* 同期失敗時のみ Date.now() フォールバック。表示は必ず jstPartsFromMs(Asia/Tokyo) */
+        applySyncedUtcMs(Date.now(), 'local-fallback');
         console.warn('Time sync: 全ソース失敗。PC時計を暫定利用（表示は Asia/Tokyo）します。');
         return false;
     }
@@ -4943,6 +5024,23 @@
             try { updateClock(); } catch (err) { console.warn('Clock backup:', err); }
         }, 1000);
     }
+    function startNetworkClockSync_() {
+        /* 本番・demo=1 とも起動時＋定期でネット同期（端末TZ非依存の JST 表示用） */
+        if (clockSyncIntervalId_ != null) {
+            clearInterval(clockSyncIntervalId_);
+            clockSyncIntervalId_ = null;
+        }
+        const runSync_ = function () {
+            syncTimeFromNetwork().then(function () {
+                try { updateClock(); } catch (eOk) {}
+            }).catch(function () {
+                applySyncedUtcMs(Date.now(), 'local-fallback');
+                try { updateClock(); } catch (eClk) {}
+            });
+        };
+        clockSyncIntervalId_ = setInterval(runSync_, CLOCK_SYNC_INTERVAL_MS);
+        runSync_();
+    }
     function degToCompassJa(deg) {
         if (!Number.isFinite(deg)) return '--';
         const dirs = ['北','北北東','北東','東北東','東','東南東','南東','南南東','南','南南西','南西','西南西','西','西北西','北西','北北西'];
@@ -4954,12 +5052,12 @@
         return Array.isArray(slots) && slots.length >= 4 && slots[0] != null && slots[0].wbgt != null;
     }
     function getCurrentHourLabel() {
-        const ms = getSyncedUtcMs();
-        if (ms == null) return '';
+        const ms = getNowMs();
         try {
             const parts = new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ, hour: '2-digit', hour12: false, hourCycle: 'h23' }).formatToParts(new Date(ms));
             const hp = parts.find(p => p.type === 'hour');
-            return hp ? (Number(hp.value) + '時') : '';
+            const h = hp ? Number(hp.value === '24' ? 0 : hp.value) : NaN;
+            return Number.isFinite(h) ? (h + '時') : '';
         } catch (e) { return ''; }
     }
     function formatFcWbgtHtml(wbgt) {
@@ -5225,9 +5323,14 @@
     /** 直前の成功値があれば灰色・取得不可にせず表示を維持する */
     function keepLastGoodWbgtDisplay_(reason) {
         if (!(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))) return false;
+        applyWbgtInSeason_();
         wbgtUnavailable = false;
         syncWbgtLevelFromSlots(lastGoodWbgtSlots_);
-        updateForecastSlotsIfAllowed_(lastGoodWbgtSlots_);
+        if (typeof updateForecastSlotsIfAllowed_ === 'function') {
+            updateForecastSlotsIfAllowed_(lastGoodWbgtSlots_);
+        } else {
+            updateForecastSlots(lastGoodWbgtSlots_);
+        }
         queueOrRefreshS1FootBar_();
         refreshSignageBgIfChanged_();
         queueDisplayRefresh_();
@@ -5235,9 +5338,9 @@
         return true;
     }
     function applyWbgtUnavailableToDom_() {
-        if (wbgtOffSeason || !wbgtUnavailableGraceElapsed_()) return;
-        /* 一度でも成功値があれば長期灰色（取得不可）にしない */
+        /* グレース経過後でも、成功値があれば取得不可にしない */
         if (keepLastGoodWbgtDisplay_('取得継続失敗')) return;
+        if (wbgtOffSeason || !wbgtUnavailableGraceElapsed_()) return;
         wbgtUnavailable = true;
         syncWbgtDependentAlerts_();
         const nullSlot = { wbgt: null, hour: '取得不可' };
@@ -5254,7 +5357,8 @@
         const slots = (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))
             ? lastGoodWbgtSlots_
             : (lastWbgtSlots && hasFull4Slots(lastWbgtSlots) ? lastWbgtSlots : null);
-        if (!slots || wbgtOffSeason) return false;
+        if (!slots) return false;
+        if (wbgtOffSeason && !(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))) return false;
         syncWbgtLevelFromSlots(slots);
         updateForecastSlotsIfAllowed_(slots);
         if (!bootDisplayHold_) {
@@ -5420,10 +5524,7 @@
                     const wbgtSlots = await fetchWbgtData_();
                     timings['WBGT(GAS)'] = Math.round(performance.now() - sWbgt);
                     if (wbgtSlots === 'offseason') {
-                        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) {
-                            console.log('[WBGT] off-season応答 — 更新中は直前値を維持');
-                            applyWbgtInSeason_();
-                            syncWbgtSlotsToDomIfReady_();
+                        if (keepLastGoodWbgtDisplay_('off-season応答')) {
                             moeOk = true;
                         } else {
                             applyWbgtOffSeason_();
@@ -6243,16 +6344,20 @@
         return rainNowcastAlert && rainNowcastAlert.messageJp ? rainNowcastAlert.messageJp : '';
     }
     function getWbgtOnlyMessageJp() {
-        if (wbgtOffSeason) return '';
-        if (wbgtUnavailable) return unknownMsg.jp;
+        if (!(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))) {
+            if (wbgtOffSeason) return '';
+            if (wbgtUnavailable) return unknownMsg.jp;
+        }
         const lv = getS1WbgtLevelForDisplay_();
         if (lv < 0) return '';
         return multi[lv].jp;
     }
-    /* 下帯: 1分以上取得不可のときだけ「取得不可」。それ以外は直前値のWBGT文言＋雨タグ */
+    /* 下帯: 成功値が一度も無いときだけ「取得不可」。成功値があれば直前のWBGT文言＋雨タグ */
     function getS1WbgtMessageJp() {
-        if (wbgtOffSeason) return '';
-        if (wbgtUnavailable) return unknownMsg.jp;
+        if (!(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))) {
+            if (wbgtOffSeason) return '';
+            if (wbgtUnavailable) return unknownMsg.jp;
+        }
         const lv = getS1WbgtLevelForDisplay_();
         const rain = getRainAlertMessageJp();
         if (lv < 0) return rain || '';
@@ -6747,11 +6852,13 @@
     }
     /* シーン3（多言語枠）: 日・英・インドネシア・フィリピン・ベトナム */
     function getT3Messages_() {
-        if (wbgtOffSeason) return [];
-        if (wbgtUnavailable) {
-            const all = T3_LANG_KEYS.map(function (key) { return splitT3Message_(unknownMsg[key]); });
-            if (DEMO_T3_LANG_IDX >= 0 && DEMO_T3_LANG_IDX < all.length) return [all[DEMO_T3_LANG_IDX]];
-            return all;
+        if (!(lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_))) {
+            if (wbgtOffSeason) return [];
+            if (wbgtUnavailable) {
+                const all = T3_LANG_KEYS.map(function (key) { return splitT3Message_(unknownMsg[key]); });
+                if (DEMO_T3_LANG_IDX >= 0 && DEMO_T3_LANG_IDX < all.length) return [all[DEMO_T3_LANG_IDX]];
+                return all;
+            }
         }
         const lv = getS1WbgtLevelForDisplay_();
         if (lv < 0) return [];
@@ -6882,6 +6989,7 @@
         });
     }
     function getScene3WbgtLevel_() {
+        if (lastGoodWbgtSlots_ && hasFull4Slots(lastGoodWbgtSlots_)) return getS1WbgtLevelForDisplay_();
         if (wbgtOffSeason || wbgtUnavailable) return -1;
         return getS1WbgtLevelForDisplay_();
     }
@@ -7722,14 +7830,23 @@
         }
         if (DEMO_SIGNAGE_ACTIVE) {
             bootDisplayHold_ = false;
-            applySyncedUtcMs(Date.now(), 'demo-local');
+            applySyncedUtcMs(Date.now(), 'boot-local');
             updateClock();
             startClockTicker();
-            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
-            setInterval(function () {
-                syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
-            }, CLOCK_SYNC_INTERVAL_MS);
+            startNetworkClockSync_();
             applyDemoWeatherStatic();
+            document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'visible') {
+                    syncTimeFromNetwork().then(function () {
+                        updateClock();
+                        startClockTicker();
+                    }).catch(function () {
+                        if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'local-fallback');
+                        updateClock();
+                        startClockTicker();
+                    });
+                }
+            });
             if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') {
                 startPreviewDemo_(DEMO_PREVIEW);
                 return;
@@ -7746,10 +7863,7 @@
         applySyncedUtcMs(Date.now(), 'boot-local');
         updateClock();
         startClockTicker();
-        setInterval(function () {
-            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
-        }, CLOCK_SYNC_INTERVAL_MS);
-        syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+        startNetworkClockSync_();
         try {
             await Promise.race([
                 runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['起動'] }),
