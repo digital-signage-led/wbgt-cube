@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-aichi-usami-4face / 宇佐美工業 WBGT サイネージ（本番 4面 512×128・各コンテンツ末尾ロゴ128） -->
 <!-- 白帯: USAMI横ロックアップ | 広域河川堀川浚渫工事 -->
-<!-- 同階層: assets/usami_foot_lockup.png（時刻下白帯） / assets/usami_logo.png（縦ロックアップ） -->
+<!-- 同階層: assets/usami_foot_lockup.png（時刻下白帯） / assets/usami_mark.png（コンテンツ末尾128） -->
 <!-- 会場: 愛知県名古屋市 -->
 <!-- WBGT・AMeDAS 51106（名古屋・気象庁/環境省）／警報 名古屋市 2310000 -->
 <html lang="ja" class="native-640 layout-512">
@@ -13,7 +13,7 @@
     <!-- clock: jst-network-v5 — Asia/Tokyo 表示 / CF→timeapi→worldtimeapi→NICT / naive dateTime=+09:00 / demoも同期 / hourCycle h23 / 端末TZ非依存 -->
     <title>WBGT Signage 4面 - 宇佐美工業 広域河川堀川浚渫工事</title>
     <link rel="preload" as="image" href="./assets/usami_foot_lockup.png?v=2">
-    <link rel="preload" as="image" href="./assets/usami_logo.png?v=2">
+    <link rel="preload" as="image" href="./assets/usami_mark.png?v=1">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
 /** 4面 512×128 本番用（layout512 + native640）。localhost は PC 確認用に拡大表示 */
@@ -1759,7 +1759,7 @@
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/usami_logo.png?v=2',
+    logoSrc: './assets/usami_mark.png?v=1',
     logoAlt: '宇佐美工業',
     logoPanelBg: '#ffffff',
     logoCorpSrc: '',
@@ -1895,7 +1895,7 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/usami_logo.png?v=2" alt="宇佐美工業" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/usami_mark.png?v=1" alt="宇佐美工業" decoding="sync"></div></div>
             <div class="s2-panel s2-strip" data-s2="weather"><div class="s2-top-bar"><span class="s2-bar-label">天気</span></div><div class="s2-body"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div></div>
             <div class="s2-panel-data s2-strip" data-s2="temp"><div class="s2-top-bar"><span class="s2-bar-label">気温</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num temp-val"></span><span class="s2-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="rain"><div class="s2-top-bar"><span class="s2-bar-label">降水量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain-val"></span><span class="s2-unit">mm</span></div></div></div>
@@ -1905,7 +1905,7 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/usami_logo.png?v=2" alt="宇佐美工業" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/usami_mark.png?v=1" alt="宇佐美工業" decoding="sync"></div></div>
         </div>
         </div>
         <div class="s2-meta-bar"><div class="s2-meta-track" id="s2-meta-track"></div></div>
@@ -1918,12 +1918,12 @@
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/usami_logo.png?v=2" alt="宇佐美工業" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/usami_mark.png?v=1" alt="宇佐美工業" decoding="sync"></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/usami_logo.png?v=2" alt="宇佐美工業" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/usami_mark.png?v=1" alt="宇佐美工業" decoding="sync"></div>
             </div>
         </div>
         <div class="fc-lv-bar"><div class="fc-lv-track" id="fc-lv-track"></div></div>
@@ -1935,12 +1935,12 @@
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
-            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/usami_logo.png?v=2" alt="宇佐美工業" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/usami_mark.png?v=1" alt="宇佐美工業" decoding="sync"></div>
             <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
-            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/usami_logo.png?v=2" alt="宇佐美工業" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/usami_mark.png?v=1" alt="宇佐美工業" decoding="sync"></div>
         </div>
     </div>
 
@@ -1983,7 +1983,7 @@
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="./assets/usami_logo.png?v=2" alt="宇佐美工業" decoding="sync" fetchpriority="high">
+                <img class="logo-img" id="signage-logo" src="./assets/usami_mark.png?v=1" alt="宇佐美工業" decoding="sync" fetchpriority="high">
                 <img class="logo-corp-img" src="" alt="宇佐美工業" decoding="sync">
             </div>
         </div>
@@ -6145,7 +6145,7 @@
     /* 気象庁アメダス: 9項目のあと128×128ロゴ1枚（10分ごと更新） */
     function scene2LogoPanelHtml_() {
         const cfg = window.SIGNAGE_CONFIG || {};
-        const src = cfg.logoSrc || './assets/usami_logo.png?v=2';
+        const src = cfg.logoSrc || './assets/usami_mark.png?v=1';
         return '<div class="s2-panel s2-logo-panel" data-s2="logo">'
             + '<div class="s2-body"><img class="s2-logo-face-img" src="' + src
             + '" alt="宇佐美工業" decoding="sync"></div></div>';
