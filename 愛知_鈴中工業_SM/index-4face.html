@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- wbgt-cube-aichi-suzunaka-kinjofuto-4face / 鈴中工業 WBGT サイネージ（本番 4面 512×128・各コンテンツ末尾ロゴ128） -->
-<!-- 白帯: SUZUNAKA横ロックアップ | 金城ふ頭埋立地用地整備工事 -->
-<!-- 同階層: assets/suzunaka_foot_lockup.png（時刻下白帯） / assets/suzunaka_logo.png（縦ロックアップ） -->
+<!-- wbgt-cube-aichi-suzunaka-kinjofuto-4face / 鈴中工業 WBGT サイネージ（本番 4面 512×128・各コンテンツ末尾JV3社ロゴ） -->
+<!-- 白帯: 鈴中工業・昭和土木・おかむら特定建設工事共同体 | 金城ふ頭埋立地用地整備工事 -->
+<!-- 同階層: assets/suzunaka_logo.png・showa_logo.png・okamura_logo.png（末尾128×3） / green_cross.png（シーン6） -->
 <!-- 会場: 〒455-0848 愛知県名古屋市港区金城ふ頭三丁目-2 -->
 <!-- WBGT・AMeDAS 51106（名古屋・気象庁/環境省）／警報 名古屋市港区 2311100 -->
 <html lang="ja" class="native-640 layout-512">
@@ -12,8 +12,13 @@
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v5 — Asia/Tokyo 表示 / CF→timeapi→worldtimeapi→NICT / naive dateTime=+09:00 / demoも同期 / hourCycle h23 / 端末TZ非依存 -->
     <title>WBGT Signage 4面 - 鈴中工業 金城ふ頭埋立地用地整備工事</title>
-    <link rel="preload" as="image" href="./assets/suzunaka_foot_lockup.png?v=1">
-    <link rel="preload" as="image" href="./assets/suzunaka_logo.png?v=2">
+    <link rel="preload" as="image" href="./assets/suzunaka_logo.png?v=4">
+    <link rel="preload" as="image" href="./assets/green_cross.png?v=1">
+    <link rel="preload" as="image" href="./assets/showa_logo.png?v=2">
+    <link rel="preload" as="image" href="./assets/okamura_logo.png?v=2">
+    <link rel="preload" as="image" href="./assets/suzunaka_foot.png?v=2">
+    <link rel="preload" as="image" href="./assets/showa_foot.png?v=1">
+    <link rel="preload" as="image" href="./assets/okamura_foot.png?v=1">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
 /** 4面 512×128 本番用（layout512 + native640）。localhost は PC 確認用に拡大表示 */
@@ -160,6 +165,7 @@
         #scene3.active { display: flex; flex-direction: column; }
         #scene4.active { display: block; }
         #scene5.active { display: block; }
+        #scene6.active { display: flex; }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -310,7 +316,7 @@
             background: transparent;
         }
         .fc-track {
-            display: flex; flex-direction: row; width: 1280px; transition: none; gap: 0;
+            display: flex; flex-direction: row; width: 1792px; transition: none; gap: 0;
         }
         .fc-track .fc-panel:not(.fc-logo-panel) {
             width: 128px; height: var(--led-col-main-h); max-height: var(--led-col-main-h);
@@ -385,6 +391,16 @@
         .s1-wbgt-slot-wide, .fc-lv-slot-wide, .s2-meta-slot-wide {
             width: 512px; max-width: 512px; flex-shrink: 0;
         }
+        /* 共同企業体名は4面通し（512px）。枠線なし・白帯は連続のまま */
+        #scene1 .s1-wbgt-slot-wide.s1-wbgt-site-slot {
+            padding: 0 8px;
+        }
+        #scene1 .s1-wbgt-slot-wide .s1-foot-co-txt {
+            max-width: 496px;
+            font-size: 22px;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
         .s1-wbgt-ch, .fc-lv-ch {
             display: inline-flex; align-items: center; justify-content: center;
             width: 15px; flex-shrink: 0;
@@ -419,12 +435,26 @@
         }
         #scene1 .s1-wbgt-site-slot .s1-wbgt-banner {
             display: block; margin: 0 auto;
-            height: 28px; width: auto; max-width: 248px;
+            height: 32px; width: auto; max-width: 248px;
             object-fit: contain; object-position: center center;
             background: transparent;
-            mix-blend-mode: normal;
+            mix-blend-mode: multiply;
             transform: none;
             transform-origin: center center;
+            border: none; outline: none;
+        }
+        #scene1 .s1-wbgt-banner-screen {
+            mix-blend-mode: screen;
+        }
+        #scene1 .s1-wbgt-lockup-slot {
+            padding: 0 4px;
+            overflow: hidden;
+        }
+        #scene1 .s1-wbgt-lockup-suzunaka .s1-wbgt-banner {
+            height: 32px;
+            width: 248px;
+            max-width: 248px;
+            object-fit: contain;
         }
         #scene1 .s1-wbgt-site-slot .s1-wbgt-banner-svg {
             height: 30px; max-width: 256px;
@@ -442,7 +472,7 @@
             display: inline-block; flex-shrink: 0; white-space: nowrap; line-height: var(--led-foot-bar-h);
             max-width: 244px; overflow: hidden; text-overflow: ellipsis;
             font-family: "Noto Sans JP", sans-serif;
-            font-weight: 700; font-size: var(--led-foot-site-font); letter-spacing: 0.02em;
+            font-weight: 500; font-size: var(--led-foot-site-font); letter-spacing: 0.02em;
             color: #1a1a1a; box-sizing: border-box; text-align: center;
         }
         .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact {
@@ -530,10 +560,10 @@
             font-family: "Inter", sans-serif;
         }
 
-        .conveyor-track { display: flex; flex-direction: row; width: 2560px; transition: none; gap: 0; }
+        .conveyor-track { display: flex; flex-direction: row; width: 3072px; transition: none; gap: 0; }
         #scene2 { overflow: hidden; position: relative; }
         #scene2.active { display: block; }
-        /* 気象9面は本文高。末尾ロゴだけ128×128（その列の白帯を覆う） */
+        /* 気象9面は本文高。末尾JV3社ロゴは128×128（その列の白帯を覆う） */
         .s2-scroll-wrap {
             width: 512px; height: 128px; overflow: hidden;
             position: absolute; left: 0; top: 0; z-index: 13;
@@ -550,10 +580,8 @@
             height: 128px !important; min-height: 128px !important; max-height: 128px !important;
             flex: 0 0 128px !important; padding: 0; gap: 0; margin: 0;
             background: #ffffff !important;
-            position: relative; z-index: 0;
-            box-sizing: border-box; overflow: hidden;
-            contain: paint;
-            clip-path: inset(0);
+            position: relative; z-index: 2;
+            box-sizing: border-box; overflow: visible;
             display: flex; align-items: center; justify-content: center;
         }
         #scene2 .s2-logo-panel .col-bg-layer { display: none !important; }
@@ -571,9 +599,15 @@
             max-width: 112px; max-height: 112px; min-width: 0; min-height: 0;
             object-fit: contain; object-position: center center;
             background: #ffffff; flex-shrink: 0;
+            border: none; outline: none; box-shadow: none;
+        }
+        /* 連続ロゴ間の黒スジをレイアウト幅を変えずに隠す */
+        #scene2 .s2-logo-panel + .s2-logo-panel::before {
+            content: ''; position: absolute; left: -1px; top: 0; width: 2px; height: 100%;
+            background: #ffffff; pointer-events: none; z-index: 3;
         }
         #scene2 .s2-meta-bar { z-index: 12; }
-        /* 白帯は本体と同幅128枠。1〜9に文字、10（ロゴ）は空＝被らない */
+        /* 白帯は本体と同幅128枠。1〜9に文字、末尾3ロゴ枠は空＝被らない */
         #scene2 .s2-meta-set.s2-meta-set-panels {
             width: auto; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; flex-direction: row; align-items: stretch;
@@ -610,12 +644,9 @@
         #scene1 .col-bg-top, #scene1 .col-bg-body, #scene1 .col-bg-foot { width: 100%; }
         #scene2 .col-bg-host { flex-shrink: 0; }
         #scene2 .col-bg-layer { width: calc(100% + 1px); }
-        #scene2 .s2-panel:has(+ .s2-logo-panel) .col-bg-layer,
-        #scene2 .s2-panel-data:has(+ .s2-logo-panel) .col-bg-layer { width: 100%; }
         #scene2 .col-bg-top, #scene2 .col-bg-body, #scene2 .col-bg-foot { width: 100%; }
         #scene4 .col-bg-host { flex-shrink: 0; }
         #scene4 .fc-panel .col-bg-layer { width: calc(100% + 1px); }
-        #scene4 .fc-panel:has(+ .fc-logo-panel) .col-bg-layer { width: 100%; }
         #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
         #scene3 .t3-col .col-bg-layer { width: calc(100% + 1px); }
 
@@ -645,7 +676,7 @@
             display: flex; align-items: center; justify-content: center; box-sizing: border-box;
             overflow: hidden; padding: 0 6px;
         }
-        /* シーン4: 数値は本文高、最後ロゴは128×128でその列の白帯を隠す */
+        /* シーン4: 数値は本文高、末尾JV3社ロゴは128×128でその列の白帯を隠す */
         #scene4 { height: 128px; }
         #scene4 .fc-panel .col-bg-layer { height: var(--led-col-main-h); }
         #scene4 .fc-panel .col-bg-foot { display: none; }
@@ -658,20 +689,23 @@
             height: 128px !important; min-height: 128px !important; max-height: 128px !important;
             flex: 0 0 128px !important; padding: 0; gap: 0; margin: 0;
             background: #ffffff !important;
-            position: relative; z-index: 0;
-            box-sizing: border-box; overflow: hidden;
-            contain: paint;
-            clip-path: inset(0);
+            position: relative; z-index: 2;
+            box-sizing: border-box; overflow: visible;
             display: flex; align-items: center; justify-content: center;
         }
         #scene4 .fc-logo-panel .col-bg-layer { display: none !important; }
         #scene4 .fc-logo-panel .fc-top-bar,
         #scene4 .fc-logo-panel .fc-body { display: none !important; }
+        #scene4 .fc-logo-panel + .fc-logo-panel::before {
+            content: ''; position: absolute; left: -1px; top: 0; width: 2px; height: 100%;
+            background: #ffffff; pointer-events: none; z-index: 3;
+        }
         #scene4 .fc-logo-panel .fc-logo-face-img {
             display: block; width: 112px; height: 112px;
             max-width: 112px; max-height: 112px; min-width: 0; min-height: 0;
             object-fit: contain; object-position: center center;
             background: #ffffff; flex-shrink: 0;
+            border: none; outline: none; box-shadow: none;
         }
         #scene4 .fc-lv-bar { z-index: 12; }
         #scene4 .fc-lv-set.fc-lv-set-sync {
@@ -709,7 +743,7 @@
             line-height: 1; margin-left: 1px;
         }
         .daily-scene { display: none; overflow: hidden; }
-        .d5-track { display: flex; flex-direction: row; width: 1280px; transition: none; gap: 0; align-items: flex-start; }
+        .d5-track { display: flex; flex-direction: row; width: 1792px; transition: none; gap: 0; align-items: flex-start; }
         #scene5 .d5-panel:not(.d5-logo-panel) {
             position: relative;
             z-index: 1;
@@ -720,10 +754,8 @@
             flex: 0 0 128px !important;
             background: #ffffff !important;
             display: flex; align-items: center; justify-content: center;
-            padding: 0; gap: 0; margin: 0; overflow: hidden; box-sizing: border-box;
-            position: relative; z-index: 0;
-            contain: paint;
-            clip-path: inset(0);
+            padding: 0; gap: 0; margin: 0; overflow: visible; box-sizing: border-box;
+            position: relative; z-index: 2;
         }
         #scene5 .d5-logo-panel .col-bg-layer { display: none !important; }
         #scene5 .d5-logo-panel .s2-top-bar,
@@ -735,6 +767,11 @@
             max-width: 112px; max-height: 112px; min-width: 0; min-height: 0;
             object-fit: contain; object-position: center center;
             background: #ffffff; flex-shrink: 0;
+            border: none; outline: none; box-shadow: none;
+        }
+        #scene5 .d5-logo-panel + .d5-logo-panel::before {
+            content: ''; position: absolute; left: -1px; top: 0; width: 2px; height: 100%;
+            background: #ffffff; pointer-events: none; z-index: 3;
         }
         .d5-panel { width: 128px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-sizing: border-box; flex-shrink: 0; overflow: hidden; padding: 0; gap: 0; border: none; outline: none; background: transparent; }
         /* シーン5: 時刻と同型 上32 + 中72 + 下24（列内フッタ） */
@@ -747,7 +784,6 @@
         #scene5 .d5-panel .col-bg-foot { display: none; }
         #scene5 .col-bg-host { flex-shrink: 0; }
         #scene5 .col-bg-layer { width: calc(100% + 1px); }
-        #scene5 .d5-panel:has(+ .d5-logo-panel) .col-bg-layer { width: 100%; }
         #scene5 .d5-body {
             flex-direction: row;
             align-items: center;
@@ -807,10 +843,10 @@
         }
         #scene5 .d5-today-frame {
             position: absolute;
-            left: 0;
-            top: 0;
-            width: 128px;
-            height: 128px;
+            left: 2px;
+            top: 2px;
+            width: 124px;
+            height: 124px;
             box-sizing: border-box;
             border: 2px solid #1a1a1a;
             pointer-events: none;
@@ -821,6 +857,50 @@
             border-color: #ffffff;
         }
         #scene5 { overflow: hidden; }
+
+        /* シーン6: JVロゴ4枚をトラックで左へスライド切替。2周で次へ。列間の黒線は1px重ねで消す */
+        #scene6 {
+            overflow: hidden; position: relative;
+            width: 512px; height: 128px;
+            flex-direction: row; align-items: stretch; justify-content: flex-start;
+            background: #ffffff; gap: 0; padding: 0; margin: 0;
+            border: none; outline: none;
+        }
+        #scene6::before {
+            content: "";
+            position: absolute; left: 0; top: 0; width: 512px; height: 128px;
+            background: #ffffff; z-index: 0; pointer-events: none;
+        }
+        #scene6 .s6-track {
+            display: flex; flex-direction: row; align-items: stretch;
+            height: 128px; flex-shrink: 0; gap: 0; padding: 0; margin: 0;
+            will-change: transform; backface-visibility: hidden;
+            position: relative; z-index: 1;
+        }
+        #scene6 .s6-face {
+            width: 129px; min-width: 129px; max-width: 129px;
+            height: 128px; min-height: 128px; max-height: 128px;
+            flex: 0 0 129px;
+            margin: 0 -1px 0 0;
+            display: flex; align-items: center; justify-content: center;
+            background: #ffffff; overflow: hidden; box-sizing: border-box;
+            padding: 0;
+            border: none; outline: none; box-shadow: none;
+            position: relative; z-index: 1;
+        }
+        #scene6 .s6-face-img {
+            display: block; width: 112px; height: 112px;
+            max-width: 112px; max-height: 112px;
+            object-fit: contain; object-position: center center;
+            background: transparent; flex-shrink: 0;
+            border: none; outline: none;
+            transition: none;
+        }
+        #scene6 .s6-face-mark .s6-face-img {
+            width: 100%; height: 100%;
+            max-width: none; max-height: none;
+            object-fit: cover;
+        }
 
         #scene3 { overflow: hidden; position: relative; }
         /* 512×128: 上バー32 + 本体72 + 白下帯24（現在WBGT指針・シーン4） */
@@ -1726,7 +1806,7 @@
 
   var cfg = {
     site: {
-      customer: '鈴中工業株式会社',
+      customer: '鈴中工業・昭和土木・おかむら特定建設工事共同体',
       rental: '',
       /* 時刻下白帯＝工事名 */
       label: '金城ふ頭埋立地用地整備工事',
@@ -1765,13 +1845,32 @@
   global.SignageConfig = cfg;
 
   global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/suzunaka_logo.png?v=2',
+    logoSrc: './assets/suzunaka_logo.png?v=4',
     logoAlt: '鈴中工業',
     logoPanelBg: '#ffffff',
     logoCorpSrc: '',
     footLogoSrc: '',
-    /* 時刻下白帯：横ロックアップ（256px枠で工事名・WBGTと流す） */
-    footBannerSrc: './assets/suzunaka_foot_lockup.png?v=1'
+    /* 時刻下白帯：横ロックアップは使わず、共同企業体名をテキストで流す */
+    footBannerSrc: '',
+    /* 時刻下白帯: 共同企業体名テキストに続けて3社横ロゴを流す（文字は残す） */
+    footLogos: [
+      { src: './assets/suzunaka_foot.png?v=2', alt: '鈴中工業', blend: 'multiply', slotClass: 's1-wbgt-lockup-suzunaka' },
+      { src: './assets/showa_foot.png?v=1', alt: '昭和土木', blend: 'screen' },
+      { src: './assets/okamura_foot.png?v=1', alt: 'おかむら', blend: 'multiply' }
+    ],
+    /* 気象・暑さ指数・4日予報の末尾: 鈴中 → 昭和 → おかむら */
+    trailingLogos: [
+      { src: './assets/suzunaka_logo.png?v=4', alt: '鈴中工業' },
+      { src: './assets/showa_logo.png?v=2', alt: '昭和土木' },
+      { src: './assets/okamura_logo.png?v=2', alt: 'おかむら' }
+    ],
+    /* シーン6: 緑十字 + JV3社を4面に1枚ずつ */
+    jvLogos: [
+      { src: './assets/green_cross.png?v=1', alt: '緑十字' },
+      { src: './assets/suzunaka_logo.png?v=4', alt: '鈴中工業' },
+      { src: './assets/showa_logo.png?v=2', alt: '昭和土木' },
+      { src: './assets/okamura_logo.png?v=2', alt: 'おかむら' }
+    ]
   };
 })(typeof window !== 'undefined' ? window : global);
 
@@ -1886,7 +1985,7 @@
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
         </div>
-        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/suzunaka_foot_lockup.png?v=1" alt="鈴中工業" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">金城ふ頭埋立地用地整備工事</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/suzunaka_foot_lockup.png?v=1" alt="鈴中工業" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">金城ふ頭埋立地用地整備工事</span></div></div></div></div>
+        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">鈴中工業・昭和土木・おかむら特定建設工事共同体</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-lockup-slot s1-wbgt-lockup-suzunaka"><img class="s1-wbgt-banner" src="./assets/suzunaka_foot.png?v=2" alt="鈴中工業" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-lockup-slot"><img class="s1-wbgt-banner s1-wbgt-banner-screen" src="./assets/showa_foot.png?v=1" alt="昭和土木" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-lockup-slot"><img class="s1-wbgt-banner" src="./assets/okamura_foot.png?v=1" alt="おかむら" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">金城ふ頭埋立地用地整備工事</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">鈴中工業・昭和土木・おかむら特定建設工事共同体</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-lockup-slot s1-wbgt-lockup-suzunaka"><img class="s1-wbgt-banner" src="./assets/suzunaka_foot.png?v=2" alt="鈴中工業" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-lockup-slot"><img class="s1-wbgt-banner s1-wbgt-banner-screen" src="./assets/showa_foot.png?v=1" alt="昭和土木" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-lockup-slot"><img class="s1-wbgt-banner" src="./assets/okamura_foot.png?v=1" alt="おかむら" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">金城ふ頭埋立地用地整備工事</span></div></div></div></div>
     </div>
 
     <div class="scene" id="scene2">
@@ -1901,7 +2000,9 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/suzunaka_logo.png?v=2" alt="鈴中工業" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div></div>
             <div class="s2-panel s2-strip" data-s2="weather"><div class="s2-top-bar"><span class="s2-bar-label">天気</span></div><div class="s2-body"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></div></div>
             <div class="s2-panel-data s2-strip" data-s2="temp"><div class="s2-top-bar"><span class="s2-bar-label">気温</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num temp-val"></span><span class="s2-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="rain"><div class="s2-top-bar"><span class="s2-bar-label">降水量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain-val"></span><span class="s2-unit">mm</span></div></div></div>
@@ -1911,7 +2012,9 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/suzunaka_logo.png?v=2" alt="鈴中工業" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div></div>
         </div>
         </div>
         <div class="s2-meta-bar"><div class="s2-meta-track" id="s2-meta-track"></div></div>
@@ -1924,12 +2027,16 @@
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/suzunaka_logo.png?v=2" alt="鈴中工業" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/suzunaka_logo.png?v=2" alt="鈴中工業" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
             </div>
         </div>
         <div class="fc-lv-bar"><div class="fc-lv-track" id="fc-lv-track"></div></div>
@@ -1941,12 +2048,16 @@
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
-            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/suzunaka_logo.png?v=2" alt="鈴中工業" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
             <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
-            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/suzunaka_logo.png?v=2" alt="鈴中工業" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
         </div>
     </div>
 
@@ -1985,11 +2096,20 @@
             <div class="t3-guid-bar s2-meta-bar"><div class="t3-guid-track s2-meta-track" id="t3-guid-track"></div></div>
         </div>
     </div>
+
+    <div class="scene" id="scene6" aria-label="JVロゴ">
+        <div class="s6-track" id="s6-track">
+            <div class="s6-face s6-face-mark"><img class="s6-face-img" src="./assets/green_cross.png?v=1" alt="緑十字" decoding="sync"></div>
+            <div class="s6-face"><img class="s6-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
+            <div class="s6-face"><img class="s6-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
+            <div class="s6-face"><img class="s6-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
+        </div>
+    </div>
     </div>
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="./assets/suzunaka_logo.png?v=2" alt="鈴中工業" decoding="sync" fetchpriority="high">
+                <img class="logo-img" id="signage-logo" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync" fetchpriority="high">
                 <img class="logo-corp-img" src="" alt="鈴中工業" decoding="sync">
             </div>
         </div>
@@ -2335,11 +2455,11 @@
         const v = String(raw).toLowerCase();
         if (v === 'alert') return 'alert';
         if (v === 'rainwarn') return 'rainwarn';
-        const map = { '1': 's1', '2': 's2', '3': 's4', '4': 's5', '5': 's3', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
+        const map = { '1': 's1', '2': 's2', '3': 's4', '4': 's5', '5': 's3', '6': 's6', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5', s6: 's6' };
         return map[v] || null;
     }
     const SCENE_LABEL_BY_KEY = {
-        s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', alert: '熱中症アラート', rainwarn: '大雨警報'
+        s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', s6: 'JVロゴ', alert: '熱中症アラート', rainwarn: '大雨警報'
     };
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
@@ -2990,6 +3110,7 @@
     const fcConveyor = document.getElementById('fc-conveyor');
     const fcLvTrack = document.getElementById('fc-lv-track');
     const s5 = document.getElementById('scene5');
+    const s6 = document.getElementById('scene6');
     const sceneAlert = document.getElementById('sceneAlert');
     const sceneRainWarn = document.getElementById('sceneRainWarn');
     const d5Conveyor = document.getElementById('d5-conveyor');
@@ -4491,7 +4612,7 @@
                             return;
                         } else {
                             raAnimId = null; raFlow_ = null;
-                            finishMainLoopToS1_();
+                            runAfterSceneEndHold_(finishMainLoopToS1_);
                             return;
                         }
                     }
@@ -4529,7 +4650,7 @@
     }
     async function startRainWarnOnlyDemo_() {
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         if (sceneRainWarn) {
             sceneRainWarn.style.display = 'block';
             sceneRainWarn.classList.add('active');
@@ -4587,12 +4708,14 @@
     const SCENE1_ADVANCE_LAPS = 1;
     const SCENE1_WBGT_SETS = 3;
     const COMPANY_LINE_FONT_START_PX_ = 15;
-    const COMPANY_LINE_FONT_MIN_PX_ = 9;
+    const COMPANY_LINE_FONT_MIN_PX_ = 8;
+    const COMPANY_WIDE_FONT_START_PX_ = 22;
+    const COMPANY_WIDE_FONT_MIN_PX_ = 16;
     /** 下帯なし（時刻のみ）のときの表示時間 */
     const SCENE1_CLOCK_HOLD_MS = 10000;
     const SCENE1_WBGT_HOLD_MS = SCENE1_CLOCK_HOLD_MS;
     const SCENE1_WBGT_SPEED_PX = 0.6;
-    const SCENE1_SAFETY_MS = 20000;
+    const SCENE1_SAFETY_MS = 45000;
     let scene1AnimId = null;
     let scene1HoldTimerId = null;
     let scene1EndHoldTimerId = null;
@@ -4600,8 +4723,9 @@
     let scene1AdvanceToken = 0;
     let s1Flow_ = null;
     const SCENE2_WEATHER_COUNT = 9;
-    const SCENE2_PANEL_COUNT = 10; /* 気象9 + 末尾ロゴ1 */
-    const SCENE2_LAPS = 2;
+    const TRAILING_JV_LOGO_COUNT = 3; /* 鈴中・昭和・おかむら */
+    const SCENE2_PANEL_COUNT = SCENE2_WEATHER_COUNT + TRAILING_JV_LOGO_COUNT; /* 気象9 + 末尾ロゴ3 */
+    const SCENE2_LAPS = 2; /* 2周してから次へ */
     const SCENE2_SCROLL_PX = 0.8;
     const SCENE2_META_LAP_PX = FOOT_BAR_LAP_PX;
     const SCENE2_META_SETS = 3;
@@ -4610,8 +4734,8 @@
     let scene2MetaLapPx = FOOT_BAR_LAP_PX;
     const JMA_LATEST_TIME_URL = 'https://www.jma.go.jp/bosai/amedas/data/latest_time.txt';
     const JMA_FORECAST_URL = `https://www.jma.go.jp/bosai/forecast/data/forecast/${JMA_FORECAST_AREA_CODE}.json`;
-    const SCENE4_PANEL_COUNT = 5; /* WBGT4 + 末尾ロゴ1 */
-    const SCENE4_LAPS = 2;
+    const SCENE4_PANEL_COUNT = 4 + TRAILING_JV_LOGO_COUNT; /* WBGT4 + 末尾ロゴ3 */
+    const SCENE4_LAPS = 2; /* 2周してから次へ */
     const SCENE4_SCROLL_PX = 0.8;
     const SCENE4_LV_LAP_PX = FOOT_BAR_LAP_PX;
     let scene4SetWidth = SCENE4_PANEL_COUNT * 128;
@@ -4621,11 +4745,21 @@
     const SCENE4_LV_SETS = 3;
     const SCENE4_LV_SPEED_PX = 0.6;
     const SCENE5_DAY_COUNT = 4;
-    const SCENE5_PANEL_COUNT = 5; /* 今日〜明々後日 + 末尾ロゴ */
-    const SCENE5_LAPS = 2;
+    const SCENE5_PANEL_COUNT = SCENE5_DAY_COUNT + TRAILING_JV_LOGO_COUNT; /* 今日〜明々後日 + 末尾ロゴ3 */
+    const SCENE5_LAPS = 2; /* 2周してから次へ */
     const SCENE5_SCROLL_PX = 0.8;
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
+    const SCENE6_HOLD_MS = 10000;
+    const SCENE6_FACE_COUNT = 4;
+    const SCENE6_LAPS = 2;
+    const SCENE6_FACE_W = 128;
+    const SCENE6_SLIDE_MS = 450;
+    const SCENE6_STEP_MS = 3000;
+    const SCENE6_COPIES = 3;
+    let scene6HoldTimerId = null;
+    let scene6SlideTimerId = null;
+    let scene6Step_ = 0;
     const T3_UNIT_W = 256;
     const T3_USABLE_W = T3_UNIT_W - 8;
     const T3_SLOT_GAP = 2;
@@ -4719,9 +4853,14 @@
         if (setEl) {
             const slots = setEl.querySelectorAll('.s1-wbgt-slot');
             const unique = Math.floor(slots.length / 2);
-            if (unique > 0 && slots[unique]) {
-                const lap = slots[unique].offsetLeft - slots[0].offsetLeft;
-                if (lap > 0) return lap;
+            if (unique > 0) {
+                let sum = 0;
+                for (let i = 0; i < unique; i++) sum += slots[i].offsetWidth || 0;
+                if (sum > 0) return sum;
+                if (slots[unique]) {
+                    const lap = slots[unique].offsetLeft - slots[0].offsetLeft;
+                    if (lap > 0) return lap;
+                }
             }
             const w = setEl.scrollWidth || setEl.offsetWidth;
             if (w > 0) return Math.max(1, Math.round(w / 2));
@@ -4759,6 +4898,7 @@
         if (scene2AnimId) { cancelAnimationFrame(scene2AnimId); scene2AnimId = null; }
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
         if (scene5AnimId) { cancelAnimationFrame(scene5AnimId); scene5AnimId = null; }
+        clearScene6Timers_();
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
         if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
         if (raAnimId) { cancelAnimationFrame(raAnimId); raAnimId = null; }
@@ -6020,8 +6160,8 @@
         weather: '', temp: '気温', rain: '降水', wdir: '風向', wind: '風速',
         humi: '湿度', pres: '気圧', tmaxmin: '高低', gust: '瞬間'
     };
-    /* 本体10面と同じ順。白帯文字は1〜9のみ、10ロゴ枠は空 */
-    const SCENE2_PANEL_ORDER = ['weather', 'temp', 'rain', 'wdir', 'wind', 'humi', 'pres', 'tmaxmin', 'gust', 'logo'];
+    /* 本体12面と同じ順。白帯文字は1〜9のみ、末尾3ロゴ枠は空 */
+    const SCENE2_PANEL_ORDER = ['weather', 'temp', 'rain', 'wdir', 'wind', 'humi', 'pres', 'tmaxmin', 'gust', 'logo', 'logo', 'logo'];
     function scene2FootTextForType_(type, obs) {
         switch (type) {
             case 'rain': return obs.time;
@@ -6165,13 +6305,26 @@
             }
         });
     }
-    /* 気象庁アメダス: 9項目のあと128×128ロゴ1枚（10分ごと更新） */
-    function scene2LogoPanelHtml_() {
+    /* 気象庁アメダス: 9項目のあと128×128 JV3社（10分ごと更新） */
+    function getTrailingJvLogos_() {
         const cfg = window.SIGNAGE_CONFIG || {};
-        const src = cfg.logoSrc || './assets/suzunaka_logo.png?v=2';
-        return '<div class="s2-panel s2-logo-panel" data-s2="logo">'
-            + '<div class="s2-body"><img class="s2-logo-face-img" src="' + src
-            + '" alt="鈴中工業" decoding="sync"></div></div>';
+        if (Array.isArray(cfg.trailingLogos) && cfg.trailingLogos.length) {
+            return cfg.trailingLogos.filter(function (r) { return r && r.src; });
+        }
+        return (cfg.jvLogos || []).filter(function (r) {
+            return r && r.src && !/green_cross/.test(String(r.src));
+        });
+    }
+    function trailingJvLogoCount_() {
+        const n = getTrailingJvLogos_().length;
+        return n > 0 ? n : TRAILING_JV_LOGO_COUNT;
+    }
+    function scene2LogoPanelsHtml_() {
+        return getTrailingJvLogos_().map(function (row) {
+            return '<div class="s2-panel s2-logo-panel" data-s2="logo">'
+                + '<div class="s2-body"><img class="s2-logo-face-img" src="' + escapeS1Html(row.src)
+                + '" alt="' + escapeS1Html(row.alt || '') + '" decoding="sync"></div></div>';
+        }).join('');
     }
     function isScene2LogoPanel_(p) {
         return !!(p && (p.classList.contains('s2-logo-panel') || p.getAttribute('data-s2') === 'logo'));
@@ -6185,9 +6338,9 @@
         const setWeather = weather.slice(0, nWeather);
         let setHtml = '';
         setWeather.forEach(function (p) { setHtml += p.outerHTML; });
-        setHtml += scene2LogoPanelHtml_();
+        setHtml += scene2LogoPanelsHtml_();
         conveyor.innerHTML = setHtml + setHtml;
-        scene2SetWidth = (nWeather + 1) * 128;
+        scene2SetWidth = (nWeather + trailingJvLogoCount_()) * 128;
         conveyor.style.width = (scene2SetWidth * 2) + 'px';
         scene2MetaLapPx = scene2SetWidth;
         if (typeof SignageBg !== 'undefined' && SignageBg.initHosts) SignageBg.initHosts();
@@ -6391,16 +6544,26 @@
         return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
     }
     function sizeS1FootCompanyText_() {
-        const maxW = FOOT_BAR_SLOT_W - 12;
         document.querySelectorAll('#scene1 .s1-foot-co-txt').forEach(function (el) {
-            let fz = COMPANY_LINE_FONT_START_PX_;
-            el.style.letterSpacing = '0';
+            const slot = el.closest('.s1-wbgt-slot');
+            const wide = !!(slot && slot.classList.contains('s1-wbgt-slot-wide'));
+            const slotW = slot && slot.clientWidth ? slot.clientWidth : (wide ? 512 : FOOT_BAR_SLOT_W);
+            const maxW = Math.max(120, slotW - 16);
+            const min = wide ? COMPANY_WIDE_FONT_MIN_PX_ : COMPANY_LINE_FONT_MIN_PX_;
+            let fz = wide ? COMPANY_WIDE_FONT_START_PX_ : COMPANY_LINE_FONT_START_PX_;
+            el.style.letterSpacing = wide ? '0.01em' : '0';
+            el.style.maxWidth = 'none';
+            el.style.overflow = 'visible';
+            el.style.textOverflow = 'clip';
             el.style.fontSize = fz + 'px';
             let guard = 24;
-            while (guard-- > 0 && fz > COMPANY_LINE_FONT_MIN_PX_ && el.scrollWidth > maxW) {
+            while (guard-- > 0 && fz > min && el.scrollWidth > maxW) {
                 fz -= 1;
                 el.style.fontSize = fz + 'px';
             }
+            el.style.maxWidth = '';
+            el.style.overflow = '';
+            el.style.textOverflow = '';
         });
     }
     function sizeS1FootWbgtText_() {
@@ -6497,6 +6660,19 @@
     function buildFootBarSlotHtml(msgHtml, slotClass) {
         return `<div class="${slotClass}">${msgHtml}</div>`;
     }
+    function getS1FootLockups_() {
+        const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
+        return Array.isArray(cfg.footLogos) ? cfg.footLogos : [];
+    }
+    function buildS1FootLockupSlotHtml_(row) {
+        if (!row || !row.src) return '';
+        const extra = row.slotClass ? (' ' + String(row.slotClass)) : '';
+        const screen = String(row.blend || '') === 'screen';
+        const cls = 's1-wbgt-banner' + (screen ? ' s1-wbgt-banner-screen' : '');
+        return '<div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-lockup-slot' + extra + '"><img class="' + cls
+            + '" src="' + escapeS1Html(row.src) + '" alt="' + escapeS1Html(row.alt || '')
+            + '" decoding="async"></div>';
+    }
     function buildS1FootSlotsHtml_(msgText) {
         const slots = [];
         const banner = getS1FootBannerSrc_();
@@ -6504,8 +6680,17 @@
             slots.push('<div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="'
                 + escapeS1Html(banner) + '" alt="鈴中工業" decoding="async"></div>');
         }
-        const name = String(getS1SiteFootName_() || '').trim();
-        if (name) {
+        const company = String(getS1SiteCustomerName_() || '').trim();
+        if (company && !banner) {
+            slots.push('<div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">'
+                + escapeS1Html(company) + '</span></div>');
+        }
+        getS1FootLockups_().forEach(function (row) {
+            const html = buildS1FootLockupSlotHtml_(row);
+            if (html) slots.push(html);
+        });
+        const name = String((SITE_CFG.site && SITE_CFG.site.label) || '').trim();
+        if (name && name !== company) {
             slots.push('<div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">'
                 + escapeS1Html(name) + '</span></div>');
         }
@@ -6522,7 +6707,7 @@
         return '<div class="s1-wbgt-set s1-wbgt-set-scroll">' + once + once + '</div>';
     }
     function s1FootContentKey_(text) {
-        return [getS1FootBannerSrc_(), getS1SiteFootName_(), String(text || '')].join('\t');
+        return [getS1FootBannerSrc_(), getS1SiteCustomerName_(), (SITE_CFG.site && SITE_CFG.site.label) || '', getS1FootLockups_().map(function (r) { return r && r.src; }).join(','), String(text || '')].join('\t');
     }
     function getFcLvText() {
         return getFootSourceText_();
@@ -6533,20 +6718,25 @@
         }
         return `<span class="fc-lv-msg">${buildEvenCharSpans(text, 'fc-lv-ch')}</span>`;
     }
-    /* 白帯: 256ずつ出典 + ロゴ下128は空（本体コンベアと同じ周期） */
+    /* 白帯: 256ずつ出典 + ロゴ下128×3は空（本体コンベアと同じ周期） */
     function buildFcLvSetHtml(text) {
         const msg = '<span class="fc-lv-msg-compact">' + escapeS1Html(text) + '</span>';
         const src = '<div class="fc-lv-slot fc-lv-slot-src">' + msg + '</div>';
         const logo = '<div class="fc-lv-slot fc-lv-slot-logo" aria-hidden="true"></div>';
-        return '<div class="fc-lv-set fc-lv-set-sync">' + src + src + logo + '</div>';
+        const nLogo = trailingJvLogoCount_();
+        let logos = '';
+        for (let i = 0; i < nLogo; i++) logos += logo;
+        return '<div class="fc-lv-set fc-lv-set-sync">' + src + src + logos + '</div>';
     }
     function buildFcLvTrack(clearTimers) {
         if (!fcLvTrack) return;
         const text = getFcLvText();
-        const key = '256x2:' + text;
+        const nLogo = trailingJvLogoCount_();
+        const fallbackW = 256 * 2 + 128 * nLogo;
+        const key = '256x2+L' + nLogo + ':' + text;
         if (key === lastFcLvText_ && fcLvTrack.querySelector('.fc-lv-set-sync')) {
             if (clearTimers) clearScene4Timers();
-            scene4FcLvLapPx = scene4SetWidth || (256 * 2 + 128);
+            scene4FcLvLapPx = scene4SetWidth || fallbackW;
             applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
             return;
         }
@@ -6554,7 +6744,7 @@
         if (clearTimers) clearScene4Timers();
         fcLvTrack.innerHTML = buildFcLvSetHtml(text) + buildFcLvSetHtml(text);
         const setEl = fcLvTrack.querySelector('.fc-lv-set-sync');
-        const setW = setEl ? setEl.offsetWidth : (256 * 2 + 128);
+        const setW = setEl ? setEl.offsetWidth : fallbackW;
         scene4FcLvLapPx = Math.max(scene4SetWidth || setW, setW);
         applyGlobalScroll_(fcLvTrack, scene4FcLvLapPx);
     }
@@ -6622,20 +6812,22 @@
         if (scene1EndHoldTimerId) { clearTimeout(scene1EndHoldTimerId); scene1EndHoldTimerId = null; }
         if (scene1SafetyTimerId) { clearTimeout(scene1SafetyTimerId); scene1SafetyTimerId = null; }
     }
-    function scheduleScene1SafetyAdvance_() {
+    function scheduleScene1SafetyAdvance_(waitMs) {
         if (scene1SafetyTimerId) clearTimeout(scene1SafetyTimerId);
+        const wait = Math.max(SCENE1_SAFETY_MS, waitMs || 0);
         scene1SafetyTimerId = setTimeout(function () {
             scene1SafetyTimerId = null;
             if (s1 && s1.classList.contains('active')) {
                 console.warn('[Scene1] 安全タイマーで次シーンへ進めます');
                 finishScene1();
             }
-        }, SCENE1_SAFETY_MS);
+        }, wait);
     }
     function sceneDisplayMode(el) {
         if (!el) return 'block';
         if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
         if (el.id === 'scene1' || el.id === 'scene3') return 'block';
+        if (el.id === 'scene6') return 'flex';
         return 'flex';
     }
     function hideSceneEl(el) {
@@ -6700,7 +6892,7 @@
         if (!s2) return;
         transitionToScene(s2, playScene2);
     }
-    /* シーン3（多言語WBGT）の後 → シーン1 */
+    /* シーン3（多言語WBGT）の後 → JVロゴ4面 → アラート／シーン1 */
     function gotoAfterScene3Tail_() {
         if (WBGT_ONLY) { finishMainLoopToS1_(); return; }
         if (wbgtNormalDisplay_() && heatAlertActive.length && sceneAlert) {
@@ -6710,7 +6902,83 @@
         }
         gotoAfterRainWarnOrScene1_();
     }
+    function getScene6Logos_() {
+        const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
+        const logos = Array.isArray(cfg.jvLogos) ? cfg.jvLogos.filter(function (r) { return r && r.src; }) : [];
+        return logos;
+    }
+    function scene6FaceHtml_(row) {
+        const mark = /green_cross/.test(String(row.src)) ? ' s6-face-mark' : '';
+        return '<div class="s6-face' + mark + '"><img class="s6-face-img" src="'
+            + escapeS1Html(row.src) + '" alt="' + escapeS1Html(row.alt || '')
+            + '" decoding="sync"></div>';
+    }
+    function clearScene6Timers_() {
+        if (scene6HoldTimerId) { clearTimeout(scene6HoldTimerId); scene6HoldTimerId = null; }
+        if (scene6SlideTimerId) { clearTimeout(scene6SlideTimerId); scene6SlideTimerId = null; }
+    }
+    function applyScene6TrackX_(x, animate) {
+        const track = document.getElementById('s6-track');
+        if (!track) return;
+        if (animate) {
+            track.style.transition = 'transform ' + SCENE6_SLIDE_MS + 'ms cubic-bezier(0.22, 1, 0.36, 1)';
+            void track.offsetWidth;
+        } else {
+            track.style.transition = 'none';
+        }
+        track.style.transform = 'translate3d(' + (-Math.round(x)) + 'px,0,0)';
+    }
+    function buildScene6Track_() {
+        const track = document.getElementById('s6-track');
+        const logos = getScene6Logos_();
+        if (!track || !logos.length) return logos.length;
+        let html = '';
+        for (let c = 0; c < SCENE6_COPIES; c++) {
+            logos.forEach(function (row) { html += scene6FaceHtml_(row); });
+        }
+        track.innerHTML = html;
+        applyScene6TrackX_(0, false);
+        return logos.length;
+    }
+    function finishScene6() {
+        clearScene6Timers_();
+        applyScene6TrackX_(0, false);
+        scene6Step_ = 0;
+        if (demoOnlyLoop_('s6', playScene6)) return;
+        gotoAfterScene3Tail_();
+    }
+    function playScene6() {
+        if (!s6) { gotoAfterScene3Tail_(); return; }
+        clearScene6Timers_();
+        applyDisplayRefreshAtSceneEntry_();
+        applyPendingSignageBgAtScene_();
+        scene6Step_ = 0;
+        const nFace = Math.max(1, buildScene6Track_() || SCENE6_FACE_COUNT);
+        const steps = nFace * SCENE6_LAPS;
+        if (isFullDemoStep_()) {
+            scheduleDemoStep_(finishScene6);
+            return;
+        }
+        function afterArrive() {
+            scene6SlideTimerId = null;
+            if (scene6Step_ >= steps) {
+                runAfterSceneEndHold_(finishScene6);
+                return;
+            }
+            scene6HoldTimerId = setTimeout(function () {
+                scene6HoldTimerId = null;
+                scene6Step_ += 1;
+                applyScene6TrackX_(scene6Step_ * SCENE6_FACE_W, true);
+                scene6SlideTimerId = setTimeout(afterArrive, SCENE6_SLIDE_MS);
+            }, SCENE6_STEP_MS);
+        }
+        afterArrive();
+    }
     function gotoAfterScene3_() {
+        if (s6) {
+            transitionToScene(s6, playScene6);
+            return;
+        }
         gotoAfterScene3Tail_();
     }
     /* 256×128スロット中央に収まるサイズ（256÷128=2 のパネル内で中央揃え） */
@@ -6813,7 +7081,7 @@
                             return;
                         } else {
                             haAnimId = null; haFlow_ = null;
-                            gotoAfterRainWarnOrScene1_();
+                            runAfterSceneEndHold_(gotoAfterRainWarnOrScene1_);
                             return;
                         }
                     }
@@ -6829,7 +7097,7 @@
     }
     function startAlertOnlyDemo_() {
         resetLogoRotation();
-        [s1, s2, s3, s4, s5].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, s6].forEach(hideSceneEl);
         if (sceneAlert) {
             sceneAlert.style.display = 'block';
             sceneAlert.classList.add('active');
@@ -7395,7 +7663,7 @@
                         tickerAnimId = null;
                         t3Flow_ = null;
                         stopLogoSpinInterval();
-                        gotoAfterScene3_();
+                        runAfterSceneEndHold_(gotoAfterScene3_);
                         return;
                     }
                     t3Flow_.x = snapT3ScrollToLap_(T3_UNIT_W);
@@ -7423,38 +7691,30 @@
         stepLogo90(420, true);
         const showWbgtFoot = hasS1WbgtFootMessage_();
         setS1FootBarVisible_(showWbgtFoot);
-        scheduleScene1SafetyAdvance_();
         if (isFullDemoStep_()) {
+            scheduleScene1SafetyAdvance_();
             scheduleDemoStep_(finishScene1);
             return;
         }
         if (s1WbgtTrack && showWbgtFoot) {
-            if (!s1WbgtTrack.children.length) refreshS1WbgtFootBar_(true);
-            const s1FootLap = getS1FootLapPx_();
-            s1Flow_ = {
-                startX: wrapScrollX_(globalScrollX_, s1FootLap),
-                x: wrapScrollX_(globalScrollX_, s1FootLap),
-                laps: 0,
-                moved: false
-            };
-            applyGlobalScroll_(s1WbgtTrack, s1FootLap);
+            refreshS1WbgtFootBar_(true);
+            const s1FootLap = Math.max(FOOT_BAR_LAP_PX, getS1FootLapPx_() || 0);
+            const needPx = s1FootLap * SCENE1_ADVANCE_LAPS;
+            scheduleScene1SafetyAdvance_(SCENE_SCROLL_HOLD_MS + Math.ceil(needPx / 0.4) * 22 + SCENE_END_HOLD_MS + 8000);
+            snapTrackToContentStart_(s1WbgtTrack, s1FootLap);
+            s1Flow_ = { total: 0, need: needPx };
             function animateS1WbgtRtl() {
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                const prevX = s1Flow_.x;
-                advanceGlobalScroll_(getScrollSpeedPx_());
-                s1Flow_.x = wrapScrollX_(globalScrollX_, s1FootLap);
-                if (!s1Flow_.moved && Math.abs(s1Flow_.x - s1Flow_.startX) > 0.5) {
-                    s1Flow_.moved = true;
-                }
+                if (advanceToken !== scene1AdvanceToken + 1 || !s1Flow_) return;
+                const speed = getScrollSpeedPx_();
+                advanceGlobalScroll_(speed);
+                s1Flow_.total += speed;
                 applyGlobalScroll_(s1WbgtTrack, s1FootLap);
-                if (s1Flow_.moved && detectScrollLapCrossed_(prevX, s1Flow_.x)) {
-                    s1Flow_.laps += 1;
-                    if (s1Flow_.laps >= SCENE1_ADVANCE_LAPS) {
-                        scene1AnimId = null;
-                        s1Flow_ = null;
-                        finishScene1();
-                        return;
-                    }
+                if (s1Flow_.total >= s1Flow_.need) {
+                    scene1AnimId = null;
+                    applyGlobalScroll_(s1WbgtTrack, s1FootLap);
+                    s1Flow_ = null;
+                    runAfterSceneEndHold_(finishScene1);
+                    return;
                 }
                 scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
             }
@@ -7463,12 +7723,16 @@
                 scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
             });
         } else {
+            scheduleScene1SafetyAdvance_();
             s1Flow_ = null;
-            scene1HoldTimerId = setTimeout(function () {
-                scene1HoldTimerId = null;
+            runSceneScrollAfterHold_(function () {
                 if (advanceToken !== scene1AdvanceToken + 1) return;
-                finishScene1();
-            }, SCENE1_CLOCK_HOLD_MS);
+                scene1HoldTimerId = setTimeout(function () {
+                    scene1HoldTimerId = null;
+                    if (advanceToken !== scene1AdvanceToken + 1) return;
+                    runAfterSceneEndHold_(finishScene1);
+                }, SCENE1_CLOCK_HOLD_MS);
+            });
         }
     }
     /* シーン2の次はシーン3（WBGT表示） */
@@ -7742,7 +8006,7 @@
         return true;
     }
     function showOnlyScene_(el, playFn) {
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         if (!el) return;
         el.style.display = sceneDisplayMode(el);
         el.classList.add('active');
@@ -7768,6 +8032,7 @@
                 case 's3': showOnlyScene_(s3, playScene3); break;
                 case 's4': showOnlyScene_(s4, playScene4); break;
                 case 's5': showOnlyScene_(s5, playScene5); break;
+                case 's6': showOnlyScene_(s6, playScene6); break;
                 default: break;
             }
         }
@@ -7776,7 +8041,7 @@
     function startPreviewDemo_(sceneKey) {
         applyDemoLevel(DEMO_LEVEL_ORDER[1]);  /* 注意（黄）で見やすく */
         refreshSignageBg();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         const badge = document.getElementById('demo-badge');
         const rainTag = rainPreviewLabel_();
         if (sceneKey === 's1') {
@@ -7802,7 +8067,7 @@
     function startSequence() {
         clearDemoStepTimer_();
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
     }
 
