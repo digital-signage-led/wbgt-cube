@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- wbgt-cube-aichi-suzunaka-kinjofuto-4face / 鈴中工業 WBGT サイネージ（本番 4面 512×128・各コンテンツ末尾 緑十字+JV3社） -->
+<!-- wbgt-cube-aichi-suzunaka-kinjofuto-4face / 鈴中工業 WBGT サイネージ（本番 4面 512×128・各コンテンツ末尾JV3社ロゴ） -->
 <!-- 白帯: 鈴中工業・昭和土木・おかむら特定建設工事共同体 | 金城ふ頭埋立地用地整備工事 -->
-<!-- 同階層: assets/green_cross.png・suzunaka_logo.png・showa_logo.png・okamura_logo.png（末尾128×4） -->
+<!-- 同階層: assets/suzunaka_logo.png・showa_logo.png・okamura_logo.png（末尾128×3） / green_cross.png（シーン6） -->
 <!-- 会場: 〒455-0848 愛知県名古屋市港区金城ふ頭三丁目-2 -->
 <!-- WBGT・AMeDAS 51106（名古屋・気象庁/環境省）／警報 名古屋市港区 2311100 -->
 <html lang="ja" class="native-640 layout-512">
@@ -316,7 +316,7 @@
             background: transparent;
         }
         .fc-track {
-            display: flex; flex-direction: row; width: 2048px; transition: none; gap: 0;
+            display: flex; flex-direction: row; width: 1792px; transition: none; gap: 0;
         }
         .fc-track .fc-panel:not(.fc-logo-panel) {
             width: 128px; height: var(--led-col-main-h); max-height: var(--led-col-main-h);
@@ -560,10 +560,10 @@
             font-family: "Inter", sans-serif;
         }
 
-        .conveyor-track { display: flex; flex-direction: row; width: 3328px; transition: none; gap: 0; }
+        .conveyor-track { display: flex; flex-direction: row; width: 3072px; transition: none; gap: 0; }
         #scene2 { overflow: hidden; position: relative; }
         #scene2.active { display: block; }
-        /* 気象9面は本文高。末尾は緑十字+JV3社の128×128（その列の白帯を覆う） */
+        /* 気象9面は本文高。末尾JV3社ロゴは128×128（その列の白帯を覆う） */
         .s2-scroll-wrap {
             width: 512px; height: 128px; overflow: hidden;
             position: absolute; left: 0; top: 0; z-index: 13;
@@ -601,16 +601,13 @@
             background: #ffffff; flex-shrink: 0;
             border: none; outline: none; box-shadow: none;
         }
-        #scene2 .s2-logo-panel.s2-logo-mark .s2-logo-face-img {
-            width: 100%; height: 100%;
-            max-width: none; max-height: none;
-            object-fit: cover;
-        }
+        /* 連続ロゴ間の黒スジをレイアウト幅を変えずに隠す */
+        #scene2 .s2-logo-panel + .s2-logo-panel::before {
             content: ''; position: absolute; left: -1px; top: 0; width: 2px; height: 100%;
             background: #ffffff; pointer-events: none; z-index: 3;
         }
         #scene2 .s2-meta-bar { z-index: 12; }
-        /* 白帯は本体と同幅128枠。1〜9に文字、末尾4ロゴ枠は空＝被らない */
+        /* 白帯は本体と同幅128枠。1〜9に文字、末尾3ロゴ枠は空＝被らない */
         #scene2 .s2-meta-set.s2-meta-set-panels {
             width: auto; height: var(--led-foot-bar-h); flex-shrink: 0;
             display: flex; flex-direction: row; align-items: stretch;
@@ -679,7 +676,7 @@
             display: flex; align-items: center; justify-content: center; box-sizing: border-box;
             overflow: hidden; padding: 0 6px;
         }
-        /* シーン4: 数値は本文高、末尾は緑十字+JV3社の128×128でその列の白帯を隠す */
+        /* シーン4: 数値は本文高、末尾JV3社ロゴは128×128でその列の白帯を隠す */
         #scene4 { height: 128px; }
         #scene4 .fc-panel .col-bg-layer { height: var(--led-col-main-h); }
         #scene4 .fc-panel .col-bg-foot { display: none; }
@@ -709,11 +706,6 @@
             object-fit: contain; object-position: center center;
             background: #ffffff; flex-shrink: 0;
             border: none; outline: none; box-shadow: none;
-        }
-        #scene4 .fc-logo-panel.fc-logo-mark .fc-logo-face-img {
-            width: 100%; height: 100%;
-            max-width: none; max-height: none;
-            object-fit: cover;
         }
         #scene4 .fc-lv-bar { z-index: 12; }
         #scene4 .fc-lv-set.fc-lv-set-sync {
@@ -751,7 +743,7 @@
             line-height: 1; margin-left: 1px;
         }
         .daily-scene { display: none; overflow: hidden; }
-        .d5-track { display: flex; flex-direction: row; width: 2048px; transition: none; gap: 0; align-items: flex-start; }
+        .d5-track { display: flex; flex-direction: row; width: 1792px; transition: none; gap: 0; align-items: flex-start; }
         #scene5 .d5-panel:not(.d5-logo-panel) {
             position: relative;
             z-index: 1;
@@ -777,17 +769,12 @@
             background: #ffffff; flex-shrink: 0;
             border: none; outline: none; box-shadow: none;
         }
-        #scene5 .d5-logo-panel.d5-logo-mark .d5-logo-face-img {
-            width: 100%; height: 100%;
-            max-width: none; max-height: none;
-            object-fit: cover;
-        }
         #scene5 .d5-logo-panel + .d5-logo-panel::before {
             content: ''; position: absolute; left: -1px; top: 0; width: 2px; height: 100%;
             background: #ffffff; pointer-events: none; z-index: 3;
         }
         .d5-panel { width: 128px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; box-sizing: border-box; flex-shrink: 0; overflow: hidden; padding: 0; gap: 0; border: none; outline: none; background: transparent; }
-        /* シーン5: 上32 + 中64 + 下32（128×128） */
+        /* シーン5: 時刻と同型 上32 + 中72 + 下24（列内フッタ） */
         #scene5 .d5-panel .s2-top-bar { height: 32px; flex-shrink: 0; }
         #scene5 .d5-panel .s2-body { height: var(--led-col-body-h); flex-shrink: 0; max-width: 128px; }
         #scene5 .d5-panel .s2-foot { height: var(--led-foot-bar-h); flex-shrink: 0; }
@@ -848,7 +835,7 @@
         #scene5 .d5-body .s2-val { flex-shrink: 0; }
         #scene5 .d5-body .s2-num { font-size: 52px; line-height: 1; }
         #scene5 .d5-body .s2-unit { font-size: 24px; line-height: 1; }
-        /* 今日のみ 128×128 枠で強調（2px・border-box・数値パネルと同じ面） */
+        /* 今日のみ 128×128 枠で強調 — 実DOM（LEDサイネージで ::after が欠ける対策） */
         #scene5 .d5-panel.d5-today-focus {
             position: relative;
             z-index: 1;
@@ -856,10 +843,10 @@
         }
         #scene5 .d5-today-frame {
             position: absolute;
-            left: 0;
-            top: 0;
-            width: 128px;
-            height: 128px;
+            left: 2px;
+            top: 2px;
+            width: 124px;
+            height: 124px;
             box-sizing: border-box;
             border: 2px solid #1a1a1a;
             pointer-events: none;
@@ -1871,9 +1858,8 @@
       { src: './assets/showa_foot.png?v=1', alt: '昭和土木', blend: 'screen' },
       { src: './assets/okamura_foot.png?v=1', alt: 'おかむら', blend: 'multiply' }
     ],
-    /* 気象・暑さ指数・4日予報の末尾: 緑十字 → 鈴中 → 昭和 → おかむら */
+    /* 気象・暑さ指数・4日予報の末尾: 鈴中 → 昭和 → おかむら */
     trailingLogos: [
-      { src: './assets/green_cross.png?v=1', alt: '緑十字' },
       { src: './assets/suzunaka_logo.png?v=4', alt: '鈴中工業' },
       { src: './assets/showa_logo.png?v=2', alt: '昭和土木' },
       { src: './assets/okamura_logo.png?v=2', alt: 'おかむら' }
@@ -2014,7 +2000,6 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel s2-logo-mark" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/green_cross.png?v=1" alt="緑十字" decoding="sync"></div></div>
             <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div></div>
             <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div></div>
             <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div></div>
@@ -2027,7 +2012,6 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel s2-logo-mark" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/green_cross.png?v=1" alt="緑十字" decoding="sync"></div></div>
             <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div></div>
             <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div></div>
             <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div></div>
@@ -2043,7 +2027,6 @@
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel fc-logo-mark" data-fc="logo"><img class="fc-logo-face-img" src="./assets/green_cross.png?v=1" alt="緑十字" decoding="sync"></div>
                 <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
                 <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
                 <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
@@ -2051,7 +2034,6 @@
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel fc-logo-mark" data-fc="logo"><img class="fc-logo-face-img" src="./assets/green_cross.png?v=1" alt="緑十字" decoding="sync"></div>
                 <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
                 <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
                 <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
@@ -2066,7 +2048,6 @@
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
-            <div class="d5-panel d5-logo-panel d5-logo-mark" data-d5="logo"><img class="d5-logo-face-img" src="./assets/green_cross.png?v=1" alt="緑十字" decoding="sync"></div>
             <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
             <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
             <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
@@ -2074,7 +2055,6 @@
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">名古屋</div></div></div>
-            <div class="d5-panel d5-logo-panel d5-logo-mark" data-d5="logo"><img class="d5-logo-face-img" src="./assets/green_cross.png?v=1" alt="緑十字" decoding="sync"></div>
             <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/suzunaka_logo.png?v=4" alt="鈴中工業" decoding="sync"></div>
             <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/showa_logo.png?v=2" alt="昭和土木" decoding="sync"></div>
             <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/okamura_logo.png?v=2" alt="おかむら" decoding="sync"></div>
@@ -4743,8 +4723,8 @@
     let scene1AdvanceToken = 0;
     let s1Flow_ = null;
     const SCENE2_WEATHER_COUNT = 9;
-    const TRAILING_JV_LOGO_COUNT = 4; /* 緑十字・鈴中・昭和・おかむら */
-    const SCENE2_PANEL_COUNT = SCENE2_WEATHER_COUNT + TRAILING_JV_LOGO_COUNT; /* 気象9 + 末尾ロゴ4 */
+    const TRAILING_JV_LOGO_COUNT = 3; /* 鈴中・昭和・おかむら */
+    const SCENE2_PANEL_COUNT = SCENE2_WEATHER_COUNT + TRAILING_JV_LOGO_COUNT; /* 気象9 + 末尾ロゴ3 */
     const SCENE2_LAPS = 2; /* 2周してから次へ */
     const SCENE2_SCROLL_PX = 0.8;
     const SCENE2_META_LAP_PX = FOOT_BAR_LAP_PX;
@@ -4754,7 +4734,7 @@
     let scene2MetaLapPx = FOOT_BAR_LAP_PX;
     const JMA_LATEST_TIME_URL = 'https://www.jma.go.jp/bosai/amedas/data/latest_time.txt';
     const JMA_FORECAST_URL = `https://www.jma.go.jp/bosai/forecast/data/forecast/${JMA_FORECAST_AREA_CODE}.json`;
-    const SCENE4_PANEL_COUNT = 4 + TRAILING_JV_LOGO_COUNT; /* WBGT4 + 末尾ロゴ4 */
+    const SCENE4_PANEL_COUNT = 4 + TRAILING_JV_LOGO_COUNT; /* WBGT4 + 末尾ロゴ3 */
     const SCENE4_LAPS = 2; /* 2周してから次へ */
     const SCENE4_SCROLL_PX = 0.8;
     const SCENE4_LV_LAP_PX = FOOT_BAR_LAP_PX;
@@ -4765,7 +4745,7 @@
     const SCENE4_LV_SETS = 3;
     const SCENE4_LV_SPEED_PX = 0.6;
     const SCENE5_DAY_COUNT = 4;
-    const SCENE5_PANEL_COUNT = SCENE5_DAY_COUNT + TRAILING_JV_LOGO_COUNT; /* 今日〜明々後日 + 末尾ロゴ4 */
+    const SCENE5_PANEL_COUNT = SCENE5_DAY_COUNT + TRAILING_JV_LOGO_COUNT; /* 今日〜明々後日 + 末尾ロゴ3 */
     const SCENE5_LAPS = 2; /* 2周してから次へ */
     const SCENE5_SCROLL_PX = 0.8;
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
@@ -4774,8 +4754,9 @@
     const SCENE6_FACE_COUNT = 4;
     const SCENE6_LAPS = 2;
     const SCENE6_FACE_W = 128;
-    const SCENE6_SLIDE_MS = 450;
-    const SCENE6_STEP_MS = 3000;
+    const SCENE6_INTERVAL_MS = 1000; /* 4面ロゴ: 1秒ごとにスライド切替 */
+    const SCENE6_SLIDE_MS = 400;
+    const SCENE6_STEP_MS = Math.max(0, SCENE6_INTERVAL_MS - SCENE6_SLIDE_MS);
     const SCENE6_COPIES = 3;
     let scene6HoldTimerId = null;
     let scene6SlideTimerId = null;
@@ -6180,8 +6161,8 @@
         weather: '', temp: '気温', rain: '降水', wdir: '風向', wind: '風速',
         humi: '湿度', pres: '気圧', tmaxmin: '高低', gust: '瞬間'
     };
-    /* 本体13面と同じ順。白帯文字は1〜9のみ、末尾4ロゴ枠は空 */
-    const SCENE2_PANEL_ORDER = ['weather', 'temp', 'rain', 'wdir', 'wind', 'humi', 'pres', 'tmaxmin', 'gust', 'logo', 'logo', 'logo', 'logo'];
+    /* 本体12面と同じ順。白帯文字は1〜9のみ、末尾3ロゴ枠は空 */
+    const SCENE2_PANEL_ORDER = ['weather', 'temp', 'rain', 'wdir', 'wind', 'humi', 'pres', 'tmaxmin', 'gust', 'logo', 'logo', 'logo'];
     function scene2FootTextForType_(type, obs) {
         switch (type) {
             case 'rain': return obs.time;
@@ -6325,13 +6306,15 @@
             }
         });
     }
-    /* 気象庁アメダス: 9項目のあと緑十字→鈴中→昭和→おかむら（10分ごと更新） */
+    /* 気象庁アメダス: 9項目のあと128×128 JV3社（10分ごと更新） */
     function getTrailingJvLogos_() {
         const cfg = window.SIGNAGE_CONFIG || {};
         if (Array.isArray(cfg.trailingLogos) && cfg.trailingLogos.length) {
             return cfg.trailingLogos.filter(function (r) { return r && r.src; });
         }
-        return (cfg.jvLogos || []).filter(function (r) { return r && r.src; });
+        return (cfg.jvLogos || []).filter(function (r) {
+            return r && r.src && !/green_cross/.test(String(r.src));
+        });
     }
     function trailingJvLogoCount_() {
         const n = getTrailingJvLogos_().length;
@@ -6339,8 +6322,7 @@
     }
     function scene2LogoPanelsHtml_() {
         return getTrailingJvLogos_().map(function (row) {
-            const mark = /green_cross/.test(String(row.src)) ? ' s2-logo-mark' : '';
-            return '<div class="s2-panel s2-logo-panel' + mark + '" data-s2="logo">'
+            return '<div class="s2-panel s2-logo-panel" data-s2="logo">'
                 + '<div class="s2-body"><img class="s2-logo-face-img" src="' + escapeS1Html(row.src)
                 + '" alt="' + escapeS1Html(row.alt || '') + '" decoding="sync"></div></div>';
         }).join('');
@@ -6984,12 +6966,13 @@
                 runAfterSceneEndHold_(finishScene6);
                 return;
             }
+            const wait = scene6Step_ === 0 ? SCENE6_INTERVAL_MS : SCENE6_STEP_MS;
             scene6HoldTimerId = setTimeout(function () {
                 scene6HoldTimerId = null;
                 scene6Step_ += 1;
                 applyScene6TrackX_(scene6Step_ * SCENE6_FACE_W, true);
                 scene6SlideTimerId = setTimeout(afterArrive, SCENE6_SLIDE_MS);
-            }, SCENE6_STEP_MS);
+            }, wait);
         }
         afterArrive();
     }
