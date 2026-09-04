@@ -452,10 +452,10 @@
         }
         /* シーン1下帯・社名（1行） */
         .s1-foot-co-txt {
-            display: block; flex: 0 0 auto; white-space: nowrap; line-height: var(--led-foot-bar-h);
-            width: auto; max-width: 248px; overflow: visible;
+            display: inline-block; flex: 0 0 auto; white-space: nowrap; line-height: var(--led-foot-bar-h);
+            width: max-content; max-width: 248px; overflow: hidden; text-overflow: clip;
             font-family: "Noto Sans JP", sans-serif;
-            font-weight: 700; font-size: var(--led-foot-site-font); letter-spacing: 0;
+            font-weight: 700; font-size: 12px; letter-spacing: 0;
             color: #1a1a1a; box-sizing: border-box; text-align: center;
         }
         .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact {
@@ -6339,17 +6339,27 @@
             let fz = COMPANY_LINE_FONT_START_PX_;
             el.style.letterSpacing = '0';
             el.style.textOverflow = 'clip';
-            el.style.overflow = 'visible';
-            el.style.width = 'auto';
+            el.style.overflow = 'hidden';
+            el.style.display = 'inline-block';
+            el.style.whiteSpace = 'nowrap';
+            el.style.width = 'max-content';
             el.style.maxWidth = 'none';
             el.style.fontSize = fz + 'px';
-            let guard = 32;
+            let guard = 40;
             while (guard-- > 0 && fz > COMPANY_LINE_FONT_MIN_PX_ && el.scrollWidth > maxW) {
-                fz -= 1;
+                fz -= 0.5;
                 el.style.fontSize = fz + 'px';
             }
             el.style.maxWidth = maxW + 'px';
+            el.style.width = 'auto';
         });
+    }
+    function bindS1FootCompanyTextFit_() {
+        sizeS1FootCompanyText_();
+        requestAnimationFrame(sizeS1FootCompanyText_);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(sizeS1FootCompanyText_).catch(function () {});
+        }
     }
     function sizeS1FootWbgtText_() {
         const maxW = FOOT_BAR_SLOT_W - 12;
@@ -6554,7 +6564,7 @@
         }
         lastS1FootMsg_ = key;
         s1WbgtTrack.innerHTML = buildS1WbgtSetHtml(text);
-        sizeS1FootCompanyText_();
+        bindS1FootCompanyTextFit_();
         sizeS1FootWbgtText_();
         applyS1FootScroll_();
         bindS1FootBannerMeasure_();
