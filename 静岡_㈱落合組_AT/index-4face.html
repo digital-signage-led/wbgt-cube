@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-shizuoka-ochiai-kikugawa-4face / 株式会社落合組 WBGT サイネージ（本番 4面 512×128・各コンテンツ末尾ロゴ128） -->
-<!-- 白帯: OCHIAI CORPORATION横ロックアップ | 菊池大石上地区河道整備工事 -->
+<!-- 白帯: OCHIAI CORPORATION横ロックアップ | 令和7年度　菊川大石上地区河道整備工事 -->
 <!-- 同階層: assets/ochiai_foot_lockup.png（時刻下白帯・OCHIAI CORPORATION） / assets/ochiai_logo.png（縦ロックアップ） -->
 <!-- 会場: 〒437-1524 静岡県菊川市大石（西嶺田） 34°41'28.4"N 138°04'23.8"E -->
 <!-- WBGT・AMeDAS 50476（菊川牧之原・気象庁/環境省）／補完 50551（御前崎）／警報 菊川市 2222400 -->
@@ -11,7 +11,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <!-- clock: jst-network-v2 / 表示・同期は常に Asia/Tokyo（端末TZ非依存） -->
-    <title>WBGT Signage 4面 - 株式会社落合組 菊池大石上地区河道整備工事</title>
+    <title>WBGT Signage 4面 - 株式会社落合組 令和7年度　菊川大石上地区河道整備工事</title>
     <link rel="preload" as="image" href="./assets/ochiai_foot_lockup.png?v=8">
     <link rel="preload" as="image" href="./assets/ochiai_logo.png?v=1">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
@@ -351,7 +351,7 @@
             width: 256px; min-width: 256px; max-width: 256px;
             flex: 0 0 256px;
             justify-content: center;
-            padding: 0 8px;
+            padding: 0 4px;
         }
         .s1-wbgt-slot-left,
         .s1-wbgt-slot-right {
@@ -452,10 +452,10 @@
         }
         /* シーン1下帯・社名（1行） */
         .s1-foot-co-txt {
-            display: block; flex: 0 1 auto; white-space: nowrap; line-height: var(--led-foot-bar-h);
-            width: 100%; max-width: 240px; overflow: hidden; text-overflow: ellipsis;
+            display: block; flex: 0 0 auto; white-space: nowrap; line-height: var(--led-foot-bar-h);
+            width: auto; max-width: 248px; overflow: visible;
             font-family: "Noto Sans JP", sans-serif;
-            font-weight: 700; font-size: var(--led-foot-site-font); letter-spacing: 0.02em;
+            font-weight: 700; font-size: var(--led-foot-site-font); letter-spacing: 0;
             color: #1a1a1a; box-sizing: border-box; text-align: center;
         }
         .s1-wbgt-slot-wbgt .s1-wbgt-msg-compact {
@@ -1736,7 +1736,7 @@
       customer: '株式会社落合組',
       rental: '',
       /* 時刻下白帯＝工事名 */
-      label: '菊池大石上地区河道整備工事',
+      label: '令和7年度　菊川大石上地区河道整備工事',
       address: '静岡県菊川市大石（西嶺田）',
       /* 菊川市大石に気象庁・環境省の観測所はない。最寄りは菊川牧之原（倉沢・50476） */
       locationLabel: '菊川市'
@@ -1792,26 +1792,6 @@
 
 <div class="canvas">
     <div class="content-area">
-    <div class="scene" id="sceneAlert">
-        <div class="ha-pair ha-warning" id="ha-pair">
-            <div class="ha-unit">
-                <div class="ha-line top"></div>
-                <div class="ha-body"><div class="ha-track">
-                    <div class="ha-slot"><div class="ha-l1"></div><div class="ha-l2"></div></div>
-                    <div class="ha-slot"><div class="ha-l1"></div><div class="ha-l2"></div></div>
-                </div></div>
-                <div class="ha-line bottom"></div>
-            </div>
-            <div class="ha-unit">
-                <div class="ha-line top"></div>
-                <div class="ha-body"><div class="ha-track">
-                    <div class="ha-slot"><div class="ha-l1"></div><div class="ha-l2"></div></div>
-                    <div class="ha-slot"><div class="ha-l1"></div><div class="ha-l2"></div></div>
-                </div></div>
-                <div class="ha-line bottom"></div>
-            </div>
-        </div>
-    </div>
     <div class="scene" id="sceneRainWarn">
         <div class="ra-pair ra-advisory" id="ra-pair">
             <div class="ra-mid-band-wrap" aria-hidden="true"><div class="ra-mid-band-unit"></div><div class="ra-mid-band-unit"></div></div>
@@ -1893,7 +1873,7 @@
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
         </div>
-        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/ochiai_foot_lockup.png?v=8" alt="株式会社落合組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">菊池大石上地区河道整備工事</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/ochiai_foot_lockup.png?v=8" alt="株式会社落合組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">菊池大石上地区河道整備工事</span></div></div></div></div>
+        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/ochiai_foot_lockup.png?v=8" alt="株式会社落合組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">令和7年度　菊川大石上地区河道整備工事</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/ochiai_foot_lockup.png?v=8" alt="株式会社落合組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">令和7年度　菊川大石上地区河道整備工事</span></div></div></div></div>
     </div>
 
     <div class="scene" id="scene2">
@@ -1969,20 +1949,12 @@
             </div>
             <div class="t3-pair" id="t3-pair">
                 <div class="t3-col t3-unit s2-strip">
-                    <div class="t3-col-top"><div class="t3-top-ha-body"><div class="t3-top-ha-track">
-                        <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
-                        <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
-                    </div></div></div>
                     <div class="t3-scroll-body"><div class="t3-track">
                         <div class="t3-slot"><div class="t3-l1"></div><div class="t3-l2"></div></div>
                         <div class="t3-slot"><div class="t3-l1"></div><div class="t3-l2"></div></div>
                     </div></div>
                 </div>
                 <div class="t3-col t3-unit s2-strip">
-                    <div class="t3-col-top"><div class="t3-top-ha-body"><div class="t3-top-ha-track">
-                        <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
-                        <div class="t3-top-ha-slot"><span class="t3-top-ha-msg"></span></div>
-                    </div></div></div>
                     <div class="t3-scroll-body"><div class="t3-track">
                         <div class="t3-slot"><div class="t3-l1"></div><div class="t3-l2"></div></div>
                         <div class="t3-slot"><div class="t3-l1"></div><div class="t3-l2"></div></div>
@@ -2346,7 +2318,7 @@
         return map[v] || null;
     }
     const SCENE_LABEL_BY_KEY = {
-        s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', alert: '熱中症アラート', rainwarn: '大雨警報'
+        s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', rainwarn: '大雨警報'
     };
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
@@ -2641,8 +2613,8 @@
     const levelNames = ['ほぼ安全', '注意', '警戒', '厳重警戒', '危険'];
     /* 暑さ指数（WBGT）全7段階 — シーン4白下帯（現在レベル／発表中アラートのみ） */
     const T3_WBGT_GUIDE_TIERS = [
-        { range: '35以上', color: '黒', title: '熱中症特別警戒アラート', guide: '記録的な暑さです。無理をせず、涼しい場所での休憩と水分・塩分補給を最優先にしてください。' },
-        { range: '33以上', color: '紫', title: '熱中症警戒アラート', guide: '危険な暑さです。こまめな休憩と水分・塩分補給を徹底し、体調の変化に注意してください。' },
+        { range: '35以上', color: '黒', title: '危険', guide: '記録的な暑さです。無理をせず、涼しい場所での休憩と水分・塩分補給を最優先にしてください。' },
+        { range: '33以上', color: '紫', title: '危険', guide: '危険な暑さです。こまめな休憩と水分・塩分補給を徹底し、体調の変化に注意してください。' },
         { range: '31以上', color: '赤', title: '危険', guide: '熱中症の危険性が非常に高い状態です。休憩の間隔を短くし、水分・塩分補給と体調確認を徹底してください。' },
         { range: '28～31未満', color: '橙', title: '厳重警戒', guide: '炎天下を避け、10～20分おきに水分や塩分を補給してください。負荷の高い作業は控えめにしましょう。' },
         { range: '25～28未満', color: '黄', title: '警戒', guide: '積極的に休憩を取り、水分や塩分の補給してください。負荷の高い作業では30分おきに休憩を入れましょう。' },
@@ -2811,7 +2783,7 @@
                         events.push({ at, jma: false, moe: true, nowc: false, forecast: false, label: 'moe-wbgt' });
                     }
                 }
-                if (MOE_ALERT_HOURS.includes(h)) {
+                if (!NO_HEAT_ALERT && MOE_ALERT_HOURS.includes(h)) {
                     const atAl = jstMsFromParts(dp.year, dp.month, dp.day, h, MOE_ALERT_MINUTE, 0);
                     if (atAl > fromMs && atAl <= horizonEnd) {
                         events.push({ at: atAl, jma: false, moe: true, nowc: false, forecast: false, label: 'moe-alert' });
@@ -3002,8 +2974,8 @@
 
     /* ===== 熱中症アラート（警戒=WBGT33予測 / 特別警戒=WBGT35予測 で発表） ===== */
     const HEAT_ALERTS = {
-        warning: { cls: 'ha-warning', name: '熱中症警戒アラート',     line2: 'が発表されました' },
-        special: { cls: 'ha-special', name: '熱中症特別警戒アラート', line2: 'が発表されました' }
+        warning: { cls: 'ha-warning', name: '', line2: '' },
+        special: { cls: 'ha-special', name: '', line2: '' }
     };
     /* 実データ連携までは ?heatalert=warning|special|both で表示確認できる。
        実データ無し（none）の通常運用ではアラートシーンを出さない。 */
@@ -4585,7 +4557,7 @@
     const SCENE1_ADVANCE_LAPS = 1;
     const SCENE1_WBGT_SETS = 3;
     const COMPANY_LINE_FONT_START_PX_ = 15;
-    const COMPANY_LINE_FONT_MIN_PX_ = 9;
+    const COMPANY_LINE_FONT_MIN_PX_ = 7;
     /** 下帯なし（時刻のみ）のときの表示時間 */
     const SCENE1_CLOCK_HOLD_MS = 10000;
     const SCENE1_WBGT_HOLD_MS = SCENE1_CLOCK_HOLD_MS;
@@ -5475,9 +5447,11 @@
                         applyWbgtInSeason_();
                         moeOk = applyWbgtSlotsToDom(wbgtSlots);
                     }
-                    const sAlert = performance.now();
-                    await updateHeatAlertFromGas_();
-                    timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
+                    if (!NO_HEAT_ALERT) {
+                        const sAlert = performance.now();
+                        await updateHeatAlertFromGas_();
+                        timings['熱中症アラート'] = Math.round(performance.now() - sAlert);
+                    }
                 } catch (e) {
                     console.warn('[取得] WBGT系:', e.message || e);
                     applyWbgtSlotsToDom(null);
@@ -5599,7 +5573,7 @@
                     const raw = await fetchMoeJsonFromGasUrl_(url);
                     const unpacked = unpackMoeGasResponse_(raw);
                     if (!unpacked || !unpacked.wbgt) continue;
-                    if (unpacked.alert) {
+                    if (!NO_HEAT_ALERT && unpacked.alert) {
                         applyMoeAlertFromJson_(unpacked.alert);
                         alertApplied = true;
                     }
@@ -5617,7 +5591,7 @@
                 } catch (e) { console.warn('[環境省] GAS取得失敗:', e.message || e); }
             }
         }
-        if (!alertApplied) await updateHeatAlertFromGas_();
+        if (!NO_HEAT_ALERT && !alertApplied) await updateHeatAlertFromGas_();
         if (sawOffSeason) {
             console.log('[WBGT] 全地点でデータなし（WBGT非表示）');
             return 'offseason';
@@ -5639,8 +5613,34 @@
     function amedasFieldValue(field) {
         if (!Array.isArray(field) || field.length < 1) return null;
         const v = field[0];
+        const q = field[1];
         if (v === '' || v == null) return null;
+        /* 気象庁品質 5・6 は欠測 */
+        if (q === 5 || q === 6) return null;
         return v;
+    }
+    function fillAmedasMissingFromPointHistory_(data, obs, exactKey) {
+        if (!data || !obs) return obs;
+        const keys = Object.keys(data).filter(function (k) { return /^\d{14}$/.test(k); }).sort();
+        if (!keys.length) return obs;
+        const limit = exactKey || keys[keys.length - 1];
+        const older = keys.filter(function (k) { return k <= limit; }).reverse();
+        const out = Object.assign({}, obs);
+        const fillKeys = [
+            'temp', 'humidity', 'maxTemp', 'minTemp',
+            'pressure', 'normalPressure', 'gust', 'wind', 'windDirection'
+        ];
+        fillKeys.forEach(function (field) {
+            if (amedasFieldValue(out[field]) != null) return;
+            for (let i = 0; i < older.length; i++) {
+                const cand = data[older[i]];
+                if (cand && amedasFieldValue(cand[field]) != null) {
+                    out[field] = cand[field];
+                    break;
+                }
+            }
+        });
+        return out;
     }
     function amedasToWeatherIcon(obs) {
         const p10 = amedasFieldValue(obs.precipitation10m);
@@ -5676,7 +5676,7 @@
     }
     /* map JSON は更新が速いが気圧・最高/最低・瞬間風速などが無い地点がある */
     const AMEDAS_POINT_SUPPLEMENT_KEYS = [
-        'pressure', 'normalPressure', 'maxTemp', 'minTemp', 'gust', 'humidity'
+        'temp', 'humidity', 'pressure', 'normalPressure', 'maxTemp', 'minTemp', 'gust'
     ];
     function amedasObsNeedsPointSupplement_(obs) {
         if (!obs) return true;
@@ -5711,7 +5711,8 @@
                 const res = await fetch(entry.url, JMA_FETCH_HEADERS);
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 const data = await res.json();
-                return pickPointBlockObs_(data, entry.exactKey);
+                const obs = pickPointBlockObs_(data, entry.exactKey);
+                return fillAmedasMissingFromPointHistory_(data, obs, entry.exactKey);
             } catch (e) { lastErr = e; }
         }
         throw lastErr || new Error('JMA point supplement failed');
@@ -5734,7 +5735,8 @@
                     if (!obs) throw new Error('mapに地点なし ' + pt);
                     return obs;
                 }
-                return pickPointBlockObs_(data, entry.exactKey || exactKey);
+                const obs = pickPointBlockObs_(data, entry.exactKey || exactKey);
+                return fillAmedasMissingFromPointHistory_(data, obs, entry.exactKey || exactKey);
             } catch (e) { lastErr = e; }
         }
         throw lastErr || new Error('JMA amedas point failed ' + pt);
@@ -5791,7 +5793,11 @@
                     return { latest, obs };
                 }
                 const obs = await enrichAmedasObs_(
-                    pickPointBlockObs_(data, entry.exactKey || exactKey),
+                    fillAmedasMissingFromPointHistory_(
+                        data,
+                        pickPointBlockObs_(data, entry.exactKey || exactKey),
+                        entry.exactKey || exactKey
+                    ),
                     ymd, hhmm, exactKey, blockH
                 );
                 return { latest, obs };
@@ -6328,16 +6334,21 @@
         return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
     }
     function sizeS1FootCompanyText_() {
-        const maxW = FOOT_BAR_SLOT_W - 12;
+        const maxW = FOOT_BAR_SLOT_W - 8;
         document.querySelectorAll('#scene1 .s1-foot-co-txt').forEach(function (el) {
             let fz = COMPANY_LINE_FONT_START_PX_;
             el.style.letterSpacing = '0';
+            el.style.textOverflow = 'clip';
+            el.style.overflow = 'visible';
+            el.style.width = 'auto';
+            el.style.maxWidth = 'none';
             el.style.fontSize = fz + 'px';
-            let guard = 24;
+            let guard = 32;
             while (guard-- > 0 && fz > COMPANY_LINE_FONT_MIN_PX_ && el.scrollWidth > maxW) {
                 fz -= 1;
                 el.style.fontSize = fz + 'px';
             }
+            el.style.maxWidth = maxW + 'px';
         });
     }
     function sizeS1FootWbgtText_() {
@@ -6640,7 +6651,7 @@
     /* シーン3（多言語WBGT）の後 → シーン1 */
     function gotoAfterScene3Tail_() {
         if (WBGT_ONLY) { finishMainLoopToS1_(); return; }
-        if (wbgtNormalDisplay_() && heatAlertActive.length && sceneAlert) {
+        if (!NO_HEAT_ALERT && wbgtNormalDisplay_() && heatAlertActive.length && sceneAlert) {
             prepHeatAlert_(0);
             transitionToScene(sceneAlert, () => playSceneAlert(0));
             return;
@@ -6873,8 +6884,8 @@
         });
     }
     const T3_HEAT_ALERT_TOP = {
-        warning: { text: '熱中症警戒アラート発表中', cls: 't3-top-ha-warning' },
-        special: { text: '熱中症特別警戒アラート発表中', cls: 't3-top-ha-special' }
+        warning: { text: '', cls: 't3-top-ha-warning' },
+        special: { text: '', cls: 't3-top-ha-special' }
     };
     function getT3HeatAlertTopForDisplay_() {
         if (!isHeatAlertPublishedForGuide_()) return null;
@@ -7752,7 +7763,7 @@
             if (logoEl.getAttribute('src') !== logoCfg.logoSrc) logoEl.src = logoCfg.logoSrc;
             logoEl.alt = logoCfg.logoAlt || '';
         }
-        if (DEMO_ALERT_ONLY && !NO_HEAT_ALERT) {
+        if (false && DEMO_ALERT_ONLY && !NO_HEAT_ALERT) {
             bootDisplayHold_ = false;
             setTimeout(startAlertOnlyDemo_, 300);
             return;
