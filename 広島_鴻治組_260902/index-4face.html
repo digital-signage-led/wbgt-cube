@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<!-- wbgt-cube-hiroshima-koujigumi-kumano-4face / 鴻治組 WBGT サイネージ（本番 4面 512×128・各コンテンツ末尾 鴻治組1面） -->
-<!-- 白帯: 鴻治組ロゴ | WBGT文言 | 令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事 -->
+<!-- wbgt-cube-hiroshima-koujigumi-aki-4face / 位置情報＝安芸区（呉観測） -->
+<!-- 白帯: 鴻治組ロゴ | WBGT文言 | 令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事 -->
 <!-- 同階層: assets/kohji_logo.png（128面）・kohji_foot.png（下帯横ロゴ） -->
-<!-- 会場: 〒731-4229 広島県安芸郡熊野町平谷2丁目19-7（現場事務所）／画面表示は安芸区 -->
-<!-- WBGT・AMeDAS／警報の地点は assets/site-config.js（雛形: site-config.template.js） -->
-<!-- 安芸区表示: 呉 67511 / 警報 3410300（発表中はループに表示） -->
+<!-- 現場事務所: 〒731-4229 広島県安芸郡熊野町平谷2丁目19-7／画面表示は安芸区 -->
+<!-- 会場・WBGT・警報の地点は assets/site-config.js（安芸区 / 呉 67511 / 警報 3410300） -->
+<!-- 本番: index-4face.html + assets/。天気・WBGT・発表中の警報を同じループで流す -->
+<!-- build 20260914-prod -->
 <html lang="ja" class="native-640 layout-512">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- clock: jst-network-v5 — Asia/Tokyo 表示 / CF→timeapi→worldtimeapi→NICT / naive dateTime=+09:00 / demoも同期 / hourCycle h23 / 端末TZ非依存 -->
-    <title>WBGT Signage 4面 - 鴻治組 安芸南部山系深山の滝川上流支川砂防堰堤他工事</title>
+    <!-- clock: jst-network-v5 — Asia/Tokyo 表示 / CF→timeapi→worldtimeapi→NICT / naive dateTime=+09:00  /  hourCycle h23 / 端末TZ非依存 -->
+    <title>WBGT Signage 4面 - 鴻治組 安芸区（本番）</title>
     <link rel="preload" as="image" href="./assets/kohji_logo.png?v=3">
     <link rel="preload" as="image" href="./assets/kohji_foot.png?v=3">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
@@ -20,7 +21,7 @@
 /** 4面 512×128 本番用（layout512 + native640）。localhost は PC 確認用に拡大表示 */
 (function () {
     var q = new URLSearchParams(location.search);
-    /* #demo=rainwarn 等を query に取り込み（サーバーが ? を落とす場合の保険） */
+    /* hash クエリ取り込み（サーバーが ? を落とす場合の保険） */
     var hashQ = (location.hash || '').replace(/^#/, '');
     if (hashQ) {
         new URLSearchParams(hashQ).forEach(function (v, k) {
@@ -77,14 +78,6 @@
             --led-foot-site-font: 15px;
         }
         body { margin: 0; padding: 0; background-color: #1a1a1a; overflow: hidden; font-family: "Inter", "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif; }
-        .demo-badge {
-            position: fixed; top: 0; left: 0; z-index: 9999;
-            padding: 4px 10px; background: rgba(0,0,0,0.75); color: #fff;
-            font-size: 12px; font-weight: 700; font-family: "Noto Sans JP", sans-serif;
-            border: 1px solid #fff; pointer-events: none;
-        }
-        html.native-640 .demo-badge,
-        body.native-640 .demo-badge { display: none !important; }
         html.native-640, body.native-640 {
             width: 640px !important; height: 128px !important;
             min-width: 640px; min-height: 128px;
@@ -617,6 +610,7 @@
             max-width: none; max-height: none;
             object-fit: cover;
         }
+        #scene2 .s2-logo-panel + .s2-logo-panel::before {
             content: ''; position: absolute; left: -1px; top: 0; width: 2px; height: 100%;
             background: #ffffff; pointer-events: none; z-index: 3;
         }
@@ -1765,12 +1759,15 @@
         .ra-foot-special { background: #000000; }
         .ra-pair.ra-white-mode .ra-zone-bot { display: none; }
         .ra-pair.ra-white-mode::after { display: none; }
+        #sceneWarn.active { display: block; z-index: 3; }
+        #sceneWarnHero.active { display: block !important; z-index: 3; }
     </style>
+    <link rel="stylesheet" href="./assets/white-hero.css?v=20260907-vpad">
+    <link rel="stylesheet" href="./assets/color-hero.css?v=20260909-w256">
 </head>
 <body class="native-640 layout-512">
 <!-- 位置情報だけ差し替え: assets/site-config.js（雛形は site-config.template.js） -->
-<script src="./assets/site-config.js?v=20260914-aki"></script>
-<div class="demo-badge" id="demo-badge" hidden>デモ</div>
+<script src="./assets/site-config.js?v=20260914-loopfix2"></script>
 <svg style="display: none;">
     <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
     <symbol id="icon-cloudy" viewBox="0 0 100 100"><path d="M25,65 a20,20 0 1,1 20,-20 a25,25 0 1,1 40,5 a15,15 0 1,1 0,30 h-60 a20,20 0 1,1 0,-40" fill="#999"/></symbol>
@@ -1873,6 +1870,23 @@
             </div>
         </div>
     </div>
+
+    <div class="scene" id="sceneWarn" aria-label="気象警報注意報">
+        <div class="hero is-white" id="hero">
+            <div class="band band-top"><div class="track" id="whiteTopTrack"></div></div>
+            <div class="band band-mid"><div class="track" id="midTrack"></div></div>
+            <div class="band band-bot"><div class="track" id="whiteBotTrack"></div></div>
+        </div>
+    </div>
+
+    <div class="scene" id="sceneWarnHero" aria-label="警報情報">
+        <div class="hero is-warning" id="wh-hero">
+            <div class="band band-top"><div class="track" id="wh-topTrack"></div></div>
+            <div class="band band-mid"><div class="track" id="wh-midTrack"></div></div>
+            <div class="band band-bot"><div class="track" id="wh-botTrack"></div></div>
+        </div>
+    </div>
+
     <div class="scene active" id="scene1">
         <div class="scene1-state active" id="s1-stateA">
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
@@ -1880,7 +1894,7 @@
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
         </div>
-        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/kohji_foot.png?v=3" alt="鴻治組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/kohji_foot.png?v=3" alt="鴻治組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事</span></div></div></div></div>
+        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/kohji_foot.png?v=3" alt="鴻治組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/kohji_foot.png?v=3" alt="鴻治組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事</span></div></div></div></div>
     </div>
 
     <div class="scene" id="scene2">
@@ -2298,8 +2312,10 @@
 })(typeof window !== 'undefined' ? window : global);
 
 </script>
+<script src="./assets/jma-warning-kinds.js?v=20260907-nolev"></script>
+<script src="./assets/warning-hero.js?v=20260914-loopfix2"></script>
 <script>
-    /* クエリ優先。#demo=rainwarn&rainwarn=all も可（clean URL リダイレクトで ? が落ちる対策） */
+    /* クエリ優先。hash も取り込み（clean URL リダイレクトで ? が落ちる対策） */
     const query = new URLSearchParams(window.location.search);
     const hashQ = (window.location.hash || '').replace(/^#/, '');
     if (hashQ) {
@@ -2307,63 +2323,48 @@
             if (!query.has(k)) query.set(k, v);
         });
     }
-    /* demo=1: デモモード（demo.html からの転送先）。未指定時は本番（実データ取得） */
-    const demoParam = query.get('demo');
-    const DEMO_SIGNAGE = demoParam === '1' || demoParam === 'all' || demoParam === 'full';
-    const DEMO_ALERT_ONLY = demoParam === 'alert' || query.get('only') === 'alert';  /* アラートのみ流すデモ */
-    const DEMO_RAINWARN_ONLY = demoParam === 'rainwarn' || query.get('only') === 'rainwarn';
+    /* 本番専用（デモ・確認ボード・プレビューは廃止） */
+    const DEMO_SIGNAGE = false;
+    const DEMO_ALERT_ONLY = false;
+    const DEMO_RAINWARN_ONLY = false;
+    const DEMO_ONLY = null;
+    const DEMO_EMBED = false;
+    const DEMO_SIGNAGE_ACTIVE = false;
+    const DEMO_PREVIEW = null;
+    const DEMO_T3_LANG_IDX = -1;
+    const DEMO_LEVEL_FIXED = null;
+    const DEMO_LEVEL_ORDER = [0, 1, 2, 3, 4];
+    const DEMO_WBGT_BY_LEVEL = [19.0, 22.0, 26.0, 29.0, 32.0];
+    const DEMO_WBGT_OFF = false;
+    const DEMO_WBGT_UNKNOWN = false;
+    const DEMO_STEP_MS = 5000;
     const WBGT_ONLY = query.get('wbgtOnly') === '1';
-    /** 本番: 気象庁の発表中警報を表示。デモは ?demo=rainwarn&rainwarn=all */
     const SITE_CFG = window.SignageConfig || {};
-    /** 表示時刻は常に日本標準時（JST） */
-    /** 表示・取得スケジュールは常に日本標準時 */
     const CLOCK_TZ = 'Asia/Tokyo';
     const NO_JMA_WARN = false;
-    /** 熱中症アラートシーンは出さない（環境省発表時も非表示） */
     const NO_HEAT_ALERT = true;
     const RAIN_HERO_OFF = query.get('rainhero') === '0';
     const RAIN_WHITE_DESIGN = query.get('rainwhite') === '1';
-    /* 3段デザイン案は確認ボードと同じく既定ON（?rainhero=0 で従来レイアウト） */
     const RAIN_HERO_DESIGN = !RAIN_HERO_OFF && !RAIN_WHITE_DESIGN;
     /*
-     * 流れる順の表示番号（順序は変えずラベルのみ）
-     *  1 時刻＋WBGT下帯 (s1) → 2 気象観測 (s2) → 3 WBGT表示 (s4)
-     *  → 4 4日予報 (s5) → 5 多言語WBGT (s3) → （発表中なら）警報 → シーン1へ
-     * ?only= は 1〜5 または s1〜s5（旧キー）両対応
-     */
-    function normalizeOnlyParam_(raw) {
-        if (raw == null || raw === '') return null;
-        const v = String(raw).toLowerCase();
-        if (v === 'alert') return 'alert';
-        if (v === 'rainwarn') return 'rainwarn';
-        const map = { '1': 's1', '2': 's2', '3': 's4', '4': 's5', '5': 's3', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
-        return map[v] || null;
-    }
-    const SCENE_LABEL_BY_KEY = {
-        s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', alert: '熱中症アラート', rainwarn: '大雨警報'
-    };
-    const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
-    const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
-    /* 640×128 ネイティブ: embed / native640=1 / フルデモ順送り */
-    const NATIVE_640 = query.get('native640') === '1' || DEMO_EMBED
-        || (DEMO_SIGNAGE && !DEMO_ONLY && query.get('native640') !== '0');
+         *  警報発表中: 警報 → 1 時刻 → 2 気象 → 3 WBGT → 4 4日予報 → 5 多言語 →（繰返し）
+         *  警報なし: 1 時刻 → 2 気象 → 3 WBGT → 4 4日予報 → 5 多言語 →（繰返し）
+         */
+    const NATIVE_640 = query.get('native640') === '1';
     if (NATIVE_640) {
         document.documentElement.classList.add('native-640', 'layout-512');
         document.documentElement.classList.remove('browser-preview');
         document.body.classList.add('native-640', 'layout-512');
         document.body.classList.remove('browser-preview');
     }
-    function shouldShowDemoBadge_() {
-        return !DEMO_EMBED && !NATIVE_640;
-    }
+    function shouldShowDemoBadge_() { return false; }
     const T3_LANG_KEYS = ['jp', 'en', 'id', 'fil', 'vn'];
-    /** シーン3 多言語: 5段階 × 言語別 目標比率（1段目 / 2段目 px・256×68 内で最大化） */
     const T3_LANG_FONT_SIZES = [
-        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [48, 28], fil: [34, 20] }, /* ほぼ安全 */
-        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [38, 22], fil: [36, 21] }, /* 注意 */
-        { jp: [48, 28], en: [48, 28], id: [38, 22], vn: [48, 28], fil: [38, 22] }, /* 警戒 */
-        { jp: [48, 28], en: [36, 21], id: [32, 19], vn: [28, 16], fil: [32, 19] }, /* 厳重警戒 */
-        { jp: [48, 28], en: [42, 24], id: [36, 21], vn: [47, 27], fil: [44, 25] }  /* 危険 */
+        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [48, 28], fil: [34, 20] },
+        { jp: [48, 28], en: [48, 28], id: [36, 21], vn: [38, 22], fil: [36, 21] },
+        { jp: [48, 28], en: [48, 28], id: [38, 22], vn: [48, 28], fil: [38, 22] },
+        { jp: [48, 28], en: [36, 21], id: [32, 19], vn: [28, 16], fil: [32, 19] },
+        { jp: [48, 28], en: [42, 24], id: [36, 21], vn: [47, 27], fil: [44, 25] }
     ];
     let t3LangIdx_ = 0;
     function getT3LangFontSize_(levelIdx, langKey) {
@@ -2373,115 +2374,19 @@
         if (!pair || pair.length < 2) return null;
         return { l1: pair[0], l2: pair[1] };
     }
-    const DEMO_T3_LANG_IDX = (function () {
-        const v = (query.get('t3lang') || '').toLowerCase();
-        const map = {
-            jp: 0, '0': 0,
-            en: 1, '1': 1,
-            id: 2, '2': 2,
-            fil: 3, ph: 3, tl: 3, '3': 3,
-            vn: 4, '4': 4
-        };
-        return map[v] != null ? map[v] : -1;
-    })();
-    const DEMO_LEVEL_FIXED = (function () {
-        const q = query.get('level');
-        if (q == null || q === '' || isNaN(Number(q))) return null;
-        const n = Number(q);
-        /* 表示レベル 1=ほぼ安全 … 5=危険 → 内部 index 0〜4 */
-        if (n >= 1 && n <= 5) return n - 1;
-        return null;
-    })();
-    const DEMO_SIGNAGE_ACTIVE = DEMO_SIGNAGE || !!DEMO_ONLY;
-    /* フルデモ警報: 色付き3段（L1〜L5）→ 白ベース3段（L2〜L5）を順に流す */
-    const DEMO_RAIN_PASS_ORDER = ['hero', 'white'];
-    let demoRainPassIdx_ = 0;
-    function isDemoFullRainLoop_() {
-        return DEMO_SIGNAGE && !DEMO_ONLY && !DEMO_RAINWARN_ONLY && !NO_JMA_WARN;
-    }
-    function demoRainPassKind_() {
-        return isDemoFullRainLoop_() ? DEMO_RAIN_PASS_ORDER[demoRainPassIdx_] : null;
-    }
-    function prepDemoRainPass_() {
-        if (!isDemoFullRainLoop_()) return;
-        const pass = demoRainPassKind_();
-        if (pass === 'hero') {
-            rainWarnActive = RAIN_WARN_ORDER.slice();
-            rainWarnKindActive = JMA_L3_KINDS.slice();
-        } else if (pass === 'white') {
-            rainWarnActive = RAIN_WHITE_LEVEL_ORDER.slice();
-        }
-    }
-    function finishDemoRainWarnCycle_() {
-        if (!isDemoFullRainLoop_()) {
-            finishMainLoopToS1_();
-            return;
-        }
-        if (demoRainPassIdx_ < DEMO_RAIN_PASS_ORDER.length - 1) {
-            demoRainPassIdx_ += 1;
-            prepDemoRainPass_();
-            prepRainWarn_(0);
-            playSceneRainWarn(0);
-            return;
-        }
-        demoRainPassIdx_ = 0;
-        advanceDemoLevel();
-    }
-    /* フルデモも本番と同じスクロール＋シーン切替（静止5秒順送りは廃止） */
-    const DEMO_STEP_MS = 5000;
+    function isDemoFullRainLoop_() { return false; }
+    function demoRainPassKind_() { return null; }
+    function prepDemoRainPass_() {}
+    function finishDemoRainWarnCycle_() { goToClockScene_(); }
     let demoStepTimerId = null;
-    function isFullDemoStep_() {
-        return false;
-    }
+    function isFullDemoStep_() { return false; }
     function clearDemoStepTimer_() {
         if (demoStepTimerId) { clearTimeout(demoStepTimerId); demoStepTimerId = null; }
     }
     function scheduleDemoStep_(fn) {
         clearDemoStepTimer_();
-        if (!isFullDemoStep_()) { fn(); return; }
-        demoStepTimerId = setTimeout(function () {
-            demoStepTimerId = null;
-            fn();
-        }, DEMO_STEP_MS);
+        if (typeof fn === 'function') fn();
     }
-    /* スクロール速度・待ち時間: デモも本番と同じ（確認ボード only= も同様） */
-    /* 確認ボード用: ?rain=raining|approaching|watch|soon|1|0  ?wbgtOff=1  ?wbgtUnknown=1 */
-    const DEMO_WBGT_OFF = query.get('wbgtOff') === '1' || query.get('offseason') === '1';
-    const DEMO_WBGT_UNKNOWN = query.get('wbgtUnknown') === '1';
-    const RAIN_PREVIEW_MESSAGES = {
-        raining: { level: 'raining', messageJp: '【降雨】付近で雨が降っています。傘をご用意ください。', leadMin: 0 },
-        approaching: { level: 'approaching', messageJp: '【雨接近】30〜60分以内に雨の可能性。傘のご準備を。', leadMin: 35 },
-        watch: { level: 'watch', messageJp: '【雨雲】周辺に降水の兆し。天気の変化にご注意ください。', leadMin: null },
-        soon: { level: 'soon', messageJp: '【雨予報】30〜60分以内に雨の可能性。お出かけは傘を。', leadMin: 45 }
-    };
-    function applyRainPreviewFromParam_() {
-        const raw = (query.get('rain') || '').toLowerCase();
-        if (!raw || raw === '0' || raw === 'none') {
-            rainNowcastAlert = { level: 'none', messageJp: '', leadMin: null, updatedAt: new Date().toISOString() };
-            return;
-        }
-        const key = raw === '1' ? 'approaching' : raw;
-        const preset = RAIN_PREVIEW_MESSAGES[key];
-        if (preset) {
-            rainNowcastAlert = Object.assign({ updatedAt: new Date().toISOString() }, preset);
-        } else {
-            rainNowcastAlert = { level: 'none', messageJp: '', leadMin: null, updatedAt: new Date().toISOString() };
-        }
-    }
-    function rainPreviewLabel_() {
-        const msg = getRainAlertMessageJp();
-        if (!msg) return '雨なし';
-        const m = msg.match(/^【[^】]+】/);
-        return m ? m[0] : '雨あり';
-    }
-    const DEMO_PREVIEW = (function () {
-        const v = (query.get('preview') || '').toLowerCase();
-        if (v === '1' || v === 's1') return 's1';
-        if (v === '5' || v === '4' || v === 's3') return 's3';  /* シーン5 多言語WBGT（4=旧表示番号） */
-        return null;
-    })();
-    const DEMO_LEVEL_ORDER = [0, 1, 2, 3, 4];
-    const DEMO_WBGT_BY_LEVEL = [19.0, 22.0, 26.0, 29.0, 32.0];
     let demoLevelPointer = 0;
     const MOE_WBGT_POINT = query.get('moePoint') || (SITE_CFG.moe && SITE_CFG.moe.point) || '67511';
     const MOE_ALERT_AREA = query.get('alertArea') || (SITE_CFG.moe && SITE_CFG.moe.alertArea) || '広島県';
@@ -2599,7 +2504,7 @@
     let pendingSignageBgMode_ = '';
     let pendingForecastSlotsRefresh_ = false;
     let lastAmedasSnapshot_ = null;
-    const SIGNAGE_STATE_CACHE_KEY = 'hiroshima_koujigumi_kumano_signage_v1';
+    const SIGNAGE_STATE_CACHE_KEY = 'hiroshima_koujigumi_aki_signage_v1';
     const SIGNAGE_STATE_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
     const MOE_GAS_FETCH_TIMEOUT_MS = 12000;
     const MOE_JSONP_TIMEOUT_MS = 10000;
@@ -2993,6 +2898,12 @@
     const s5 = document.getElementById('scene5');
     const sceneAlert = document.getElementById('sceneAlert');
     const sceneRainWarn = document.getElementById('sceneRainWarn');
+    const sceneWarn = document.getElementById('sceneWarn');
+    const sceneWarnHero = document.getElementById('sceneWarnHero');
+    const whiteTopTrack = document.getElementById('whiteTopTrack');
+    const whiteMidTrack = document.getElementById('midTrack');
+    const whiteBotTrack = document.getElementById('whiteBotTrack');
+    const heroWhite = document.getElementById('hero');
     const d5Conveyor = document.getElementById('d5-conveyor');
     const logoRotator = document.getElementById('logo-rotator');
 
@@ -3249,6 +3160,7 @@
         cityName: (SITE_CFG.jma && SITE_CFG.jma.warnCityLabel)
             || JMA_WARN_CITY_LABELS[JMA_WARN_CITY]
             || getSiteLocationLabel_(),
+        issuedAt: '',
         updatedAt: ''
     };
     const RAIN_WHITE_LEVEL_CHIP = {
@@ -3702,6 +3614,11 @@
             || (warnJson && warnJson.reportDatetime)
             || rainWarnMeta.updatedAt
             || '';
+        rainWarnMeta.issuedAt = (payload && payload.issuedAt)
+            || (warnJson && warnJson.reportDatetime)
+            || rainWarnMeta.issuedAt
+            || rainWarnMeta.updatedAt
+            || '';
         updateRainWarnWhiteChrome_();
     }
     function updateRainWarnWhiteChrome_() {
@@ -3788,12 +3705,8 @@
         return [];
     }
     let rainWarnActive = NO_JMA_WARN ? [] : parseRainWarnParam_();
-    if (!NO_JMA_WARN && DEMO_SIGNAGE && !DEMO_ONLY && !parseRainWarnParam_().length) {
-        rainWarnActive = isDemoFullRainLoop_() ? RAIN_WARN_ORDER.slice() : ['warning', 'danger', 'special'];
-        if (isDemoFullRainLoop_()) rainWarnKindActive = JMA_L3_KINDS.slice();
-    }
     let rainWarnKindActive = parseWarnKindParam_();
-    const rainWarnForced = !NO_JMA_WARN && (parseRainWarnParam_().length > 0 || DEMO_SIGNAGE || DEMO_RAINWARN_ONLY);
+    const rainWarnForced = !NO_JMA_WARN && parseRainWarnParam_().length > 0;
     const warnKindForced = !!(query.get('warntype') || query.get('warnkind'));
     function buildRainWhiteDemoQueue_() {
         const q = [];
@@ -4012,8 +3925,18 @@
             } else {
                 syncRainWarnActiveForWhite_();
             }
+        } else if (warnJson && !rainWarnForced) {
+            const entries = parseJmaActiveWhiteEntries_(warnJson);
+            rainWhiteQueue = entries;
+            rainWarnActive = RAIN_WHITE_LEVEL_ORDER.filter(function (lv) {
+                return entries.some(function (e) { return e && e.level === lv; });
+            });
+            if (!rainWarnActive.length && level && level !== 'none' && RAIN_WARN_LEVELS[level]) {
+                rainWarnActive = [level];
+            }
         } else {
             rainWarnActive = (level && level !== 'none' && RAIN_WARN_LEVELS[level]) ? [level] : [];
+            if (!rainWarnForced) rainWhiteQueue = [];
         }
         if (!warnKindForced && kinds && kinds.length) {
             rainWarnKindActive = kinds.slice();
@@ -4316,15 +4239,6 @@
         }
         sizeRainWarnText_();
         applySignageLogoPanel_();
-        if (DEMO_RAINWARN_ONLY) {
-            const badge = document.getElementById('demo-badge');
-            if (badge && shouldShowDemoBadge_()) {
-                const num = RAIN_WARN_LEVEL_NUM[key] || '';
-                const title = rainWarnHeroTitle_(key) || (def && def.name) || '';
-                badge.hidden = false;
-                badge.textContent = '警報確認 · L' + num + ' ' + title;
-            }
-        }
         if (!pair.classList.contains('ra-hero-mode') && !pair.classList.contains('ra-white-mode')) {
             triggerRaLineAnnounceBlink_(txt.line2);
         }
@@ -4352,22 +4266,748 @@
             }
         }
     }
-    function finishMainLoopToS1_() {
-        if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
+    function goToClockScene_() {
+        stopWarnHero_();
+        stopWhiteHero_();
         transitionToScene(s1, playScene1);
+    }
+    function finishMainLoopToS1_() {
+        stopWarnHero_();
+        stopWhiteHero_();
+        if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
+        goToClockScene_();
+    }
+    /**
+     * 警報発表中なら先に流し、終わったら時刻へ。
+     * 起動・ループ先頭用（デモのレベル送りはしない）。
+     */
+    function beginMainLoopCycle_() {
+        if (isDemoFullRainLoop_()) {
+            gotoAfterRainWarnOrScene1_();
+            return;
+        }
+        playActiveJmaWarnThen_(goToClockScene_);
+    }
+    /** 警報があれば再生し、なければ / 終了後に onDone（必ず呼ぶ・最大45秒） */
+    function playActiveJmaWarnThen_(onDone) {
+        let settled = false;
+        const done = function () {
+            if (settled) return;
+            settled = true;
+            if (playActiveJmaWarnThen_.guardId) {
+                clearTimeout(playActiveJmaWarnThen_.guardId);
+                playActiveJmaWarnThen_.guardId = null;
+            }
+            const fn = typeof onDone === 'function' ? onDone : goToClockScene_;
+            try { fn(); } catch (err) {
+                console.error('[警報] onDone 例外 → 時刻へ', err);
+                try { goToClockScene_(); } catch (e2) {}
+            }
+        };
+        if (playActiveJmaWarnThen_.guardId) clearTimeout(playActiveJmaWarnThen_.guardId);
+        playActiveJmaWarnThen_.guardId = setTimeout(function () {
+            playActiveJmaWarnThen_.guardId = null;
+            console.warn('[警報] 再生タイムアウト → 時刻へ');
+            stopWarnHero_();
+            stopWhiteHero_();
+            done();
+        }, 20000);
+        try {
+            if (NO_JMA_WARN) { done(); return; }
+            if (!wbgtNormalDisplay_()) { done(); return; }
+            if (RAIN_WHITE_DESIGN) {
+                const whiteItems = getLiveWhiteEntries_();
+                if (whiteItems.length && sceneWarn) {
+                    playWhiteWarnHero_(whiteItems, done);
+                    return;
+                }
+            } else {
+                const colorItems = getWarnHeroLiveItems_();
+                if (colorItems.length && sceneWarnHero && window.WarningHero) {
+                    playColorWarnHero_(colorItems, done, 3);
+                    return;
+                }
+            }
+            done();
+        } catch (err) {
+            console.error('[警報] 再生例外 → 時刻へ', err);
+            done();
+        }
+    }
+    playActiveJmaWarnThen_.guardId = null;
+    let sceneLoopWatchdogId_ = null;
+    let sceneLoopWatchAt_ = 0;
+    function noteSceneLoopProgress_() {
+        sceneLoopWatchAt_ = Date.now();
+    }
+    function scene1PlaybackArmed_() {
+        return !!(scene1AnimId || scene1HoldTimerId || scene1SafetyTimerId
+            || sceneEndHoldTimerId_ || scenePostHoldTimerId_ || s1Flow_);
+    }
+    function scene3PlaybackArmed_() {
+        /* 終了ホールド中も「再生中」扱い。でないと ensure が即 playScene3 し直して言語ループになる */
+        return !!(tickerAnimId || scene3SafetyTimerId || scenePostHoldTimerId_ || scene3Leaving_);
+    }
+    let scene3Leaving_ = false;
+    /** 時刻シーンが静止したままなら再生再開。警報が画面外なら時刻へ戻す */
+    function ensureScene1Alive_() {
+        if (!mainLoopStarted_ || DEMO_RAINWARN_ONLY || DEMO_ALERT_ONLY) return false;
+        if (DEMO_ONLY && DEMO_ONLY !== 'rainwarn') return false;
+        const active = getActiveScene();
+        /* 他シーン再生中は絶対に触らない（共有 hold タイマーを消して多言語が止まる原因だった） */
+        if (active && active !== s1
+            && active !== sceneWarnHero && active !== sceneWarn && active !== sceneRainWarn) {
+            return false;
+        }
+        if (playingSceneEl_ && playingSceneEl_ !== s1
+            && playingSceneEl_ !== sceneWarnHero && playingSceneEl_ !== sceneWarn
+            && playingSceneEl_ !== sceneRainWarn) {
+            return false;
+        }
+        const warnEl = (playingSceneEl_ === sceneWarnHero || playingSceneEl_ === sceneWarn
+            || playingSceneEl_ === sceneRainWarn) ? playingSceneEl_ : null;
+        if (warnEl) {
+            const tr = String(warnEl.style.transform || '');
+            const off = /translate(?:3d)?\(\s*([-\d.]+)/.exec(tr);
+            const tx = off ? Number(off[1]) : 0;
+            if (Number.isFinite(tx) && Math.abs(tx) > 8) {
+                console.warn('[Loop] 警報が画面外 → 時刻へ復帰');
+                noteSceneLoopProgress_();
+                stopWarnHero_();
+                stopWhiteHero_();
+                goToClockScene_();
+                return true;
+            }
+            return false;
+        }
+        const s1Shown = !!(s1 && (playingSceneEl_ === s1 || active === s1));
+        if (!s1Shown) return false;
+        if (scene1PlaybackArmed_()) return false;
+        console.warn('[Loop] 時刻シーン未再生 → playScene1');
+        noteSceneLoopProgress_();
+        playingSceneEl_ = s1;
+        s1.style.display = sceneDisplayMode(s1);
+        s1.classList.add('active');
+        applyScrollX_(s1, 0);
+        playScene1();
+        return true;
+    }
+    function ensureScene3Alive_() {
+        if (!mainLoopStarted_ || DEMO_RAINWARN_ONLY || DEMO_ALERT_ONLY) return false;
+        if (DEMO_ONLY && DEMO_ONLY !== 's3' && DEMO_ONLY !== 'rainwarn') return false;
+        if (scene3Leaving_) return false;
+        const active = getActiveScene();
+        if (active !== s3 && playingSceneEl_ !== s3) return false;
+        if (scene3PlaybackArmed_()) return false;
+        console.warn('[Loop] 多言語シーン停止 → playScene3');
+        noteSceneLoopProgress_();
+        playingSceneEl_ = s3;
+        if (s3) {
+            s3.style.display = sceneDisplayMode(s3);
+            s3.classList.add('active');
+            applyScrollX_(s3, 0);
+        }
+        playScene3();
+        return true;
+    }
+    function startSceneLoopWatchdog_() {
+        if (sceneLoopWatchdogId_ != null) return;
+        sceneLoopWatchAt_ = Date.now();
+        sceneLoopWatchdogId_ = setInterval(function () {
+            if (!mainLoopStarted_ || DEMO_RAINWARN_ONLY || DEMO_ALERT_ONLY) return;
+            if (DEMO_ONLY && DEMO_ONLY !== 'rainwarn') return;
+            if (ensureScene1Alive_()) return;
+            if (ensureScene3Alive_()) return;
+            const active = getActiveScene();
+            if (!active) {
+                console.warn('[Loop] アクティブシーン無し → 時刻へ復帰');
+                noteSceneLoopProgress_();
+                playingSceneEl_ = s1;
+                if (s1) { s1.style.display = sceneDisplayMode(s1); s1.classList.add('active'); }
+                playScene1();
+                return;
+            }
+            if (active === s1 && sceneLoopWatchAt_ > 0 && Date.now() - sceneLoopWatchAt_ > 20000) {
+                console.warn('[Loop] 時刻シーン滞留 → 強制で次へ');
+                noteSceneLoopProgress_();
+                finishScene1();
+                return;
+            }
+            if (active === s3 && sceneLoopWatchAt_ > 0 && Date.now() - sceneLoopWatchAt_ > 45000) {
+                console.warn('[Loop] 多言語シーン滞留 → 強制で次へ');
+                noteSceneLoopProgress_();
+                leaveScene3ToNext_(scene3AdvanceToken);
+                return;
+            }
+            if (active === s2 && sceneLoopWatchAt_ > 0 && Date.now() - sceneLoopWatchAt_ > 70000) {
+                console.warn('[Loop] 気象シーン滞留 → 強制で次へ');
+                noteSceneLoopProgress_();
+                scene2AdvanceToken += 1;
+                if (scene2AnimId) { cancelAnimationFrame(scene2AnimId); scene2AnimId = null; }
+                clearScenePostHoldTimer_();
+                gotoSceneAfterScene2_();
+                return;
+            }
+            if (active === s4 && sceneLoopWatchAt_ > 0 && Date.now() - sceneLoopWatchAt_ > 70000) {
+                console.warn('[Loop] 暑さ指数シーン滞留 → 強制で次へ');
+                noteSceneLoopProgress_();
+                if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
+                clearScenePostHoldTimer_();
+                finishScene4();
+                return;
+            }
+            if (active === s5 && sceneLoopWatchAt_ > 0 && Date.now() - sceneLoopWatchAt_ > 70000) {
+                console.warn('[Loop] 4日予報シーン滞留 → 強制で次へ');
+                noteSceneLoopProgress_();
+                finishScene5_();
+                return;
+            }
+            if ((active === sceneWarnHero || active === sceneWarn || active === sceneRainWarn)
+                && sceneLoopWatchAt_ > 0 && Date.now() - sceneLoopWatchAt_ > 90000) {
+                console.warn('[Loop] 警報シーン滞留 → 時刻へ復帰');
+                noteSceneLoopProgress_();
+                stopWarnHero_();
+                stopWhiteHero_();
+                goToClockScene_();
+            }
+        }, 5000);
+    }
+    function mapHeroKind_(kind) {
+        const k = String(kind || '');
+        if (k === 'heavyrain') return 'rain';
+        if (k === 'floodinfo') return 'flood';
+        if (k === 'flood' || k === 'rain' || k === 'landslide' || k === 'surge') return k;
+        return null;
+    }
+    function getJmaWarnPlaceLabel_() {
+        return rainWarnMeta.cityName
+            || (SITE_CFG.jma && SITE_CFG.jma.warnCityLabel)
+            || (SITE_CFG.site && SITE_CFG.site.locationLabel)
+            || '安芸区';
+    }
+    function stampWarnHeroPlace_(it, when) {
+        if (!it) return it;
+        const place = getJmaWarnPlaceLabel_();
+        const at = when || rainWarnMeta.issuedAt || rainWarnMeta.updatedAt || '';
+        if (typeof WarningHero.stampPlaceTime === 'function') {
+            WarningHero.stampPlaceTime(it, place, at);
+        } else {
+            it.place = place;
+            if (at) it.issuedAt = at;
+        }
+        return it;
+    }
+    function getWarnHeroLiveItems_() {
+        if (!window.WarningHero) return [];
+        const out = [];
+        const seen = {};
+        function push(lv, kind, when) {
+            if (!lv || lv === 'early') return;
+            const hk = mapHeroKind_(kind);
+            if (!hk) return;
+            const key = lv + '|' + hk;
+            if (seen[key]) return;
+            seen[key] = true;
+            const it = WarningHero.itemFromLive(lv, hk);
+            if (!it) return;
+            stampWarnHeroPlace_(it, when);
+            it.demo = false;
+            it.badge = '発表中';
+            out.push(it);
+        }
+        if (rainWhiteQueue && rainWhiteQueue.length) {
+            rainWhiteQueue.forEach(function (e) {
+                if (!e) return;
+                push(e.level, e.kind, e.issuedAt);
+            });
+        } else {
+            (rainWarnActive || []).forEach(function (lv) {
+                kindsForLevel_(lv).forEach(function (kind) { push(lv, kind); });
+            });
+        }
+        return out;
+    }
+    function getWarnHeroDemoItems_() {
+        if (!window.WarningHero) return [];
+        const rows = typeof WarningHero.levelDemoItems === 'function'
+            ? WarningHero.levelDemoItems()
+            : (WarningHero.warnItems ? WarningHero.warnItems() : []);
+        let out = rows.filter(function (it) {
+            return it && it.lv >= 2 && it.lv <= 5 && it.kind &&
+                (it.kind === 'flood' || it.kind === 'rain' || it.kind === 'landslide' || it.kind === 'surge');
+        });
+        const forced = parseRainWarnParam_().filter(function (lv) { return lv !== 'early'; });
+        if (forced.length && !isRainWarnAllLevels_()) {
+            out = out.filter(function (it) { return forced.indexOf(it.levelKey) >= 0; });
+        }
+        if (typeof WarningHero.itemFromEvac === 'function') {
+            const evacLvs = forced.length && !isRainWarnAllLevels_()
+                ? forced.map(function (lv) { return RAIN_WARN_LEVEL_NUM[lv]; }).filter(function (n) { return n >= 3; })
+                : [3, 4, 5];
+            evacLvs.forEach(function (lv) {
+                const it = WarningHero.itemFromEvac(lv);
+                if (!it) return;
+                it.demo = true;
+                it.badge = 'デモ';
+                out.push(it);
+            });
+        }
+        out.forEach(function (it) {
+            stampWarnHeroPlace_(it);
+            it.demo = true;
+            it.badge = 'デモ';
+        });
+        return out;
+    }
+    let warnHeroPlayer_ = null;
+    function stopWarnHero_() {
+        if (warnHeroPlayer_) {
+            warnHeroPlayer_.stop();
+            warnHeroPlayer_ = null;
+        }
+    }
+    function playWarnHero_(items, onEnd, cycles) {
+        if (!sceneWarnHero || !window.WarningHero || !items || !items.length) {
+            if (onEnd) onEnd();
+            return;
+        }
+        stopWarnHero_();
+        warnHeroPlayer_ = WarningHero.createPlayer({
+            hero: document.getElementById('wh-hero'),
+            topTrack: document.getElementById('wh-topTrack'),
+            midTrack: document.getElementById('wh-midTrack'),
+            botTrack: document.getElementById('wh-botTrack'),
+            items: items,
+            cycles: cycles || 1,
+            onCycleEnd: onEnd || null
+        });
+        warnHeroPlayer_.play(0);
+    }
+    function playColorWarnHero_(items, onEnd, cycles) {
+        if (!items || !items.length || !sceneWarnHero) {
+            if (onEnd) onEnd();
+            return;
+        }
+        transitionToScene(sceneWarnHero, function () {
+            try {
+                playWarnHero_(items, function () {
+                    stopWarnHero_();
+                    if (onEnd) onEnd();
+                }, cycles || 1);
+            } catch (err) {
+                stopWarnHero_();
+                if (onEnd) onEnd();
+            }
+        });
+    }
+    /* ===== 白3段（sceneWarn / ?rainwhite=1）— Estec playWhite 相当 ===== */
+    const WHITE_LEVEL_HAZARDS_ = ['flood', 'rain', 'landslide', 'surge'];
+    const WHITE_SPEED = 56;
+    const WHITE_LIVE_LAPS = 3;
+    let whitePlayGen_ = 0;
+    let whiteRafId_ = 0;
+    let whiteHoldId_ = 0;
+    function clearWhiteHold_() {
+        if (whiteHoldId_) { clearTimeout(whiteHoldId_); whiteHoldId_ = 0; }
+    }
+    function stopWhiteHero_() {
+        whitePlayGen_ += 1;
+        clearWhiteHold_();
+        if (whiteRafId_) { cancelAnimationFrame(whiteRafId_); whiteRafId_ = 0; }
+    }
+    function jmaCatalogKindOrder_(lv) {
+        if (window.JmaWarningKinds && typeof JmaWarningKinds.kindOrder === 'function') {
+            return JmaWarningKinds.kindOrder(lv) || [];
+        }
+        return (JMA_LEVEL_KIND_ORDER[lv] || []).slice();
+    }
+    function jmaKindMeta_(level, kind) {
+        const src = window.JmaWarningKinds;
+        const rows = src && src.CATALOG && src.CATALOG[level];
+        if (!rows) return null;
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].kind === kind) return rows[i];
+        }
+        return null;
+    }
+    function whiteLevelLabel_(lv) {
+        if (lv === 'special') return '特別警報';
+        if (lv === 'danger') return '危険警報';
+        if (lv === 'warning') return '警報';
+        return '注意報';
+    }
+    function whiteLvNum_(lv) {
+        if (lv === 'special') return 5;
+        if (lv === 'danger') return 4;
+        if (lv === 'warning') return 3;
+        if (lv === 'advisory') return 2;
+        return 0;
+    }
+    function whiteHazardMid_(kind) {
+        if (kind === 'flood') return '氾濫';
+        if (kind === 'rain') return '大雨';
+        if (kind === 'landslide') return '土砂災害';
+        if (kind === 'surge') return '高潮';
+        return '';
+    }
+    function whiteChipColors_(cls) {
+        if (cls === 'special') return { bg: '#000000', frame: '#333333', ink: '#fff' };
+        if (cls === 'danger') return { bg: '#ab00aa', frame: '#7a0078', ink: '#fff' };
+        if (cls === 'warning') return { bg: '#fa2900', frame: '#c82400', ink: '#fff' };
+        return { bg: '#f2e700', frame: '#cdb800', ink: '#1a1a1a' };
+    }
+    function isWhitePlainKind_(level, kind) {
+        if (!level || !kind) return false;
+        if (level === 'early' || level === 'danger') return false;
+        if (WHITE_LEVEL_HAZARDS_.indexOf(kind) >= 0) return false;
+        const meta = jmaKindMeta_(level, kind);
+        if (meta && meta.hasLevel) return false;
+        const order = jmaCatalogKindOrder_(level);
+        return order.indexOf(kind) >= 0;
+    }
+    function isWhiteLevelKind_(level, kind) {
+        if (!level || !kind) return false;
+        if (level === 'early') return false;
+        if (WHITE_LEVEL_HAZARDS_.indexOf(kind) < 0) return false;
+        const order = jmaCatalogKindOrder_(level);
+        if (order.indexOf(kind) < 0) return false;
+        const meta = jmaKindMeta_(level, kind);
+        return !!(meta && meta.hasLevel);
+    }
+    function isWhiteScatterKind_(level, kind) {
+        return isWhitePlainKind_(level, kind) || isWhiteLevelKind_(level, kind);
+    }
+    function toWhitePlayItem_(e) {
+        const rawKind = e && e.kind;
+        const kind = mapHeroKind_(rawKind) || rawKind;
+        const level = e && e.level;
+        const name = (e && e.name) || jmaKindName_(level, rawKind) || jmaKindName_(level, kind);
+        const hasLevel = isWhiteLevelKind_(level, kind);
+        const meta = jmaKindMeta_(level, kind);
+        const lvNum = hasLevel ? ((meta && meta.levelNum) || whiteLvNum_(level)) : 0;
+        const hazard = hasLevel ? (whiteHazardMid_(kind) || String(name || '').replace(/危険警報$|特別警報$|注意報$|警報$/, '')) : '';
+        return {
+            level: level,
+            kind: kind,
+            name: name,
+            cls: level,
+            hasLevel: hasLevel,
+            lv: lvNum,
+            hazard: hazard,
+            unitW: hasLevel ? 256 : 128,
+            levelLabel: whiteLevelLabel_(level),
+            mid: hasLevel ? hazard : name,
+            issuedAt: (e && e.issuedAt) || rainWarnMeta.issuedAt || rainWarnMeta.updatedAt || '',
+            demo: !!(e && e.demo)
+        };
+    }
+    function getWhiteDemoItems_() {
+        const out = [];
+        ['special', 'danger', 'warning', 'advisory'].forEach(function (lv) {
+            jmaCatalogKindOrder_(lv).forEach(function (kind) {
+                if (!isWhiteScatterKind_(lv, kind)) return;
+                const it = toWhitePlayItem_({ level: lv, kind: kind, name: jmaKindName_(lv, kind) });
+                it.demo = true;
+                out.push(it);
+            });
+        });
+        return out;
+    }
+    function getLiveWhiteEntries_() {
+        const src = getRainWhiteScrollQueue_();
+        if (src && src.length) {
+            return src.map(function (e) {
+                if (!e) return null;
+                if (e.unitW === 128 || e.unitW === 256) return e;
+                const kind = mapHeroKind_(e.kind) || e.kind;
+                if (!isWhiteScatterKind_(e.level, kind) && !isWhiteScatterKind_(e.level, e.kind)) {
+                    /* カタログ外でも名前があればプレーンチップとして出す */
+                    if (e.level === 'early') return null;
+                    return {
+                        level: e.level,
+                        kind: kind,
+                        name: e.name || jmaKindName_(e.level, e.kind),
+                        cls: e.level,
+                        hasLevel: false,
+                        lv: 0,
+                        hazard: '',
+                        unitW: 128,
+                        levelLabel: whiteLevelLabel_(e.level),
+                        mid: e.name || jmaKindName_(e.level, e.kind),
+                        issuedAt: e.issuedAt || '',
+                        demo: !!e.demo
+                    };
+                }
+                return toWhitePlayItem_(e);
+            }).filter(Boolean);
+        }
+        return [];
+    }
+    function whiteClearTrack_(track) {
+        if (!track) return;
+        track.style.transform = 'translate(0,0)';
+        while (track.firstChild) track.removeChild(track.firstChild);
+    }
+    function whiteFormatIssuedClock_(raw) {
+        var ms = Date.parse(String(raw || ''));
+        if (!isFinite(ms)) ms = getNowMs();
+        var p = jstPartsFromMs(ms);
+        var h = p.hour < 10 ? '0' + p.hour : String(p.hour);
+        var m = p.minute < 10 ? '0' + p.minute : String(p.minute);
+        return h + ':' + m;
+    }
+    function makeWhiteTopSeg_(issuedAt, isDemo, updatedAt) {
+        const seg = document.createElement('div');
+        seg.className = 'white-top-seg';
+        seg.style.cssText = 'display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;height:40px;padding:0 4px;gap:8px;flex:0 0 auto;white-space:nowrap;box-sizing:border-box';
+        const area = document.createElement('span');
+        area.className = 'white-area';
+        area.style.cssText = 'flex:0 0 auto;font-size:15px;font-weight:900;color:#0854a8;letter-spacing:0.3px;white-space:nowrap';
+        area.textContent = getJmaWarnPlaceLabel_();
+        const clock = whiteFormatIssuedClock_(issuedAt);
+        const updatedClock = whiteFormatIssuedClock_(updatedAt || issuedAt);
+        const issued = document.createElement('span');
+        issued.className = 'white-what';
+        issued.style.cssText = 'flex:0 0 auto;font-size:14px;font-weight:900;color:#0854a8;letter-spacing:0.2px;white-space:nowrap';
+        issued.textContent = '発表 ' + clock;
+        const updated = document.createElement('span');
+        updated.className = 'white-what';
+        updated.style.cssText = 'flex:0 0 auto;font-size:14px;font-weight:900;color:#0854a8;letter-spacing:0.2px;white-space:nowrap';
+        updated.textContent = '更新 ' + updatedClock;
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.style.cssText = 'flex:0 0 auto;background:#fff;border:1px solid #0854a8;padding:3px 8px;border-radius:2px;line-height:1';
+        const badgeTxt = document.createElement('span');
+        badgeTxt.style.cssText = 'display:block;color:#1a1a1a;font-weight:900;font-size:15px;white-space:nowrap';
+        badgeTxt.textContent = isDemo ? 'デモ' : '発表中';
+        badge.appendChild(badgeTxt);
+        seg.appendChild(area);
+        seg.appendChild(issued);
+        seg.appendChild(updated);
+        seg.appendChild(badge);
+        return seg;
+    }
+    function makeWhiteBotSeg_() {
+        const seg = document.createElement('div');
+        seg.className = 'white-foot-seg';
+        const cycleW = 128 * 4;
+        seg.style.cssText = 'display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;height:40px;width:' + cycleW + 'px;min-width:' + cycleW + 'px;flex:0 0 ' + cycleW + 'px;padding:0;gap:0;box-sizing:border-box';
+        const items = [
+            ['chip-special', '特別警報', '#000000', '#fff'],
+            ['chip-danger', '危険警報', '#ab00aa', '#fff'],
+            ['chip-warning', '警報', '#fa2900', '#fff'],
+            ['chip-advisory', '注意報', '#f2e700', '#1a1a1a']
+        ];
+        for (let i = 0; i < items.length; i++) {
+            const row = items[i];
+            const cell = document.createElement('div');
+            cell.className = 'white-foot-cell';
+            cell.style.cssText = 'display:flex;align-items:center;justify-content:center;width:128px;min-width:128px;max-width:128px;flex:0 0 128px;height:40px;padding:0 8px;box-sizing:border-box';
+            const chip = document.createElement('span');
+            chip.className = 'white-foot-chip ' + row[0];
+            chip.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:100%;height:30px;padding:0;border-radius:9999px;font-size:16px;font-weight:900;color:' + row[3] + ';white-space:nowrap;background:' + row[2];
+            chip.textContent = row[1];
+            cell.appendChild(chip);
+            seg.appendChild(cell);
+        }
+        return seg;
+    }
+    function whiteMidChipLabel_(scene) {
+        return String((scene && (scene.hazard || scene.mid || scene.name)) || '')
+            .replace(/危険警報$|特別警報$|注意報$|警報$/, '');
+    }
+    function whiteMidNamePx_(text, unitW) {
+        const n = String(text || '').length || 1;
+        const inner = unitW - 32;
+        let px = Math.floor(inner / n);
+        if (px > 32) px = 32;
+        if (px < 24) px = 24;
+        return px;
+    }
+    function makeWhiteMidChip_(scene) {
+        const hasLevel = !!(scene && scene.hasLevel);
+        const unitW = hasLevel ? 256 : 128;
+        const unit = document.createElement('div');
+        unit.className = hasLevel ? 'mid-unit is-wide' : 'mid-unit';
+        unit.style.cssText = 'display:flex;align-items:center;justify-content:center;width:' + unitW + 'px;min-width:' + unitW + 'px;max-width:' + unitW + 'px;flex:0 0 ' + unitW + 'px;height:48px;box-sizing:border-box;padding:2px 8px';
+        const chip = document.createElement('span');
+        const cls = (scene && scene.cls) || 'advisory';
+        const pal = whiteChipColors_(cls);
+        chip.className = 'mid-chip chip-' + cls;
+        chip.style.cssText = 'display:flex;flex-direction:row;align-items:center;justify-content:center;width:100%;max-width:100%;height:100%;padding:0 6px;border:2px solid ' + pal.frame + ';border-radius:3px;font-weight:900;letter-spacing:0;white-space:nowrap;text-align:center;color:' + pal.ink + ';-webkit-text-stroke:0;background:' + pal.bg + ';box-sizing:border-box';
+        const nameEl = document.createElement('span');
+        nameEl.className = 'mid-chip-name';
+        let label = whiteMidChipLabel_(scene);
+        if (hasLevel) label = 'レベル' + ((scene && scene.lv) || whiteLvNum_(cls)) + label;
+        const fs = whiteMidNamePx_(label, unitW);
+        nameEl.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:' + fs + 'px;line-height:1;font-weight:900;letter-spacing:0;text-align:center;box-sizing:border-box';
+        nameEl.textContent = label;
+        chip.appendChild(nameEl);
+        unit.appendChild(chip);
+        return unit;
+    }
+    function fillWhiteMidChips_(track, items) {
+        whiteClearTrack_(track);
+        const set = document.createElement('div');
+        set.className = 'mid-set';
+        set.style.cssText = 'display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;height:48px;gap:0;padding:0;flex:0 0 auto;box-sizing:border-box';
+        items.forEach(function (item) { set.appendChild(makeWhiteMidChip_(item)); });
+        track.appendChild(set);
+    }
+    function prepareWhiteMidChips_(track) {
+        const set = track && track.children[0];
+        if (!set) return 0;
+        const isFoot = set.className.indexOf('white-foot-seg') >= 0;
+        let w;
+        if (isFoot) {
+            w = 128 * 4;
+        } else if (set.className.indexOf('mid-set') >= 0) {
+            w = 0;
+            for (let i = 0; i < set.children.length; i++) {
+                const el = set.children[i];
+                const wide = String(el.className || '').indexOf('is-wide') >= 0;
+                w += wide ? 256 : 128;
+            }
+            if (w < 1) w = 128;
+        } else {
+            w = Math.max(256, Math.ceil(set.offsetWidth || set.scrollWidth || 0));
+        }
+        set.style.width = w + 'px';
+        set.style.minWidth = w + 'px';
+        set.style.maxWidth = w + 'px';
+        set.style.flex = '0 0 ' + w + 'px';
+        while (track.children.length > 1) track.removeChild(track.lastChild);
+        for (let i = 1; i < 8; i++) track.appendChild(set.cloneNode(true));
+        return w;
+    }
+    function whitePlayItems_(override) {
+        const src = (override && override.length) ? override : getLiveWhiteEntries_();
+        const out = [];
+        src.forEach(function (x) {
+            if (!x) return;
+            if (x.unitW === 128 || x.unitW === 256) { out.push(x); return; }
+            if (isWhiteScatterKind_(x.level, x.kind)) out.push(toWhitePlayItem_(x));
+        });
+        return out;
+    }
+    function playWhite(onDone, itemsOverride) {
+        const items = whitePlayItems_(itemsOverride);
+        if (!items.length || !heroWhite || !whiteTopTrack || !whiteMidTrack || !whiteBotTrack) {
+            if (onDone) onDone();
+            return;
+        }
+        const issuedFallback = rainWarnMeta.issuedAt || rainWarnMeta.updatedAt || new Date(getNowMs()).toISOString();
+        items.forEach(function (it) { if (it && !it.issuedAt) it.issuedAt = issuedFallback; });
+        let issuedAt = issuedFallback;
+        items.forEach(function (it) {
+            if (it && it.issuedAt && it.issuedAt > issuedAt) issuedAt = it.issuedAt;
+        });
+        const updatedAt = rainWarnMeta.updatedAt || issuedFallback;
+        const gen = ++whitePlayGen_;
+        if (whiteRafId_) { cancelAnimationFrame(whiteRafId_); whiteRafId_ = 0; }
+        if (heroWhite) heroWhite.className = 'hero is-white';
+        const isDemo = items.some(function (x) { return x.demo; });
+        whiteClearTrack_(whiteTopTrack);
+        whiteClearTrack_(whiteBotTrack);
+        whiteTopTrack.appendChild(makeWhiteTopSeg_(issuedAt, isDemo, updatedAt));
+        whiteBotTrack.appendChild(makeWhiteBotSeg_());
+        fillWhiteMidChips_(whiteMidTrack, items);
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                if (gen !== whitePlayGen_) return;
+                const loopWs = [
+                    prepareWhiteMidChips_(whiteTopTrack),
+                    prepareWhiteMidChips_(whiteMidTrack),
+                    prepareWhiteMidChips_(whiteBotTrack)
+                ];
+                let scrollX = 0;
+                let lastTs = 0;
+                const oneLoop = loopWs[1] || 256;
+                const tracks = [whiteTopTrack, whiteMidTrack, whiteBotTrack];
+                function applyWhiteX_(x) {
+                    const px = Math.round(x);
+                    for (let i = 0; i < 3; i++) {
+                        const w = loopWs[i];
+                        if (w < 1) continue;
+                        tracks[i].style.transform = 'translate(' + -(px % w) + 'px,0)';
+                    }
+                }
+                function finishWhite_() {
+                    if (gen !== whitePlayGen_) return;
+                    whiteRafId_ = 0;
+                    applyWhiteX_(0);
+                    clearWhiteHold_();
+                    whiteHoldId_ = setTimeout(function () {
+                        whiteHoldId_ = 0;
+                        if (gen !== whitePlayGen_) return;
+                        if (onDone) onDone();
+                    }, SCENE_END_HOLD_MS);
+                }
+                function step(ts) {
+                    if (gen !== whitePlayGen_) return;
+                    if (!lastTs) lastTs = ts;
+                    let dt = Math.min(0.05, (ts - lastTs) / 1000);
+                    if (!(dt > 0)) dt = 1 / 60;
+                    lastTs = ts;
+                    scrollX += WHITE_SPEED * dt;
+                    applyWhiteX_(scrollX);
+                    if (oneLoop > 0 && scrollX >= oneLoop * WHITE_LIVE_LAPS) {
+                        finishWhite_();
+                        return;
+                    }
+                    whiteRafId_ = requestAnimationFrame(step);
+                }
+                applyWhiteX_(0);
+                clearWhiteHold_();
+                whiteHoldId_ = setTimeout(function () {
+                    whiteHoldId_ = 0;
+                    if (gen !== whitePlayGen_) return;
+                    lastTs = 0;
+                    whiteRafId_ = requestAnimationFrame(step);
+                }, SCENE_SCROLL_HOLD_MS);
+            });
+        });
+    }
+    function playWhiteWarnHero_(items, onEnd) {
+        if (!sceneWarn) {
+            if (onEnd) onEnd();
+            return;
+        }
+        const playItems = (items && items.length) ? items : getLiveWhiteEntries_();
+        if (!playItems.length) {
+            if (onEnd) onEnd();
+            return;
+        }
+        transitionToScene(sceneWarn, function () {
+            playWhite(function () {
+                stopWhiteHero_();
+                if (onEnd) onEnd();
+            }, playItems);
+        });
     }
     function gotoAfterRainWarnOrScene1_() {
         if (isDemoFullRainLoop_()) {
             demoRainPassIdx_ = 0;
             prepDemoRainPass_();
         }
-        const hasRain = wbgtNormalDisplay_() && (shouldUseWhiteLayout_() ? rainWhiteHasActive_() : rainWarnActive.length);
-        if (hasRain && sceneRainWarn) {
-            prepRainWarn_(0);
-            transitionToScene(sceneRainWarn, function () { playSceneRainWarn(0); });
+        if (isDemoFullRainLoop_()) {
+            const hasRainDemo = wbgtNormalDisplay_() && (shouldUseWhiteLayout_() ? rainWhiteHasActive_() : rainWarnActive.length);
+            if (hasRainDemo && sceneRainWarn) {
+                prepRainWarn_(0);
+                transitionToScene(sceneRainWarn, function () { playSceneRainWarn(0); });
+                return;
+            }
+            finishMainLoopToS1_();
             return;
         }
-        finishMainLoopToS1_();
+        /* 通常ループ先頭: 警報（発表時）→ 時刻（必ず時刻へ戻る） */
+        playActiveJmaWarnThen_(function () {
+            if (DEMO_SIGNAGE && !DEMO_ONLY) {
+                advanceDemoLevel();
+                return;
+            }
+            goToClockScene_();
+        });
     }
     function playSceneRainWarn(startIdx) {
         if (raAnimId) { cancelAnimationFrame(raAnimId); raAnimId = null; }
@@ -4547,30 +5187,7 @@
         });
     }
     async function startRainWarnOnlyDemo_() {
-        resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
-        if (sceneRainWarn) {
-            sceneRainWarn.style.display = 'block';
-            sceneRainWarn.classList.add('active');
-            sceneRainWarn.style.transform = 'translateX(0px)';
-        }
-        if (RAIN_WHITE_DESIGN && !whiteModeForced_()) {
-            await updateRainWarnFromGas_();
-        } else if (!rainWarnActive.length) {
-            rainWarnActive = RAIN_WARN_ORDER.slice();
-        }
-        const badge = document.getElementById('demo-badge');
-        const liveLabel = RAIN_WHITE_DESIGN && !whiteModeForced_()
-            ? ('確認 · ' + (rainWarnMeta.cityName || '安芸区') + ' 発表中 ' + rainWhiteQueue.length + '件')
-            : '警報確認 · 5段階デモ';
-        if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = liveLabel; }
-        else if (badge) { badge.hidden = true; }
-        if (!DEMO_EMBED) {
-            document.title = RAIN_WHITE_DESIGN && !whiteModeForced_()
-                ? '気象警報 実データ'
-                : '警報確認デモ - 鴻治組 安芸区';
-        }
-        playSceneRainWarn(0);
+        beginMainLoopCycle_();
     }
     let logoRotDeg = 0;
     const LOGO_ROT_STEP_MS = 420;
@@ -4670,17 +5287,18 @@
     let t3GuidLapPx = SCENE2_META_LAP_PX;
     let t3Messages_ = [];
     let t3Flow_ = null;
+    let scene3AdvanceToken = 0;
     const SCENE_W = 512;
     /** シーン切替スライド（次シーンはスライド開始と同時に準備、スクロールは SCENE_SCROLL_HOLD_MS 後） */
     const SCENE_SLIDE_MS = 450;
     const SCENE_SCROLL_HOLD_MS = 1000;
     const SCENE_END_HOLD_MS = 1000;
-    const GLOBAL_SCROLL_SPEED_PX = 0.75;
-    const DEMO_SCROLL_SPEED_PX = 0.5;
+    const GLOBAL_SCROLL_SPEED_PX = 0.95;
     function getScrollSpeedPx_() {
-        return (DEMO_SIGNAGE && !DEMO_ONLY) ? DEMO_SCROLL_SPEED_PX : GLOBAL_SCROLL_SPEED_PX;
+        return GLOBAL_SCROLL_SPEED_PX;
     }
     let sceneSlideAnimId = null;
+    let sceneSlideGuardId_ = null;
     let sceneEndHoldTimerId_ = null;
     let scenePostHoldTimerId_ = null;
     /** 全シーン共通スクロール位置（下帯・本体とも継ぎ目でリセットしない） */
@@ -4777,27 +5395,41 @@
         }, SCENE_SCROLL_HOLD_MS);
     }
     function clearSceneSlideAnim_() {
+        if (sceneSlideGuardId_ != null) {
+            clearTimeout(sceneSlideGuardId_);
+            sceneSlideGuardId_ = null;
+        }
         if (sceneSlideAnimId != null) {
             cancelAnimationFrame(sceneSlideAnimId);
             sceneSlideAnimId = null;
         }
+        /* 中断時に次シーンが translateX(512) のまま残らないようにする */
+        if (playingSceneEl_) applyScrollX_(playingSceneEl_, 0);
     }
     function detectScrollLapCrossed_(prevX, newX) {
         return newX > prevX;
     }
     function clearOutgoingSceneAnims_() {
         clearSceneEndHoldTimer_();
-        clearScenePostHoldTimer_();
+        /* scenePostHoldTimer_ は「次シーンへ進む待ち」なのでここでは消さない。
+           遷移開始時は transitionToScene 側で別途 clearScenePostHoldTimer_ する */
         if (scene1AnimId) { cancelAnimationFrame(scene1AnimId); scene1AnimId = null; }
         if (scene2AnimId) { cancelAnimationFrame(scene2AnimId); scene2AnimId = null; }
         if (scene4AnimId) { cancelAnimationFrame(scene4AnimId); scene4AnimId = null; }
         if (scene5AnimId) { cancelAnimationFrame(scene5AnimId); scene5AnimId = null; }
-        clearScene6Timers_();
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+        t3Flow_ = null;
         if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
         if (raAnimId) { cancelAnimationFrame(raAnimId); raAnimId = null; }
     }
     let scene2AnimId = null;
+    let scene2SafetyTimerId = null;
+    let scene2AdvanceToken = 0;
+    let scene4AdvanceToken = 0;
+    let scene4SafetyTimerId = null;
+    let scene5AdvanceToken = 0;
+    let scene5SafetyTimerId = null;
+    let scene3SafetyTimerId = null;
     let clockIntervalId = null;
     let clockBackupIntervalId = null;
     let clockTickWallMs_ = 0;
@@ -4814,11 +5446,15 @@
     });
 
     function getSyncedUtcMs() {
-        if (timeSync.baseUtcMs == null) return null;
-        return timeSync.baseUtcMs + (Date.now() - timeSync.clientAtSync);
+        if (timeSync.baseUtcMs == null || !Number.isFinite(timeSync.baseUtcMs)) return null;
+        if (!Number.isFinite(timeSync.clientAtSync)) return null;
+        const ms = timeSync.baseUtcMs + (Date.now() - timeSync.clientAtSync);
+        return Number.isFinite(ms) ? ms : null;
     }
     function applySyncedUtcMs(utcMs, source) {
         if (!Number.isFinite(utcMs)) return false;
+        /* ネット応答が明らかに異常なら捨てて PC 時刻を使う（止まった／飛んだ表示の防止） */
+        if (Math.abs(utcMs - Date.now()) > 36 * 3600 * 1000) return false;
         timeSync.baseUtcMs = utcMs;
         timeSync.clientAtSync = Date.now();
         if (source) timeSync.source = source;
@@ -4972,7 +5608,9 @@
             }
         }
         /* 同期失敗時のみ Date.now() フォールバック。表示は必ず jstPartsFromMs(Asia/Tokyo) */
-        applySyncedUtcMs(Date.now(), 'local-fallback');
+        if (timeSync.baseUtcMs == null) {
+            applySyncedUtcMs(Date.now(), 'local-fallback');
+        }
         console.warn('Time sync: 全ソース失敗。PC時計を暫定利用（表示は Asia/Tokyo）します。');
         return false;
     }
@@ -5020,6 +5658,10 @@
             applySyncedUtcMs(Date.now(), 'local-fallback');
             ms = getSyncedUtcMs();
         }
+        if (ms == null || !Number.isFinite(ms)) {
+            ms = Date.now();
+            applySyncedUtcMs(ms, 'local-fallback');
+        }
         /* 表示時刻・日付は必ず日本標準時（Asia/Tokyo）。端末TZが UTC/海外でも JST */
         const jp = jstPartsFromMs(ms);
         const d = clockDateFormatter.format(new Date(Math.floor(ms)));
@@ -5033,30 +5675,59 @@
             if (mm) mm.textContent = m;
         });
         document.querySelectorAll('#scene1 .s1-bar-label').forEach(function (el) { el.innerText = d; });
-        fitS1DateFontSize_();
-        fitClockHmFontSize_();
+        try { fitS1DateFontSize_(); } catch (eFitD) {}
+        try { fitClockHmFontSize_(); } catch (eFitT) {}
+        lastClockPaintKey_ = h + ':' + m;
+        lastClockPaintWallMs_ = Date.now();
     }
+    let lastClockPaintKey_ = '';
+    let lastClockPaintWallMs_ = 0;
+    let clockWatchdogId_ = null;
     function startClockTicker() {
         if (clockIntervalId != null) { clearTimeout(clockIntervalId); clockIntervalId = null; }
         if (clockBackupIntervalId != null) { clearInterval(clockBackupIntervalId); clockBackupIntervalId = null; }
+        if (clockWatchdogId_ != null) { clearInterval(clockWatchdogId_); clockWatchdogId_ = null; }
         clockTickWallMs_ = Date.now();
         function tick() {
             const wallNow = Date.now();
             if (wallNow - clockTickWallMs_ > 5000) {
-                if (timeSync.baseUtcMs != null) {
-                    applySyncedUtcMs(timeSync.baseUtcMs + (wallNow - clockTickWallMs_), timeSync.source);
+                if (timeSync.baseUtcMs != null && Number.isFinite(timeSync.baseUtcMs)) {
+                    applySyncedUtcMs(timeSync.baseUtcMs + (wallNow - clockTickWallMs_), timeSync.source || 'resume');
+                } else {
+                    applySyncedUtcMs(wallNow, 'resume-local');
                 }
             }
             clockTickWallMs_ = wallNow;
             try { updateClock(); } catch (err) { console.warn('Clock tick:', err); }
-            const syncMs = getSyncedUtcMs();
-            const base = syncMs != null ? syncMs : Date.now();
-            clockIntervalId = setTimeout(tick, Math.max(50, 1000 - (base % 1000)));
+            /* 待ち時間は常に端末時計基準（同期値の NaN/% で setTimeout が死ぬのを防ぐ） */
+            const delay = Math.max(50, 1000 - (Date.now() % 1000));
+            clockIntervalId = setTimeout(tick, delay);
         }
         tick();
         clockBackupIntervalId = setInterval(function () {
             try { updateClock(); } catch (err) { console.warn('Clock backup:', err); }
         }, 1000);
+        /* 表示が1分以上更新されない／分が実時刻とずれたら強制復帰 */
+        clockWatchdogId_ = setInterval(function () {
+            try {
+                const nowMs = Date.now();
+                const jp = jstPartsFromMs(Date.now());
+                const expect = pad2Clock_(jp.hour) + ':' + pad2Clock_(jp.minute);
+                const probe = document.querySelector('#scene1 .panel-clock .clock-h');
+                const probeM = document.querySelector('#scene1 .panel-clock .clock-m');
+                const shown = (probe && probeM) ? (probe.textContent + ':' + probeM.textContent) : '';
+                const stale = lastClockPaintWallMs_ > 0 && (nowMs - lastClockPaintWallMs_ > 70000);
+                if (stale || (shown && shown !== expect)) {
+                    console.warn('[時刻] ウォッチドッグで再同期', shown, '→', expect);
+                    applySyncedUtcMs(Date.now(), 'watchdog');
+                    startClockTicker();
+                    updateClock();
+                }
+            } catch (eWd) {
+                applySyncedUtcMs(Date.now(), 'watchdog-err');
+                try { updateClock(); } catch (e2) {}
+            }
+        }, 15000);
     }
     function startNetworkClockSync_() {
         /* 本番・demo=1 とも起動時＋定期でネット同期（端末TZ非依存の JST 表示用） */
@@ -5487,6 +6158,7 @@
         if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'boot-local');
         updateClock();
         if (s1) {
+            playingSceneEl_ = s1;
             s1.style.display = sceneDisplayMode(s1);
             s1.classList.add('active');
         }
@@ -5591,8 +6263,13 @@
                     if (plan.forecast && results[1]) {
                         applyJmaDailyForecastToDom(results[1], live.todayMaxTemp, live.todayLiveIcon);
                     }
-                    compactScene2Panels();
-                    queueDisplayRefresh_();
+                    /* 気象シーン再生中に DOM を組み替えると rAF が途切れ止まるので保留 */
+                    if (playingSceneEl_ === s2 || (s2 && s2.classList.contains('active'))) {
+                        queueDisplayRefresh_();
+                    } else {
+                        compactScene2Panels();
+                        queueDisplayRefresh_();
+                    }
                     const sWarn = performance.now();
                     await updateRainWarnFromGas_();
                     timings['大雨警報'] = Math.round(performance.now() - sWarn);
@@ -5670,44 +6347,59 @@
             alertJson.today ? alertJson.today.label : '', alertJson.tomorrow ? alertJson.tomorrow.label : '');
     }
     async function fetchWbgtFromMoeApi() {
-        if (!MOE_WBGT_API_URL) {
-            console.error('[WBGT] moe.gasUrl 未設定 — assets/site-config.js を確認してください');
-            return null;
-        }
-        const bases = [MOE_WBGT_API_URL, MOE_WBGT_BACKUP_URL].filter((u, i, a) => u && a.indexOf(u) === i);
         const pointCodes = moePointCodesToTry_();
         let alertApplied = false;
         let sawOffSeason = false;
+        if (MOE_WBGT_API_URL) {
+            const bases = [MOE_WBGT_API_URL, MOE_WBGT_BACKUP_URL].filter((u, i, a) => u && a.indexOf(u) === i);
+            for (let pi = 0; pi < pointCodes.length; pi++) {
+                const pointCode = pointCodes[pi];
+                const urls = [];
+                bases.forEach(function (base) {
+                    const wbgtUrl = appendMoePointToUrl(base, pointCode);
+                    const bundleUrl = appendMoeBundleToUrl(base, pointCode);
+                    if (wbgtUrl && urls.indexOf(wbgtUrl) < 0) urls.push(wbgtUrl);
+                    if (bundleUrl && urls.indexOf(bundleUrl) < 0) urls.push(bundleUrl);
+                });
+                for (const url of urls) {
+                    try {
+                        const raw = await fetchMoeJsonFromGasUrl_(url);
+                        const unpacked = unpackMoeGasResponse_(raw);
+                        if (!unpacked || !unpacked.wbgt) continue;
+                        if (unpacked.alert) {
+                            applyMoeAlertFromJson_(unpacked.alert);
+                            alertApplied = true;
+                        }
+                        const wbgt = unpacked.wbgt;
+                        if (!isUsableMoeWbgtPayload_(wbgt)) {
+                            console.warn('[WBGT] 地点不一致/代替地点データを破棄', wbgt.point, wbgt.dataVia || '');
+                            continue;
+                        }
+                        if (wbgt.source === 'off-season' || wbgt.inService === false) {
+                            sawOffSeason = true;
+                            console.log('[WBGT] 指定地点にデータなし');
+                            continue;
+                        }
+                        return parseMoeJson_(wbgt);
+                    } catch (e) { console.warn('[環境省] GAS取得失敗:', e.message || e); }
+                }
+            }
+        } else {
+            console.warn('[WBGT] moe.gasUrl 未設定 — 環境省API直接取得を試行');
+        }
+        /* GAS不通時: 環境省APIをブラウザから直接取得（getSurveyData は CORS許可） */
         for (let pi = 0; pi < pointCodes.length; pi++) {
-            const pointCode = pointCodes[pi];
-            const urls = [];
-            bases.forEach(function (base) {
-                const wbgtUrl = appendMoePointToUrl(base, pointCode);
-                const bundleUrl = appendMoeBundleToUrl(base, pointCode);
-                if (wbgtUrl && urls.indexOf(wbgtUrl) < 0) urls.push(wbgtUrl);
-                if (bundleUrl && urls.indexOf(bundleUrl) < 0) urls.push(bundleUrl);
-            });
-            for (const url of urls) {
-                try {
-                    const raw = await fetchMoeJsonFromGasUrl_(url);
-                    const unpacked = unpackMoeGasResponse_(raw);
-                    if (!unpacked || !unpacked.wbgt) continue;
-                    if (unpacked.alert) {
-                        applyMoeAlertFromJson_(unpacked.alert);
-                        alertApplied = true;
-                    }
-                    const wbgt = unpacked.wbgt;
-                    if (!isUsableMoeWbgtPayload_(wbgt)) {
-                        console.warn('[WBGT] 地点不一致/代替地点データを破棄', wbgt.point, wbgt.dataVia || '');
-                        continue;
-                    }
-                    if (wbgt.source === 'off-season' || wbgt.inService === false) {
-                        sawOffSeason = true;
-                        console.log('[WBGT] 指定地点にデータなし');
-                        continue;
-                    }
-                    return parseMoeJson_(wbgt);
-                } catch (e) { console.warn('[環境省] GAS取得失敗:', e.message || e); }
+            try {
+                const direct = await fetchWbgtFromMoeDirect_(pointCodes[pi]);
+                if (!direct) continue;
+                if (direct.source === 'off-season' || direct.inService === false) {
+                    sawOffSeason = true;
+                    continue;
+                }
+                if (!isUsableMoeWbgtPayload_(direct)) continue;
+                return parseMoeJson_(direct);
+            } catch (eDir) {
+                console.warn('[WBGT] 直接取得失敗:', eDir.message || eDir);
             }
         }
         if (!alertApplied) await updateHeatAlertFromGas_();
@@ -5715,8 +6407,148 @@
             console.log('[WBGT] 全地点でデータなし（WBGT非表示）');
             return 'offseason';
         }
-        console.warn('[WBGT] 取得失敗: GAS URL と assets/site-config.js の moe.gasUrl を確認してください');
+        console.warn('[WBGT] 取得失敗: GAS URL と環境省APIの両方で失敗');
         return null;
+    }
+    function moeJstCompactFromMs_(ms) {
+        const p = jstPartsFromMs(ms != null ? ms : getNowMs());
+        return String(p.year)
+            + pad2Clock_(p.month) + pad2Clock_(p.day)
+            + pad2Clock_(p.hour) + pad2Clock_(p.minute) + pad2Clock_(p.second);
+    }
+    function moeToWbgtNumber_(raw) {
+        if (raw == null) return null;
+        let n = Number(String(raw).trim());
+        if (!Number.isFinite(n)) return null;
+        if (n > 45 && n <= 450) n = n / 10;
+        if (n < 5 || n > 45) return null;
+        return Math.round(n * 10) / 10;
+    }
+    function parseYohouCsvText_(text, point) {
+        const lines = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+        let dataLine = '';
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            if (line.indexOf(String(point)) === 0 || /^\d{5},/.test(line)) {
+                dataLine = line;
+                break;
+            }
+        }
+        if (!dataLine) return null;
+        const cols = dataLine.split(',');
+        const rowPoint = String(cols[0] || '').trim();
+        const updatedAt = String(cols[1] || '').trim();
+        const hours = ['現在', '+3h', '+6h', '+9h'];
+        const slots = [];
+        for (let s = 0; s < 4; s++) {
+            const wbgt = moeToWbgtNumber_(cols[s + 2]);
+            if (wbgt == null) return null;
+            slots.push({ wbgt: wbgt, hour: hours[s] });
+        }
+        return {
+            ok: true,
+            source: 'moe-env.go.jp',
+            inService: true,
+            point: rowPoint || String(point),
+            pointName: (SITE_CFG.moe && SITE_CFG.moe.pointName) || '',
+            updatedAt: updatedAt || '',
+            data: slots,
+            slots: slots,
+            dataVia: 'yohou-direct'
+        };
+    }
+    function wbgtFromSurveyRow_(row) {
+        if (!row) return null;
+        const direct = moeToWbgtNumber_(row.wbgt_WBGT || row.wbgt || row.WBGT);
+        if (direct != null) return direct;
+        const tw = parseFloat(row.wbgt_Tw);
+        const tg = parseFloat(row.wbgt_Tg);
+        const ta = parseFloat(row.wbgt_WO || row.wbgt_Ta);
+        if (Number.isFinite(tw) && Number.isFinite(tg) && Number.isFinite(ta)) {
+            return Math.round((0.7 * tw + 0.2 * tg + 0.1 * ta) * 10) / 10;
+        }
+        return null;
+    }
+    async function fetchWbgtYohouCsvDirect_(pointCode) {
+        const point = String(pointCode || MOE_WBGT_POINT);
+        const url = 'https://www.wbgt.env.go.jp/prev15WG/dl/yohou_' + encodeURIComponent(point) + '.csv';
+        const res = await fetch(url, { cache: 'no-store', mode: 'cors' });
+        if (res.status === 404) {
+            return {
+                source: 'off-season',
+                inService: false,
+                point: point,
+                pointName: (SITE_CFG.moe && SITE_CFG.moe.pointName) || '',
+                updatedAt: ''
+            };
+        }
+        if (!res.ok) throw new Error('yohou HTTP ' + res.status);
+        const parsed = parseYohouCsvText_(await res.text(), point);
+        if (!parsed) throw new Error('yohou parse empty');
+        return parsed;
+    }
+    async function fetchWbgtSurveyDirect_(pointCode) {
+        const point = String(pointCode || MOE_WBGT_POINT);
+        const now = getNowMs();
+        const from = moeJstCompactFromMs_(now - 24 * 3600000);
+        const to = moeJstCompactFromMs_(now);
+        let lastErr = null;
+        for (let ti = 0; ti < 2; ti++) {
+            const dataType = ti === 0 ? 1 : 0;
+            try {
+                const url = 'https://www.wbgt.env.go.jp/api/v1/getSurveyData'
+                    + '?data_type=' + dataType
+                    + '&location_type=1'
+                    + '&wbgt_nos=' + encodeURIComponent(point)
+                    + '&date_from=' + encodeURIComponent(from)
+                    + '&date_to=' + encodeURIComponent(to);
+                const res = await fetch(url, { cache: 'no-store', mode: 'cors' });
+                if (!res.ok) throw new Error('survey HTTP ' + res.status);
+                const raw = await res.json();
+                if (!raw || raw.status !== 'success') {
+                    throw new Error('survey ' + ((raw && raw.errMsg && raw.errMsg.join(' ')) || 'error'));
+                }
+                const rows = raw.data || [];
+                let best = null;
+                let bestTs = -1;
+                for (let i = 0; i < rows.length; i++) {
+                    const w = wbgtFromSurveyRow_(rows[i]);
+                    if (w == null) continue;
+                    const ts = Date.parse(String(rows[i].wbgt_date || '').replace(/-/g, '/')) || 0;
+                    if (ts >= bestTs) {
+                        bestTs = ts;
+                        best = { wbgt: w, at: rows[i].wbgt_date };
+                    }
+                }
+                if (!best) throw new Error('survey empty type' + dataType);
+                const hours = ['現在', '+3h', '+6h', '+9h'];
+                const slots = hours.map(function (h) { return { wbgt: best.wbgt, hour: h }; });
+                console.log('[WBGT] 環境省実況API OK', point, best.at || '', best.wbgt + '℃');
+                return {
+                    ok: true,
+                    source: 'moe-env.go.jp',
+                    inService: true,
+                    point: point,
+                    pointName: (SITE_CFG.moe && SITE_CFG.moe.pointName) || '',
+                    updatedAt: best.at || '',
+                    data: slots,
+                    slots: slots,
+                    dataVia: 'survey-direct'
+                };
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+        throw lastErr || new Error('survey failed');
+    }
+    async function fetchWbgtFromMoeDirect_(pointCode) {
+        try {
+            return await fetchWbgtYohouCsvDirect_(pointCode);
+        } catch (e1) {
+            console.warn('[WBGT] 予報CSV直接取得不可 → 実況API', e1.message || e1);
+            return await fetchWbgtSurveyDirect_(pointCode);
+        }
     }
     function setTextAll(selector, text) {
         document.querySelectorAll(selector).forEach(el => { el.innerText = text; });
@@ -6504,7 +7336,7 @@
         return String(cfg.footLogoSrc || cfg.logoSrc || '').trim();
     }
     function buildS1FootBrandHtml_() {
-        const name = getS1SiteFootName_() || '令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事';
+        const name = getS1SiteFootName_() || '令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事';
         return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
     }
     function buildS1SiteLogoHtml_() {
@@ -6513,7 +7345,7 @@
         return `<span class="s1-wbgt-logo-wrap"><img class="s1-wbgt-logo" src="${escapeS1Html(logoSrc)}" alt="" decoding="async"></span>`;
     }
     function buildS1FootBannerSvgHtml_(siteName) {
-        const name = siteName || '令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事';
+        const name = siteName || '令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事';
         const alt = escapeS1Html(name);
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
         const logoSrc = escapeS1Html(cfg.footLogoSrc || cfg.logoSrc || '');
@@ -6530,7 +7362,7 @@
             return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="${escapeS1Html(bannerSrc)}" alt="${alt}" decoding="async"></div>`;
         }
         const logoHtml = buildS1SiteLogoHtml_();
-        const labelHtml = `<span class="s1-foot-co-txt">${escapeS1Html(siteName || '令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事')}</span>`;
+        const labelHtml = `<span class="s1-foot-co-txt">${escapeS1Html(siteName || '令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事')}</span>`;
         return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-wbgt-site-inner">${logoHtml}${labelHtml}</span></div>`;
     }
     function ensureS1WbgtBarVisible_() {
@@ -6714,53 +7546,206 @@
     }
     function scheduleScene1SafetyAdvance_(waitMs) {
         if (scene1SafetyTimerId) clearTimeout(scene1SafetyTimerId);
-        const wait = Math.max(SCENE1_SAFETY_MS, waitMs || 0);
+        /* 最短8秒・最長30秒で必ず次へ（時刻シーンに固まらない） */
+        const wait = Math.min(30000, Math.max(8000, waitMs != null ? waitMs : 20000));
         scene1SafetyTimerId = setTimeout(function () {
             scene1SafetyTimerId = null;
-            if (s1 && s1.classList.contains('active')) {
+            if (s1 && (s1.classList.contains('active') || playingSceneEl_ === s1)) {
                 console.warn('[Scene1] 安全タイマーで次シーンへ進めます');
                 finishScene1();
             }
         }, wait);
     }
+    function clearScene2Safety_() {
+        if (scene2SafetyTimerId) { clearTimeout(scene2SafetyTimerId); scene2SafetyTimerId = null; }
+    }
+    function scheduleScene2SafetyAdvance_(waitMs) {
+        clearScene2Safety_();
+        const speed = Math.max(0.35, getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX);
+        const fallbackMs = SCENE_SCROLL_HOLD_MS
+            + Math.ceil(2048 / speed) * 20
+            + SCENE_END_HOLD_MS + 8000;
+        const wait = Math.min(120000, Math.max(20000, waitMs != null ? waitMs : fallbackMs));
+        const token = scene2AdvanceToken;
+        scene2SafetyTimerId = setTimeout(function () {
+            scene2SafetyTimerId = null;
+            if (token !== scene2AdvanceToken) return;
+            if (playingSceneEl_ === s2 || (s2 && s2.classList.contains('active'))) {
+                console.warn('[Scene2] 安全タイマーで次シーンへ進めます');
+                scene2AdvanceToken += 1;
+                if (scene2AnimId) { cancelAnimationFrame(scene2AnimId); scene2AnimId = null; }
+                clearScenePostHoldTimer_();
+                if (demoOnlyLoop_('s2', playScene2)) return;
+                gotoSceneAfterScene2_();
+            }
+        }, wait);
+    }
+    function clearScene4Safety_() {
+        if (scene4SafetyTimerId) { clearTimeout(scene4SafetyTimerId); scene4SafetyTimerId = null; }
+    }
+    function scheduleScene4SafetyAdvance_(waitMs) {
+        clearScene4Safety_();
+        const speed = Math.max(0.35, getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX);
+        const fallbackMs = SCENE_SCROLL_HOLD_MS
+            + Math.ceil(768 / speed) * 20
+            + SCENE_END_HOLD_MS + 8000;
+        const wait = Math.min(120000, Math.max(20000, waitMs != null ? waitMs : fallbackMs));
+        const token = scene4AdvanceToken;
+        scene4SafetyTimerId = setTimeout(function () {
+            scene4SafetyTimerId = null;
+            if (token !== scene4AdvanceToken) return;
+            if (playingSceneEl_ === s4 || (s4 && s4.classList.contains('active'))) {
+                console.warn('[Scene4] 安全タイマーで次シーンへ進めます');
+                finishScene4();
+            }
+        }, wait);
+    }
+    function clearScene5Safety_() {
+        if (scene5SafetyTimerId) { clearTimeout(scene5SafetyTimerId); scene5SafetyTimerId = null; }
+    }
+    function scheduleScene5SafetyAdvance_(waitMs) {
+        clearScene5Safety_();
+        const speed = Math.max(0.35, getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX);
+        const fallbackMs = SCENE_SCROLL_HOLD_MS
+            + Math.ceil((SCENE5_PANEL_COUNT * 128 * SCENE5_LAPS) / speed) * 20
+            + SCENE_END_HOLD_MS + 10000;
+        let wait = waitMs != null ? waitMs : fallbackMs;
+        if (!Number.isFinite(wait)) wait = fallbackMs;
+        wait = Math.min(120000, Math.max(25000, wait));
+        const token = scene5AdvanceToken;
+        scene5SafetyTimerId = setTimeout(function () {
+            scene5SafetyTimerId = null;
+            if (token !== scene5AdvanceToken) return;
+            if (playingSceneEl_ === s5 || (s5 && s5.classList.contains('active'))) {
+                console.warn('[Scene5] 安全タイマーで次シーンへ進めます');
+                finishScene5_();
+            }
+        }, wait);
+    }
+    function clearScene3Safety_() {
+        if (scene3SafetyTimerId) { clearTimeout(scene3SafetyTimerId); scene3SafetyTimerId = null; }
+    }
+    function scheduleScene3SafetyAdvance_(waitMs) {
+        clearScene3Safety_();
+        const wait = Math.min(60000, Math.max(20000, waitMs != null ? waitMs : 40000));
+        const token = scene3AdvanceToken;
+        scene3SafetyTimerId = setTimeout(function () {
+            scene3SafetyTimerId = null;
+            if (token !== scene3AdvanceToken) return;
+            if (scene3Leaving_) return;
+            if (playingSceneEl_ === s3 || (s3 && s3.classList.contains('active'))) {
+                console.warn('[Scene3] 安全タイマーで次シーンへ進めます');
+                leaveScene3ToNext_(token);
+            }
+        }, wait);
+    }
     function sceneDisplayMode(el) {
         if (!el) return 'block';
-        if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
+        if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn' || el.id === 'sceneWarn' || el.id === 'sceneWarnHero') return 'block';
         if (el.id === 'scene1' || el.id === 'scene3') return 'block';
         return 'flex';
     }
+    let playingSceneEl_ = null;
     function hideSceneEl(el) {
         if (!el) return;
+        if (el === sceneWarnHero) stopWarnHero_();
+        if (el === sceneWarn) stopWhiteHero_();
+        if (el === s3) scene3Leaving_ = false;
         el.classList.remove('active');
         el.style.display = 'none';
         el.style.transform = '';
         el.style.zIndex = '';
+        if (playingSceneEl_ === el) playingSceneEl_ = null;
     }
     function getActiveScene() {
-        return document.querySelector('.content-area .scene.active');
+        if (playingSceneEl_ && playingSceneEl_.classList.contains('active')) return playingSceneEl_;
+        const all = document.querySelectorAll('.content-area .scene.active');
+        return all.length ? all[all.length - 1] : null;
+    }
+    let transitionGen_ = 0;
+    function runTransitionOnComplete_(fn) {
+        if (!fn) return;
+        try { fn(); } catch (err) {
+            console.error('[transition] onComplete 例外', err);
+        }
+    }
+    /** keepEl 以外の active シーンを隠す */
+    function hideOtherScenes_(keepEl) {
+        document.querySelectorAll('.content-area .scene.active').forEach(function (el) {
+            if (el !== keepEl) hideSceneEl(el);
+        });
     }
     function transitionToScene(nextEl, onComplete) {
+        const gen = ++transitionGen_;
         clearSceneEndHoldTimer_();
+        clearScenePostHoldTimer_();
         clearSceneSlideAnim_();
         clearOutgoingSceneAnims_();
-        const current = getActiveScene();
-        if (!nextEl) { onComplete?.(); return; }
-        if (current === nextEl) { onComplete?.(); return; }
-        nextEl.style.display = sceneDisplayMode(nextEl);
-        nextEl.classList.add('active');
-        if (!current || SCENE_SLIDE_MS <= 0) {
-            if (current) hideSceneEl(current);
+        clearScene2Safety_();
+        clearScene4Safety_();
+        clearScene5Safety_();
+        clearScene3Safety_();
+        if (!nextEl) { runTransitionOnComplete_(onComplete); return; }
+        const current = (playingSceneEl_ && playingSceneEl_ !== nextEl && playingSceneEl_.classList.contains('active'))
+            ? playingSceneEl_
+            : getActiveScene();
+        document.querySelectorAll('.content-area .scene.active').forEach(function (el) {
+            if (el !== nextEl && el !== current) hideSceneEl(el);
+        });
+        if (!current || current === nextEl) {
+            playingSceneEl_ = nextEl;
+            hideOtherScenes_(nextEl);
+            nextEl.style.display = sceneDisplayMode(nextEl);
+            nextEl.classList.add('active');
             applyScrollX_(nextEl, 0);
             nextEl.style.zIndex = '';
-            onComplete?.();
+            noteSceneLoopProgress_();
+            runTransitionOnComplete_(onComplete);
+            return;
+        }
+        playingSceneEl_ = nextEl;
+        nextEl.style.display = sceneDisplayMode(nextEl);
+        nextEl.classList.add('active');
+        noteSceneLoopProgress_();
+        if (SCENE_SLIDE_MS <= 0) {
+            hideSceneEl(current);
+            applyScrollX_(nextEl, 0);
+            nextEl.style.zIndex = '';
+            runTransitionOnComplete_(onComplete);
             return;
         }
         nextEl.style.zIndex = '2';
         applyScrollX_(nextEl, SCENE_W);
         current.style.zIndex = '1';
-        onComplete?.();
+        /* 再生は即開始（スライド待ちだと rAF 失敗時にループが止まる） */
+        runTransitionOnComplete_(onComplete);
+        if (gen !== transitionGen_) {
+            if (current && current !== playingSceneEl_) hideSceneEl(current);
+            return;
+        }
         const t0 = performance.now();
+        let finished = false;
+        function finishSlide_() {
+            if (finished) return;
+            finished = true;
+            if (sceneSlideGuardId_ != null) {
+                clearTimeout(sceneSlideGuardId_);
+                sceneSlideGuardId_ = null;
+            }
+            sceneSlideAnimId = null;
+            if (current && current !== playingSceneEl_) hideSceneEl(current);
+            else if (current) hideSceneEl(current);
+            if (playingSceneEl_ === nextEl) {
+                hideOtherScenes_(nextEl);
+                applyScrollX_(nextEl, 0);
+                nextEl.style.zIndex = '';
+            }
+        }
         function tick(now) {
+            if (finished || gen !== transitionGen_) {
+                finishSlide_();
+                return;
+            }
             const p = Math.min(1, (now - t0) / SCENE_SLIDE_MS);
             const eased = p * (2 - p);
             const off = scrollPx_(eased * SCENE_W);
@@ -6769,29 +7754,39 @@
             if (p < 1) {
                 sceneSlideAnimId = requestAnimationFrame(tick);
             } else {
-                sceneSlideAnimId = null;
-                hideSceneEl(current);
-                applyScrollX_(nextEl, 0);
-                nextEl.style.zIndex = '';
+                finishSlide_();
             }
         }
         sceneSlideAnimId = requestAnimationFrame(tick);
+        sceneSlideGuardId_ = setTimeout(function () {
+            sceneSlideGuardId_ = null;
+            finishSlide_();
+        }, SCENE_SLIDE_MS + 250);
     }
-    /* 確認ボード: 提供期間外プレビュー行は非表示のまま一定時間待ってループ */
     function previewOffSeasonHold_(onlyKey, replayFn) {
-        if (DEMO_ONLY !== onlyKey || !DEMO_EMBED || !wbgtOffSeason) return false;
-        setTimeout(function () { replayFn(); }, SCENE1_WBGT_HOLD_MS);
-        return true;
+        return false;
     }
     function finishScene1() {
         scene1AdvanceToken += 1;
         s1Flow_ = null;
         clearScene1WbgtTimers();
         if (demoOnlyLoop_('s1', playScene1)) return;
-        if (!s2) return;
-        transitionToScene(s2, playScene2);
+        if (!s2) {
+            console.error('[Scene1] scene2 が無いため進めません');
+            return;
+        }
+        try {
+            transitionToScene(s2, playScene2);
+        } catch (err) {
+            console.error('[Scene1] 遷移失敗、強制で scene2 へ', err);
+            hideSceneEl(s1);
+            playingSceneEl_ = s2;
+            s2.style.display = sceneDisplayMode(s2);
+            s2.classList.add('active');
+            playScene2();
+        }
     }
-    /* シーン3（多言語WBGT）の後 → アラート／シーン1 */
+    /* シーン3（多言語WBGT）の後 → アラート／（警報→）時刻 */
     function gotoAfterScene3Tail_() {
         if (WBGT_ONLY) { finishMainLoopToS1_(); return; }
         if (wbgtNormalDisplay_() && heatAlertActive.length && sceneAlert) {
@@ -6799,6 +7794,7 @@
             transitionToScene(sceneAlert, () => playSceneAlert(0));
             return;
         }
+        /* 一周の区切り: 警報（発表時）→ 時刻。デモ時は finishMainLoopToS1_ でレベル送り */
         gotoAfterRainWarnOrScene1_();
     }
     function gotoAfterScene3_() {
@@ -6919,18 +7915,7 @@
         });
     }
     function startAlertOnlyDemo_() {
-        resetLogoRotation();
-        [s1, s2, s3, s4, s5].forEach(hideSceneEl);
-        if (sceneAlert) {
-            sceneAlert.style.display = 'block';
-            sceneAlert.classList.add('active');
-            sceneAlert.style.transform = 'translateX(0px)';
-        }
-        const badge = document.getElementById('demo-badge');
-        if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = '確認 · 熱中症アラート'; }
-        else if (badge) { badge.hidden = true; }
-        if (!DEMO_EMBED) document.title = '熱中症アラート デモ';
-        playSceneAlert(0);
+        beginMainLoopCycle_();
     }
     function splitT3Message_(text) {
         const s = String(text || '').trim();
@@ -7440,128 +8425,223 @@
     }
     function playScene3() {
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
-        if (wbgtOffSeason) {
-            if (previewOffSeasonHold_('s3', playScene3)) return;
-            gotoAfterScene3_();
-            return;
-        }
-        applyDisplayRefreshAtSceneEntry_();
-        buildTicker();
-        applyPendingSignageBgAtScene_();
-        t3Messages_ = getT3Messages_();
-        buildT3GuideTrack();
-        const guidTrack = document.getElementById('t3-guid-track');
-        if (!t3Messages_.length) {
-            gotoAfterScene3_();
-            return;
-        }
-        stepLogo90(420, true);
-        const tracks = document.querySelectorAll('#scene3 .t3-track');
-        if (!tracks.length) {
-            setTimeout(function () { gotoAfterScene3_(); }, 800);
-            return;
-        }
-        prepT3_(0);
-        if (isFullDemoStep_()) {
-            scheduleDemoStep_(gotoAfterScene3_);
-            return;
-        }
-        t3Flow_ = {
-            x: wrapScrollX_(globalScrollX_, T3_UNIT_W),
-            langIdx: 0,
-            laps: 0
-        };
-        applyT3TrackX_(tracks, t3Flow_.x);
-        function step() {
-            const prevX = t3Flow_.x;
-            advanceGlobalScroll_(getScrollSpeedPx_());
-            t3Flow_.x = wrapScrollX_(globalScrollX_, T3_UNIT_W);
-            if (detectScrollLapCrossed_(prevX, t3Flow_.x)) {
-                t3Flow_.laps += 1;
-                if (t3Flow_.laps >= T3_LAPS_BEFORE_SWITCH) {
-                    t3Flow_.laps = 0;
-                    t3Flow_.langIdx += 1;
-                    if (t3Flow_.langIdx >= t3Messages_.length) {
-                        if (demoOnlyLoop_('s3', playScene3)) return;
-                        tickerAnimId = null;
-                        t3Flow_ = null;
-                        stopLogoSpinInterval();
-                        runAfterSceneEndHold_(gotoAfterScene3_);
+        scene3Leaving_ = false;
+        const advanceToken = ++scene3AdvanceToken;
+        noteSceneLoopProgress_();
+        /* 共有 hold タイマーは使わない（他シーン再生が消すと多言語が永久停止する） */
+        const holdUntil = Date.now() + SCENE_SCROLL_HOLD_MS;
+        scheduleScene3SafetyAdvance_(45000);
+        try {
+            if (wbgtOffSeason) {
+                if (previewOffSeasonHold_('s3', playScene3)) return;
+                setTimeout(function () {
+                    if (advanceToken !== scene3AdvanceToken) return;
+                    leaveScene3ToNext_(advanceToken);
+                }, 0);
+                return;
+            }
+            applyDisplayRefreshAtSceneEntry_();
+            buildTicker();
+            applyPendingSignageBgAtScene_();
+            t3Messages_ = getT3Messages_();
+            buildT3GuideTrack();
+            if (!t3Messages_.length) {
+                leaveScene3ToNext_(advanceToken);
+                return;
+            }
+            stepLogo90(420, true);
+            const trackCount = document.querySelectorAll('#scene3 .t3-track').length;
+            if (!trackCount) {
+                setTimeout(function () {
+                    if (advanceToken !== scene3AdvanceToken) return;
+                    leaveScene3ToNext_(advanceToken);
+                }, 800);
+                return;
+            }
+            prepT3_(0);
+            if (isFullDemoStep_()) {
+                scheduleDemoStep_(function () { leaveScene3ToNext_(advanceToken); });
+                return;
+            }
+            const langCount = t3Messages_.length;
+            const pxPerLang = Math.max(1, T3_UNIT_W * T3_LAPS_BEFORE_SWITCH);
+            const needPx = pxPerLang * langCount;
+            const speedPx = Math.max(0.35, getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX);
+            scheduleScene3SafetyAdvance_(
+                SCENE_SCROLL_HOLD_MS
+                + Math.ceil(needPx / speedPx) * 20
+                + SCENE_END_HOLD_MS + 5000
+            );
+            t3Flow_ = {
+                x: wrapScrollX_(globalScrollX_, T3_UNIT_W),
+                langIdx: 0,
+                total: 0,
+                need: needPx,
+                pxPerLang: pxPerLang
+            };
+            applyT3TrackX_(document.querySelectorAll('#scene3 .t3-track'), t3Flow_.x);
+            function step() {
+                if (advanceToken !== scene3AdvanceToken || !t3Flow_ || scene3Leaving_) return;
+                try {
+                    if (Date.now() < holdUntil) {
+                        tickerAnimId = requestAnimationFrame(step);
                         return;
                     }
-                    t3Flow_.x = snapT3ScrollToLap_(T3_UNIT_W);
-                    setT3Lang_(t3Flow_.langIdx);
+                    const tracks = document.querySelectorAll('#scene3 .t3-track');
+                    const guidTrack = document.getElementById('t3-guid-track');
+                    const speed = getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX;
+                    advanceGlobalScroll_(speed);
+                    t3Flow_.total += speed;
+                    t3Flow_.x = wrapScrollX_(globalScrollX_, T3_UNIT_W);
+                    applyT3TrackX_(tracks, t3Flow_.x);
+                    if (guidTrack && getT3GuideTierForDisplay_()) {
+                        applyGlobalScroll_(guidTrack, t3GuidLapPx);
+                    }
+                    const nextLang = Math.min(
+                        langCount - 1,
+                        Math.floor(t3Flow_.total / t3Flow_.pxPerLang)
+                    );
+                    if (nextLang !== t3Flow_.langIdx) {
+                        t3Flow_.langIdx = nextLang;
+                        setT3Lang_(nextLang);
+                        t3Flow_.x = snapT3ScrollToLap_(T3_UNIT_W);
+                        applyT3TrackX_(tracks, t3Flow_.x);
+                    }
+                    if (t3Flow_.total >= t3Flow_.need) {
+                        leaveScene3ToNext_(advanceToken);
+                        return;
+                    }
+                    tickerAnimId = requestAnimationFrame(step);
+                } catch (animErr) {
+                    console.error('[Scene3] animate 例外 → 次へ', animErr);
+                    leaveScene3ToNext_(advanceToken);
                 }
             }
-            applyT3TrackX_(tracks, t3Flow_.x);
-            if (guidTrack && getT3GuideTierForDisplay_()) {
-                applyGlobalScroll_(guidTrack, t3GuidLapPx);
-            }
             tickerAnimId = requestAnimationFrame(step);
+        } catch (err) {
+            console.error('[Scene3] playScene3 例外', err);
+            scheduleScene3SafetyAdvance_(3000);
         }
-        runSceneScrollAfterHold_(function () {
-            tickerAnimId = requestAnimationFrame(step);
+    }
+    /** 多言語終了 → 次へ。終了待ち中に ensure が playScene3 し直さない */
+    function leaveScene3ToNext_(advanceToken) {
+        if (scene3Leaving_) return;
+        if (advanceToken != null && advanceToken !== scene3AdvanceToken) return;
+        if (demoOnlyLoop_('s3', playScene3)) return;
+        scene3Leaving_ = true;
+        if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
+        t3Flow_ = null;
+        stopLogoSpinInterval();
+        clearScene3Safety_();
+        /* 終了ホールドが消されたときの保険（ensure 再入場防止は scene3Leaving_） */
+        scene3SafetyTimerId = setTimeout(function () {
+            scene3SafetyTimerId = null;
+            if (!scene3Leaving_) return;
+            if (playingSceneEl_ === s3 || (s3 && s3.classList.contains('active'))) {
+                console.warn('[Scene3] 退出タイムアウト → 強制で次へ');
+                try { gotoAfterScene3_(); } catch (e) { try { goToClockScene_(); } catch (e2) {} }
+            }
+            scene3Leaving_ = false;
+        }, 5000);
+        runAfterSceneEndHold_(function () {
+            if (advanceToken != null && advanceToken !== scene3AdvanceToken) {
+                scene3Leaving_ = false;
+                return;
+            }
+            clearScene3Safety_();
+            try {
+                gotoAfterScene3_();
+            } catch (err) {
+                console.error('[Scene3] 終了後遷移失敗 → 時刻へ', err);
+                scene3Leaving_ = false;
+                goToClockScene_();
+            }
         });
     }
     function playScene1() {
-        const advanceToken = scene1AdvanceToken + 1;
-        if (pendingSignageBgRefresh_) applyPendingSignageBgAtScene_();
+        const advanceToken = ++scene1AdvanceToken;
         clearScene1WbgtTimers();
-        clearDemoStepTimer_();
-        applyDisplayRefreshAtSceneEntry_();
-        applyPendingSignageBgAtScene_();
-        updateClock();
-        stepLogo90(420, true);
-        const showWbgtFoot = hasS1WbgtFootMessage_();
-        setS1FootBarVisible_(showWbgtFoot);
-        if (isFullDemoStep_()) {
-            scheduleScene1SafetyAdvance_();
-            scheduleDemoStep_(finishScene1);
-            return;
-        }
-        if (s1WbgtTrack && showWbgtFoot) {
-            refreshS1WbgtFootBar_(true);
-            const s1FootLap = Math.max(FOOT_BAR_LAP_PX, getS1FootLapPx_() || 0);
-            const needPx = s1FootLap * SCENE1_ADVANCE_LAPS;
-            scheduleScene1SafetyAdvance_(SCENE_SCROLL_HOLD_MS + Math.ceil(needPx / 0.4) * 22 + SCENE_END_HOLD_MS + 8000);
-            snapTrackToContentStart_(s1WbgtTrack, s1FootLap);
-            s1Flow_ = { total: 0, need: needPx };
-            function animateS1WbgtRtl() {
-                if (advanceToken !== scene1AdvanceToken + 1 || !s1Flow_) return;
-                const speed = getScrollSpeedPx_();
-                advanceGlobalScroll_(speed);
-                s1Flow_.total += speed;
-                applyGlobalScroll_(s1WbgtTrack, s1FootLap);
-                if (s1Flow_.total >= s1Flow_.need) {
-                    scene1AnimId = null;
-                    applyGlobalScroll_(s1WbgtTrack, s1FootLap);
-                    s1Flow_ = null;
-                    runAfterSceneEndHold_(finishScene1);
-                    return;
-                }
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+        noteSceneLoopProgress_();
+        /* 何があっても最大25秒で次へ（下帯計測異常・例外でも時刻に固まらない） */
+        scheduleScene1SafetyAdvance_(25000);
+        try {
+            if (pendingSignageBgRefresh_) applyPendingSignageBgAtScene_();
+            clearDemoStepTimer_();
+            applyDisplayRefreshAtSceneEntry_();
+            applyPendingSignageBgAtScene_();
+            updateClock();
+            stepLogo90(420, true);
+            const showWbgtFoot = hasS1WbgtFootMessage_();
+            setS1FootBarVisible_(showWbgtFoot);
+            if (isFullDemoStep_()) {
+                scheduleDemoStep_(finishScene1);
+                return;
             }
-            runSceneScrollAfterHold_(function () {
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
-            });
-        } else {
-            scheduleScene1SafetyAdvance_();
-            s1Flow_ = null;
-            runSceneScrollAfterHold_(function () {
-                if (advanceToken !== scene1AdvanceToken + 1) return;
-                scene1HoldTimerId = setTimeout(function () {
-                    scene1HoldTimerId = null;
-                    if (advanceToken !== scene1AdvanceToken + 1) return;
-                    runAfterSceneEndHold_(finishScene1);
-                }, SCENE1_CLOCK_HOLD_MS);
-            });
+            if (s1WbgtTrack && showWbgtFoot) {
+                refreshS1WbgtFootBar_(true);
+                const s1FootLap = Math.max(FOOT_BAR_LAP_PX, getS1FootLapPx_() || 0);
+                const needPx = Math.min(1536, s1FootLap * SCENE1_ADVANCE_LAPS);
+                const speedPx = Math.max(0.35, getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX);
+                scheduleScene1SafetyAdvance_(
+                    SCENE_SCROLL_HOLD_MS
+                    + Math.ceil(needPx / speedPx) * 20
+                    + SCENE_END_HOLD_MS + 3000
+                );
+                snapTrackToContentStart_(s1WbgtTrack, s1FootLap);
+                s1Flow_ = { total: 0, need: needPx };
+                function animateS1WbgtRtl() {
+                    if (advanceToken !== scene1AdvanceToken || !s1Flow_) return;
+                    const speed = getScrollSpeedPx_();
+                    advanceGlobalScroll_(speed);
+                    s1Flow_.total += speed;
+                    applyGlobalScroll_(s1WbgtTrack, s1FootLap);
+                    if (s1Flow_.total >= s1Flow_.need) {
+                        scene1AnimId = null;
+                        applyGlobalScroll_(s1WbgtTrack, s1FootLap);
+                        s1Flow_ = null;
+                        runAfterSceneEndHold_(finishScene1);
+                        return;
+                    }
+                    scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+                }
+                runSceneScrollAfterHold_(function () {
+                    if (advanceToken !== scene1AdvanceToken) return;
+                    scene1AnimId = requestAnimationFrame(animateS1WbgtRtl);
+                });
+            } else {
+                s1Flow_ = null;
+                runSceneScrollAfterHold_(function () {
+                    if (advanceToken !== scene1AdvanceToken) return;
+                    scene1HoldTimerId = setTimeout(function () {
+                        scene1HoldTimerId = null;
+                        if (advanceToken !== scene1AdvanceToken) return;
+                        runAfterSceneEndHold_(finishScene1);
+                    }, SCENE1_CLOCK_HOLD_MS);
+                });
+            }
+        } catch (err) {
+            console.error('[Scene1] playScene1 例外。安全タイマーで進めます', err);
+            scheduleScene1SafetyAdvance_(3000);
         }
     }
     /* シーン2の次はシーン3（WBGT表示） */
     function gotoSceneAfterScene2_() {
-        if (!s4) { gotoSceneAfterScene4_(); return; }
-        transitionToScene(s4, playScene4);
+        try {
+            if (!s4) { gotoSceneAfterScene4_(); return; }
+            transitionToScene(s4, playScene4);
+        } catch (err) {
+            console.error('[Scene2] 次シーン遷移失敗、強制で WBGT へ', err);
+            if (s2) hideSceneEl(s2);
+            if (s4) {
+                playingSceneEl_ = s4;
+                s4.style.display = sceneDisplayMode(s4);
+                s4.classList.add('active');
+                applyScrollX_(s4, 0);
+                playScene4();
+            } else {
+                gotoSceneAfterScene4_();
+            }
+        }
     }
     /* シーン3（WBGT表示）の次はシーン4（4日予報） */
     function gotoSceneAfterScene4_() {
@@ -7569,331 +8649,370 @@
     }
     /* シーン4（4日予報）の次はシーン5（多言語WBGT） */
     function gotoSceneAfterScene5_() {
-        if (!s3) { gotoAfterScene3_(); return; }
-        transitionToScene(s3, playScene3);
-    }
-    function playScene2() {
-        applyDisplayRefreshAtSceneEntry_();
-        applyPendingSignageBgAtScene_();
-        compactScene2Panels();
-        buildScene2MetaTrack(lastAmedasObsTime);
-        fitScene2BodyText();
-        if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
-        stepLogo90(420, true);
-        if (isFullDemoStep_()) {
-            scheduleDemoStep_(gotoSceneAfterScene2_);
-            return;
-        }
-        const scene2ScrollTotal = trailingLogoScrollTotal_(scene2SetWidth, SCENE2_LAPS);
-        if (!scene2SetWidth || scene2SetWidth <= 0) {
-            gotoSceneAfterScene2_();
-            return;
-        }
-        snapTrackToContentStart_(conveyor, scene2SetWidth);
-        let totalScrolled = 0;
-        applyScrollX_(s2MetaTrack, 0);
-        applyScrollX_(conveyor, 0);
-        conveyor.style.transition = 'none';
-        function animateScene2() {
-            const speed = getScrollSpeedPx_();
-            advanceGlobalScroll_(speed);
-            totalScrolled += speed;
-            applyScrollX_(conveyor, wrapScrollX_(-totalScrolled, scene2SetWidth));
-            applyScrollX_(s2MetaTrack, wrapScrollX_(-totalScrolled, scene2MetaLapPx));
-            if (totalScrolled >= scene2ScrollTotal) {
-                scene2AnimId = null;
-                applyScrollX_(conveyor, wrapScrollX_(-scene2ScrollTotal, scene2SetWidth));
-                applyScrollX_(s2MetaTrack, wrapScrollX_(-scene2ScrollTotal, scene2MetaLapPx));
-                stopLogoSpinInterval();
-                if (demoOnlyLoop_('s2', playScene2)) return;
-                runAfterSceneEndHold_(gotoSceneAfterScene2_);
-                return;
+        try {
+            if (!s3) { gotoAfterScene3_(); return; }
+            transitionToScene(s3, playScene3);
+        } catch (err) {
+            console.error('[Scene5] 次シーン遷移失敗、強制で多言語へ', err);
+            if (s5) hideSceneEl(s5);
+            if (s3) {
+                playingSceneEl_ = s3;
+                hideOtherScenes_(s3);
+                s3.style.display = sceneDisplayMode(s3);
+                s3.classList.add('active');
+                applyScrollX_(s3, 0);
+                playScene3();
+            } else {
+                gotoAfterScene3_();
             }
-            scene2AnimId = requestAnimationFrame(animateScene2);
         }
-        runSceneScrollAfterHold_(function () {
-            snapTrackToContentStart_(conveyor, scene2SetWidth);
-            totalScrolled = 0;
-            applyScrollX_(conveyor, 0);
-            applyScrollX_(s2MetaTrack, 0);
-            scene2AnimId = requestAnimationFrame(animateScene2);
-        });
     }
-    function finishScene4() {
-        clearScene4Timers();
-        if (demoOnlyLoop_('s4', playScene4)) return;
-        gotoSceneAfterScene4_();
-    }
-    function playScene4() {
-        applyDisplayRefreshAtSceneEntry_();
-        clearScene4Timers();
-        if (wbgtOffSeason) {
-            if (previewOffSeasonHold_('s4', playScene4)) return;
-            finishScene4();
-            return;
-        }
-        if (!lastWbgtSlots && DEMO_SIGNAGE_ACTIVE && currentWbgtLevel >= 0) {
-            updateForecastSlots(mockSlotsForDemoLevel(currentWbgtLevel));
-        } else {
-            syncWbgtSlotsToDomIfReady_();
-        }
-        buildFcLvTrack(false);
-        compactScene4Panels();
-        applyPendingSignageBgAtScene_();
-        fitFcBarLabelFontSize_();
-        fitFcWbgtFontSize();
-        stepLogo90(420, true);
-        if (isFullDemoStep_()) {
-            scheduleDemoStep_(finishScene4);
-            return;
-        }
-        const scene4ScrollTotal = trailingLogoScrollTotal_(scene4SetWidth, SCENE4_LAPS);
-        if (!fcConveyor || !scene4SetWidth || scene4SetWidth <= 0) {
-            setTimeout(finishScene4, 500);
-            return;
-        }
-        snapTrackToContentStart_(fcConveyor, scene4SetWidth);
-        let totalScrolled = 0;
-        applyScrollX_(fcLvTrack, 0);
-        applyScrollX_(fcConveyor, 0);
-        fcConveyor.style.transition = 'none';
-        function animateScene4() {
-            const speed = getScrollSpeedPx_();
-            advanceGlobalScroll_(speed);
-            totalScrolled += speed;
-            applyScrollX_(fcConveyor, wrapScrollX_(-totalScrolled, scene4SetWidth));
-            applyScrollX_(fcLvTrack, wrapScrollX_(-totalScrolled, scene4FcLvLapPx));
-            if (totalScrolled >= scene4ScrollTotal) {
-                scene4AnimId = null;
-                applyScrollX_(fcConveyor, wrapScrollX_(-scene4ScrollTotal, scene4SetWidth));
-                applyScrollX_(fcLvTrack, wrapScrollX_(-scene4ScrollTotal, scene4FcLvLapPx));
-                stopLogoSpinInterval();
-                runAfterSceneEndHold_(finishScene4);
-                return;
-            }
-            scene4AnimId = requestAnimationFrame(animateScene4);
-        }
-        runSceneScrollAfterHold_(function () {
-            snapTrackToContentStart_(fcConveyor, scene4SetWidth);
-            totalScrolled = 0;
-            applyScrollX_(fcConveyor, 0);
-            applyScrollX_(fcLvTrack, 0);
-            scene4AnimId = requestAnimationFrame(animateScene4);
-        });
+    function finishScene5_() {
+        scene5AdvanceToken += 1;
+        if (scene5AnimId) { cancelAnimationFrame(scene5AnimId); scene5AnimId = null; }
+        clearScene5Safety_();
+        clearScenePostHoldTimer_();
+        if (demoOnlyLoop_('s5', playScene5)) return;
+        gotoSceneAfterScene5_();
     }
     function playScene5() {
-        if (!s5 || !d5Conveyor) { gotoSceneAfterScene5_(); return; }
-        if (scene5AnimId) cancelAnimationFrame(scene5AnimId);
-        applyDisplayRefreshAtSceneEntry_();
-        compactScene5Panels();
-        fitD5PanelText_();
-        applyD5TodayFrame_();
-        applyD5ForecastTextColors_();
-        applyPendingSignageBgAtScene_();
-        stepLogo90(420, true);
-        if (isFullDemoStep_()) {
-            scheduleDemoStep_(gotoSceneAfterScene5_);
-            return;
-        }
-        const scene5ScrollTotal = trailingLogoScrollTotal_(scene5SetWidth, SCENE5_LAPS);
-        if (!scene5SetWidth || scene5SetWidth <= 0) {
-            gotoSceneAfterScene5_();
-            return;
-        }
-        snapTrackToContentStart_(d5Conveyor, scene5SetWidth);
-        let totalScrolled = 0;
-        applyScrollX_(d5Conveyor, 0);
-        d5Conveyor.style.transition = 'none';
-        function animateScene5() {
-            const speed = getScrollSpeedPx_();
-            advanceGlobalScroll_(speed);
-            totalScrolled += speed;
-            applyScrollX_(d5Conveyor, wrapScrollX_(-totalScrolled, scene5SetWidth));
-            if (totalScrolled >= scene5ScrollTotal) {
-                scene5AnimId = null;
-                applyScrollX_(d5Conveyor, wrapScrollX_(-scene5ScrollTotal, scene5SetWidth));
-                stopLogoSpinInterval();
-                if (demoOnlyLoop_('s5', playScene5)) return;
-                runAfterSceneEndHold_(gotoSceneAfterScene5_);
+        const advanceToken = ++scene5AdvanceToken;
+        const startedAt = Date.now();
+        /* 最低でも約2周分は表示してから次へ（一瞬で飛ばない） */
+        const MIN_SCENE5_MS = 12000;
+        try {
+            if (!s5 || !d5Conveyor) {
+                console.warn('[Scene5] DOM欠落 → 次へ');
+                setTimeout(function () { gotoSceneAfterScene5_(); }, 800);
                 return;
             }
-            scene5AnimId = requestAnimationFrame(animateScene5);
-        }
-        runSceneScrollAfterHold_(function () {
+            if (scene5AnimId) cancelAnimationFrame(scene5AnimId);
+            /* 安全タイマーを先に武装（途中例外でも短すぎる待ちにしない） */
+            scheduleScene5SafetyAdvance_(55000);
+            try {
+                applyDisplayRefreshAtSceneEntry_();
+                compactScene5Panels();
+                fitD5PanelText_();
+                applyD5TodayFrame_();
+                applyD5ForecastTextColors_();
+                applyPendingSignageBgAtScene_();
+            } catch (prepErr) {
+                console.warn('[Scene5] 準備例外（継続）', prepErr);
+            }
+            stepLogo90(420, true);
+            if (!scene5SetWidth || scene5SetWidth <= 0) {
+                scene5SetWidth = SCENE5_PANEL_COUNT * 128;
+            }
+            /* 2周: セット幅×2 をしっかり流す（末尾ロゴ位置まで含む） */
+            const scene5ScrollTotal = Math.max(
+                trailingLogoScrollTotal_(scene5SetWidth, SCENE5_LAPS),
+                scene5SetWidth * SCENE5_LAPS
+            );
+            const speedPx = Math.max(0.35, getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX);
+            const expectMs = SCENE_SCROLL_HOLD_MS
+                + Math.ceil(scene5ScrollTotal / speedPx) * 20
+                + SCENE_END_HOLD_MS + 10000;
+            scheduleScene5SafetyAdvance_(Math.max(55000, expectMs));
+            if (isFullDemoStep_()) {
+                scheduleDemoStep_(finishScene5_);
+                return;
+            }
+            if (!Number.isFinite(scene5ScrollTotal) || scene5ScrollTotal < scene5SetWidth) {
+                console.warn('[Scene5] スクロール量異常 → 最低表示後に次へ', scene5ScrollTotal);
+                setTimeout(function () {
+                    if (advanceToken !== scene5AdvanceToken) return;
+                    finishScene5_();
+                }, MIN_SCENE5_MS);
+                return;
+            }
             snapTrackToContentStart_(d5Conveyor, scene5SetWidth);
-            totalScrolled = 0;
+            let totalScrolled = 0;
             applyScrollX_(d5Conveyor, 0);
-            fitD5PanelText_();
-            scene5AnimId = requestAnimationFrame(animateScene5);
-        });
+            d5Conveyor.style.transition = 'none';
+            function finishScene5ToNext_() {
+                if (demoOnlyLoop_('s5', playScene5)) return;
+                const remain = MIN_SCENE5_MS - (Date.now() - startedAt);
+                const go = function () {
+                    if (advanceToken !== scene5AdvanceToken
+                        && playingSceneEl_ !== s5
+                        && !(s5 && s5.classList.contains('active'))) {
+                        return;
+                    }
+                    runAfterSceneEndHold_(finishScene5_);
+                };
+                if (remain > 0) setTimeout(go, remain);
+                else go();
+            }
+            function animateScene5() {
+                if (advanceToken !== scene5AdvanceToken) return;
+                try {
+                    const speed = getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX;
+                    advanceGlobalScroll_(speed);
+                    totalScrolled += speed;
+                    applyScrollX_(d5Conveyor, wrapScrollX_(-totalScrolled, scene5SetWidth));
+                    if (totalScrolled >= scene5ScrollTotal) {
+                        scene5AnimId = null;
+                        applyScrollX_(d5Conveyor, wrapScrollX_(-scene5ScrollTotal, scene5SetWidth));
+                        stopLogoSpinInterval();
+                        finishScene5ToNext_();
+                        return;
+                    }
+                    scene5AnimId = requestAnimationFrame(animateScene5);
+                } catch (animErr) {
+                    console.error('[Scene5] animate 例外 → 次へ', animErr);
+                    scene5AnimId = null;
+                    finishScene5ToNext_();
+                }
+            }
+            runSceneScrollAfterHold_(function () {
+                if (advanceToken !== scene5AdvanceToken) return;
+                snapTrackToContentStart_(d5Conveyor, scene5SetWidth);
+                totalScrolled = 0;
+                applyScrollX_(d5Conveyor, 0);
+                try { fitD5PanelText_(); } catch (eFit) {}
+                scene5AnimId = requestAnimationFrame(animateScene5);
+            });
+        } catch (err) {
+            console.error('[Scene5] playScene5 例外', err);
+            scheduleScene5SafetyAdvance_(Math.max(MIN_SCENE5_MS + 3000, 20000));
+        }
+    }
+    function playScene2() {
+        const advanceToken = ++scene2AdvanceToken;
+        try {
+            applyDisplayRefreshAtSceneEntry_();
+            applyPendingSignageBgAtScene_();
+            compactScene2Panels();
+            buildScene2MetaTrack(lastAmedasObsTime);
+            fitScene2BodyText();
+            if (scene2AnimId) cancelAnimationFrame(scene2AnimId);
+            stepLogo90(420, true);
+            const scene2ScrollTotal = trailingLogoScrollTotal_(scene2SetWidth, SCENE2_LAPS);
+            const speedPx = Math.max(0.35, getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX);
+            scheduleScene2SafetyAdvance_(
+                SCENE_SCROLL_HOLD_MS
+                + Math.ceil((scene2ScrollTotal || 1280) / speedPx) * 20
+                + SCENE_END_HOLD_MS + 8000
+            );
+            if (isFullDemoStep_()) {
+                scheduleDemoStep_(gotoSceneAfterScene2_);
+                return;
+            }
+            if (!scene2SetWidth || scene2SetWidth <= 0 || !Number.isFinite(scene2ScrollTotal)) {
+                gotoSceneAfterScene2_();
+                return;
+            }
+            snapTrackToContentStart_(conveyor, scene2SetWidth);
+            let totalScrolled = 0;
+            applyScrollX_(s2MetaTrack, 0);
+            applyScrollX_(conveyor, 0);
+            if (conveyor) conveyor.style.transition = 'none';
+            function finishScene2ToNext_() {
+                if (demoOnlyLoop_('s2', playScene2)) return;
+                /* token が変わっていても scene2 表示中なら必ず次へ（途中キャンセルで止まらない） */
+                runAfterSceneEndHold_(function () {
+                    if (advanceToken !== scene2AdvanceToken
+                        && playingSceneEl_ !== s2
+                        && !(s2 && s2.classList.contains('active'))) {
+                        return;
+                    }
+                    gotoSceneAfterScene2_();
+                });
+            }
+            function animateScene2() {
+                if (advanceToken !== scene2AdvanceToken) return;
+                try {
+                    const speed = getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX;
+                    advanceGlobalScroll_(speed);
+                    totalScrolled += speed;
+                    applyScrollX_(conveyor, wrapScrollX_(-totalScrolled, scene2SetWidth));
+                    applyScrollX_(s2MetaTrack, wrapScrollX_(-totalScrolled, scene2MetaLapPx || scene2SetWidth));
+                    if (totalScrolled >= scene2ScrollTotal) {
+                        scene2AnimId = null;
+                        applyScrollX_(conveyor, wrapScrollX_(-scene2ScrollTotal, scene2SetWidth));
+                        applyScrollX_(s2MetaTrack, wrapScrollX_(-scene2ScrollTotal, scene2MetaLapPx || scene2SetWidth));
+                        stopLogoSpinInterval();
+                        finishScene2ToNext_();
+                        return;
+                    }
+                    scene2AnimId = requestAnimationFrame(animateScene2);
+                } catch (animErr) {
+                    console.error('[Scene2] animate 例外 → 次へ', animErr);
+                    scene2AnimId = null;
+                    finishScene2ToNext_();
+                }
+            }
+            runSceneScrollAfterHold_(function () {
+                if (advanceToken !== scene2AdvanceToken) return;
+                snapTrackToContentStart_(conveyor, scene2SetWidth);
+                totalScrolled = 0;
+                applyScrollX_(conveyor, 0);
+                applyScrollX_(s2MetaTrack, 0);
+                scene2AnimId = requestAnimationFrame(animateScene2);
+            });
+        } catch (err) {
+            console.error('[Scene2] playScene2 例外', err);
+            scheduleScene2SafetyAdvance_(3000);
+        }
+    }
+    function finishScene4() {
+        scene4AdvanceToken += 1;
+        clearScene4Timers();
+        clearScene4Safety_();
+        clearScenePostHoldTimer_();
+        if (demoOnlyLoop_('s4', playScene4)) return;
+        try {
+            gotoSceneAfterScene4_();
+        } catch (err) {
+            console.error('[Scene4] 次シーン遷移失敗、強制で 4日予報へ', err);
+            if (s4) hideSceneEl(s4);
+            if (s5) {
+                playingSceneEl_ = s5;
+                hideOtherScenes_(s5);
+                s5.style.display = sceneDisplayMode(s5);
+                s5.classList.add('active');
+                applyScrollX_(s5, 0);
+                playScene5();
+            } else {
+                gotoSceneAfterScene5_();
+            }
+        }
+    }
+    function playScene4() {
+        const advanceToken = ++scene4AdvanceToken;
+        try {
+            applyDisplayRefreshAtSceneEntry_();
+            clearScene4Timers();
+            if (wbgtOffSeason) {
+                scheduleScene4SafetyAdvance_(8000);
+                if (previewOffSeasonHold_('s4', playScene4)) return;
+                setTimeout(function () {
+                    if (advanceToken !== scene4AdvanceToken) return;
+                    finishScene4();
+                }, 0);
+                return;
+            }
+            if (!lastWbgtSlots && DEMO_SIGNAGE_ACTIVE && currentWbgtLevel >= 0) {
+                updateForecastSlots(mockSlotsForDemoLevel(currentWbgtLevel));
+            } else {
+                syncWbgtSlotsToDomIfReady_();
+            }
+            buildFcLvTrack(false);
+            compactScene4Panels();
+            applyPendingSignageBgAtScene_();
+            fitFcBarLabelFontSize_();
+            fitFcWbgtFontSize();
+            stepLogo90(420, true);
+            const scene4ScrollTotal = trailingLogoScrollTotal_(scene4SetWidth, SCENE4_LAPS);
+            const speedPx = Math.max(0.35, getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX);
+            scheduleScene4SafetyAdvance_(
+                SCENE_SCROLL_HOLD_MS
+                + Math.ceil((scene4ScrollTotal || 768) / speedPx) * 20
+                + SCENE_END_HOLD_MS + 8000
+            );
+            if (isFullDemoStep_()) {
+                scheduleDemoStep_(finishScene4);
+                return;
+            }
+            if (!fcConveyor || !scene4SetWidth || scene4SetWidth <= 0 || !Number.isFinite(scene4ScrollTotal)) {
+                setTimeout(function () {
+                    if (advanceToken !== scene4AdvanceToken) return;
+                    finishScene4();
+                }, 500);
+                return;
+            }
+            snapTrackToContentStart_(fcConveyor, scene4SetWidth);
+            let totalScrolled = 0;
+            applyScrollX_(fcLvTrack, 0);
+            applyScrollX_(fcConveyor, 0);
+            fcConveyor.style.transition = 'none';
+            function finishScene4ToNext_() {
+                if (demoOnlyLoop_('s4', playScene4)) return;
+                runAfterSceneEndHold_(function () {
+                    if (advanceToken !== scene4AdvanceToken
+                        && playingSceneEl_ !== s4
+                        && !(s4 && s4.classList.contains('active'))) {
+                        return;
+                    }
+                    finishScene4();
+                });
+            }
+            function animateScene4() {
+                if (advanceToken !== scene4AdvanceToken) return;
+                try {
+                    const speed = getScrollSpeedPx_() || GLOBAL_SCROLL_SPEED_PX;
+                    advanceGlobalScroll_(speed);
+                    totalScrolled += speed;
+                    applyScrollX_(fcConveyor, wrapScrollX_(-totalScrolled, scene4SetWidth));
+                    applyScrollX_(fcLvTrack, wrapScrollX_(-totalScrolled, scene4FcLvLapPx));
+                    if (totalScrolled >= scene4ScrollTotal) {
+                        scene4AnimId = null;
+                        applyScrollX_(fcConveyor, wrapScrollX_(-scene4ScrollTotal, scene4SetWidth));
+                        applyScrollX_(fcLvTrack, wrapScrollX_(-scene4ScrollTotal, scene4FcLvLapPx));
+                        stopLogoSpinInterval();
+                        finishScene4ToNext_();
+                        return;
+                    }
+                    scene4AnimId = requestAnimationFrame(animateScene4);
+                } catch (animErr) {
+                    console.error('[Scene4] animate 例外 → 次へ', animErr);
+                    scene4AnimId = null;
+                    finishScene4ToNext_();
+                }
+            }
+            runSceneScrollAfterHold_(function () {
+                if (advanceToken !== scene4AdvanceToken) return;
+                snapTrackToContentStart_(fcConveyor, scene4SetWidth);
+                totalScrolled = 0;
+                applyScrollX_(fcConveyor, 0);
+                applyScrollX_(fcLvTrack, 0);
+                scene4AnimId = requestAnimationFrame(animateScene4);
+            });
+        } catch (err) {
+            console.error('[Scene4] playScene4 例外', err);
+            scheduleScene4SafetyAdvance_(3000);
+        }
     }
     function mockSlotsForDemoLevel(levelIdx) {
-        const w = DEMO_WBGT_BY_LEVEL[levelIdx];
-        return [
-            { wbgt: w, levelIdx, hour: '現在' },
-            { wbgt: w + 0.5, levelIdx, hour: '21時' },
-            { wbgt: w, levelIdx, hour: '0時' },
-            { wbgt: w - 0.5, levelIdx, hour: '3時' }
-        ];
+        return null;
     }
     function applyDemoWeatherStatic() {
-        applyRainPreviewFromParam_();
-        document.querySelectorAll('.weather-icon-use').forEach(el => el.setAttribute('href', '#icon-sunny'));
-        document.querySelectorAll('.d5-weather-use').forEach(el => el.setAttribute('href', '#icon-sunny'));
-        setTextAll('.temp-val', '30');
-        setTextAll('.humi-val', '65');
-        setTextAll('.rain-val', '0.0');
-        setTextAll('.dir-val', '南');
-        setTextAll('.wind-val', '2.5');
-        setTextAll('.pres-val', '1013');
-        setTextAll('.tmaxmax-val', '32');
-        setTextAll('.tmin-val', '24');
-        setTextAll('.gust-val', '6.0');
-        buildScene2MetaTrack(getSyncedUtcMs() != null ? new Date(getSyncedUtcMs()) : new Date());
-        fitScene2BodyText();
-        document.querySelectorAll('.d5-temp').forEach(el => { el.innerText = '32'; });
-        applyD5BarLabels_();
-        applyD5TodayFrame_();
-        applyD5ForecastTextColors_();
-        fitD5PanelText_();
-        compactScene5Panels();
-        compactScene4Panels();
-        compactScene2Panels();
+        /* 本番: 静的デモ気象は使わない */
     }
     function applyReviewEnv_() {
-        applyRainPreviewFromParam_();
-        if (DEMO_WBGT_OFF) {
-            applyWbgtOffSeason_();
-            buildS1WbgtTrack(false);
-            buildTicker();
-            buildFcLvTrack(false);
-            refreshSignageBg();
-            return;
-        }
-        if (DEMO_WBGT_UNKNOWN) {
-            applyWbgtInSeason_();
-            wbgtUnavailable = true;
-            wbgtOffSeason = false;
-            currentWbgtLevel = -1;
-            syncWbgtDependentAlerts_();
-            const nullSlots = [{ wbgt: null, hour: '取得不可' }];
-            lastWbgtSlots = nullSlots;
-            updateForecastSlots(nullSlots);
-            refreshSignageBg();
-            buildTicker();
-            buildS1WbgtTrack(false);
-            buildFcLvTrack(false);
-            return;
-        }
-        wbgtOffSeason = false;
-        wbgtUnavailable = false;
-        applyDemoLevel(DEMO_LEVEL_FIXED != null ? DEMO_LEVEL_FIXED : 1);
+        /* 本番: レビュー用モックは使わない */
     }
     function applyDemoLevel(levelIdx) {
-        wbgtOffSeason = false;
-        wbgtUnavailable = false;
-        currentWbgtLevel = levelIdx;
-        const slots = mockSlotsForDemoLevel(levelIdx);
-        refreshSignageBg();
-        updateForecastSlots(slots);
-        buildTicker();
-        buildS1WbgtTrack();
-        buildFcLvTrack();
-        refreshSignageBg();
-        const badge = document.getElementById('demo-badge');
-        if (badge) {
-            if (shouldShowDemoBadge_()) {
-                badge.hidden = false;
-                badge.textContent = DEMO_SIGNAGE
-                    ? 'デモ · 本番同様 · ' + levelNames[levelIdx]
-                    : 'デモ: ' + levelNames[levelIdx];
-            } else {
-                badge.hidden = true;
-            }
-        }
-        if (DEMO_SIGNAGE) {
-            document.title = 'WBGTサイネージ フルデモ - ' + levelNames[levelIdx];
-        } else if (document.title.indexOf('デモ') < 0) {
-            document.title = 'WBGT Signage デモ - ' + levelNames[levelIdx];
-        }
+        /* 本番: デモレベル適用なし */
     }
     function advanceDemoLevel() {
-        demoLevelPointer = (demoLevelPointer + 1) % DEMO_LEVEL_ORDER.length;
-        applyDemoLevel(DEMO_LEVEL_ORDER[demoLevelPointer]);
-        startSequence();
+        goToClockScene_();
     }
     function demoOnlyLoop_(key, replayFn) {
-        if (DEMO_ONLY !== key) return false;
-        stopLogoSpinInterval();
-        replayFn();
-        return true;
-    }
-    function showOnlyScene_(el, playFn) {
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
-        if (!el) return;
-        el.style.display = sceneDisplayMode(el);
-        el.classList.add('active');
-        el.style.transform = 'translateX(0px)';
-        el.style.zIndex = '';
-        playFn();
+        return false;
     }
     function startSingleSceneDemo_() {
-        applyReviewEnv_();
-        const badge = document.getElementById('demo-badge');
-        const onlyLabels = SCENE_LABEL_BY_KEY;
-        if (badge && shouldShowDemoBadge_()) {
-            badge.hidden = false;
-            badge.textContent = '確認 · ' + (onlyLabels[DEMO_ONLY] || DEMO_ONLY);
-        } else if (badge) {
-            badge.hidden = true;
-        }
-        resetLogoRotation();
-        function launchOnlyScene_() {
-            switch (DEMO_ONLY) {
-                case 's1': showOnlyScene_(s1, playScene1); break;
-                case 's2': showOnlyScene_(s2, playScene2); break;
-                case 's3': showOnlyScene_(s3, playScene3); break;
-                case 's4': showOnlyScene_(s4, playScene4); break;
-                case 's5': showOnlyScene_(s5, playScene5); break;
-                default: break;
-            }
-        }
-        launchOnlyScene_();
+        beginMainLoopCycle_();
     }
     function startPreviewDemo_(sceneKey) {
-        applyDemoLevel(DEMO_LEVEL_ORDER[1]);  /* 注意（黄）で見やすく */
-        refreshSignageBg();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
-        const badge = document.getElementById('demo-badge');
-        const rainTag = rainPreviewLabel_();
-        if (sceneKey === 's1') {
-            buildS1WbgtTrack(false);
-            const s1WbgtBar = document.querySelector('#scene1 .s1-wbgt-bar');
-            if (s1WbgtBar) s1WbgtBar.style.display = 'block';
-            if (s1) { s1.style.display = 'flex'; s1.classList.add('active'); }
-            if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = 'プレビュー · シーン1 · ' + rainTag; }
-            document.title = 'プレビュー シーン1（' + rainTag + '）';
-            return;
-        }
-        if (sceneKey === 's3') {
-            buildTicker();
-            const tracks = document.querySelectorAll('#scene3 .t3-track');
-            prepT3_(0);
-            applyT3TrackX_(tracks, 0);
-            if (s3) { s3.style.display = 'flex'; s3.classList.add('active'); }
-            if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = 'プレビュー · ' + SCENE_LABEL_BY_KEY.s3 + ' · ' + rainTag; }
-            document.title = 'プレビュー ' + SCENE_LABEL_BY_KEY.s3 + '（' + rainTag + '）';
-        }
+        beginMainLoopCycle_();
     }
 
     function startSequence() {
-        clearDemoStepTimer_();
-        resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
-        transitionToScene(s1, playScene1);
+        beginMainLoopCycle_();
     }
 
     window.onload = async function() {
+        try { console.info('[Signage] build 20260914-prod'); } catch (eLog) {}
+        /* データ取得より先に時計を必ず動かす（途中エラーでも止まらない） */
+        try {
+            applySyncedUtcMs(Date.now(), 'boot-local');
+            updateClock();
+            startClockTicker();
+            startNetworkClockSync_();
+        } catch (eBootClk) {
+            console.warn('Clock boot:', eBootClk);
+        }
         bootDisplayHold_ = true;
         restoreSignageStateCache_();
         if (typeof SignageBg !== 'undefined') SignageBg.initHosts();
@@ -7905,52 +9024,7 @@
             if (logoEl.getAttribute('src') !== logoCfg.logoSrc) logoEl.src = logoCfg.logoSrc;
             logoEl.alt = logoCfg.logoAlt || '';
         }
-        if (DEMO_ALERT_ONLY && !NO_HEAT_ALERT) {
-            bootDisplayHold_ = false;
-            setTimeout(startAlertOnlyDemo_, 300);
-            return;
-        }
-        if (DEMO_RAINWARN_ONLY) {
-            bootDisplayHold_ = false;
-            setTimeout(startRainWarnOnlyDemo_, 300);
-            return;
-        }
-        if (DEMO_SIGNAGE_ACTIVE) {
-            bootDisplayHold_ = false;
-            applySyncedUtcMs(Date.now(), 'boot-local');
-            updateClock();
-            startClockTicker();
-            startNetworkClockSync_();
-            applyDemoWeatherStatic();
-            document.addEventListener('visibilitychange', function () {
-                if (document.visibilityState === 'visible') {
-                    syncTimeFromNetwork().then(function () {
-                        updateClock();
-                        startClockTicker();
-                    }).catch(function () {
-                        if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'local-fallback');
-                        updateClock();
-                        startClockTicker();
-                    });
-                }
-            });
-            if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') {
-                startPreviewDemo_(DEMO_PREVIEW);
-                return;
-            }
-            if (DEMO_ONLY && DEMO_ONLY !== 'alert' && DEMO_ONLY !== 'rainwarn') {
-                setTimeout(startSingleSceneDemo_, 200);
-                return;
-            }
-            applyDemoLevel(DEMO_LEVEL_FIXED != null ? DEMO_LEVEL_FIXED : DEMO_LEVEL_ORDER[0]);
-            setTimeout(startSequence, 500);
-            return;
-        }
-        /* 時計はデータ取得より先に開始（取得完了待ちでずれない／止まらない） */
-        applySyncedUtcMs(Date.now(), 'boot-local');
-        updateClock();
-        startClockTicker();
-        startNetworkClockSync_();
+        /* 時計は起動時に開始済み。ここではデータ取得とシーン開始のみ */
         try {
             await Promise.race([
                 runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['起動'] }),
@@ -7960,26 +9034,37 @@
                 s1.style.display = sceneDisplayMode(s1);
                 s1.classList.add('active');
             }
-            flushInitialDisplay_();
-            mainLoopStarted_ = true;
-            scheduleDataRefresh();
-            playScene1();
+            try { flushInitialDisplay_(); } catch (eFlush) { console.warn('flushInitialDisplay_', eFlush); }
         } catch (err) {
             console.error('Init:', err);
-            bootDisplayHold_ = false;
             if (timeSync.baseUtcMs == null) applySyncedUtcMs(Date.now(), 'local-fallback');
             updateClock();
-            refreshSignageBgIfChanged_(true);
+            try { refreshSignageBgIfChanged_(true); } catch (eBg) {}
             if (s1) {
                 s1.style.display = sceneDisplayMode(s1);
                 s1.classList.add('active');
             }
             startClockTicker();
-            mainLoopStarted_ = true;
-            scheduleDataRefresh();
-            playScene1();
         } finally {
             bootDisplayHold_ = false;
+            mainLoopStarted_ = true;
+            try { scheduleDataRefresh(); } catch (eSch) { console.warn(eSch); }
+            try {
+                /* 起動時も警報があれば時刻より先に流す */
+                beginMainLoopCycle_();
+            } catch (ePlay) {
+                console.error('beginMainLoopCycle_ boot', ePlay);
+                playingSceneEl_ = s1;
+                if (s1) {
+                    s1.style.display = sceneDisplayMode(s1);
+                    s1.classList.add('active');
+                }
+                setTimeout(function () { try { playScene1(); } catch (e2) {} }, 500);
+            }
+            /* 保険: 起動直後にループが止まっていたら時刻再生を強制開始 */
+            setTimeout(function () { try { ensureScene1Alive_(); } catch (e1) {} }, 2000);
+            setTimeout(function () { try { ensureScene1Alive_(); } catch (e2) {} }, 8000);
+            startSceneLoopWatchdog_();
         }
         document.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'visible') {
