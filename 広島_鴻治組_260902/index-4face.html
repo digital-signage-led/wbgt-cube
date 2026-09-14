@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <!-- wbgt-cube-hiroshima-koujigumi-kumano-4face / 鴻治組 WBGT サイネージ（本番 4面 512×128・各コンテンツ末尾 鴻治組1面） -->
-<!-- 白帯: 鴻治組ロゴ | WBGT文言 | 令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事 -->
-<!-- 同階層: assets/green_cross.png・kohji_logo.png（128面）・kohji_foot.png（下帯横ロゴ） -->
-<!-- 会場: 〒731-4229 広島県安芸郡熊野町平谷2丁目19-7（現場事務所） -->
-<!-- WBGT・AMeDAS 67511（呉・気象庁/環境省）／警報 安芸郡熊野町 3430700 -->
+<!-- 白帯: 鴻治組ロゴ | WBGT文言 | 令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事 -->
+<!-- 同階層: assets/kohji_logo.png（128面）・kohji_foot.png（下帯横ロゴ） -->
+<!-- 会場: 〒731-4229 広島県安芸郡熊野町平谷2丁目19-7（現場事務所）／画面表示は安芸区 -->
+<!-- WBGT・AMeDAS／警報の地点は assets/site-config.js（雛形: site-config.template.js） -->
+<!-- 安芸区表示: 呉 67511 / 警報 3410300（発表中はループに表示） -->
 <html lang="ja" class="native-640 layout-512">
 <head>
     <meta charset="UTF-8">
@@ -14,12 +15,18 @@
     <title>WBGT Signage 4面 - 鴻治組 安芸南部山系深山の滝川上流支川砂防堰堤他工事</title>
     <link rel="preload" as="image" href="./assets/kohji_logo.png?v=3">
     <link rel="preload" as="image" href="./assets/kohji_foot.png?v=3">
-    <link rel="preload" as="image" href="./assets/green_cross.png?v=2">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=optional">
     <script>
 /** 4面 512×128 本番用（layout512 + native640）。localhost は PC 確認用に拡大表示 */
 (function () {
     var q = new URLSearchParams(location.search);
+    /* #demo=rainwarn 等を query に取り込み（サーバーが ? を落とす場合の保険） */
+    var hashQ = (location.hash || '').replace(/^#/, '');
+    if (hashQ) {
+        new URLSearchParams(hashQ).forEach(function (v, k) {
+            if (!q.has(k)) q.set(k, v);
+        });
+    }
     var localDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     if (!q.has('layout512')) q.set('layout512', '1');
     var forceNative = localDev
@@ -29,7 +36,7 @@
         if (!q.has('native640')) q.set('native640', '1');
         var qs = q.toString();
         if (qs && location.search !== '?' + qs) {
-            history.replaceState(null, '', location.pathname + '?' + qs);
+            history.replaceState(null, '', location.pathname + '?' + qs + (location.hash || ''));
         }
         document.documentElement.classList.add('native-640', 'layout-512');
         document.documentElement.classList.remove('browser-preview');
@@ -37,7 +44,9 @@
         if (q.get('native640') === '1') {
             q.delete('native640');
             var qsOff = q.toString();
-            history.replaceState(null, '', location.pathname + (qsOff ? '?' + qsOff : ''));
+            history.replaceState(null, '', location.pathname + (qsOff ? '?' + qsOff : '') + (location.hash || ''));
+        } else if (hashQ && location.search !== '?' + q.toString()) {
+            history.replaceState(null, '', location.pathname + '?' + q.toString() + (location.hash || ''));
         }
         document.documentElement.classList.add('browser-preview', 'layout-512');
         document.documentElement.classList.remove('native-640');
@@ -161,7 +170,6 @@
         #scene3.active { display: flex; flex-direction: column; }
         #scene4.active { display: block; }
         #scene5.active { display: block; }
-        #scene6.active { display: flex; }
 
         /* --- 列背景（signage-bg.js）512×128 / 4列×128 --- */
         .col-bg-host { position: relative; overflow: hidden; }
@@ -873,50 +881,6 @@
             border-color: #ffffff;
         }
         #scene5 { overflow: hidden; }
-
-        /* シーン6: JVロゴ4枚をトラックで左へスライド切替。2周で次へ。列間の黒線は1px重ねで消す */
-        #scene6 {
-            overflow: hidden; position: relative;
-            width: 512px; height: 128px;
-            flex-direction: row; align-items: stretch; justify-content: flex-start;
-            background: #ffffff; gap: 0; padding: 0; margin: 0;
-            border: none; outline: none;
-        }
-        #scene6::before {
-            content: "";
-            position: absolute; left: 0; top: 0; width: 512px; height: 128px;
-            background: #ffffff; z-index: 0; pointer-events: none;
-        }
-        #scene6 .s6-track {
-            display: flex; flex-direction: row; align-items: stretch;
-            height: 128px; flex-shrink: 0; gap: 0; padding: 0; margin: 0;
-            will-change: transform; backface-visibility: hidden;
-            position: relative; z-index: 1;
-        }
-        #scene6 .s6-face {
-            width: 129px; min-width: 129px; max-width: 129px;
-            height: 128px; min-height: 128px; max-height: 128px;
-            flex: 0 0 129px;
-            margin: 0 -1px 0 0;
-            display: flex; align-items: center; justify-content: center;
-            background: #ffffff; overflow: hidden; box-sizing: border-box;
-            padding: 0;
-            border: none; outline: none; box-shadow: none;
-            position: relative; z-index: 1;
-        }
-        #scene6 .s6-face-img {
-            display: block; width: 128px; height: 128px;
-            max-width: 128px; max-height: 128px;
-            object-fit: cover; object-position: center center;
-            background: transparent; flex-shrink: 0;
-            border: none; outline: none;
-            transition: none;
-        }
-        #scene6 .s6-face-mark .s6-face-img {
-            width: 100%; height: 100%;
-            max-width: none; max-height: none;
-            object-fit: cover;
-        }
 
         #scene3 { overflow: hidden; position: relative; }
         /* 512×128: 上バー32 + 本体72 + 白下帯24（現在WBGT指針・シーン4） */
@@ -1804,86 +1768,8 @@
     </style>
 </head>
 <body class="native-640 layout-512">
-<script>
-/**
- * 現場ごとの設定（GAS は 1 本共通・地点は moe.point で切替）
- *
- * site.locationLabel … 画面の現地表示（市区町村名など）
- * moe.point … 環境省 WBGT 5桁地点コード（必須）
- * moe.pointName … GAS/CSV 用の観測地点名（画面表示には locationLabel）
- * moe.alertArea … 熱中症アラート用の府県名（本番で alert 利用時）
- *
- * jma.amedasPoint … 気象庁 AMeDAS 主地点（会場最寄り）
- * jma.amedasSupplementPoint … 主地点に無い項目（気圧など）の近傍補完地点
- * jma.forecastArea … 気象庁予報区域（4面・5面共通）
- */
-(function (global) {
-  'use strict';
-
-  var cfg = {
-    site: {
-      customer: '株式会社鴻治組',
-      rental: '',
-      /* 時刻下白帯＝工事名 */
-      label: '令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事',
-      address: '広島県安芸郡熊野町平谷2丁目19-7',
-      /* 画面表示は現場の熊野町。観測値は最寄り呉（67511） */
-      locationLabel: '熊野町'
-    },
-    moe: {
-      /* 環境省 WBGT（熊野町最寄り・呉 67511） */
-      gasUrl:
-        'https://script.google.com/macros/s/AKfycbzSTsappgfJTaJruOBJsbnCXSTPkeTBp39CXpvoSZsPQ0mWGs4KjSonC8_eZ2b1EeUXTQ/exec',
-      point: '67511',
-      /* 表示と実データを一致させるため、欠測時フォールバックは使わない */
-      fallbackPoint: '',
-      pointName: '呉',
-      alertArea: '広島県',
-      region: '08',
-      prefecture: '67'
-    },
-    jma: {
-      /* 気象庁 AMeDAS 67511（呉・WBGT と同一地点） */
-      amedasPoint: '67511',
-      /* 呉で欠ける項目は広島地方気象台で補完 */
-      amedasSupplementPoint: '67437',
-      forecastArea: '340000',
-      forecastLabel: '熊野町',
-      warnArea: '340000',
-      warnCity: '3430700'
-    },
-    geo: { lat: 34.33836, lon: 132.55955 },
-    timeZone: 'Asia/Tokyo',
-    refreshMs: 60000,
-    footSource: '出典：気象庁・環境省データ'
-  };
-
-  global.SignageConfig = cfg;
-
-  global.SIGNAGE_CONFIG = {
-    logoSrc: './assets/kohji_logo.png?v=3',
-    logoAlt: '鴻治組',
-    logoPanelBg: '#ffffff',
-    logoCorpSrc: '',
-    footLogoSrc: '',
-    /* 時刻下白帯：公式横ロゴ（株式会社鴻治組）＋工事名 */
-    footBannerSrc: './assets/kohji_foot.png?v=3',
-    footLogos: [],
-    /* 気象・暑さ指数・4日予報の末尾: 鴻治組 1面 */
-    trailingLogos: [
-      { src: './assets/kohji_logo.png?v=3', alt: '鴻治組' }
-    ],
-    /* シーン6: 緑十字 + 鴻治組を4面に交互 */
-    jvLogos: [
-      { src: './assets/green_cross.png?v=2', alt: '緑十字' },
-      { src: './assets/kohji_logo.png?v=3', alt: '鴻治組' },
-      { src: './assets/green_cross.png?v=2', alt: '緑十字' },
-      { src: './assets/kohji_logo.png?v=3', alt: '鴻治組' }
-    ]
-  };
-})(typeof window !== 'undefined' ? window : global);
-
-</script>
+<!-- 位置情報だけ差し替え: assets/site-config.js（雛形は site-config.template.js） -->
+<script src="./assets/site-config.js?v=20260914-aki"></script>
 <div class="demo-badge" id="demo-badge" hidden>デモ</div>
 <svg style="display: none;">
     <symbol id="icon-sunny" viewBox="0 0 120 120"><circle cx="60" cy="60" r="24" fill="#ff4d00"/><g stroke="#ff4d00" stroke-width="8" stroke-linecap="round"><line x1="60" y1="15" x2="60" y2="30"/><line x1="60" y1="90" x2="60" y2="105"/><line x1="15" y1="60" x2="30" y2="60"/><line x1="90" y1="60" x2="105" y2="60"/><line x1="28" y1="28" x2="39" y2="39"/><line x1="81" y1="81" x2="92" y2="92"/><line x1="28" y1="92" x2="39" y2="81"/><line x1="81" y1="39" x2="92" y2="28"/></g></symbol>
@@ -1917,7 +1803,7 @@
         <div class="ra-pair ra-advisory" id="ra-pair">
             <div class="ra-mid-band-wrap" aria-hidden="true"><div class="ra-mid-band-unit"></div><div class="ra-mid-band-unit"></div></div>
             <div class="ra-white-header" aria-hidden="true">
-                <span class="ra-white-area">熊野町の地域で発表されています</span>
+                <span class="ra-white-area">安芸区の地域で発表されています</span>
                 <span class="ra-white-time">発表 --/-- --:--</span>
                 <span class="ra-white-what">警報・注意報など</span>
             </div>
@@ -1994,7 +1880,7 @@
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
             <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
         </div>
-        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/kohji_foot.png?v=3" alt="鴻治組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/kohji_foot.png?v=3" alt="鴻治組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事</span></div></div></div></div>
+        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/kohji_foot.png?v=3" alt="鴻治組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/kohji_foot.png?v=3" alt="鴻治組" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-msg-slot"></div><div class="s1-wbgt-slot s1-wbgt-site-slot s1-wbgt-slot-wide"><span class="s1-foot-co-txt">令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事</span></div></div></div></div>
     </div>
 
     <div class="scene" id="scene2">
@@ -2045,15 +1931,15 @@
 
     <div class="scene forecast-scene daily-scene" id="scene5">
         <div class="d5-track" id="d5-conveyor">
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">熊野町</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">熊野町</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">熊野町</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">熊野町</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">安芸区</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">安芸区</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">安芸区</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">安芸区</div></div></div>
             <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/kohji_logo.png?v=3" alt="鴻治組" decoding="sync"></div>
-            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">熊野町</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
-            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">熊野町</div></div></div>
-            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">熊野町</div></div></div>
-            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">熊野町</div></div></div>
+            <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">安芸区</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
+            <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">安芸区</div></div></div>
+            <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">安芸区</div></div></div>
+            <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">安芸区</div></div></div>
             <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/kohji_logo.png?v=3" alt="鴻治組" decoding="sync"></div>
         </div>
     </div>
@@ -2091,15 +1977,6 @@
                 </div>
             </div>
             <div class="t3-guid-bar s2-meta-bar"><div class="t3-guid-track s2-meta-track" id="t3-guid-track"></div></div>
-        </div>
-    </div>
-
-    <div class="scene" id="scene6" aria-label="鴻治組ロゴ">
-        <div class="s6-track" id="s6-track">
-            <div class="s6-face s6-face-mark"><img class="s6-face-img" src="./assets/green_cross.png?v=2" alt="緑十字" decoding="sync"></div>
-            <div class="s6-face"><img class="s6-face-img" src="./assets/kohji_logo.png?v=3" alt="鴻治組" decoding="sync"></div>
-            <div class="s6-face s6-face-mark"><img class="s6-face-img" src="./assets/green_cross.png?v=2" alt="緑十字" decoding="sync"></div>
-            <div class="s6-face"><img class="s6-face-img" src="./assets/kohji_logo.png?v=3" alt="鴻治組" decoding="sync"></div>
         </div>
     </div>
     </div>
@@ -2422,19 +2299,26 @@
 
 </script>
 <script>
+    /* クエリ優先。#demo=rainwarn&rainwarn=all も可（clean URL リダイレクトで ? が落ちる対策） */
     const query = new URLSearchParams(window.location.search);
+    const hashQ = (window.location.hash || '').replace(/^#/, '');
+    if (hashQ) {
+        new URLSearchParams(hashQ).forEach(function (v, k) {
+            if (!query.has(k)) query.set(k, v);
+        });
+    }
     /* demo=1: デモモード（demo.html からの転送先）。未指定時は本番（実データ取得） */
     const demoParam = query.get('demo');
     const DEMO_SIGNAGE = demoParam === '1' || demoParam === 'all' || demoParam === 'full';
     const DEMO_ALERT_ONLY = demoParam === 'alert' || query.get('only') === 'alert';  /* アラートのみ流すデモ */
     const DEMO_RAINWARN_ONLY = demoParam === 'rainwarn' || query.get('only') === 'rainwarn';
     const WBGT_ONLY = query.get('wbgtOnly') === '1';
-    /** 大雨警報シーンは出さない */
+    /** 本番: 気象庁の発表中警報を表示。デモは ?demo=rainwarn&rainwarn=all */
     const SITE_CFG = window.SignageConfig || {};
     /** 表示時刻は常に日本標準時（JST） */
     /** 表示・取得スケジュールは常に日本標準時 */
     const CLOCK_TZ = 'Asia/Tokyo';
-    const NO_JMA_WARN = true;
+    const NO_JMA_WARN = false;
     /** 熱中症アラートシーンは出さない（環境省発表時も非表示） */
     const NO_HEAT_ALERT = true;
     const RAIN_HERO_OFF = query.get('rainhero') === '0';
@@ -2444,7 +2328,7 @@
     /*
      * 流れる順の表示番号（順序は変えずラベルのみ）
      *  1 時刻＋WBGT下帯 (s1) → 2 気象観測 (s2) → 3 WBGT表示 (s4)
-     *  → 4 4日予報 (s5) → 5 多言語WBGT (s3) → シーン1へ
+     *  → 4 4日予報 (s5) → 5 多言語WBGT (s3) → （発表中なら）警報 → シーン1へ
      * ?only= は 1〜5 または s1〜s5（旧キー）両対応
      */
     function normalizeOnlyParam_(raw) {
@@ -2452,11 +2336,11 @@
         const v = String(raw).toLowerCase();
         if (v === 'alert') return 'alert';
         if (v === 'rainwarn') return 'rainwarn';
-        const map = { '1': 's1', '2': 's2', '3': 's4', '4': 's5', '5': 's3', '6': 's6', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5', s6: 's6' };
+        const map = { '1': 's1', '2': 's2', '3': 's4', '4': 's5', '5': 's3', s1: 's1', s2: 's2', s3: 's3', s4: 's4', s5: 's5' };
         return map[v] || null;
     }
     const SCENE_LABEL_BY_KEY = {
-        s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', s6: 'JVロゴ', alert: '熱中症アラート', rainwarn: '大雨警報'
+        s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', alert: '熱中症アラート', rainwarn: '大雨警報'
     };
     const DEMO_ONLY = normalizeOnlyParam_(query.get('only'));
     const DEMO_EMBED = query.get('embed') === '1';  /* 確認ボード iframe 用（バッジ非表示） */
@@ -2604,7 +2488,7 @@
     function getSiteLocationLabel_() {
         return (SITE_CFG.site && SITE_CFG.site.locationLabel)
             || (SITE_CFG.jma && SITE_CFG.jma.forecastLabel)
-            || '熊野町';
+            || '安芸区';
     }
     function applySiteLocationLabels_() {
         const label = getSiteLocationLabel_();
@@ -3107,7 +2991,6 @@
     const fcConveyor = document.getElementById('fc-conveyor');
     const fcLvTrack = document.getElementById('fc-lv-track');
     const s5 = document.getElementById('scene5');
-    const s6 = document.getElementById('scene6');
     const sceneAlert = document.getElementById('sceneAlert');
     const sceneRainWarn = document.getElementById('sceneRainWarn');
     const d5Conveyor = document.getElementById('d5-conveyor');
@@ -3340,9 +3223,13 @@
             || (RAIN_WARN_LEVELS[levelKey] && RAIN_WARN_LEVELS[levelKey].name)
             || '';
     }
-    /** ?rainwarn=all — L1/L2/L4/L5は段階名のみ。L3警報は種別名（大雨・洪水・高潮等）を順送り */
+    /** ?rainwarn=all — L1/L2/L4/L5は段階名のみ。L3警報は種別名（大雨・洪水・高潮等）を順送り
+     *  ?demo=rainwarn（段階未指定）も確認用に all 扱い */
     function isRainWarnAllLevels_() {
-        return (query.get('rainwarn') || '').toLowerCase() === 'all';
+        const v = (query.get('rainwarn') || '').toLowerCase();
+        if (v === 'all') return true;
+        if (DEMO_RAINWARN_ONLY && !v) return true;
+        return false;
     }
     function isRainWarnGenericOnly_(levelKey) {
         if (isDemoFullRainLoop_() && demoRainPassKind_() === 'hero') return levelKey !== 'warning';
@@ -3356,10 +3243,12 @@
         };
     }
     const JMA_WARN_AREA = query.get('warnArea') || (SITE_CFG.jma && SITE_CFG.jma.warnArea) || '340000';   /* 広島県 */
-    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '3430700';  /* 安芸郡熊野町 */
+    const JMA_WARN_CITY = query.get('warnCity') || (SITE_CFG.jma && SITE_CFG.jma.warnCity) || '3410300';  /* 広島市安芸区 */
     const JMA_WARN_CITY_LABELS = { '3430700': '熊野町', '3410300': '安芸区', '3410000': '広島市', '340000': '広島県' };
     let rainWarnMeta = {
-        cityName: JMA_WARN_CITY_LABELS[JMA_WARN_CITY] || getSiteLocationLabel_(),
+        cityName: (SITE_CFG.jma && SITE_CFG.jma.warnCityLabel)
+            || JMA_WARN_CITY_LABELS[JMA_WARN_CITY]
+            || getSiteLocationLabel_(),
         updatedAt: ''
     };
     const RAIN_WHITE_LEVEL_CHIP = {
@@ -3806,6 +3695,7 @@
         const cityFromJma = warnJson ? jmaAreaNameFromWarnJson_(warnJson, JMA_WARN_CITY) : '';
         rainWarnMeta.cityName = cityFromJma
             || (payload && payload.cityName)
+            || (SITE_CFG.jma && SITE_CFG.jma.warnCityLabel)
             || JMA_WARN_CITY_LABELS[JMA_WARN_CITY]
             || getSiteLocationLabel_();
         rainWarnMeta.updatedAt = (payload && payload.updatedAt)
@@ -3893,6 +3783,8 @@
         if (v === 'danger' || v === '4') return ['danger'];
         if (v === 'special' || v === '5') return ['special'];
         if (v === 'all') return RAIN_WARN_ORDER.slice();
+        /* 警報確認デモ（?demo=rainwarn / ?only=rainwarn）は段階未指定でも全段階を見せる */
+        if (DEMO_RAINWARN_ONLY) return RAIN_WARN_ORDER.slice();
         return [];
     }
     let rainWarnActive = NO_JMA_WARN ? [] : parseRainWarnParam_();
@@ -4424,6 +4316,15 @@
         }
         sizeRainWarnText_();
         applySignageLogoPanel_();
+        if (DEMO_RAINWARN_ONLY) {
+            const badge = document.getElementById('demo-badge');
+            if (badge && shouldShowDemoBadge_()) {
+                const num = RAIN_WARN_LEVEL_NUM[key] || '';
+                const title = rainWarnHeroTitle_(key) || (def && def.name) || '';
+                badge.hidden = false;
+                badge.textContent = '警報確認 · L' + num + ' ' + title;
+            }
+        }
         if (!pair.classList.contains('ra-hero-mode') && !pair.classList.contains('ra-white-mode')) {
             triggerRaLineAnnounceBlink_(txt.line2);
         }
@@ -4647,7 +4548,7 @@
     }
     async function startRainWarnOnlyDemo_() {
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         if (sceneRainWarn) {
             sceneRainWarn.style.display = 'block';
             sceneRainWarn.classList.add('active');
@@ -4655,14 +4556,20 @@
         }
         if (RAIN_WHITE_DESIGN && !whiteModeForced_()) {
             await updateRainWarnFromGas_();
+        } else if (!rainWarnActive.length) {
+            rainWarnActive = RAIN_WARN_ORDER.slice();
         }
         const badge = document.getElementById('demo-badge');
         const liveLabel = RAIN_WHITE_DESIGN && !whiteModeForced_()
-            ? ('確認 · ' + (rainWarnMeta.cityName || '熊野町') + ' 発表中 ' + rainWhiteQueue.length + '件')
-            : '確認 · 大雨警報';
+            ? ('確認 · ' + (rainWarnMeta.cityName || '安芸区') + ' 発表中 ' + rainWhiteQueue.length + '件')
+            : '警報確認 · 5段階デモ';
         if (badge && shouldShowDemoBadge_()) { badge.hidden = false; badge.textContent = liveLabel; }
         else if (badge) { badge.hidden = true; }
-        if (!DEMO_EMBED) document.title = RAIN_WHITE_DESIGN && !whiteModeForced_() ? '気象警報 実データ' : '大雨警報 デモ';
+        if (!DEMO_EMBED) {
+            document.title = RAIN_WHITE_DESIGN && !whiteModeForced_()
+                ? '気象警報 実データ'
+                : '警報確認デモ - 鴻治組 安芸区';
+        }
         playSceneRainWarn(0);
     }
     let logoRotDeg = 0;
@@ -4747,16 +4654,6 @@
     const SCENE5_SCROLL_PX = 0.8;
     let scene5SetWidth = SCENE5_PANEL_COUNT * 128;
     let scene5AnimId = null;
-    const SCENE6_HOLD_MS = 10000;
-    const SCENE6_FACE_COUNT = 4;
-    const SCENE6_LAPS = 2;
-    const SCENE6_FACE_W = 128;
-    const SCENE6_SLIDE_MS = 450;
-    const SCENE6_STEP_MS = 3000;
-    const SCENE6_COPIES = 3;
-    let scene6HoldTimerId = null;
-    let scene6SlideTimerId = null;
-    let scene6Step_ = 0;
     const T3_UNIT_W = 256;
     const T3_USABLE_W = T3_UNIT_W - 8;
     const T3_SLOT_GAP = 2;
@@ -5774,7 +5671,7 @@
     }
     async function fetchWbgtFromMoeApi() {
         if (!MOE_WBGT_API_URL) {
-            console.error('[WBGT] moe.gasUrl 未設定 — HTML 内の SignageConfig を確認してください');
+            console.error('[WBGT] moe.gasUrl 未設定 — assets/site-config.js を確認してください');
             return null;
         }
         const bases = [MOE_WBGT_API_URL, MOE_WBGT_BACKUP_URL].filter((u, i, a) => u && a.indexOf(u) === i);
@@ -5818,7 +5715,7 @@
             console.log('[WBGT] 全地点でデータなし（WBGT非表示）');
             return 'offseason';
         }
-        console.warn('[WBGT] 取得失敗: GAS URL と SignageConfig の moe.gasUrl を確認してください');
+        console.warn('[WBGT] 取得失敗: GAS URL と assets/site-config.js の moe.gasUrl を確認してください');
         return null;
     }
     function setTextAll(selector, text) {
@@ -6607,7 +6504,7 @@
         return String(cfg.footLogoSrc || cfg.logoSrc || '').trim();
     }
     function buildS1FootBrandHtml_() {
-        const name = getS1SiteFootName_() || '令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事';
+        const name = getS1SiteFootName_() || '令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事';
         return '<span class="s1-foot-co-txt">' + escapeS1Html(name) + '</span>';
     }
     function buildS1SiteLogoHtml_() {
@@ -6616,7 +6513,7 @@
         return `<span class="s1-wbgt-logo-wrap"><img class="s1-wbgt-logo" src="${escapeS1Html(logoSrc)}" alt="" decoding="async"></span>`;
     }
     function buildS1FootBannerSvgHtml_(siteName) {
-        const name = siteName || '令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事';
+        const name = siteName || '令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事';
         const alt = escapeS1Html(name);
         const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
         const logoSrc = escapeS1Html(cfg.footLogoSrc || cfg.logoSrc || '');
@@ -6633,7 +6530,7 @@
             return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="${escapeS1Html(bannerSrc)}" alt="${alt}" decoding="async"></div>`;
         }
         const logoHtml = buildS1SiteLogoHtml_();
-        const labelHtml = `<span class="s1-foot-co-txt">${escapeS1Html(siteName || '令和7年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事')}</span>`;
+        const labelHtml = `<span class="s1-foot-co-txt">${escapeS1Html(siteName || '令和8年度 安芸南部山系深山の滝川上流支川砂防堰堤他工事')}</span>`;
         return `<div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-wbgt-site-inner">${logoHtml}${labelHtml}</span></div>`;
     }
     function ensureS1WbgtBarVisible_() {
@@ -6830,7 +6727,6 @@
         if (!el) return 'block';
         if (el.id === 'scene2' || el.id === 'scene4' || el.id === 'scene5' || el.id === 'sceneAlert' || el.id === 'sceneRainWarn') return 'block';
         if (el.id === 'scene1' || el.id === 'scene3') return 'block';
-        if (el.id === 'scene6') return 'flex';
         return 'flex';
     }
     function hideSceneEl(el) {
@@ -6895,7 +6791,7 @@
         if (!s2) return;
         transitionToScene(s2, playScene2);
     }
-    /* シーン3（多言語WBGT）の後 → JVロゴ4面 → アラート／シーン1 */
+    /* シーン3（多言語WBGT）の後 → アラート／シーン1 */
     function gotoAfterScene3Tail_() {
         if (WBGT_ONLY) { finishMainLoopToS1_(); return; }
         if (wbgtNormalDisplay_() && heatAlertActive.length && sceneAlert) {
@@ -6905,83 +6801,7 @@
         }
         gotoAfterRainWarnOrScene1_();
     }
-    function getScene6Logos_() {
-        const cfg = (typeof window !== 'undefined' && window.SIGNAGE_CONFIG) || {};
-        const logos = Array.isArray(cfg.jvLogos) ? cfg.jvLogos.filter(function (r) { return r && r.src; }) : [];
-        return logos;
-    }
-    function scene6FaceHtml_(row) {
-        const mark = /green_cross/.test(String(row.src)) ? ' s6-face-mark' : '';
-        return '<div class="s6-face' + mark + '"><img class="s6-face-img" src="'
-            + escapeS1Html(row.src) + '" alt="' + escapeS1Html(row.alt || '')
-            + '" decoding="sync"></div>';
-    }
-    function clearScene6Timers_() {
-        if (scene6HoldTimerId) { clearTimeout(scene6HoldTimerId); scene6HoldTimerId = null; }
-        if (scene6SlideTimerId) { clearTimeout(scene6SlideTimerId); scene6SlideTimerId = null; }
-    }
-    function applyScene6TrackX_(x, animate) {
-        const track = document.getElementById('s6-track');
-        if (!track) return;
-        if (animate) {
-            track.style.transition = 'transform ' + SCENE6_SLIDE_MS + 'ms cubic-bezier(0.22, 1, 0.36, 1)';
-            void track.offsetWidth;
-        } else {
-            track.style.transition = 'none';
-        }
-        track.style.transform = 'translate3d(' + (-Math.round(x)) + 'px,0,0)';
-    }
-    function buildScene6Track_() {
-        const track = document.getElementById('s6-track');
-        const logos = getScene6Logos_();
-        if (!track || !logos.length) return logos.length;
-        let html = '';
-        for (let c = 0; c < SCENE6_COPIES; c++) {
-            logos.forEach(function (row) { html += scene6FaceHtml_(row); });
-        }
-        track.innerHTML = html;
-        applyScene6TrackX_(0, false);
-        return logos.length;
-    }
-    function finishScene6() {
-        clearScene6Timers_();
-        applyScene6TrackX_(0, false);
-        scene6Step_ = 0;
-        if (demoOnlyLoop_('s6', playScene6)) return;
-        gotoAfterScene3Tail_();
-    }
-    function playScene6() {
-        if (!s6) { gotoAfterScene3Tail_(); return; }
-        clearScene6Timers_();
-        applyDisplayRefreshAtSceneEntry_();
-        applyPendingSignageBgAtScene_();
-        scene6Step_ = 0;
-        const nFace = Math.max(1, buildScene6Track_() || SCENE6_FACE_COUNT);
-        const steps = nFace * SCENE6_LAPS;
-        if (isFullDemoStep_()) {
-            scheduleDemoStep_(finishScene6);
-            return;
-        }
-        function afterArrive() {
-            scene6SlideTimerId = null;
-            if (scene6Step_ >= steps) {
-                runAfterSceneEndHold_(finishScene6);
-                return;
-            }
-            scene6HoldTimerId = setTimeout(function () {
-                scene6HoldTimerId = null;
-                scene6Step_ += 1;
-                applyScene6TrackX_(scene6Step_ * SCENE6_FACE_W, true);
-                scene6SlideTimerId = setTimeout(afterArrive, SCENE6_SLIDE_MS);
-            }, SCENE6_STEP_MS);
-        }
-        afterArrive();
-    }
     function gotoAfterScene3_() {
-        if (s6) {
-            transitionToScene(s6, playScene6);
-            return;
-        }
         gotoAfterScene3Tail_();
     }
     /* 256×128スロット中央に収まるサイズ（256÷128=2 のパネル内で中央揃え） */
@@ -7100,7 +6920,7 @@
     }
     function startAlertOnlyDemo_() {
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, s6].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5].forEach(hideSceneEl);
         if (sceneAlert) {
             sceneAlert.style.display = 'block';
             sceneAlert.classList.add('active');
@@ -8009,7 +7829,7 @@
         return true;
     }
     function showOnlyScene_(el, playFn) {
-        [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         if (!el) return;
         el.style.display = sceneDisplayMode(el);
         el.classList.add('active');
@@ -8035,7 +7855,6 @@
                 case 's3': showOnlyScene_(s3, playScene3); break;
                 case 's4': showOnlyScene_(s4, playScene4); break;
                 case 's5': showOnlyScene_(s5, playScene5); break;
-                case 's6': showOnlyScene_(s6, playScene6); break;
                 default: break;
             }
         }
@@ -8044,7 +7863,7 @@
     function startPreviewDemo_(sceneKey) {
         applyDemoLevel(DEMO_LEVEL_ORDER[1]);  /* 注意（黄）で見やすく */
         refreshSignageBg();
-        [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         const badge = document.getElementById('demo-badge');
         const rainTag = rainPreviewLabel_();
         if (sceneKey === 's1') {
@@ -8070,7 +7889,7 @@
     function startSequence() {
         clearDemoStepTimer_();
         resetLogoRotation();
-        [s1, s2, s3, s4, s5, s6, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        [s1, s2, s3, s4, s5, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
         transitionToScene(s1, playScene1);
     }
 

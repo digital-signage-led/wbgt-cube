@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>警報確認メニュー - 鴻治組 安芸区</title>
+  <style>
+    body {
+      margin: 0; padding: 24px;
+      font-family: "Noto Sans JP", "Yu Gothic UI", sans-serif;
+      background: #111; color: #f2f2f2;
+    }
+    h1 { font-size: 20px; margin: 0 0 8px; }
+    p { margin: 0 0 20px; color: #aaa; font-size: 14px; line-height: 1.5; }
+    .grid { display: grid; gap: 10px; max-width: 720px; }
+    a {
+      display: block; padding: 14px 16px;
+      background: #1e1e1e; border: 1px solid #333; border-radius: 8px;
+      color: #fff; text-decoration: none; font-weight: 700; font-size: 15px;
+    }
+    a:hover { border-color: #666; background: #262626; }
+    a span { display: block; margin-top: 4px; font-size: 12px; font-weight: 500; color: #999; }
+    .note { margin-top: 20px; font-size: 12px; color: #777; line-height: 1.6; }
+    code { color: #ccc; }
+  </style>
+</head>
+<body>
+  <h1>警報情報の見え方確認</h1>
+  <p>鴻治組・安芸区サイネージ。リンクを開くと警報シーンだけが流れます。<br>
+  左上に「警報確認 · …」バッジが出ればOKです。</p>
+  <div class="grid">
+    <a href="./index-4face.html?layout512=1&amp;demo=rainwarn&amp;rainwarn=all#layout512=1&amp;demo=rainwarn&amp;rainwarn=all">
+      色付き3段・全5段階
+      <span>早期注意 → 注意報 → 警報 → 危険警報 → 特別警報</span>
+    </a>
+    <a href="./index-4face.html?layout512=1&amp;demo=rainwarn&amp;rainwarn=2#layout512=1&amp;demo=rainwarn&amp;rainwarn=2">
+      L2 注意報だけ
+      <span>黄背景の3段デザイン</span>
+    </a>
+    <a href="./index-4face.html?layout512=1&amp;demo=rainwarn&amp;rainwarn=3#layout512=1&amp;demo=rainwarn&amp;rainwarn=3">
+      L3 警報だけ
+      <span>赤背景。大雨・洪水など種別を順送り</span>
+    </a>
+    <a href="./index-4face.html?layout512=1&amp;demo=rainwarn&amp;rainwarn=4#layout512=1&amp;demo=rainwarn&amp;rainwarn=4">
+      L4 危険警報だけ
+      <span>紫背景</span>
+    </a>
+    <a href="./index-4face.html?layout512=1&amp;demo=rainwarn&amp;rainwarn=5#layout512=1&amp;demo=rainwarn&amp;rainwarn=5">
+      L5 特別警報だけ
+      <span>黒背景</span>
+    </a>
+    <a href="./index-4face.html?layout512=1&amp;demo=rainwarn&amp;rainwhite=1&amp;rainwarn=all#layout512=1&amp;demo=rainwarn&amp;rainwhite=1&amp;rainwarn=all">
+      白ベース・発表中一覧
+      <span>クリーム背景に段階チップが流れる確認</span>
+    </a>
+    <a href="./index-4face.html?layout512=1">
+      本番ループ（天気＋WBGT）
+      <span>発表中の警報があるときだけ末尾に出ます</span>
+    </a>
+  </div>
+  <p class="note">
+    本番では安芸区（3410300）に発表があるときだけ表示されます。<br>
+    時計だけが出る場合は、アドレスに <code>demo=rainwarn</code> があるか確認してください。
+  </p>
+</body>
+</html>
