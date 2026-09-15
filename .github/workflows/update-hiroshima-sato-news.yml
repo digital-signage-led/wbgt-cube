@@ -1,0 +1,44 @@
+# wbgt-cube リポジトリの .github/workflows/ に配置する（deploy-github.bat がコピー）
+# 公式サイトの新着 → 広島_佐藤工業_SS/data/news.json を定期更新
+name: Update Hiroshima Sato Kogyo news
+
+on:
+  schedule:
+    # 30分ごと（GitHub の混雑時は遅延することがあります）
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-hiroshima-sato-news
+  cancel-in-progress: true
+
+jobs:
+  refresh-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch homepage news
+        working-directory: 広島_佐藤工業_SS
+        run: node scripts/fetch-homepage-news.mjs
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "広島_佐藤工業_SS/data/news.json"
+          if git diff --staged --quiet; then
+            echo "news.json unchanged"
+            exit 0
+          fi
+          git commit -m "chore(news): refresh Sato Kogyo homepage news"
+          git push

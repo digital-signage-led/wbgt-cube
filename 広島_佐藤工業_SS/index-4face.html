@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!-- wbgt-cube-hiroshima-sato-kogyo-4face / 佐藤工業 WBGT サイネージ（本番 4面 512×128・ロゴ列なし） -->
 <!-- 同階層: assets/sato_kogyo_logo_foot.png（時刻下の下帯） -->
 <!-- 会場: 広島県福山市 -->
@@ -161,7 +161,7 @@
             display: none !important;
         }
         .content-area.kotei-canvas {
-            background: #edeee9 !important;
+            background: #071428 !important;
         }
         .content-area.kotei-canvas > .scene-strip-bg {
             display: none !important;
@@ -244,85 +244,114 @@
         }
         #sceneKotei {
             width: 512px; height: 128px; overflow: hidden;
-            background: #edeee9;
+            background: #071428;
         }
         .kotei-scroll-wrap {
             width: 512px; height: 128px; overflow: hidden; position: relative; z-index: 1;
-            background: #edeee9;
+            background: #071428;
         }
-        .kotei-scroll-wrap::before,
-        .kotei-scroll-wrap::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            width: 512px;
-            height: 4px;
-            background: #4a913c;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .kotei-scroll-wrap::before { top: 0; }
-        .kotei-scroll-wrap::after { bottom: 0; }
         .kotei-track {
             display: flex; flex-direction: row; height: 128px;
-            transition: none; gap: 0; will-change: transform; align-items: center;
+            transition: none; gap: 0; will-change: transform; align-items: stretch;
         }
-        .kotei-row {
-            display: flex; align-items: center; height: 128px; flex-shrink: 0;
-            padding: 0 16px 0 14px;
+        .kotei-card {
+            width: 256px; height: 128px; flex: 0 0 256px;
+            box-sizing: border-box; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 6px 10px 8px; overflow: hidden;
+            font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
         }
-        .kotei-item {
-            display: flex; align-items: center; flex-shrink: 0;
+        .kotei-card-dark { background: #071428; color: #fff; }
+        .kotei-card-light { background: #ffffff; color: #111; }
+        .kotei-term-period {
+            display: flex; align-items: baseline; justify-content: center;
+            gap: 4px; line-height: 1; white-space: nowrap;
+            max-width: 100%;
         }
-        .kotei-meta,
+        .kotei-reiwa { font-size: 18px; font-weight: 800; letter-spacing: 0; }
+        .kotei-card-dark .kotei-reiwa { color: #fff; }
+        .kotei-card-light .kotei-reiwa { color: #111; }
+        .kotei-term-hl {
+            position: relative; display: inline-block;
+            font-size: 22px; font-weight: 900; color: #E8C21A;
+            letter-spacing: 0; line-height: 1.15;
+        }
+        .kotei-term-title {
+            font-size: 26px; font-weight: 900; letter-spacing: 0;
+            line-height: 1.05; white-space: nowrap; margin-top: 4px;
+            max-width: 100%;
+        }
+        .kotei-term-sub {
+            font-size: 18px; font-weight: 800; letter-spacing: 0.04em;
+            line-height: 1; margin-top: 2px; white-space: nowrap;
+        }
+        .kotei-set {
+            display: flex; flex-direction: row; height: 128px; flex-shrink: 0;
+            width: 512px;
+        }
+        .kotei-col {
+            width: 128px; height: 128px; flex: 0 0 128px;
+            box-sizing: border-box; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: #071428; color: #fff; overflow: hidden; padding: 4px 2px;
+            font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+        }
+        .kotei-col-wide {
+            width: 256px; flex: 0 0 256px;
+        }
+        .kotei-col-logo {
+            background: #ffffff; padding: 2px 4px 4px;
+        }
+        .kotei-warn-label {
+            font-size: 18px; font-weight: 900; letter-spacing: 0.04em;
+            line-height: 1.05; margin-bottom: 4px; white-space: nowrap;
+            text-align: center; max-width: 120px;
+        }
+        .kotei-warn-label-2 {
+            display: flex; flex-direction: column; align-items: center;
+            font-size: 18px; font-weight: 900; letter-spacing: 0.04em;
+            line-height: 1.05; margin-bottom: 4px; gap: 2px;
+            text-align: center; max-width: 120px;
+        }
+        .kotei-triangle {
+            width: 72px; height: 64px; display: block;
+        }
+        .kotei-date-reiwa {
+            font-size: 22px; font-weight: 900; letter-spacing: 0.04em;
+            color: #fff; -webkit-text-stroke: 1.6px #E31B23;
+            paint-order: stroke fill; line-height: 1; white-space: nowrap;
+        }
+        .kotei-date-md {
+            font-size: 30px; font-weight: 900; letter-spacing: 0.02em;
+            color: #fff; -webkit-text-stroke: 2px #E31B23;
+            paint-order: stroke fill; line-height: 1.05; margin: 2px 0; white-space: nowrap;
+        }
+        .kotei-date-youbi {
+            font-size: 20px; font-weight: 800; color: #fff; line-height: 1; white-space: nowrap;
+        }
+        .kotei-work-small {
+            font-size: 13px; font-weight: 800; color: #d8e0ea;
+            letter-spacing: 0.02em; line-height: 1; margin-bottom: 4px; white-space: nowrap;
+        }
         .kotei-work-line {
-            display: flex; align-items: center; flex-shrink: 0;
+            font-size: 26px; font-weight: 900; letter-spacing: 0.04em;
+            color: #fff; -webkit-text-stroke: 1.8px #E31B23;
+            paint-order: stroke fill; line-height: 1.08; white-space: nowrap; text-align: center;
         }
-        .kotei-item:not(.is-now) .kotei-next { margin-left: 8px; }
-        .kotei-item.is-now .kotei-work-line {
-            background: #4a913c;
-            padding: 4px 20px 4px 14px;
-            margin-left: 6px;
+        .kotei-safety-line {
+            font-size: 26px; font-weight: 900; letter-spacing: 0.06em;
+            color: #fff; line-height: 1.1; white-space: nowrap; text-align: center;
         }
-        .kotei-wareki {
-            font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-            font-size: 44px; font-weight: 800; color: #202020;
-            line-height: 1; letter-spacing: 0.04em; white-space: nowrap;
+        .kotei-logo-img {
+            display: block; width: 78px; height: 78px; object-fit: contain;
         }
-        .kotei-colon {
-            font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-            font-size: 64px; font-weight: 800; color: #202020;
-            line-height: 1; margin: 0 8px 0 4px; white-space: nowrap;
+        .kotei-logo-name {
+            font-size: 13px; font-weight: 900; color: #111; letter-spacing: 0.12em;
+            line-height: 1; margin-top: 1px; white-space: nowrap;
         }
-        .kotei-youbi {
-            font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-            font-size: 56px; font-weight: 800; color: #4a913c;
-            line-height: 1; white-space: nowrap;
-        }
-        .kotei-youbi-sat { color: #2b6cb0; }
-        .kotei-youbi-sun { color: #c43c3c; }
-        .kotei-play {
-            width: 64px; height: 64px; margin: 0 16px 0 4px; flex-shrink: 0;
-        }
-        .kotei-play svg { display: block; width: 100%; height: 100%; }
-        .kotei-play-bg { fill: #4a913c; }
-        .kotei-play-tri { fill: #edeee9; }
-        .kotei-item.is-now .kotei-play-bg { fill: #edeee9; }
-        .kotei-item.is-now .kotei-play-tri { fill: #4a913c; }
-        .kotei-main {
-            font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-            font-size: 86px; font-weight: 900; color: #edeee9;
-            letter-spacing: 0.1em; line-height: 1; white-space: nowrap;
-        }
-        .kotei-next {
-            font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
-            font-size: 72px; font-weight: 800; color: #202020;
-            letter-spacing: 0.1em; line-height: 1; margin-left: 14px; white-space: nowrap;
-        }
-        .kotei-holiday { color: #c43c3c; }
-        .kotei-sep {
-            width: 6px; height: 104px; margin: 0 36px;
-            background: #4a913c; flex-shrink: 0;
+        .kotei-logo-en {
+            font-size: 7px; font-weight: 800; color: #333; letter-spacing: 0.04em;
+            line-height: 1; margin-top: 1px; white-space: nowrap;
         }
         /* もう一つのコンテンツ: 横長ロゴ（紋章+佐藤工業）を256px単位で右→左に流す */
         .logo-face-scroll-wrap {
@@ -829,7 +858,9 @@
         #scene4 .col-bg-host { flex-shrink: 0; }
         #scene4 .fc-panel .col-bg-layer { width: calc(100% + 1px); }
         #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
-        #scene3 .t3-col .col-bg-layer { width: calc(100% + 1px); }
+        /* 両列とも +1px だと中央に濃い線が出る → 左列のみ 1px 伸ばして隙間だけ埋める */
+        #scene3 .t3-col .col-bg-layer { width: 100%; }
+        #scene3 .t3-col:first-child .col-bg-layer { width: calc(100% + 1px); }
 
         .forecast-scene { display: none; overflow: hidden; }
         .fc-panel {
@@ -935,7 +966,10 @@
             background: #ffffff;
         }
         #scene5 .col-bg-host { flex-shrink: 0; }
-        #scene5 .col-bg-layer { width: calc(100% + 1px); }
+        #scene5 .col-bg-layer { width: 100%; }
+        #scene5 .d5-panel:not(.d5-logo-panel) + .d5-panel:not(.d5-logo-panel) .col-bg-layer {
+            margin-left: -1px; width: calc(100% + 1px);
+        }
         #scene5 .d5-body {
             flex-direction: row;
             align-items: center;
@@ -2211,6 +2245,7 @@
         </div>
     </div>
 
+<script src="./assets/weather-theme.js"></script>
 <script>
 /**
  * 512×128 サイネージ列背景
@@ -2241,9 +2276,19 @@
         return row ? { bgColor: row.bgColor, barColor: row.barColor } : UNKNOWN;
     }
 
-    /** displayMode: 'normal' | 'unavailable' | 'offseason' — 濃い灰は unavailable / offseason のみ */
+    /** displayMode: 'normal' | 'unavailable' | 'offseason'
+     *  WBGT ON (normal) = 危険度色。WBGT OFF (offseason) = 気温テーマ。失敗時のみ既存 UNKNOWN */
+    function weatherThemeColorsOrUnknown_() {
+        if (global.WeatherTheme && typeof global.WeatherTheme.paintColors === 'function') {
+            const painted = global.WeatherTheme.paintColors({ wbgtOn: false });
+            if (painted && painted.bgColor) {
+                return { bgColor: painted.bgColor, barColor: painted.barColor };
+            }
+        }
+        return UNKNOWN;
+    }
     function colorsForDisplay(levelIdx, displayMode) {
-        if (displayMode === 'offseason') return OFF_SEASON;
+        if (displayMode === 'offseason') return weatherThemeColorsOrUnknown_();
         if (displayMode === 'unavailable') return UNKNOWN;
         if (levelIdx == null || levelIdx < 0) return colorsForLevel(0);
         return colorsForLevel(levelIdx);
@@ -2543,10 +2588,9 @@
     /*
      * 流れる順
      *  1 時刻＋WBGT下帯 (s1) → 2 気象観測＋末尾紋章 (s2)
-     *  → ブランド面
-     *  → 3 WBGT表示 (s4) → 4 4日予報 (s5)
-     *  → NEWS → 作業工程表 → 横長ロゴ → 5 多言語WBGT (s3) → シーン1へ
-     * ?only= は 1〜5 または s1〜s5（旧キー）両対応。工程表は ?only=kotei
+     *  → 3 WBGT表示 (s4) → 4 福山市4日予報 (s5)
+     *  → NEWS → 工程・安全ミッション → 5 多言語WBGT (s3) → シーン1へ
+     * ?only= は 1〜5 または s1〜s5（旧キー）両対応。工程は ?only=kotei
      */
     function normalizeOnlyParam_(raw) {
         if (raw == null || raw === '') return null;
@@ -2560,7 +2604,7 @@
         return map[v] || null;
     }
     const SCENE_LABEL_BY_KEY = {
-        brand: 'ブランド', s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', logo: '横長ロゴ', kotei: '作業工程表', alert: '熱中症アラート', rainwarn: '大雨警報'
+        brand: 'ブランド', s1: 'シーン1', s2: 'シーン2', s4: 'シーン3', s5: 'シーン4', s3: 'シーン5', logo: '社章', kotei: '工程・安全', alert: '熱中症アラート', rainwarn: '大雨警報'
     };
     const DEMO_ONLY = (function () {
         const fromQ = normalizeOnlyParam_(query.get('only'));
@@ -4784,18 +4828,18 @@
             });
         });
     }
-    /** 各コンテンツのあと: ロゴ面を流してから次へ（kinds省略時は横長のみ） */
+    /** 横長ロゴ面は通常再生から外す（?only=logo のみ） */
     let afterLogoNext_ = null;
     let logoFaceActiveKinds_ = null;
     function playSceneLogoThen_(nextFn, kinds) {
         afterLogoNext_ = typeof nextFn === 'function' ? nextFn : null;
-        if (DEMO_ONLY || !sceneLogo) {
-            gotoAfterSceneLogo_();
+        if (DEMO_ONLY === 'logo' && sceneLogo) {
+            logoFaceActiveKinds_ = (kinds && kinds.length) ? kinds : LOGO_FACE_KINDS;
+            logoFaceKindIdx_ = 0;
+            showSceneInstant_(sceneLogo, playSceneLogo);
             return;
         }
-        logoFaceActiveKinds_ = (kinds && kinds.length) ? kinds : LOGO_FACE_KINDS;
-        logoFaceKindIdx_ = 0;
-        showSceneInstant_(sceneLogo, playSceneLogo);
+        gotoAfterSceneLogo_();
     }
     function gotoAfterSceneLogo_() {
         applyLogoFaceKindToRightPanel_('sato');
@@ -5163,8 +5207,9 @@
     const SCENE_SCROLL_HOLD_MS = 1000;
     /** スクロール終了後〜次コンテンツ／次シーンまでの静止 */
     const SCENE_END_HOLD_MS = 1000;
-    const GLOBAL_SCROLL_SPEED_PX = 0.75;
-    const DEMO_SCROLL_SPEED_PX = 0.5;
+    /* コンテンツ横スクロール速度（px/frame）。0.75は遅すぎるため約1.8倍 */
+    const GLOBAL_SCROLL_SPEED_PX = 1.35;
+    const DEMO_SCROLL_SPEED_PX = 0.9;
     function getScrollSpeedPx_() {
         return (DEMO_SIGNAGE && !DEMO_ONLY) ? DEMO_SCROLL_SPEED_PX : GLOBAL_SCROLL_SPEED_PX;
     }
@@ -6614,7 +6659,13 @@
         }
         fitScene2BodyText();
         captureAmedasSnapshot_(obs, latest);
+        if (typeof WeatherTheme !== 'undefined' && WeatherTheme.setObservedTemperature) {
+            WeatherTheme.setObservedTemperature(temp, lastAmedasObsTime || Date.now());
+        }
         persistSignageStateCache_();
+        if (typeof getSignageDisplayMode_ === 'function' && getSignageDisplayMode_() === 'offseason') {
+            refreshSignageBgIfChanged_(true);
+        }
         return {
             todayMaxTemp: maxT != null ? Number(maxT) : (temp != null ? Number(temp) : null),
             todayLiveIcon: icon
@@ -8029,12 +8080,8 @@
             }, SCENE1_CLOCK_HOLD_MS);
         }
     }
-    /* シーン2の次 → ブランド面 → WBGT表示（紋章はシーン2末尾） */
+    /* シーン2の次 → WBGT表示（ブランド面は削除） */
     function gotoSceneAfterScene2_() {
-        if (sceneBrand) {
-            transitionToScene(sceneBrand, playSceneBrand);
-            return;
-        }
         gotoAfterBrandBlock_();
     }
     /* シーン3（WBGT表示）の次 → シーン4（4日予報） */
@@ -8174,65 +8221,95 @@
         ]).finally(start);
     }
     const SCENE_KOTEI_LAPS = 1;
-    const SCENE_KOTEI_SPEED_MULT = 0.7;
-    const KOTEI_PLAY_SVG = '<span class="kotei-play" aria-hidden="true">'
-        + '<svg viewBox="0 0 34 34">'
-        + '<circle class="kotei-play-bg" cx="17" cy="17" r="17"/>'
-        + '<polygon class="kotei-play-tri" points="13,9 13,25 26,17"/>'
-        + '</svg></span>';
-    const KOTEI_DAYS = [
-        { date: '2026-08-31', wareki: '令和8年8月31日', youbi: '月', work: '解体工事' },
-        { date: '2026-09-01', wareki: '令和8年9月1日', youbi: '火', work: '鉄骨組立工事' },
-        { date: '2026-09-02', wareki: '令和8年9月2日', youbi: '水', work: '型枠工事' },
-        { date: '2026-09-03', wareki: '令和8年9月3日', youbi: '木', work: 'コンクリート打設' },
-        { date: '2026-09-04', wareki: '令和8年9月4日', youbi: '金', work: 'コンクリート打設' },
-        { date: '2026-09-05', wareki: '令和8年9月5日', youbi: '土', work: '全休日' },
-        { date: '2026-09-06', wareki: '令和8年9月6日', youbi: '日', work: '全休日' }
-    ];
+    const SCENE_KOTEI_SPEED_MULT = 0.95;
+    const KOTEI_TERM = {
+        reiwa: '令和8年',
+        highlight: '9月から12月',
+        title: 'ポンプ棟躯体構築',
+        sub: '（地下部）'
+    };
+    const KOTEI_WEEK = {
+        label: '重要工程',
+        reiwa: '令和8年',
+        md: '10月3日',
+        youbi: '（土）',
+        smallDate: '令和8年10月3日',
+        work1: 'コンクリート',
+        work2: '打設'
+    };
+    const KOTEI_SAFETY = {
+        label1: '安全',
+        label2: 'ミッション',
+        line1: '保護具の',
+        line2: '着用！！'
+    };
+    const KOTEI_TRI_SVG = '<svg class="kotei-triangle" viewBox="0 0 100 90" aria-hidden="true">'
+        + '<polygon points="50,6 96,86 4,86" fill="#E31B23"/>'
+        + '<text x="50" y="72" text-anchor="middle" fill="#fff" font-size="46" font-weight="800" font-family="Noto Sans JP,sans-serif">!</text>'
+        + '</svg>';
     let sceneKoteiSetWidth = 512;
     let sceneKoteiAnimId = null;
     let koteiCanvasTimerId_ = null;
-    function koteiTodayYmd_() {
-        try {
-            return new Intl.DateTimeFormat('en-CA', { timeZone: CLOCK_TZ }).format(new Date());
-        } catch (e) {
-            const d = new Date();
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return y + '-' + m + '-' + day;
-        }
+    let koteiPhaseIdx_ = 0;
+    function koteiLogoColHtml_() {
+        const cfg = window.SIGNAGE_CONFIG || {};
+        const src = cfg.logoSrc || './assets/sato_kogyo_logo_stack.png?v=6';
+        return '<div class="kotei-col kotei-col-logo">'
+            + '<img class="kotei-logo-img" src="' + src + '" alt="佐藤工業" decoding="sync">'
+            + '<div class="kotei-logo-name">佐藤工業</div>'
+            + '<div class="kotei-logo-en">SATO KOGYO CO.,LTD.</div>'
+            + '</div>';
     }
-    function koteiYoubiClass_(youbi) {
-        if (youbi === '土') return ' kotei-youbi-sat';
-        if (youbi === '日') return ' kotei-youbi-sun';
-        return '';
+    function koteiTermCardHtml_(theme) {
+        return '<div class="kotei-card kotei-card-' + theme + '">'
+            + '<div class="kotei-term-period"><span class="kotei-reiwa">' + escapeS1Html(KOTEI_TERM.reiwa)
+            + '</span><span class="kotei-term-hl">' + escapeS1Html(KOTEI_TERM.highlight) + '</span></div>'
+            + '<div class="kotei-term-title">' + escapeS1Html(KOTEI_TERM.title) + '</div>'
+            + '<div class="kotei-term-sub">' + escapeS1Html(KOTEI_TERM.sub) + '</div>'
+            + '</div>';
     }
-    function koteiItemHtml_(day, isNow) {
-        const workClass = isNow ? 'kotei-main' : 'kotei-next';
-        const holiday = day.work === '全休日' ? ' kotei-holiday' : '';
-        return '<div class="kotei-item' + (isNow ? ' is-now' : '') + '">'
-            + '<span class="kotei-meta">'
-            + '<span class="kotei-wareki">' + escapeS1Html(day.wareki) + '</span>'
-            + '<span class="kotei-youbi' + koteiYoubiClass_(day.youbi) + '">' + escapeS1Html(day.youbi) + '</span>'
-            + '<span class="kotei-colon">：</span>'
-            + '</span>'
-            + '<span class="kotei-work-line">'
-            + (isNow ? KOTEI_PLAY_SVG : '')
-            + '<span class="' + workClass + holiday + '">' + escapeS1Html(day.work) + '</span>'
-            + '</span></div>'
-            + '<span class="kotei-sep" aria-hidden="true"></span>';
+    function koteiWeekSetHtml_() {
+        return '<div class="kotei-set">'
+            + '<div class="kotei-col"><div class="kotei-warn-label">' + escapeS1Html(KOTEI_WEEK.label) + '</div>' + KOTEI_TRI_SVG + '</div>'
+            + '<div class="kotei-col">'
+            + '<div class="kotei-date-reiwa">' + escapeS1Html(KOTEI_WEEK.reiwa) + '</div>'
+            + '<div class="kotei-date-md">' + escapeS1Html(KOTEI_WEEK.md) + '</div>'
+            + '<div class="kotei-date-youbi">' + escapeS1Html(KOTEI_WEEK.youbi) + '</div>'
+            + '</div>'
+            + '<div class="kotei-col">'
+            + '<div class="kotei-work-small">' + escapeS1Html(KOTEI_WEEK.smallDate) + '</div>'
+            + '<div class="kotei-work-line">' + escapeS1Html(KOTEI_WEEK.work1) + '</div>'
+            + '<div class="kotei-work-line">' + escapeS1Html(KOTEI_WEEK.work2) + '</div>'
+            + '</div>'
+            + koteiLogoColHtml_()
+            + '</div>';
     }
-    function buildSceneKoteiTrack_() {
+    function koteiSafetySetHtml_() {
+        return '<div class="kotei-set">'
+            + '<div class="kotei-col"><div class="kotei-warn-label-2">'
+            + '<span>' + escapeS1Html(KOTEI_SAFETY.label1) + '</span>'
+            + '<span>' + escapeS1Html(KOTEI_SAFETY.label2) + '</span></div>' + KOTEI_TRI_SVG + '</div>'
+            + '<div class="kotei-col kotei-col-wide">'
+            + '<div class="kotei-safety-line">' + escapeS1Html(KOTEI_SAFETY.line1) + '</div>'
+            + '<div class="kotei-safety-line">' + escapeS1Html(KOTEI_SAFETY.line2) + '</div>'
+            + '</div>'
+            + koteiLogoColHtml_()
+            + '</div>';
+    }
+    function buildSceneKoteiTrack_(phase) {
         if (!koteiTrack) return false;
-        const today = koteiTodayYmd_();
-        const rowInner = KOTEI_DAYS.map(function (day) {
-            return koteiItemHtml_(day, day.date === today);
-        }).join('');
-        const row = '<div class="kotei-row">' + rowInner + '</div>';
-        koteiTrack.innerHTML = row + row;
-        const first = koteiTrack.querySelector('.kotei-row');
-        sceneKoteiSetWidth = Math.max(512, first ? first.offsetWidth : 512);
+        let inner = '';
+        if (phase === 'term') {
+            inner = koteiTermCardHtml_('dark') + koteiTermCardHtml_('light');
+            sceneKoteiSetWidth = 512;
+        } else if (phase === 'week') {
+            inner = koteiWeekSetHtml_();
+            sceneKoteiSetWidth = 512;
+        } else {
+            inner = koteiSafetySetHtml_();
+            sceneKoteiSetWidth = 512;
+        }
+        koteiTrack.innerHTML = inner + inner;
         koteiTrack.style.width = (sceneKoteiSetWidth * 2) + 'px';
         applyScrollX_(koteiTrack, 0);
         return sceneKoteiSetWidth > 0;
@@ -8248,6 +8325,7 @@
         if (wait > 0) koteiCanvasTimerId_ = setTimeout(apply, wait);
         else apply();
     }
+    const KOTEI_PHASES = ['term', 'week', 'safety'];
     function gotoAfterSceneKotei_() {
         if (demoOnlyLoop_('kotei', playSceneKotei)) return;
         setKoteiCanvasMode_(false, SCENE_SLIDE_MS);
@@ -8256,14 +8334,19 @@
             transitionToScene(s3, playScene3);
         }, LOGO_BEFORE_MULTI_KINDS);
     }
-    function playSceneKotei() {
-        if (sceneKoteiAnimId) { cancelAnimationFrame(sceneKoteiAnimId); sceneKoteiAnimId = null; }
-        if (!sceneKotei || !koteiTrack) {
+    function gotoNextKoteiPhase_() {
+        koteiPhaseIdx_ += 1;
+        if (koteiPhaseIdx_ >= KOTEI_PHASES.length) {
+            koteiPhaseIdx_ = 0;
             gotoAfterSceneKotei_();
             return;
         }
-        setKoteiCanvasMode_(true, DEMO_ONLY === 'kotei' ? 0 : SCENE_SLIDE_MS);
-        if (!buildSceneKoteiTrack_()) {
+        playKoteiPhase_(koteiPhaseIdx_);
+    }
+    function playKoteiPhase_(idx) {
+        const phase = KOTEI_PHASES[idx] || 'term';
+        if (sceneKoteiAnimId) { cancelAnimationFrame(sceneKoteiAnimId); sceneKoteiAnimId = null; }
+        if (!buildSceneKoteiTrack_(phase)) {
             gotoAfterSceneKotei_();
             return;
         }
@@ -8277,13 +8360,23 @@
                 if (totalScrolled >= scrollTotal) {
                     sceneKoteiAnimId = null;
                     applyScrollX_(koteiTrack, wrapScrollX_(-scrollTotal, sceneKoteiSetWidth));
-                    runAfterSceneEndHold_(gotoAfterSceneKotei_);
+                    runAfterSceneEndHold_(gotoNextKoteiPhase_);
                     return;
                 }
                 sceneKoteiAnimId = requestAnimationFrame(tick);
             }
             sceneKoteiAnimId = requestAnimationFrame(tick);
         });
+    }
+    function playSceneKotei() {
+        if (sceneKoteiAnimId) { cancelAnimationFrame(sceneKoteiAnimId); sceneKoteiAnimId = null; }
+        if (!sceneKotei || !koteiTrack) {
+            gotoAfterSceneKotei_();
+            return;
+        }
+        setKoteiCanvasMode_(true, DEMO_ONLY === 'kotei' ? 0 : SCENE_SLIDE_MS);
+        koteiPhaseIdx_ = 0;
+        playKoteiPhase_(0);
     }
     /* ロゴ面: 横長ロゴと紋章を256pxごとに交互に流す */
     const LOGO_AFTER_BRAND_KINDS = ['alternate'];
