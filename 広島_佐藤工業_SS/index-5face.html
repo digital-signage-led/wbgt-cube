@@ -980,15 +980,116 @@
         }
 
         #scene2 .s2-panel .col-bg-foot, #scene2 .s2-panel-data .col-bg-foot { display: none; }
-        /* 列間の縦すき間（黒線）を防ぐ — 背景を1px重ねてシームレスに */
-        #scene1 .col-bg-host { flex-shrink: 0; }
-        #scene1 .col-bg-layer { width: calc(100% + 1px); }
-        #scene1 .col-bg-top, #scene1 .col-bg-body, #scene1 .col-bg-foot { width: 100%; }
-        #scene2 .col-bg-host { flex-shrink: 0; }
-        #scene2 .col-bg-layer { width: calc(100% + 1px); }
-        #scene2 .col-bg-top, #scene2 .col-bg-body, #scene2 .col-bg-foot { width: 100%; }
-        #scene4 .col-bg-host { flex-shrink: 0; }
-        #scene4 .fc-panel .col-bg-layer { width: calc(100% + 1px); }
+        /*
+         * 列間の髪の毛線対策:
+         * パネル幅(128)は変えない（幅を129にすると周回計算がずれて黒い隙間が出る）。
+         * 背景レイヤーだけ左右に1pxはみ出して覆う。
+         */
+        #scene1 .col-bg-host,
+        #scene2 .col-bg-host,
+        #scene4 .col-bg-host {
+            flex-shrink: 0;
+            position: relative;
+            overflow: visible;
+        }
+        #scene1 .panel-clock,
+        #scene2 .s2-panel:not(.s2-logo-panel),
+        #scene2 .s2-panel-data,
+        #scene4 .fc-panel:not(.fc-logo-panel) {
+            overflow: visible;
+            width: 128px;
+            flex: 0 0 128px;
+            max-width: 128px;
+            margin-left: 0;
+        }
+        #scene1 .panel-clock .s1-top-bar,
+        #scene1 .panel-clock .s1-body,
+        #scene2 .s2-panel:not(.s2-logo-panel) .s2-top-bar,
+        #scene2 .s2-panel:not(.s2-logo-panel) .s2-body,
+        #scene2 .s2-panel-data .s2-top-bar,
+        #scene2 .s2-panel-data .s2-body,
+        #scene4 .fc-panel:not(.fc-logo-panel) .fc-top-bar,
+        #scene4 .fc-panel:not(.fc-logo-panel) .fc-body {
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        #scene1 .col-bg-layer,
+        #scene2 .col-bg-layer,
+        #scene4 .fc-panel .col-bg-layer {
+            width: calc(100% + 2px) !important;
+            left: -1px !important;
+            top: 0;
+            bottom: 0;
+            height: 100% !important;
+            z-index: 0;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        #scene4 .fc-panel .col-bg-layer {
+            height: var(--led-col-main-h) !important;
+        }
+        #scene1 .col-bg-top, #scene1 .col-bg-body, #scene1 .col-bg-foot,
+        #scene2 .col-bg-top, #scene2 .col-bg-body, #scene2 .col-bg-foot,
+        #scene4 .fc-panel .col-bg-top,
+        #scene4 .fc-panel .col-bg-body,
+        #scene4 .fc-panel .col-bg-foot {
+            width: 100%;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0;
+        }
+        /* ロゴ面の左右も白で1px覆い、気象列との境の黒線を消す */
+        #scene2 .s2-logo-panel {
+            box-shadow: -1px 0 0 #ffffff, 1px 0 0 #ffffff;
+        }
+        #scene4 .fc-logo-panel,
+        #scene5 .d5-logo-panel {
+            box-shadow: -1px 0 0 #ffffff, 1px 0 0 #ffffff;
+        }
+        /* スクロール枠の下地をWBGT色で塗り、列境の黒線・隙間を消す */
+        #scene2 .s2-scroll-wrap {
+            background-image: linear-gradient(
+                to bottom,
+                var(--s2-gap-bar, #55A5E6) 0 32px,
+                var(--s2-gap-bg, #308DD8) 32px calc(100% - 32px),
+                var(--led-foot-bar-bg) calc(100% - 32px) 100%
+            );
+        }
+        /* 下帯メタ: 幅は128固定。背景だけ連続させて縦線を消す */
+        #scene2 .s2-meta-bar,
+        #scene2 .s2-meta-set.s2-meta-set-panels {
+            background-color: var(--led-foot-bar-bg);
+        }
+        #scene2 .s2-meta-slot.s2-meta-slot-panel {
+            background-color: var(--led-foot-bar-bg);
+            border: none;
+            box-shadow: none;
+            width: 128px;
+            flex: 0 0 128px;
+            margin-left: 0;
+        }
+        #scene2 .s2-meta-slot.s2-meta-slot-panel + .s2-meta-slot.s2-meta-slot-panel {
+            box-shadow: -1px 0 0 var(--led-foot-bar-bg);
+        }
+        #scene4 .fc-panel .col-bg-top,
+        #scene4 .fc-panel .col-bg-body,
+        #scene4 .fc-panel .col-bg-foot {
+            width: 100%;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        #scene4 .fc-lv-bar,
+        #scene4 .fc-lv-set {
+            background-color: var(--led-foot-bar-bg);
+        }
+        #scene4 .fc-lv-slot + .fc-lv-slot {
+            box-shadow: -1px 0 0 var(--led-foot-bar-bg);
+        }
         #scene3 .t3-col.col-bg-host { flex-shrink: 0; }
         /* 列間の髪の毛線対策: pair全体を同色で塗り、右列を1px左へ重ねる */
         #scene3 .t3-pair { background-color: var(--t3-pair-bg, transparent); }
@@ -1040,7 +1141,6 @@
         }
         /* シーン4: 数値は本文高、最後ロゴは128×128でその列の白帯を隠す */
         #scene4 { height: 128px; }
-        #scene4 .fc-panel .col-bg-layer { height: var(--led-col-main-h); }
         #scene4 .fc-panel .col-bg-foot { display: none; }
         #scene4 .fc-logo-panel {
             width: 128px; height: 128px !important; max-height: 128px;
@@ -2676,6 +2776,9 @@
         ensureSceneStripBg(content);
         content.classList.toggle('col-bg-dark-text', isDarkTextForDisplay(levelIdx, displayMode));
         applySceneStripBg(content, levelIdx, displayMode);
+        const colors = colorsForDisplay(levelIdx, displayMode);
+        content.style.setProperty('--s2-gap-bg', colors.bgColor);
+        content.style.setProperty('--s2-gap-bar', colors.barColor);
     }
 
     /** 右端 128×128（513以降）: WBGT色は使わず固定背景 */
@@ -2880,7 +2983,8 @@
             return;
         }
         demoRainPassIdx_ = 0;
-        advanceDemoLevel();
+        /* 警報パス完了 → 時刻へ続けて一周。レベル切替は一周の最後 */
+        finishMainLoopToS1_();
     }
     /* フルデモも本番と同じスクロール＋シーン切替（静止5秒順送りは廃止） */
     const DEMO_STEP_MS = 5000;
@@ -3159,7 +3263,8 @@
     }
     function getSignageDisplayMode_() {
         if (wbgtOffSeason) return 'offseason';
-        if (wbgtUnavailable) return 'unavailable';
+        /* 取得不可は灰色エラー面にせず、気温テーマで他コンテンツを継続 */
+        if (wbgtUnavailable) return 'offseason';
         return 'normal';
     }
     /** 背景色用: unavailable/offseason 以外は getS1WbgtLevelForDisplay_ を使用 */
@@ -3329,6 +3434,13 @@
         const mode = paint.mode;
         const lv = paint.lv;
         if (!force && lv === lastSignageBgLv_ && mode === lastSignageBgMode_) return;
+        /* 再生中は force でも保留（シーン入場時のみ反映） */
+        if (mainLoopStarted_ && !sceneEntryRefreshAllowed_ && shouldDeferDisplayRefresh_()) {
+            pendingSignageBgRefresh_ = true;
+            pendingSignageBgLv_ = lv;
+            pendingSignageBgMode_ = mode;
+            return;
+        }
         if (shouldDeferDisplayRefresh_() && !force) {
             pendingSignageBgRefresh_ = true;
             pendingSignageBgLv_ = lv;
@@ -4796,9 +4908,42 @@
             }
         }
     }
+    function isContentScrollBusy_() {
+        return !!(scene1AnimId || scene2AnimId || scene4AnimId || scene5AnimId
+            || sceneLogoAnimId || sceneNewsAnimId || sceneKoteiAnimId
+            || sceneBrandAnimId || tickerAnimId || haAnimId || raAnimId
+            || sceneSlideAnimId || sceneEndHoldTimerId_ || scenePostHoldTimerId_
+            || scene1HoldTimerId || scene1EndHoldTimerId);
+    }
+    /** 本体スクロール中のみ（終了ホールドからの正規遷移は許可） */
+    function isMidContentScrollAnim_() {
+        return !!(scene2AnimId || scene4AnimId || scene5AnimId
+            || sceneLogoAnimId || sceneNewsAnimId || sceneKoteiAnimId
+            || sceneBrandAnimId || tickerAnimId || haAnimId || raAnimId
+            || sceneSlideAnimId || scene1AnimId);
+    }
     function finishMainLoopToS1_() {
-        if (DEMO_SIGNAGE && !DEMO_ONLY) { advanceDemoLevel(); return; }
+        /* 警報・注意報の次は時刻。更新等で他コンテンツの途中へ巻き戻さない */
+        const active = activeSceneEl_ || getActiveScene();
+        if (active === s1 && isContentScrollBusy_()) {
+            /* 既に時刻面で再生中なら再起動しない（安全タイマー／周回のリセット防止） */
+            return;
+        }
+        if (mainLoopStarted_ && active && active !== s1
+            && active !== sceneRainWarn && active !== sceneAlert
+            && isMidContentScrollAnim_()) {
+            console.warn('[loop] 他コンテンツ再生中のため時刻復帰を抑制', active.id || '');
+            return;
+        }
         if (s1) transitionToScene(s1, playScene1, true);
+    }
+    /** 一周の最後（多言語／熱中症のあと）→ デモならレベル更新して最初から、本番は警報→時刻 */
+    function gotoLoopStartAfterFullCycle_() {
+        if (DEMO_SIGNAGE && !DEMO_ONLY) {
+            advanceDemoLevel();
+            return;
+        }
+        gotoAfterRainWarnOrScene1_();
     }
     /**
      * ブランド面シーケンス:
@@ -5045,6 +5190,7 @@
         /* 次先が無いときは先頭へ飛ばさない（再生中の巻き戻り防止） */
     }
     function gotoAfterRainWarnOrScene1_() {
+        /* 警報・注意報はループ先頭。無ければ時刻（シーン1）へ */
         if (isDemoFullRainLoop_()) {
             demoRainPassIdx_ = 0;
             prepDemoRainPass_();
@@ -5056,6 +5202,21 @@
             return;
         }
         finishMainLoopToS1_();
+    }
+    function startMainLoopFromFront_() {
+        /* 一周の途中で先頭へ強制復帰しない（データ更新中の巻き戻し防止） */
+        const active = activeSceneEl_ || getActiveScene();
+        if (mainLoopStarted_ && active && active !== s1
+            && active !== sceneRainWarn && active !== sceneAlert
+            && isMidContentScrollAnim_()) {
+            console.warn('[loop] 再生中のため先頭復帰を抑制', active.id || '');
+            return;
+        }
+        clearDemoStepTimer_();
+        resetLogoRotation();
+        [s1, s2, s3, s4, s5, sceneLogo, sceneNews, sceneKotei, sceneBrand, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
+        activeSceneEl_ = null;
+        gotoAfterRainWarnOrScene1_();
     }
     function playSceneRainWarn(startIdx) {
         if (raAnimId) { cancelAnimationFrame(raAnimId); raAnimId = null; }
@@ -5419,7 +5580,8 @@
     const GLOBAL_SCROLL_SPEED_PX = 1.35;
     const DEMO_SCROLL_SPEED_PX = 0.9;
     function getScrollSpeedPx_() {
-        return (DEMO_SIGNAGE && !DEMO_ONLY) ? DEMO_SCROLL_SPEED_PX : GLOBAL_SCROLL_SPEED_PX;
+        /* 全コンテンツ・デモ／本番とも同一速度 */
+        return GLOBAL_SCROLL_SPEED_PX;
     }
     let sceneSlideAnimId = null;
     let sceneSlideFromEl_ = null;
@@ -5965,6 +6127,10 @@
     }
     function compactScene4Panels() {
         if (!fcConveyor) return;
+        if (mainLoopStarted_ && shouldDeferDisplayRefresh_()) {
+            queueDisplayRefresh_();
+            return;
+        }
         scene4SetWidth = SCENE4_PANEL_COUNT * 128;
         fcConveyor.style.width = `${scene4SetWidth * 2}px`;
         scene4FcLvLapPx = scene4SetWidth;
@@ -5978,7 +6144,8 @@
     function isTrustedMoePayload(json, slots) {
         if (!hasFull4Slots(slots)) return false;
         const src = json && json.source;
-        return src === 'estimated' || src === 'forecast' || src === 'moe-env.go.jp';
+        if (!src) return true; /* source 無しでも正規スロットがあれば採用 */
+        return src === 'estimated' || src === 'forecast' || src === 'moe-env.go.jp' || src === 'moe-bundle';
     }
     function normalizeMoeResponse(payload) {
         const rows = Array.isArray(payload) ? payload : (payload?.data || payload?.slots || []);
@@ -6035,6 +6202,13 @@
         }
         if (json.source === 'moe-alert') {
             return { wbgt: null, alert: json, bundled: false };
+        }
+        /* source 欠落でも data/slots があれば採用（取得経路差での破棄を防ぐ） */
+        if (json.wbgt && typeof json.wbgt === 'object') {
+            return { wbgt: json.wbgt, alert: json.alert || null, bundled: !!json.alert };
+        }
+        if (Array.isArray(json.data) || Array.isArray(json.slots)) {
+            return { wbgt: json, alert: null, bundled: false };
         }
         return null;
     }
@@ -6218,6 +6392,10 @@
     }
     function shouldDeferDisplayRefresh_() {
         if (bootDisplayHold_) return true;
+        /* 本編ループ開始後はシーン切替直後以外、表示組み替えを保留（途中で時刻へ飛ぶのを防ぐ） */
+        if (DEMO_ONLY || DEMO_ALERT_ONLY || DEMO_RAINWARN_ONLY) return false;
+        if (DEMO_PREVIEW === 's1' || DEMO_PREVIEW === 's3') return false;
+        if (mainLoopStarted_ && !sceneEntryRefreshAllowed_) return true;
         if (!isMainLoopPlaying_()) return false;
         return !sceneEntryRefreshAllowed_;
     }
@@ -6954,6 +7132,11 @@
     }
     function compactScene2Panels() {
         if (!conveyor) return;
+        /* 再生中の再構築はスクロール位置を壊すので保留 */
+        if (mainLoopStarted_ && shouldDeferDisplayRefresh_()) {
+            queueDisplayRefresh_();
+            return;
+        }
         const weather = Array.from(conveyor.children).filter(function (p) {
             return !isScene2LogoPanel_(p);
         });
@@ -7120,16 +7303,15 @@
         return rainNowcastAlert && rainNowcastAlert.messageJp ? rainNowcastAlert.messageJp : '';
     }
     function getWbgtOnlyMessageJp() {
-        if (wbgtOffSeason) return '';
-        if (wbgtUnavailable) return unknownMsg.jp;
+        if (wbgtOffSeason || wbgtUnavailable) return '';
         const lv = getS1WbgtLevelForDisplay_();
         if (lv < 0) return '';
         return multi[lv].jp;
     }
-    /* 下帯: 1分以上取得不可のときだけ「取得不可」。それ以外は直前値のWBGT文言＋雨タグ */
+    /* 下帯: 取得不可時は WBGT 文言を出さない（雨タグのみ可）。エラー文面は流さない */
     function getS1WbgtMessageJp() {
         if (wbgtOffSeason) return '';
-        if (wbgtUnavailable) return unknownMsg.jp;
+        if (wbgtUnavailable) return getRainAlertMessageJp() || '';
         const lv = getS1WbgtLevelForDisplay_();
         const rain = getRainAlertMessageJp();
         if (lv < 0) return rain || '';
@@ -7492,7 +7674,7 @@
             transitionToScene(sceneAlert, () => playSceneAlert(0));
             return;
         }
-        gotoAfterRainWarnOrScene1_();
+        gotoLoopStartAfterFullCycle_();
     }
     function gotoAfterScene3_() {
         stopT3GuidScroll_();
@@ -7548,7 +7730,7 @@
         if (haAnimId) { cancelAnimationFrame(haAnimId); haAnimId = null; }
         if (!heatAlertActive.length) {
             if (DEMO_ALERT_ONLY) return;
-            gotoAfterRainWarnOrScene1_();
+            gotoLoopStartAfterFullCycle_();
             return;
         }
         const idx = startIdx || 0;
@@ -7558,20 +7740,20 @@
             scheduleDemoStep_(function () {
                 const next = idx + 1;
                 if (next < heatAlertActive.length) playSceneAlert(next);
-                else gotoAfterRainWarnOrScene1_();
+                else gotoLoopStartAfterFullCycle_();
             });
             return;
         }
         if (!setHeatAlert_(idx)) {
             if (DEMO_ALERT_ONLY) return;
-            gotoAfterRainWarnOrScene1_();
+            gotoLoopStartAfterFullCycle_();
             return;
         }
         stepLogo90(420, true);
         const tracks = document.querySelectorAll('#sceneAlert .ha-track');
         if (!tracks.length) {
             if (DEMO_ALERT_ONLY) return;
-            gotoAfterRainWarnOrScene1_();
+            gotoLoopStartAfterFullCycle_();
             return;
         }
         haFlow_ = {
@@ -7603,11 +7785,11 @@
                             return;
                         } else if (DEMO_SIGNAGE && !DEMO_ONLY) {
                             haAnimId = null; haFlow_ = null;
-                            runAfterSceneEndHold_(advanceDemoLevel);
+                            runAfterSceneEndHold_(gotoLoopStartAfterFullCycle_);
                             return;
                         } else {
                             haAnimId = null; haFlow_ = null;
-                            runAfterSceneEndHold_(gotoAfterRainWarnOrScene1_);
+                            runAfterSceneEndHold_(gotoLoopStartAfterFullCycle_);
                             return;
                         }
                     }
@@ -7654,12 +7836,8 @@
     }
     /* シーン3（多言語枠）: 日・英・インドネシア・フィリピン・ベトナム */
     function getT3Messages_() {
-        if (wbgtOffSeason) return [];
-        if (wbgtUnavailable) {
-            const all = T3_LANG_KEYS.map(function (key) { return splitT3Message_(unknownMsg[key]); });
-            if (DEMO_T3_LANG_IDX >= 0 && DEMO_T3_LANG_IDX < all.length) return [all[DEMO_T3_LANG_IDX]];
-            return all;
-        }
+        /* 提供期間外・取得不可は多言語面を出さずスキップ（エラー文面を流さない） */
+        if (wbgtOffSeason || wbgtUnavailable) return [];
         const lv = getS1WbgtLevelForDisplay_();
         if (lv < 0) return [];
         const m = multi[lv];
@@ -8168,7 +8346,7 @@
     }
     function playScene3() {
         if (tickerAnimId) { cancelAnimationFrame(tickerAnimId); tickerAnimId = null; }
-        if (wbgtOffSeason) {
+        if (wbgtOffSeason || wbgtUnavailable) {
             if (previewOffSeasonHold_('s3', playScene3)) return;
             gotoAfterScene3_();
             return;
@@ -8320,8 +8498,8 @@
         }, LOGO_BEFORE_MULTI_KINDS);
     }
     const SCENE_NEWS_LAPS = 1;
-    /* NEWSは本文が長いのでやや速め（他シーンより長くなりすぎない） */
-    const SCENE_NEWS_SPEED_MULT = 1.75;
+    /* NEWSのみやや遅く（従来 GLOBAL 1.35 の約8割） */
+    const SCENE_NEWS_SPEED_MULT = 0.8;
     const SCENE_NEWS_REFRESH_WAIT_MS = 2000;
     let sceneNewsSetWidth = 512;
     let sceneNewsAnimId = null;
@@ -8437,7 +8615,7 @@
         ]).finally(start);
     }
     const SCENE_KOTEI_LAPS = 1;
-    const SCENE_KOTEI_SPEED_MULT = 0.95;
+    const SCENE_KOTEI_SPEED_MULT = 1;
     const KOTEI_TERM = {
         reiwa: '令和8年',
         highlight: '9月から12月',
@@ -8805,7 +8983,7 @@
     function playScene4() {
         applyDisplayRefreshAtSceneEntry_();
         clearScene4Timers();
-        if (wbgtOffSeason) {
+        if (wbgtOffSeason || wbgtUnavailable) {
             if (previewOffSeasonHold_('s4', playScene4)) return;
             finishScene4();
             return;
@@ -9073,11 +9251,7 @@
     }
 
     function startSequence() {
-        clearDemoStepTimer_();
-        resetLogoRotation();
-        [s1, s2, s3, s4, s5, sceneLogo, sceneNews, sceneKotei, sceneBrand, sceneAlert, sceneRainWarn].forEach(hideSceneEl);
-        activeSceneEl_ = null;
-        transitionToScene(s1, playScene1);
+        startMainLoopFromFront_();
     }
 
     window.onload = async function() {
@@ -9139,13 +9313,7 @@
             flushInitialDisplay_();
             mainLoopStarted_ = true;
             scheduleDataRefresh();
-            if (s1) {
-                s1.style.display = sceneDisplayMode(s1);
-                s1.classList.add('active');
-                activeSceneEl_ = s1;
-                hideOtherScenes_(s1);
-                playScene1();
-            }
+            startMainLoopFromFront_();
         } catch (err) {
             console.error('Init:', err);
             bootDisplayHold_ = false;
@@ -9155,13 +9323,7 @@
             startClockTicker();
             mainLoopStarted_ = true;
             scheduleDataRefresh();
-            if (s1) {
-                s1.style.display = sceneDisplayMode(s1);
-                s1.classList.add('active');
-                activeSceneEl_ = s1;
-                hideOtherScenes_(s1);
-                playScene1();
-            }
+            startMainLoopFromFront_();
         } finally {
             bootDisplayHold_ = false;
         }
