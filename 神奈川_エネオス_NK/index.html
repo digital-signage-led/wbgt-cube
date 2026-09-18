@@ -4,19 +4,21 @@
 <!-- 白帯: エネオス株式会社 | 磯子区 -->
 <!-- 会場・観測・警報の地点は assets/site-config.js（磯子区鳳町 / 横浜 46106 / 警報 横浜市南部 1410012） -->
 <!-- 本番: index.html + assets/。天気・発表中の警報を同じループで流す。色は警報優先（WBGT非依存） -->
-<!-- build 20260918-eneos4 -->
+<!-- build 20260918-boot1 -->
 <html lang="ja" class="native-640 layout-512">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=512, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <!-- HTMLは再検証。固定素材は ?v= と Service Worker でキャッシュ -->
+    <meta http-equiv="Cache-Control" content="max-age=0, must-revalidate">
     <!-- clock: jst-network-v2 / 表示・同期は常に Asia/Tokyo（端末TZ非依存） -->
     <title>Alert Cube 4面 - エネオス株式会社 磯子区</title>
+    <link rel="preload" as="image" href="./assets/eneos_logo.gif?v=20260918-eneos4">
+    <link rel="preload" as="image" href="./assets/eneos_lockup.png?v=20260918-eneos4">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=Noto+Sans+JP:wght@700;900&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=Noto+Sans+JP:wght@700;900&display=swap"></noscript>
     <script>
 /** 4面 512×128。実寸は常に同じCSS。画面が大きいときだけ拡大プレビュー。512×128端末はネイティブ */
 (function () {
@@ -2357,8 +2359,6 @@
         #sceneWarn .white-foot-chip.chip-warning { background: #fa2900; color: #fff; }
         #sceneWarn .white-foot-chip.chip-advisory { background: #f2e700; color: #1a1a1a; }
     </style>
-    <link rel="stylesheet" href="./assets/white-hero.css?v=20260915-boot">
-    <link rel="stylesheet" href="./assets/color-hero.css?v=20260909-w256">
 </head>
 <body class="native-640 layout-512">
 <!-- 位置情報だけ差し替え: assets/site-config.js（雛形は site-config.template.js） -->
@@ -2445,15 +2445,37 @@
             </div>
         </div>
     </div>
-    <div class="scene" id="scene1">
+    <div class="scene active" id="scene1">
         <div class="scene1-state active" id="s1-stateA">
-            <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
-            <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
-            <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
-            <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val">--:--</div></div><div class="s1-foot"></div></div>
+            <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val"><span class="clock-h">--</span><span class="clock-colon" aria-hidden="true">:</span><span class="clock-m">--</span></div></div><div class="s1-foot"></div></div>
+            <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val"><span class="clock-h">--</span><span class="clock-colon" aria-hidden="true">:</span><span class="clock-m">--</span></div></div><div class="s1-foot"></div></div>
+            <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val"><span class="clock-h">--</span><span class="clock-colon" aria-hidden="true">:</span><span class="clock-m">--</span></div></div><div class="s1-foot"></div></div>
+            <div class="panel panel-clock"><div class="s1-top-bar"><span class="s1-bar-label">--</span></div><div class="s1-body"><div class="clock-hm time-val"><span class="clock-h">--</span><span class="clock-colon" aria-hidden="true">:</span><span class="clock-m">--</span></div></div><div class="s1-foot"></div></div>
         </div>
-        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/eneos_lockup.png" alt="エネオス株式会社" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">磯子区</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/eneos_lockup.png" alt="エネオス株式会社" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">磯子区</span></div></div></div></div>
+        <div class="s1-wbgt-bar"><div class="s1-wbgt-track" id="s1-wbgt-track"><div class="s1-wbgt-set s1-wbgt-set-scroll"><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/eneos_lockup.png?v=20260918-eneos4" alt="エネオス株式会社" decoding="async" fetchpriority="high"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">磯子区</span></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><img class="s1-wbgt-banner" src="./assets/eneos_lockup.png?v=20260918-eneos4" alt="エネオス株式会社" decoding="async"></div><div class="s1-wbgt-slot s1-wbgt-site-slot"><span class="s1-foot-co-txt">磯子区</span></div></div></div></div>
     </div>
+<script>
+(function () {
+    try {
+        var now = new Date();
+        var jst = new Date(now.getTime() + now.getTimezoneOffset() * 60000 + 9 * 3600000);
+        var days = ['日', '月', '火', '水', '木', '金', '土'];
+        var dateTxt = (jst.getMonth() + 1) + '月' + jst.getDate() + '日(' + days[jst.getDay()] + ')';
+        var hh = (jst.getHours() < 10 ? '0' : '') + jst.getHours();
+        var mm = (jst.getMinutes() < 10 ? '0' : '') + jst.getMinutes();
+        var labels = document.querySelectorAll('#scene1 .s1-bar-label');
+        var i;
+        for (i = 0; i < labels.length; i++) labels[i].textContent = dateTxt;
+        var clocks = document.querySelectorAll('#scene1 .clock-hm');
+        for (i = 0; i < clocks.length; i++) {
+            var hEl = clocks[i].querySelector('.clock-h');
+            var mEl = clocks[i].querySelector('.clock-m');
+            if (hEl) hEl.textContent = hh;
+            if (mEl) mEl.textContent = mm;
+        }
+    } catch (e) {}
+})();
+</script>
 
     <div class="scene" id="scene2">
         <div class="s2-scroll-wrap">
@@ -2467,7 +2489,7 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="" alt="エネオス株式会社" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/eneos_logo.gif?v=20260918-eneos4" alt="エネオス株式会社" decoding="async"></div></div>
             <div class="s2-panel s2-strip" data-s2="weather"><div class="s2-top-bar"><span class="s2-bar-label">天気</span></div><div class="s2-body"><span class="weather-icon-cell"><svg class="weather-svg"><use class="weather-icon-use" href="#icon-sunny"/></svg></span></div></div>
             <div class="s2-panel-data s2-strip" data-s2="temp"><div class="s2-top-bar"><span class="s2-bar-label">気温</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num temp-val"></span><span class="s2-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip" data-s2="rain"><div class="s2-top-bar"><span class="s2-bar-label">降水量</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num rain-val"></span><span class="s2-unit">mm</span></div></div></div>
@@ -2477,7 +2499,7 @@
             <div class="s2-panel-data s2-strip" data-s2="pres"><div class="s2-top-bar"><span class="s2-bar-label">気圧</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num pres-val"></span><span class="s2-unit">hPa</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="tmaxmin"><div class="s2-top-bar"><span class="s2-bar-label">最高/最低</span></div><div class="s2-body"><div class="s2-tmaxmin-card"><span class="s2-tmax-high tmaxmax-val">--</span><span class="s2-tmax-sep">/</span><span class="s2-tmax-low tmin-val">--</span><span class="s2-tmax-unit">℃</span></div></div></div>
             <div class="s2-panel-data s2-strip s2-panel-compact" data-s2="gust"><div class="s2-top-bar"><span class="s2-bar-label">最大瞬間風速</span></div><div class="s2-body"><div class="s2-val"><span class="s2-num gust-val"></span><span class="s2-unit">m/s</span></div></div></div>
-            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="" alt="エネオス株式会社" decoding="sync"></div></div>
+            <div class="s2-panel s2-logo-panel" data-s2="logo"><div class="s2-body"><img class="s2-logo-face-img" src="./assets/eneos_logo.gif?v=20260918-eneos4" alt="エネオス株式会社" decoding="async"></div></div>
         </div>
         </div>
         <div class="s2-meta-bar"><div class="s2-meta-track" id="s2-meta-track"></div></div>
@@ -2490,12 +2512,12 @@
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="" alt="エネオス株式会社" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/eneos_logo.gif?v=20260918-eneos4" alt="エネオス株式会社" decoding="async"></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="0"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="1"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-0" data-fc-slot="2"><div class="fc-top-bar"><span class="fc-bar-label">暑さ指数</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
                 <div class="fc-panel fc-slot-1" data-fc-slot="3"><div class="fc-top-bar"><span class="fc-bar-label">WBGT</span></div><div class="fc-body"><div class="fc-wbgt fc-val-live">--</div></div></div>
-                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="" alt="エネオス株式会社" decoding="sync"></div>
+                <div class="fc-panel fc-logo-panel" data-fc="logo"><img class="fc-logo-face-img" src="./assets/eneos_logo.gif?v=20260918-eneos4" alt="エネオス株式会社" decoding="async"></div>
             </div>
         </div>
         <div class="fc-lv-bar"><div class="fc-lv-track" id="fc-lv-track"></div></div>
@@ -2507,12 +2529,12 @@
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><span class="weather-icon-cell"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg></span><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">磯子区</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><span class="weather-icon-cell"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg></span><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">磯子区</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><span class="weather-icon-cell"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg></span><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">磯子区</div></div></div>
-            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="" alt="エネオス株式会社" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/eneos_logo.gif?v=20260918-eneos4" alt="エネオス株式会社" decoding="async"></div>
             <div class="d5-panel d5-day-0 d5-today-focus s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">今日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><span class="weather-icon-cell"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg></span><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">磯子区</div></div><div class="d5-today-frame" aria-hidden="true"></div></div>
             <div class="d5-panel d5-day-1 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><span class="weather-icon-cell"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg></span><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">磯子区</div></div></div>
             <div class="d5-panel d5-day-2 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><span class="weather-icon-cell"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg></span><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">磯子区</div></div></div>
             <div class="d5-panel d5-day-3 s2-strip"><div class="s2-top-bar"><span class="s2-bar-label">明々後日</span></div><div class="s2-body d5-body"><div class="d5-weather-row"><span class="weather-icon-cell"><svg class="weather-svg"><use class="d5-weather-use" href="#icon-sunny"/></svg></span><span class="d5-sep" aria-hidden="true">/</span><div class="s2-val"><span class="s2-num d5-temp">--</span><span class="s2-unit">℃</span></div></div></div><div class="s2-foot"><div class="s2-loc">磯子区</div></div></div>
-            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="" alt="エネオス株式会社" decoding="sync"></div>
+            <div class="d5-panel d5-logo-panel" data-d5="logo"><img class="d5-logo-face-img" src="./assets/eneos_logo.gif?v=20260918-eneos4" alt="エネオス株式会社" decoding="async"></div>
         </div>
     </div>
 
@@ -2569,8 +2591,8 @@
     <div class="logo-panel">
         <div class="logo-rotator" id="logo-rotator">
             <div class="logo-stack">
-                <img class="logo-img" id="signage-logo" src="" alt="エネオス株式会社" decoding="sync" fetchpriority="high">
-                <img class="logo-corp-img" src="" alt="エネオス株式会社" decoding="sync">
+                <img class="logo-img" id="signage-logo" src="./assets/eneos_logo.gif?v=20260918-eneos4" alt="エネオス株式会社" decoding="async" fetchpriority="high">
+                <img class="logo-corp-img" src="./assets/eneos_logo.gif?v=20260918-eneos4" alt="エネオス株式会社" decoding="async">
             </div>
         </div>
     </div>
@@ -2901,6 +2923,8 @@
 })(typeof window !== 'undefined' ? window : global);
 
 </script>
+<link rel="stylesheet" href="./assets/white-hero.css?v=20260915-boot" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="./assets/color-hero.css?v=20260909-w256" media="print" onload="this.media='all'">
 <script src="./assets/jma-warning-kinds.js?v=20260907-nolev"></script>
 <script src="./assets/warning-hero.js?v=20260918-eneos4"></script>
 <script>
@@ -6744,6 +6768,8 @@
         if (el.querySelector('.clock-h') && !el.querySelector('.clock-colon-wrap')) return;
         el.innerHTML = '<span class="clock-h">--</span><span class="clock-colon" aria-hidden="true">:</span><span class="clock-m">--</span>';
     }
+    let lastClockPaint_ = { d: '', h: '', m: '' };
+    let clockFitDone_ = false;
     function updateClock() {
         let ms = getSyncedUtcMs();
         if (ms == null) {
@@ -6755,6 +6781,11 @@
         const d = clockDateFormatter.format(new Date(Math.floor(ms)));
         const h = pad2Clock_(jp.hour);
         const m = pad2Clock_(jp.minute);
+        if (lastClockPaint_.d === d && lastClockPaint_.h === h && lastClockPaint_.m === m) return;
+        const dateChanged = lastClockPaint_.d !== d;
+        lastClockPaint_.d = d;
+        lastClockPaint_.h = h;
+        lastClockPaint_.m = m;
         document.querySelectorAll('.clock-hm').forEach(function (el) {
             ensureClockHmStructure_(el);
             const hh = el.querySelector('.clock-h');
@@ -6762,9 +6793,14 @@
             if (hh) hh.textContent = h;
             if (mm) mm.textContent = m;
         });
-        document.querySelectorAll('#scene1 .s1-bar-label').forEach(function (el) { el.innerText = d; });
-        fitS1DateFontSize_();
-        fitClockHmFontSize_();
+        if (dateChanged) {
+            document.querySelectorAll('#scene1 .s1-bar-label').forEach(function (el) { el.textContent = d; });
+            fitS1DateFontSize_();
+        }
+        if (!clockFitDone_) {
+            fitClockHmFontSize_();
+            clockFitDone_ = true;
+        }
     }
     function startClockTicker() {
         if (clockIntervalId != null) { clearTimeout(clockIntervalId); clockIntervalId = null; }
@@ -6784,9 +6820,6 @@
             clockIntervalId = setTimeout(tick, Math.max(50, 1000 - (base % 1000)));
         }
         tick();
-        clockBackupIntervalId = setInterval(function () {
-            try { updateClock(); } catch (err) { console.warn('Clock backup:', err); }
-        }, 1000);
     }
     function degToCompassJa(deg) {
         if (!Number.isFinite(deg)) return '--';
@@ -10175,47 +10208,46 @@
             applyWbgtOffSeason_();
         }
         paintBootSplash_();
-        flushInitialDisplay_();
         bootMark_('shellReady');
-        const logoEl = document.getElementById('signage-logo');
-        const logoCfg = window.SIGNAGE_CONFIG;
-        if (logoEl && logoCfg && logoCfg.logoSrc) {
-            if (logoEl.getAttribute('src') !== logoCfg.logoSrc) logoEl.src = logoCfg.logoSrc;
-            logoEl.alt = logoCfg.logoAlt || '';
-        }
-        applyContentEndLogoSrc_();
         applySyncedUtcMs(Date.now(), 'boot-local');
         updateClock();
         startClockTicker();
-        setInterval(function () {
-            syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
-        }, CLOCK_SYNC_INTERVAL_MS);
-        syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
         mainLoopStarted_ = true;
-        startLiveWarnPoll_();
-        scheduleDataRefresh();
-        /* 完成画面に近い状態で即ループ開始。最新は裏で差し替え */
-        setTimeout(function () {
-            try {
-                startSequence();
-                bootMark_('loopStarted');
-                logBootPerf_('shell+loop');
-            } catch (err) {
-                console.error('Init loop:', err);
-                gotoSceneScheduleOrNext_();
-            }
-        }, hadCache ? 0 : 40);
-        /* 気象・警報はブロックしない。失敗しても画面は維持 */
-        Promise.allSettled([
-            runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['起動'] })
-        ]).then(function () {
-            bootMark_('fetchSettled');
-            persistSignageStateCache_();
-            logBootPerf_('fetchDone');
-        }).catch(function (err) {
-            console.error('Init fetch:', err);
-            bootMark_('fetchError');
-            logBootPerf_('fetchError');
+        requestAnimationFrame(function () {
+            flushInitialDisplay_();
+            applyContentEndLogoSrc_();
+            setTimeout(function () {
+                try {
+                    startSequence();
+                    bootMark_('loopStarted');
+                    logBootPerf_('shell+loop');
+                } catch (err) {
+                    console.error('Init loop:', err);
+                    gotoSceneScheduleOrNext_();
+                }
+            }, hadCache ? 0 : 40);
+            requestAnimationFrame(function () {
+                startLiveWarnPoll_();
+                scheduleDataRefresh();
+                setInterval(function () {
+                    syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+                }, CLOCK_SYNC_INTERVAL_MS);
+                syncTimeFromNetwork().then(function () { updateClock(); }).catch(function () {});
+                Promise.allSettled([
+                    runScheduledFetch({ jma: true, moe: true, nowc: true, forecast: true, labels: ['起動'] })
+                ]).then(function () {
+                    bootMark_('fetchSettled');
+                    persistSignageStateCache_();
+                    logBootPerf_('fetchDone');
+                }).catch(function (err) {
+                    console.error('Init fetch:', err);
+                    bootMark_('fetchError');
+                    logBootPerf_('fetchError');
+                });
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('./sw.js?v=20260918-boot1').catch(function () {});
+                }
+            });
         });
         document.addEventListener('visibilitychange', function () {
             if (document.visibilityState === 'visible') {
