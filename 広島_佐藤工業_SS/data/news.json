@@ -1,8 +1,14 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
   "source": "https://www.satokogyo.co.jp/news/",
-  "fetchedAt": "2026-09-03T01:37:06.742Z",
+  "fetchedAt": "2026-09-30T04:56:05.546Z",
   "items": [
+    {
+      "title": "TCFD提言に基づく情報開示の更新のお知らせ",
+      "date": "2026年09月30日",
+      "category": "お知らせ",
+      "url": "https://www.satokogyo.co.jp/csr/environment.html"
+    },
     {
       "title": "＜協力会社のみなさまへ＞通報・相談窓口を設置しました",
       "date": "2026年09月01日",
@@ -14,12 +20,6 @@
       "date": "2026年08月07日",
       "category": "お知らせ",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=417"
-    },
-    {
-      "title": "＜協力会社のみなさまへ＞ 『建設技能者を大切にする企業の自主宣言』について",
-      "date": "2026年07月01日",
-      "category": "お知らせ",
-      "url": "http://www.satokogyo.co.jp/associate/index.html"
     }
   ]
 }
