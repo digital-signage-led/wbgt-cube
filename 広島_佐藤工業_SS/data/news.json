@@ -1,8 +1,14 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
   "source": "https://www.satokogyo.co.jp/news/",
-  "fetchedAt": "2026-09-30T04:56:05.546Z",
+  "fetchedAt": "2026-10-14T05:56:54.379Z",
   "items": [
+    {
+      "title": "温室効果ガスの「サプライチェーン排出量」（2025年度）をお知らせします。",
+      "date": "2026年10月14日",
+      "category": "お知らせ",
+      "url": "https://www.satokogyo.co.jp/news/detail.php?id=420"
+    },
     {
       "title": "TCFD提言に基づく情報開示の更新のお知らせ",
       "date": "2026年09月30日",
@@ -14,12 +20,6 @@
       "date": "2026年09月01日",
       "category": "お知らせ",
       "url": "http://www.satokogyo.co.jp/associate/index.html"
-    },
-    {
-      "title": "令和8年熊本地震へのお見舞いと対応について",
-      "date": "2026年08月07日",
-      "category": "お知らせ",
-      "url": "https://www.satokogyo.co.jp/news/detail.php?id=417"
     }
   ]
 }
