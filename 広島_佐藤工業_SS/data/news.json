@@ -1,8 +1,14 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
   "source": "https://www.satokogyo.co.jp/news/",
-  "fetchedAt": "2026-10-30T15:13:29.428Z",
+  "fetchedAt": "2026-11-04T02:35:42.007Z",
   "items": [
+    {
+      "title": "～建設業の魅力を子どもたちに〜「けんせつ探検隊2026」開催",
+      "date": "2026年11月04日",
+      "category": "トピックス",
+      "url": "https://www.satokogyo.co.jp/news/detail.php?id=429"
+    },
     {
       "title": "Webサイトの復旧のお知らせ",
       "date": "2026年10月30日",
@@ -14,12 +20,6 @@
       "date": "2026年10月14日",
       "category": "お知らせ",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=424"
-    },
-    {
-      "title": "TCFD提言に基づく情報開示の更新のお知らせ",
-      "date": "2026年09月30日",
-      "category": "お知らせ",
-      "url": "https://www.satokogyo.co.jp/csr/environment.html"
     }
   ]
 }
