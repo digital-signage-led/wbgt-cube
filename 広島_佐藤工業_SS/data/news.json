@@ -1,25 +1,25 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
   "source": "https://www.satokogyo.co.jp/news/",
-  "fetchedAt": "2026-11-04T02:35:42.007Z",
+  "fetchedAt": "2026-11-09T09:27:26.728Z",
   "items": [
+    {
+      "title": "第34回土木施工技術報告会を開催",
+      "date": "2026年11月09日",
+      "category": "トピックス",
+      "url": "https://www.satokogyo.co.jp/news/detail.php?id=431"
+    },
+    {
+      "title": "内閣官房水循環政策本部が定める『水循環ACTIVE企業』に 認証されました",
+      "date": "2026年11月09日",
+      "category": "トピックス",
+      "url": "https://www.satokogyo.co.jp/news/detail.php?id=430"
+    },
     {
       "title": "～建設業の魅力を子どもたちに〜「けんせつ探検隊2026」開催",
       "date": "2026年11月04日",
       "category": "トピックス",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=429"
-    },
-    {
-      "title": "Webサイトの復旧のお知らせ",
-      "date": "2026年10月30日",
-      "category": "お知らせ",
-      "url": "https://www.satokogyo.co.jp/news/detail.php?id=420"
-    },
-    {
-      "title": "温室効果ガスの「サプライチェーン排出量」（2025年度）をお知らせします。",
-      "date": "2026年10月14日",
-      "category": "お知らせ",
-      "url": "https://www.satokogyo.co.jp/news/detail.php?id=424"
     }
   ]
 }
