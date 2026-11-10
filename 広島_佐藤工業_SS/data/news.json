@@ -1,8 +1,14 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
   "source": "https://www.satokogyo.co.jp/news/",
-  "fetchedAt": "2026-11-09T09:27:26.728Z",
+  "fetchedAt": "2026-11-10T23:57:33.701Z",
   "items": [
+    {
+      "title": "佐藤工業のインフラツアー、観光庁「観光需要分散のための地域観光資源の コンテンツ化促進事業」に採択されました",
+      "date": "2026年11月11日",
+      "category": "トピックス",
+      "url": "https://www.satokogyo.co.jp/news/detail.php?id=428"
+    },
     {
       "title": "第34回土木施工技術報告会を開催",
       "date": "2026年11月09日",
@@ -14,12 +20,6 @@
       "date": "2026年11月09日",
       "category": "トピックス",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=430"
-    },
-    {
-      "title": "～建設業の魅力を子どもたちに〜「けんせつ探検隊2026」開催",
-      "date": "2026年11月04日",
-      "category": "トピックス",
-      "url": "https://www.satokogyo.co.jp/news/detail.php?id=429"
     }
   ]
 }
