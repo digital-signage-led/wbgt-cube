@@ -1,24 +1,24 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
-  "source": "https://www.satokogyo.co.jp/news/rss.php",
-  "fetchedAt": "2026-11-16T00:52:51.904Z",
+  "source": "https://www.satokogyo.co.jp/news/",
+  "fetchedAt": "2026-11-16T07:46:43.124Z",
   "items": [
     {
       "title": "佐藤工業のインフラツアー、観光庁「観光需要分散のための地域観光資源の コンテンツ化促進事業」に採択されました",
-      "date": "2026年11月10日",
-      "category": "",
+      "date": "2026年11月11日",
+      "category": "トピックス",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=428"
     },
     {
       "title": "第34回土木施工技術報告会を開催",
-      "date": "2026年11月08日",
-      "category": "",
+      "date": "2026年11月09日",
+      "category": "トピックス",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=431"
     },
     {
       "title": "内閣官房水循環政策本部が定める『水循環ACTIVE企業』に 認証されました",
-      "date": "2026年11月08日",
-      "category": "",
+      "date": "2026年11月09日",
+      "category": "トピックス",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=430"
     }
   ]
