@@ -1,8 +1,14 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
   "source": "https://www.satokogyo.co.jp/news/",
-  "fetchedAt": "2026-11-16T07:46:43.124Z",
+  "fetchedAt": "2026-11-17T01:58:30.068Z",
   "items": [
+    {
+      "title": "佐藤工業のインフラツアー、鬼怒川上流ダム群の見学ツアーを催行しました",
+      "date": "2026年11月17日",
+      "category": "トピックス",
+      "url": "https://www.satokogyo.co.jp/news/detail.php?id=433"
+    },
     {
       "title": "佐藤工業のインフラツアー、観光庁「観光需要分散のための地域観光資源の コンテンツ化促進事業」に採択されました",
       "date": "2026年11月11日",
@@ -14,12 +20,6 @@
       "date": "2026年11月09日",
       "category": "トピックス",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=431"
-    },
-    {
-      "title": "内閣官房水循環政策本部が定める『水循環ACTIVE企業』に 認証されました",
-      "date": "2026年11月09日",
-      "category": "トピックス",
-      "url": "https://www.satokogyo.co.jp/news/detail.php?id=430"
     }
   ]
 }
