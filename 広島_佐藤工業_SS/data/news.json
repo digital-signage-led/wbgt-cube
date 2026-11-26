@@ -1,8 +1,14 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
   "source": "https://www.satokogyo.co.jp/news/",
-  "fetchedAt": "2026-11-17T01:58:30.068Z",
+  "fetchedAt": "2026-11-26T07:41:19.908Z",
   "items": [
+    {
+      "title": "『とやま佐藤の森』で企業の森づくり活動を実施",
+      "date": "2026年11月26日",
+      "category": "トピックス",
+      "url": "https://www.satokogyo.co.jp/news/detail.php?id=434"
+    },
     {
       "title": "佐藤工業のインフラツアー、鬼怒川上流ダム群の見学ツアーを催行しました",
       "date": "2026年11月17日",
@@ -14,12 +20,6 @@
       "date": "2026年11月11日",
       "category": "トピックス",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=428"
-    },
-    {
-      "title": "第34回土木施工技術報告会を開催",
-      "date": "2026年11月09日",
-      "category": "トピックス",
-      "url": "https://www.satokogyo.co.jp/news/detail.php?id=431"
     }
   ]
 }
