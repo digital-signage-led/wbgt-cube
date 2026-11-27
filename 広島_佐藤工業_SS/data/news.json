@@ -1,8 +1,14 @@
 {
   "homepage": "https://www.satokogyo.co.jp/",
   "source": "https://www.satokogyo.co.jp/news/",
-  "fetchedAt": "2026-11-26T07:41:19.908Z",
+  "fetchedAt": "2026-11-27T10:41:02.773Z",
   "items": [
+    {
+      "title": "『社会環境報告書2026』を発行しました",
+      "date": "2026年11月27日",
+      "category": "お知らせ",
+      "url": "https://www.satokogyo.co.jp/news/detail.php?id=435"
+    },
     {
       "title": "『とやま佐藤の森』で企業の森づくり活動を実施",
       "date": "2026年11月26日",
@@ -14,12 +20,6 @@
       "date": "2026年11月17日",
       "category": "トピックス",
       "url": "https://www.satokogyo.co.jp/news/detail.php?id=433"
-    },
-    {
-      "title": "佐藤工業のインフラツアー、観光庁「観光需要分散のための地域観光資源の コンテンツ化促進事業」に採択されました",
-      "date": "2026年11月11日",
-      "category": "トピックス",
-      "url": "https://www.satokogyo.co.jp/news/detail.php?id=428"
     }
   ]
 }
